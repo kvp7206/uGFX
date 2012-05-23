@@ -8,7 +8,7 @@ static __inline void lcdWriteIndex(uint16_t index) {
 	Clr_Rs;
 	Set_nRd;
   
-	palWritePort(LCD_PORT, index);
+	LCD_DATA_PORT->ODR = index;
 
 	Clr_nWr;
 	Set_nWr;
@@ -17,7 +17,7 @@ static __inline void lcdWriteIndex(uint16_t index) {
 static __inline void lcdWriteData(uint16_t data) {
 	Set_Rs;
 
-	palWritePort(LCD_PORT, data);
+	LCD_DATA_PORT->ODR = data;
 
 	Clr_nWr;
 	Set_nWr;
@@ -31,15 +31,15 @@ static __inline uint16_t lcdReadData(void) {
 	Clr_nRd;
 
   	// change pin mode to digital input
-	LCD_PORT->CRH = 0x44444444;
-	LCD_PORT->CRL = 0x44444444;
+	LCD_DATA_PORT->CRH = 0x44444444;
+	LCD_DATA_PORT->CRL = 0x44444444;
 	
-	value = LCD_PORT->IDR;
-	value = LCD_PORT->IDR;
+	value = LCD_DATA_PORT->IDR;
+	value = LCD_DATA_PORT->IDR;
 
 	// change pin mode back to digital output
-	LCD_PORT->CRH = 0x33333333;
-	LCD_PORT->CRL = 0x33333333;
+	LCD_DATA_PORT->CRH = 0x33333333;
+	LCD_DATA_PORT->CRL = 0x33333333;
 
 	Set_nRd;
 
