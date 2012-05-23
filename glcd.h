@@ -7,14 +7,14 @@
 #define SCREEN_WIDTH	320
 #define SCREEN_HEIGHT	240
 
-#define Set_Cs		palSetPad(GPIOD, GPIOD_LCD_CS);
-#define Clr_Cs		palClearPad(GPIOD, GPIOD_LCD_CS);
-#define Set_Rs		palSetPad(GPIOD, GPIOD_LCD_RS);
-#define Clr_Rs		palClearPad(GPIOD, GPIOD_LCD_RS);
-#define Set_nWr		palSetPad(GPIOD, GPIOD_LCD_WR);
-#define Clr_nWr		palClearPad(GPIOD, GPIOD_LCD_WR);
-#define Set_nRd		palSetPad(GPIOD, GPIOD_LCD_RD);
-#define Clr_nRd		palClearPad(GPIOD, GPIOD_LCD_RD);
+#define Set_Cs        LCD_PORT->ODR  |= ( 1<<12 );
+#define Clr_Cs        LCD_PORT->ODR  &= ~( 1<<12 );
+#define Set_Rs        LCD_PORT->ODR  |= ( 1<<13 );
+#define Clr_Rs        LCD_PORT->ODR  &= ~( 1<<13 );
+#define Set_nWr       LCD_PORT->ODR  |= ( 1<<14 );
+#define Clr_nWr       LCD_PORT->ODR  &= ~( 1<<14 );
+#define Set_nRd       LCD_PORT->ODR  |= ( 1<<15 );
+#define Clr_nRd       LCD_PORT->ODR  &= ~( 1<<15 );
 
 /* LCD color */
 #define White          0xFFFF
