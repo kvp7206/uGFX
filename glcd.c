@@ -5,30 +5,30 @@
 static uint16_t DeviceCode;
 
 static __inline void lcdWriteIndex(uint16_t index) {
-	Clr_Rs;
-	Set_nRd;
+	Clr_RS;
+	Set_RD;
   
 	LCD_DATA_PORT->ODR = index;
 
-	Clr_nWr;
-	Set_nWr;
+	Clr_WR;
+	Set_WR;
 }
 
 static __inline void lcdWriteData(uint16_t data) {
-	Set_Rs;
+	Set_RS;
 
 	LCD_DATA_PORT->ODR = data;
 
-	Clr_nWr;
-	Set_nWr;
+	Clr_WR;
+	Set_WR;
 }
 
 static __inline uint16_t lcdReadData(void) { 
 	uint16_t value;
 
-	Set_Rs;
-	Set_nWr;
-	Clr_nRd;
+	Set_RS;
+	Set_WR;
+	Clr_RD;
 
   	// change pin mode to digital input
 	LCD_DATA_PORT->CRH = 0x44444444;
@@ -41,25 +41,25 @@ static __inline uint16_t lcdReadData(void) {
 	LCD_DATA_PORT->CRH = 0x33333333;
 	LCD_DATA_PORT->CRL = 0x33333333;
 
-	Set_nRd;
+	Set_RD;
 
 	return value;
 }
 
 static __inline void lcdWriteReg(uint16_t lcdReg,uint16_t lcdRegValue) { 
-	Clr_Cs;
+	Clr_CS;
 	lcdWriteIndex(lcdReg);         
 	lcdWriteData(lcdRegValue);  
-	Set_Cs; 
+	Set_CS; 
 }
 
 static __inline uint16_t lcdReadReg(uint16_t lcdReg) {
 	uint16_t lcdRAM;
 
-	Clr_Cs;
+	Clr_CS;
 	lcdWriteIndex(lcdReg);
 	lcdRAM = lcdReadData();      	
-	Set_Cs;
+	Set_CS;
 
 	return lcdRAM;
 }
@@ -102,24 +102,24 @@ void lcdSetWindows(uint16_t xStart,uint16_t yStart,uint16_t xLong,uint16_t yLong
 void lcdClear(uint16_t Color) {
   uint32_t index=0;
   lcdSetCursor(0,0); 
-  Clr_Cs; 
+  Clr_CS; 
   lcdWriteIndex(0x0022);
   for(index=0;index<76800;index++)
   {
      lcdWriteData(Color);
   }
-  Set_Cs;
+  Set_CS;
 }
 
 uint16_t lcdGetPoint(uint16_t Xpos,uint16_t Ypos) {
   u16 dummy;
 
   lcdSetCursor(Xpos,Ypos);
-  Clr_Cs;
+  Clr_CS;
   lcdWriteIndex(0x0022);  
   dummy = lcdReadData();
   dummy = lcdReadData(); 	
-  Set_Cs;
+  Set_CS;
 
   if( DeviceCode==0x7783 || DeviceCode==0x4531 || DeviceCode==0x8989 )
     return dummy;
@@ -261,11 +261,11 @@ void lcdFillArea2(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t c
 
 	lcdSetWindows(x0, y0, x1, y1);
 	lcdSetCursor(x0, x1);
-	Clr_Cs;
+	Clr_CS;
 	lcdWriteIndex(0x0022);
 	for(index = 0; index < area; index++)
 		lcdWriteData(color);
-	Set_Cs;
+	Set_CS;
 }
 
 void lcdDrawRect(uint8_t x0, uint16_t y0, uint8_t x1, uint16_t y1, uint8_t filled, uint16_t color) {

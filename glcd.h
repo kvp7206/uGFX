@@ -7,14 +7,14 @@
 #define SCREEN_WIDTH	320
 #define SCREEN_HEIGHT	240
 
-#define Set_Cs        LCD_CMD_PORT->ODR  |= (1 << GPIOD_LCD_CS);
-#define Clr_Cs        LCD_CMD_PORT->ODR  &= ~(1 << GPIOD_LCD_CS);
-#define Set_Rs        LCD_CMD_PORT->ODR  |= (1 << GPIOD_LCD_RS);
-#define Clr_Rs        LCD_CMD_PORT->ODR  &= ~(1 << GPIOD_LCD_RS);
-#define Set_nWr       LCD_CMD_PORT->ODR  |= (1 << GPIOD_LCD_WR);
-#define Clr_nWr       LCD_CMD_PORT->ODR  &= ~(1 << GPIOD_LCD_WR);
-#define Set_nRd       LCD_CMD_PORT->ODR  |= (1 << GPIOD_LCD_RD);
-#define Clr_nRd       LCD_CMD_PORT->ODR  &= ~(1 << GPIOD_LCD_RD);
+#define Set_CS			LCD_CMD_PORT->ODR  |= (1 << GPIOD_LCD_CS);
+#define Clr_CS			LCD_CMD_PORT->ODR  &= ~(1 << GPIOD_LCD_CS);
+#define Set_RS			LCD_CMD_PORT->ODR  |= (1 << GPIOD_LCD_RS);
+#define Clr_RS			LCD_CMD_PORT->ODR  &= ~(1 << GPIOD_LCD_RS);
+#define Set_WR			LCD_CMD_PORT->ODR  |= (1 << GPIOD_LCD_WR);
+#define Clr_WR			LCD_CMD_PORT->ODR  &= ~(1 << GPIOD_LCD_WR);
+#define Set_RD			LCD_CMD_PORT->ODR  |= (1 << GPIOD_LCD_RD);
+#define Clr_RD			LCD_CMD_PORT->ODR  &= ~(1 << GPIOD_LCD_RD);
 
 /* LCD color */
 #define White          0xFFFF
