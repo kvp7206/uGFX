@@ -1,20 +1,29 @@
 #ifndef GLCD_H
 #define GLCD_H
 
-#include "ch.h"
-#include "hal.h"
+#include <ch.h>			// types
+#include <hal.h>
 
 #define SCREEN_WIDTH	320
 #define SCREEN_HEIGHT	240
 
-#define Set_CS			LCD_CMD_PORT->ODR  |= (1 << GPIOD_LCD_CS);
-#define Clr_CS			LCD_CMD_PORT->ODR  &= ~(1 << GPIOD_LCD_CS);
-#define Set_RS			LCD_CMD_PORT->ODR  |= (1 << GPIOD_LCD_RS);
-#define Clr_RS			LCD_CMD_PORT->ODR  &= ~(1 << GPIOD_LCD_RS);
-#define Set_WR			LCD_CMD_PORT->ODR  |= (1 << GPIOD_LCD_WR);
-#define Clr_WR			LCD_CMD_PORT->ODR  &= ~(1 << GPIOD_LCD_WR);
-#define Set_RD			LCD_CMD_PORT->ODR  |= (1 << GPIOD_LCD_RD);
-#define Clr_RD			LCD_CMD_PORT->ODR  &= ~(1 << GPIOD_LCD_RD);
+/* uncomment if no board.h file used 
+#define LCD_DATA_PORT       GPIOE
+#define LCD_CMD_PORT        GPIOD
+#define LCD_CS              12
+#define LCD_RS              13
+#define LCD_WR              14
+#define LCD_RD              15
+*/
+
+#define Set_CS			LCD_CMD_PORT->ODR  |= (1 << LCD_CS);
+#define Clr_CS			LCD_CMD_PORT->ODR  &= ~(1 << LCD_CS);
+#define Set_RS			LCD_CMD_PORT->ODR  |= (1 << LCD_RS);
+#define Clr_RS			LCD_CMD_PORT->ODR  &= ~(1 << LCD_RS);
+#define Set_WR			LCD_CMD_PORT->ODR  |= (1 << LCD_WR);
+#define Clr_WR			LCD_CMD_PORT->ODR  &= ~(1 << LCD_WR);
+#define Set_RD			LCD_CMD_PORT->ODR  |= (1 << LCD_RD);
+#define Clr_RD			LCD_CMD_PORT->ODR  &= ~(1 << LCD_RD);
 
 /* LCD color */
 #define White          0xFFFF
