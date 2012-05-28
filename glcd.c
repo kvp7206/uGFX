@@ -147,7 +147,7 @@ void lcdClear(uint16_t color) {
 	Set_CS;
 }
 
-uint16_t lcdGetPoint(uint16_t x,uint16_t y) {
+uint16_t lcdGetPoint(uint16_t x, uint16_t y) {
 	uint16_t dummy;
 
 	lcdSetCursor(x,y);
@@ -163,9 +163,9 @@ uint16_t lcdGetPoint(uint16_t x,uint16_t y) {
 		return lcdBGR2RGB(dummy);
 }
 
-void lcdDrawPixel(uint16_t x,uint16_t y,uint16_t point) {
-	lcdSetCursor(x,y);
-	lcdWriteReg(0x0022,point);
+void lcdDrawPixel(uint16_t x, uint16_t y, uint16_t point) {
+	lcdSetCursor(x, y);
+	lcdWriteReg(0x0022, point);
 }
 
 void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color) {
@@ -230,9 +230,9 @@ void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t co
    }
 }
 
-void lcdChar(unsigned short x,unsigned short y,unsigned char c,unsigned short charcolor,unsigned short bkcolor) {
-  unsigned short i=0;
-  unsigned short j=0;
+void lcdChar(uint16_t x, uint16_t y, unsigned char c, uint16_t charcolor, uint16_t bkcolor) {
+  uint16_t i = 0;
+  uint16_t j = 0;
   unsigned char buffer[16];
   unsigned char tmp_char=0;
   GetASCIICode(buffer,c);
@@ -253,7 +253,7 @@ void lcdChar(unsigned short x,unsigned short y,unsigned char c,unsigned short ch
   }
 }
 
-void lcdString(uint16_t x, uint16_t y, uint8_t *str,uint16_t color, uint16_t bkcolor) {
+void lcdString(uint16_t x, uint16_t y, uint8_t *str, uint16_t color, uint16_t bkcolor) {
 	uint8_t TempChar;
 
 	do {
@@ -305,8 +305,8 @@ void lcdFillArea2(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t c
 	Set_CS;
 }
 
-void lcdDrawRect(uint8_t x0, uint16_t y0, uint8_t x1, uint16_t y1, uint8_t filled, uint16_t color) {
-	uint8_t i,TempX;
+void lcdDrawRect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t filled, uint16_t color) {
+	uint16_t i, TempX;
 	uint16_t j, TempY;
 
 	if (x0 > x1) {
@@ -331,7 +331,7 @@ void lcdDrawRect(uint8_t x0, uint16_t y0, uint8_t x1, uint16_t y1, uint8_t fille
 	}
 }
 
-void lcdDrawCircle(uint8_t x, uint16_t y, uint16_t radius, uint8_t filled, uint16_t color) {
+void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint16_t color) {
 	int16_t a, b, P;
 	a = 0;
 	b = radius;
