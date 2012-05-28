@@ -40,16 +40,16 @@ void lcdInit(void);
 void lcdClear(uint16_t color);
 void lcdTest(void);
 uint16_t lcdBGR2RGB(uint16_t color);
-uint16_t lcdGetPoint(uint16_t Xpos,uint16_t Ypos);
-void lcdSetOrientation(uint8_t orientation);
-void lcdDrawPixel(uint16_t Xpos,uint16_t Ypos,uint16_t point);
+uint16_t lcdGetPoint(uint16_t x,uint16_t y);
+void lcdSetOrientation(uint8_t newOrientation);
+void lcdDrawPixel(uint16_t x,uint16_t y,uint16_t point);
 void lcdDrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
 void lcdDrawRect(uint8_t x0, uint16_t y0, uint8_t x1, uint16_t y1, uint8_t filled, uint16_t color);
 void lcdDrawCircle(uint8_t x, uint16_t y, uint16_t radius, uint8_t filled, uint16_t color);
 void lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
 void lcdFillArea2(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
 void lcdSetWindows(uint16_t xStart,uint16_t yStart,uint16_t xLong,uint16_t yLong);
-void lcdString(uint16_t Xpos, uint16_t Ypos, uint8_t *str,uint16_t color, uint16_t bkcolor);
-void lcdChar(unsigned short Xpos,unsigned short Ypos,unsigned char c,unsigned short charcolor,unsigned short bkcolor);
+void lcdString(uint16_t x, uint16_t y, uint8_t *str,uint16_t color, uint16_t bkcolor);
+void lcdChar(unsigned short x,unsigned short y,unsigned char c,unsigned short charcolor,unsigned short bkcolor);
 
 #endif

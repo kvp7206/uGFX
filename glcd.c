@@ -68,22 +68,23 @@ uint16_t lcdReadReg(uint16_t lcdReg) {
 	return lcdRAM;
 }
 
-static void lcdSetCursor(uint16_t Xpos,uint16_t Ypos) {
-  if(DeviceCode==0x8989)
-  {
-	lcdWriteReg(0x004e,Xpos);
-    lcdWriteReg(0x004f,Ypos);
-  }
-  else if(DeviceCode==0x9919)
-  {
-    lcdWriteReg(0x004e,Xpos);
-    lcdWriteReg(0x004f,Ypos); 
-  }
-  else
-  {
-    lcdWriteReg(0x0020,Xpos);
-    lcdWriteReg(0x0021,Ypos); 
-  }
+static void lcdSetCursor(uint16_t x, uint16_t y) {
+	if(DeviceCode==0x8989) {
+		if(orientation == 0) {
+			lcdWriteReg(0x004e, x);
+	    	lcdWriteReg(0x004f, y);
+		} else if(orientation == 1) {
+			lcdWriteReg(0x004e, y);
+			lcdWriteReg(0x004f, x);
+		}
+	}
+	else if(DeviceCode==0x9919) {
+		lcdWriteReg(0x004e,x);
+		lcdWriteReg(0x004f,y); 
+	} else {
+		lcdWriteReg(0x0020,x);
+		lcdWriteReg(0x0021,y); 
+	}
 }
 
 static void lcdDelay(uint16_t nCount) {
@@ -94,8 +95,23 @@ static void lcdDelay(uint16_t nCount) {
 	}
 }
 
-void lcdSetOrientation(uint8_t orientation) {
-	orientation = orientation;
+void lcdSetOrientation(uint8_t newOrientation) {
+	orientation = newOrientation;
+
+	switch(orientation) {
+		case 0:
+			lcdWriteReg(0x0001, 0x2B3F); 
+			lcdWriteReg(0x0011, 0x6070);
+			break;
+		case 1:
+			lcdWriteReg(0x0001, 0x293F);
+			lcdWriteReg(0x0011, 0x6078);
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+	}
 }
 
 void lcdSetWindows(uint16_t xStart,uint16_t yStart,uint16_t xLong,uint16_t yLong) {
@@ -117,10 +133,10 @@ void lcdClear(uint16_t color) {
 	Set_CS;
 }
 
-uint16_t lcdGetPoint(uint16_t Xpos,uint16_t Ypos) {
+uint16_t lcdGetPoint(uint16_t x,uint16_t y) {
   u16 dummy;
 
-  lcdSetCursor(Xpos,Ypos);
+  lcdSetCursor(x,y);
   Clr_CS;
   lcdWriteIndex(0x0022);  
   dummy = lcdReadData();
@@ -133,8 +149,8 @@ uint16_t lcdGetPoint(uint16_t Xpos,uint16_t Ypos) {
     return lcdBGR2RGB( dummy );
 }
 
-void lcdDrawPixel(uint16_t Xpos,uint16_t Ypos,uint16_t point) {
-  lcdSetCursor(Xpos,Ypos);
+void lcdDrawPixel(uint16_t x,uint16_t y,uint16_t point) {
+  lcdSetCursor(x,y);
   lcdWriteReg(0x0022,point);
 }
 
@@ -200,7 +216,7 @@ void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t co
    }
 }
 
-void lcdChar(unsigned short Xpos,unsigned short Ypos,unsigned char c,unsigned short charcolor,unsigned short bkcolor) {
+void lcdChar(unsigned short x,unsigned short y,unsigned char c,unsigned short charcolor,unsigned short bkcolor) {
   unsigned short i=0;
   unsigned short j=0;
   unsigned char buffer[16];
@@ -213,30 +229,30 @@ void lcdChar(unsigned short Xpos,unsigned short Ypos,unsigned char c,unsigned sh
     {
       if (((tmp_char >> (7-j)) & 0x01) == 0x01)
         {
-          lcdDrawPixel(Xpos+j,Ypos+i,charcolor);
+          lcdDrawPixel(x+j,y+i,charcolor);
         }
         else
         {
-          lcdDrawPixel(Xpos+j,Ypos+i,bkcolor);
+          lcdDrawPixel(x+j,y+i,bkcolor);
         }
     }
   }
 }
 
-void lcdString(uint16_t Xpos, uint16_t Ypos, uint8_t *str,uint16_t color, uint16_t bkcolor) {
+void lcdString(uint16_t x, uint16_t y, uint8_t *str,uint16_t color, uint16_t bkcolor) {
 	uint8_t TempChar;
 
 	do {
 		TempChar=*str++;  
-		lcdChar(Xpos,Ypos,TempChar,color,bkcolor);    
-		if (Xpos<232) {
-			Xpos+=8;
-		} else if (Ypos<304) {
-			Xpos=0;
-			Ypos+=16;
+		lcdChar(x,y,TempChar,color,bkcolor);    
+		if (x<232) {
+			x+=8;
+		} else if (y<304) {
+			x=0;
+			y+=16;
 		} else {
-			Xpos=0;
-			Ypos=0;
+			x=0;
+			y=0;
 		}    
 	} while (*str!=0);
 }
