@@ -54,7 +54,7 @@ static __inline void lcdWriteReg(uint16_t lcdReg,uint16_t lcdRegValue) {
 	Set_CS; 
 }
 
-uint16_t lcdReadReg(uint16_t lcdReg) {
+static __inline uint16_t lcdReadReg(uint16_t lcdReg) {
 	uint16_t lcdRAM;
 
 	Clr_CS;

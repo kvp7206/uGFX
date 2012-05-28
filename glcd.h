@@ -44,7 +44,6 @@
 
 enum orientation {portrait = 0, landscape = 1};
 
-uint16_t lcdReadReg(uint16_t reg);
 void lcdInit(void);
 void lcdClear(uint16_t color);
 void lcdTest(void);
