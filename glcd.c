@@ -170,11 +170,11 @@ void lcdDrawPixel(uint16_t x,uint16_t y,uint16_t point) {
 
 void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color) {
    int16_t dy, dx;
-   int8_t  addx=1, addy=1;
+   int16_t  addx=1, addy=1;
    int16_t P, diff;
 
    int16_t i=0;
-   dx = abs((int8_t)(x2 - x1));
+   dx = abs((int16_t)(x2 - x1));
    dy = abs((int16_t)(y2 - y1));
 
    if(x1 > x2)
