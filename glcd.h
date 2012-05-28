@@ -33,7 +33,7 @@
 (( green >> 2 ) << 5  ) | \
 ( blue  >> 3 ))
 
-enum orientation { Portrait = 0, Landscape = 1 };
+enum orientation {portrait = 0, landscape = 1};
 
 uint16_t lcdReadReg(uint16_t reg);
 void lcdInit(void);

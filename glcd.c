@@ -2,8 +2,6 @@
 #include "fonts.h"
 #include <math.h>
 
-#define LANDSCAPE 1
-
 static uint8_t orientation;
 static uint16_t DeviceCode, temp;
 
@@ -70,10 +68,10 @@ uint16_t lcdReadReg(uint16_t lcdReg) {
 
 static void lcdSetCursor(uint16_t x, uint16_t y) {
 	if(DeviceCode==0x8989) {
-		if(orientation == 0) {
+		if(orientation == portrait) {
 			lcdWriteReg(0x004e, x);
 	    	lcdWriteReg(0x004f, y);
-		} else if(orientation == 1) {
+		} else if(orientation == landscape) {
 			lcdWriteReg(0x004e, y);
 			lcdWriteReg(0x004f, x);
 		}
@@ -89,6 +87,7 @@ static void lcdSetCursor(uint16_t x, uint16_t y) {
 
 static void lcdDelay(uint16_t nCount) {
 	uint16_t TimingDelay; 
+	
 	while(nCount--) {
 		for(TimingDelay=0;TimingDelay<10000;TimingDelay++)
 			asm("nop");
@@ -99,11 +98,11 @@ void lcdSetOrientation(uint8_t newOrientation) {
 	orientation = newOrientation;
 
 	switch(orientation) {
-		case 0:
+		case portrait:
 			lcdWriteReg(0x0001, 0x2B3F); 
 			lcdWriteReg(0x0011, 0x6070);
 			break;
-		case 1:
+		case landscape:
 			lcdWriteReg(0x0001, 0x293F);
 			lcdWriteReg(0x0011, 0x6078);
 			break;
@@ -114,12 +113,22 @@ void lcdSetOrientation(uint8_t newOrientation) {
 	}
 }
 
-void lcdSetWindows(uint16_t xStart,uint16_t yStart,uint16_t xLong,uint16_t yLong) {
-	lcdSetCursor(xStart,yStart); 
-	lcdWriteReg(0x0050,xStart);         
-	lcdWriteReg(0x0051,xStart+xLong-1);
-	lcdWriteReg(0x0052,yStart);       
-	lcdWriteReg(0x0053,yStart+yLong-1); 
+void lcdSetWindows(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
+	if(orientation == portrait) {
+		lcdWriteReg(0x0050, x);                    /* Horizontal GRAM Start Address      */
+		lcdWriteReg(0x0051, x+width-1);                /* Horizontal GRAM End   Address (-1) */
+		lcdWriteReg(0x0052, y);                    /* Vertical   GRAM Start Address      */
+		lcdWriteReg(0x0053, y+height-1);                /* Vertical   GRAM End   Address (-1) */
+		lcdWriteReg(0x0020, x);
+		lcdWriteReg(0x0021, y);
+	} else if(orientation == landscape) {
+		lcdWriteReg(0x0050, y);                    /* Vertical   GRAM Start Address      */
+		lcdWriteReg(0x0051, y+height-1);                /* Vertical   GRAM End   Address (-1) */
+		lcdWriteReg(0x0052, x);                    /* Horizontal GRAM Start Address      */
+		lcdWriteReg(0x0053, x+width-1);                /* Horizontal GRAM End   Address (-1) */
+		lcdWriteReg(0x0020, y);
+		lcdWriteReg(0x0021, x);
+	}
 }
 
 void lcdClear(uint16_t color) {
@@ -134,24 +143,24 @@ void lcdClear(uint16_t color) {
 }
 
 uint16_t lcdGetPoint(uint16_t x,uint16_t y) {
-  u16 dummy;
+	uint16_t dummy;
 
-  lcdSetCursor(x,y);
-  Clr_CS;
-  lcdWriteIndex(0x0022);  
-  dummy = lcdReadData();
-  dummy = lcdReadData(); 	
-  Set_CS;
+	lcdSetCursor(x,y);
+	Clr_CS;
+	lcdWriteIndex(0x0022);  
+	dummy = lcdReadData();
+	dummy = lcdReadData(); 	
+	Set_CS;
 
-  if( DeviceCode==0x7783 || DeviceCode==0x4531 || DeviceCode==0x8989 )
-    return dummy;
-  else
-    return lcdBGR2RGB( dummy );
+	if( DeviceCode==0x7783 || DeviceCode==0x4531 || DeviceCode==0x8989 )
+		return dummy;
+	else
+		return lcdBGR2RGB(dummy);
 }
 
 void lcdDrawPixel(uint16_t x,uint16_t y,uint16_t point) {
-  lcdSetCursor(x,y);
-  lcdWriteReg(0x0022,point);
+	lcdSetCursor(x,y);
+	lcdWriteReg(0x0022,point);
 }
 
 void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color) {
@@ -283,6 +292,7 @@ void lcdFillArea2(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t c
 
 	lcdSetWindows(x0, y0, x1, y1);
 	lcdSetCursor(x0, x1);
+	
 	Clr_CS;
 	lcdWriteIndex(0x0022);
 	for(index = 0; index < area; index++)
