@@ -2,7 +2,10 @@
 #include "fonts.h"
 #include <math.h>
 
-static uint16_t DeviceCode;
+#define LANDSCAPE 1
+
+static uint8_t orientation;
+static uint16_t DeviceCode, temp;
 
 static __inline void lcdWriteIndex(uint16_t index) {
 	Clr_RS;
@@ -34,7 +37,7 @@ static __inline uint16_t lcdReadData(void) {
 	LCD_DATA_PORT->CRH = 0x44444444;
 	LCD_DATA_PORT->CRL = 0x44444444;
 	
-	value = LCD_DATA_PORT->IDR;
+	value = LCD_DATA_PORT->IDR; // dummy
 	value = LCD_DATA_PORT->IDR;
 
 	// change pin mode back to digital output
@@ -53,12 +56,13 @@ static __inline void lcdWriteReg(uint16_t lcdReg,uint16_t lcdRegValue) {
 	Set_CS; 
 }
 
-static __inline uint16_t lcdReadReg(uint16_t lcdReg) {
+uint16_t lcdReadReg(uint16_t lcdReg) {
 	uint16_t lcdRAM;
 
 	Clr_CS;
 	lcdWriteIndex(lcdReg);
-	lcdRAM = lcdReadData();      	
+	lcdRAM = lcdReadData();
+	      	
 	Set_CS;
 
 	return lcdRAM;
@@ -83,32 +87,34 @@ static void lcdSetCursor(uint16_t Xpos,uint16_t Ypos) {
 }
 
 static void lcdDelay(uint16_t nCount) {
- uint16_t TimingDelay; 
- while(nCount--)
-   {
-    for(TimingDelay=0;TimingDelay<10000;TimingDelay++);
-   }
+	uint16_t TimingDelay; 
+	while(nCount--) {
+		for(TimingDelay=0;TimingDelay<10000;TimingDelay++)
+			asm("nop");
+	}
 }
 
+void lcdSetOrientation(uint8_t orientation) {
+	orientation = orientation;
+}
 
 void lcdSetWindows(uint16_t xStart,uint16_t yStart,uint16_t xLong,uint16_t yLong) {
-  lcdSetCursor(xStart,yStart); 
-  lcdWriteReg(0x0050,xStart);         
-  lcdWriteReg(0x0051,xStart+xLong-1);
-  lcdWriteReg(0x0052,yStart);       
-  lcdWriteReg(0x0053,yStart+yLong-1); 
+	lcdSetCursor(xStart,yStart); 
+	lcdWriteReg(0x0050,xStart);         
+	lcdWriteReg(0x0051,xStart+xLong-1);
+	lcdWriteReg(0x0052,yStart);       
+	lcdWriteReg(0x0053,yStart+yLong-1); 
 }
 
-void lcdClear(uint16_t Color) {
-  uint32_t index=0;
-  lcdSetCursor(0,0); 
-  Clr_CS; 
-  lcdWriteIndex(0x0022);
-  for(index=0;index<76800;index++)
-  {
-     lcdWriteData(Color);
-  }
-  Set_CS;
+void lcdClear(uint16_t color) {
+	uint32_t index=0;
+
+	lcdSetCursor(0,0); 
+	Clr_CS; 
+	lcdWriteIndex(0x0022);
+	for(index=0;index<76800;index++)
+		lcdWriteData(color);
+	Set_CS;
 }
 
 uint16_t lcdGetPoint(uint16_t Xpos,uint16_t Ypos) {
@@ -194,7 +200,7 @@ void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t co
    }
 }
 
-void lcdChar(unsigned short Xpos,unsigned short Ypos,unsigned char c,unsigned short charColor,unsigned short bkColor) {
+void lcdChar(unsigned short Xpos,unsigned short Ypos,unsigned char c,unsigned short charcolor,unsigned short bkcolor) {
   unsigned short i=0;
   unsigned short j=0;
   unsigned char buffer[16];
@@ -207,22 +213,22 @@ void lcdChar(unsigned short Xpos,unsigned short Ypos,unsigned char c,unsigned sh
     {
       if (((tmp_char >> (7-j)) & 0x01) == 0x01)
         {
-          lcdDrawPixel(Xpos+j,Ypos+i,charColor);
+          lcdDrawPixel(Xpos+j,Ypos+i,charcolor);
         }
         else
         {
-          lcdDrawPixel(Xpos+j,Ypos+i,bkColor);
+          lcdDrawPixel(Xpos+j,Ypos+i,bkcolor);
         }
     }
   }
 }
 
-void lcdString(uint16_t Xpos, uint16_t Ypos, uint8_t *str,uint16_t Color, uint16_t bkColor) {
+void lcdString(uint16_t Xpos, uint16_t Ypos, uint8_t *str,uint16_t color, uint16_t bkcolor) {
 	uint8_t TempChar;
 
 	do {
 		TempChar=*str++;  
-		lcdChar(Xpos,Ypos,TempChar,Color,bkColor);    
+		lcdChar(Xpos,Ypos,TempChar,color,bkcolor);    
 		if (Xpos<232) {
 			Xpos+=8;
 		} else if (Ypos<304) {
@@ -340,7 +346,7 @@ void lcdTest(void) {
 }
 
 void lcdInit() {
-  lcdDelay(5);  
+  lcdDelay(5);
   DeviceCode = lcdReadReg(0x0000);
   if(DeviceCode==0x9325 || DeviceCode==0x9328)
   {
@@ -631,8 +637,8 @@ void lcdInit() {
     lcdWriteReg(0x000C,0x0000);    lcdDelay(5);   
     lcdWriteReg(0x000D,0x080C);    lcdDelay(5);   
     lcdWriteReg(0x000E,0x2B00);    lcdDelay(5);   
-    lcdWriteReg(0x001E,0x00B0);    lcdDelay(5);   
-    lcdWriteReg(0x0001,0x2B3F);    lcdDelay(5);
+    lcdWriteReg(0x001E,0x00B0);    lcdDelay(5);  
+	lcdWriteReg(0x0001,0x2B3F);
     lcdWriteReg(0x0002,0x0600);    lcdDelay(5);
     lcdWriteReg(0x0010,0x0000);    lcdDelay(5);
     lcdWriteReg(0x0011,0x6070);    lcdDelay(5);
