@@ -77,11 +77,16 @@ static void lcdSetCursor(uint16_t x, uint16_t y) {
 		}
 	}
 	else if(DeviceCode==0x9919) {
-		lcdWriteReg(0x004e,x);
-		lcdWriteReg(0x004f,y); 
+		if(orientation == portrait) {
+			lcdWriteReg(0x004e, x);
+			lcdWriteReg(0x004f, y);
+		} else if(orientation == landscape) {
+			lcdWriteReg(0x004e, y);
+			lcdWriteReg(0x004f, x);
+		}
 	} else {
-		lcdWriteReg(0x0020,x);
-		lcdWriteReg(0x0021,y); 
+		lcdWriteReg(0x0020, x);
+		lcdWriteReg(0x0021, y); 
 	}
 }
 
