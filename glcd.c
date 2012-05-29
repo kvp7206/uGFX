@@ -3,7 +3,7 @@
 #include <math.h>
 
 static uint8_t orientation;
-static uint16_t DeviceCode, temp;
+static uint16_t DeviceCode, lcd_height, lcd_width;
 
 static __inline void lcdWriteIndex(uint16_t index) {
 	Clr_RS;
@@ -106,18 +106,26 @@ void lcdSetOrientation(uint8_t newOrientation) {
 		case portrait:
 			lcdWriteReg(0x0001, 0x2B3F); 
 			lcdWriteReg(0x0011, 0x6070);
+			lcd_height = SCREEN_HEIGHT;
+			lcd_width = SCREEN_WIDTH;
 			break;
 		case landscape:
 			lcdWriteReg(0x0001, 0x293F);
 			lcdWriteReg(0x0011, 0x6078);
+			lcd_height = SCREEN_WIDTH;
+			lcd_width = SCREEN_HEIGHT;
 			break;
 		case portraitInv:
 			lcdWriteReg(0x0001, 0x693F);
 			lcdWriteReg(0x0011, 0x6040);
+			lcd_height = SCREEN_HEIGHT;
+			lcd_width = SCREEN_WIDTH;
 			break;
 		case landscapeInv:
 			lcdWriteReg(0x0001, 0x6B3F);
 			lcdWriteReg(0x0011, 0x6048);
+			lcd_height = SCREEN_WIDTH;
+			lcd_width = SCREEN_HEIGHT;
 			break;
 	}
 }
@@ -370,8 +378,8 @@ void lcdTest(void) {
 	uint8_t y;
 	uint8_t r,g,b;
 
-	for(y = 0; y < SCREEN_HEIGHT; y++) {
-		for(x = 0; x < SCREEN_WIDTH; x++) {
+	for(y = 0; y < lcd_height; y++) {
+		for(x = 0; x < lcd_width; x++) {
 			r = x + y;
 			g = x - y;
 			b = y - x;
