@@ -1,6 +1,10 @@
 ## Features
 
-Supported drawing functions:
+- Uses GPIO - no FSMC interface needed - portable to any controller
+
+
+
+- Supported drawing functions:
 
 	- Pixels
 	- Lines
@@ -9,8 +13,10 @@ Supported drawing functions:
 	- character
 	- string
 
-
-
+ 
+ 
+ 
+ 
 
 # Install
 
