@@ -168,7 +168,7 @@ void lcdClear(uint16_t color) {
 	Set_CS;
 }
 
-uint16_t lcdGetPoint(uint16_t x, uint16_t y) {
+uint16_t lcdGetPixelColor(uint16_t x, uint16_t y) {
 	uint16_t dummy;
 
 	lcdSetCursor(x,y);
