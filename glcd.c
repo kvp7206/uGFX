@@ -4,6 +4,7 @@
 
 static uint8_t orientation;
 static uint16_t DeviceCode;
+static uint8_t font_width = 8, font_height = 16;
 uint16_t lcd_width, lcd_height;
 
 static __inline void lcdWriteIndex(uint16_t index) {
@@ -251,7 +252,7 @@ void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t co
    }
 }
 
-void lcdChar(uint16_t x, uint16_t y, unsigned char c, uint16_t charcolor, uint16_t bkcolor) {
+void lcdDrawChar(uint16_t x, uint16_t y, unsigned char c, uint16_t charcolor, uint16_t bkcolor) {
   uint16_t i = 0;
   uint16_t j = 0;
   unsigned char buffer[16];
@@ -274,12 +275,12 @@ void lcdChar(uint16_t x, uint16_t y, unsigned char c, uint16_t charcolor, uint16
   }
 }
 
-void lcdString(uint16_t x, uint16_t y, uint8_t *str, uint16_t color, uint16_t bkcolor) {
+void lcdDrawString(uint16_t x, uint16_t y, uint8_t *str, uint16_t color, uint16_t bkcolor) {
 	uint8_t TempChar;
 
 	do {
 		TempChar=*str++;  
-		lcdChar(x,y,TempChar,color,bkcolor);    
+		lcdDrawChar(x,y,TempChar,color,bkcolor);    
 		if (x<232) {
 			x+=8;
 		} else if (y<304) {
@@ -306,9 +307,8 @@ uint16_t lcdBGR2RGB(uint16_t color) {
 
 void lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
 	uint16_t i;
- 
-	for(i = y0; i < y1; i++)
-		lcdDrawLine(x0, i, x1, i, color);
+
+	lcdDrawRect(x0, y0, x1, y1, 1, color);
 }
 
 void lcdFillArea2(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
@@ -349,6 +349,18 @@ void lcdDrawRect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t fil
 		lcdDrawLine(x0, y1, x1, y1, color);
 		lcdDrawLine(x0, y0, x0, y1, color);
 		lcdDrawLine(x1, y0, x1, y1, color);
+	}
+}
+
+void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t *str, uint16_t fontColor, uint16_t bkColor) {
+	if(((strlen(str)*8) < (x1-x0)) && ((y1-y0) > font_height)) {
+		uint16_t off_left, off_up;
+
+		off_left = ((x1-x0) - (strlen(str) * font_width)) / 2;
+		off_up = ((y1-y0) - font_height) / 2;
+
+		lcdDrawRect(x0, y0, x1, y1, 1, bkColor);
+		lcdDrawString(x0 + off_left, y0 + off_up, str, fontColor, bkColor);
 	}
 }
 
