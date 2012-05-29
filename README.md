@@ -1,8 +1,12 @@
-## Features
+# Features
 
 - Uses GPIO - no FSMC interface needed - portable to any controller
 
-
+- All four modes are Supported:
+	- Portrait
+	- Landscape
+	- Portrait inverted
+	- Landscape inverted
 
 - Supported drawing functions:
 
