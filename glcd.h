@@ -42,7 +42,7 @@
 (( green >> 2 ) << 5  ) | \
 ( blue  >> 3 ))
 
-enum orientation {portrait = 0, landscape = 1};
+enum orientation {portrait, landscape, portraitInv, landscapeInv};
 
 void lcdInit(void);
 void lcdClear(uint16_t color);

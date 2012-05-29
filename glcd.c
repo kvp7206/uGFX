@@ -68,19 +68,19 @@ static __inline uint16_t lcdReadReg(uint16_t lcdReg) {
 
 static void lcdSetCursor(uint16_t x, uint16_t y) {
 	if(DeviceCode==0x8989) {
-		if(orientation == portrait) {
+		if(orientation == portrait || orientation == portraitInv) {
 			lcdWriteReg(0x004e, x);
 	    	lcdWriteReg(0x004f, y);
-		} else if(orientation == landscape) {
+		} else if(orientation == landscape || orientation == landscapeInv) {
 			lcdWriteReg(0x004e, y);
 			lcdWriteReg(0x004f, x);
 		}
 	}
 	else if(DeviceCode==0x9919) {
-		if(orientation == portrait) {
+		if(orientation == portrait || orientation == portraitInv) {
 			lcdWriteReg(0x004e, x);
 			lcdWriteReg(0x004f, y);
-		} else if(orientation == landscape) {
+		} else if(orientation == landscape || orientation == landscapeInv) {
 			lcdWriteReg(0x004e, y);
 			lcdWriteReg(0x004f, x);
 		}
@@ -94,7 +94,7 @@ static void lcdDelay(uint16_t nCount) {
 	uint16_t TimingDelay; 
 	
 	while(nCount--) {
-		for(TimingDelay=0;TimingDelay<10000;TimingDelay++)
+		for(TimingDelay=0; TimingDelay<10000; TimingDelay++)
 			asm("nop");
 	}
 }
@@ -111,9 +111,13 @@ void lcdSetOrientation(uint8_t newOrientation) {
 			lcdWriteReg(0x0001, 0x293F);
 			lcdWriteReg(0x0011, 0x6078);
 			break;
-		case 2:
+		case portraitInv:
+			lcdWriteReg(0x0001, 0x693F);
+			lcdWriteReg(0x0011, 0x6040);
 			break;
-		case 3:
+		case landscapeInv:
+			lcdWriteReg(0x0001, 0x6B3F);
+			lcdWriteReg(0x0011, 0x6048);
 			break;
 	}
 }
