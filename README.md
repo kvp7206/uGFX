@@ -1,10 +1,24 @@
-Chibios LCD Driver
+## Features
 
-### checkout Driver code into ext/
+Supported drawing functions:
+
+	- Pixels
+	- Lines
+	- Rectanges (frames/filled)
+	- Circles (frames/filled)
+	- character
+	- string
+
+
+
+
+# Install
+
+## checkout Driver code into ext/
 cd chibios/ext
 git clone https://github.com/tectu/Chibios-LCD-Driver lcd
 
-### Edit Makefile:
+## Edit Makefile:
 include lcd.mk:
 	include $(CHIBIOS)/ext/lcd/lcd.mk
 
@@ -27,6 +41,6 @@ Add $(LCDINC) to INCDIR:
 	         $(LCDINC) \
 	         $(CHIBIOS)/os/various ../common
 
-### Use
+## Use
 include glcd.h header file wherever you need it.
 
