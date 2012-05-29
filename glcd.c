@@ -3,7 +3,8 @@
 #include <math.h>
 
 static uint8_t orientation;
-static uint16_t DeviceCode, lcd_height, lcd_width;
+static uint16_t DeviceCode;
+uint16_t lcd_width, lcd_height;
 
 static __inline void lcdWriteIndex(uint16_t index) {
 	Clr_RS;
@@ -64,6 +65,14 @@ static __inline uint16_t lcdReadReg(uint16_t lcdReg) {
 	Set_CS;
 
 	return lcdRAM;
+}
+
+uint16_t lcdGetHeight(void) {
+	return lcd_height;
+}
+
+uint16_t lcdGetWidth(void) {
+	return lcd_width;
 }
 
 static void lcdSetCursor(uint16_t x, uint16_t y) {
