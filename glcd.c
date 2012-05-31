@@ -258,12 +258,6 @@ void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t co
    }
 }
 
-void lcdDrawArrow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
-	lcdDrawLine(x0, y0, x1, y1, color);
-	lcdDrawLine(x1, y1, x1-5, y1+5, color);
-	lcdDrawLine(x1, y1, x1-5, y1-5, color); 
-}
-
 void lcdDrawChar(uint16_t x, uint16_t y, unsigned char c, uint16_t charcolor, uint16_t bkcolor) {
 	uint16_t i = 0;
 	uint16_t j = 0;
