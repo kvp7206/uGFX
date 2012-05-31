@@ -253,44 +253,40 @@ void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t co
 }
 
 void lcdDrawChar(uint16_t x, uint16_t y, unsigned char c, uint16_t charcolor, uint16_t bkcolor) {
-  uint16_t i = 0;
-  uint16_t j = 0;
-  unsigned char buffer[16];
-  unsigned char tmp_char=0;
-  GetASCIICode(buffer,c);
-  for (i=0;i<16;i++)
-  {
-    tmp_char=buffer[i];
-    for (j=0;j<8;j++)
-    {
-      if (((tmp_char >> (7-j)) & 0x01) == 0x01)
-        {
-          lcdDrawPixel(x+j,y+i,charcolor);
-        }
-        else
-        {
-          lcdDrawPixel(x+j,y+i,bkcolor);
-        }
-    }
-  }
+	uint16_t i = 0;
+	uint16_t j = 0;
+	unsigned char buffer[16];
+	unsigned char tmp_char=0;
+
+	GetASCIICode(buffer,c);
+
+	for (i=0;i<16;i++) {
+		tmp_char=buffer[i];
+		for (j=0;j<8;j++) {
+			if (((tmp_char >> (7-j)) & 0x01) == 0x01)
+				lcdDrawPixel(x+j,y+i,charcolor);
+			else
+				lcdDrawPixel(x+j,y+i,bkcolor);
+		}
+	}
 }
 
 void lcdDrawString(uint16_t x, uint16_t y, uint8_t *str, uint16_t color, uint16_t bkcolor) {
 	uint8_t TempChar;
 
 	do {
-		TempChar=*str++;  
+		TempChar = *str++;  
 		lcdDrawChar(x,y,TempChar,color,bkcolor);    
-		if (x<232) {
+		if(x<232) {
 			x+=8;
-		} else if (y<304) {
+		} else if(y<304) {
 			x=0;
 			y+=16;
 		} else {
 			x=0;
 			y=0;
 		}    
-	} while (*str!=0);
+	} while(*str != 0);
 }
 
 uint16_t lcdBGR2RGB(uint16_t color) {
