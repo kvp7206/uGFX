@@ -140,7 +140,7 @@ void lcdSetOrientation(uint8_t newOrientation) {
 	}
 }
 
-void lcdSetWindows(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
+void lcdSetWindow(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
 	if(orientation == portrait) {
 		lcdWriteReg(0x0050, x);                    /* Horizontal GRAM Start Address      */
 		lcdWriteReg(0x0051, x+width-1);                /* Horizontal GRAM End   Address (-1) */
@@ -305,21 +305,6 @@ void lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t co
 	uint16_t i;
 
 	lcdDrawRect(x0, y0, x1, y1, 1, color);
-}
-
-void lcdFillArea2(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
-	uint32_t index, area;
-
-	area = ((x1-x0) * (y1-y0));
-
-	lcdSetWindows(x0, y0, x1, y1);
-	lcdSetCursor(x0, x1);
-	
-	Clr_CS;
-	lcdWriteIndex(0x0022);
-	for(index = 0; index < area; index++)
-		lcdWriteData(color);
-	Set_CS;
 }
 
 void lcdDrawRect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t filled, uint16_t color) {
