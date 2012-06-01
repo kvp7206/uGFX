@@ -69,16 +69,16 @@ static __inline uint16_t lcdReadReg(uint16_t lcdReg) {
 }
 
 uint16_t lcdGetHeight(void) {
-	if(orientation == portrait || orientation == portraitInv)
+	if(PORTRAIT)
 		return lcd_height;
-	else if(orientation == landscape || orientation == landscapeInv)
+	else if(LANDSCAPE)
 		return lcd_width;
 }
 
 uint16_t lcdGetWidth(void) {
-	if(orientation == portrait || orientation == portraitInv)
+	if(PORTRAIT)
 		return lcd_width;
-	else if(orientation == landscape || orientation == landscapeInv)
+	else if(LANDSCAPE)
 		return lcd_height;
 }
 

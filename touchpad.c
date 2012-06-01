@@ -1,4 +1,5 @@
 #include "touchpad.h"
+#include "glcd.h"
 
 static void spicb(SPIDriver *spip);
 static const SPIConfig spicfg = {
@@ -10,18 +11,6 @@ static const SPIConfig spicfg = {
 
 void tpInit(void) {
 	spiStart(&SPID1, &spicfg);	
-}
-
-void tpWriteData(uint8_t data) {
-	uint16_t tx = 0xAA;
-
-	SET_CS(0);
-	spiSend(&SPID1, 1, &tx);
-	SET_CS(1);
-}
-
-uint16_t tpReadData(void) {
-
 }
 
 uint16_t tpReadX(void) {
@@ -37,6 +26,8 @@ uint16_t tpReadX(void) {
 
 	x = rxbuf[0] << 4;
 	x |= rxbuf[1] >> 4;
+	
+	x = (((lcdGetWidth()-1) * x)/2048);
 
 	return x;
 }
@@ -55,6 +46,8 @@ uint16_t tpReadY(void) {
     y = rxbuf[0] << 4;
     y |= rxbuf[1] >> 4;
 
-    return y;
+    y = (((lcdGetHeight()-1) * y)/2048);
+
+	return y;
 }
 
