@@ -4,6 +4,8 @@
 #include "ch.h"
 #include "hal.h"
 
+#define CONVERSIONS 3
+
 #define SET_CS(a)		(TP_PORT->BSRR = 1 << (TP_CS + (a ? 0 : 16)))
 
 void tpInit(void);

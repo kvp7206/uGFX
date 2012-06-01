@@ -69,17 +69,11 @@ static __inline uint16_t lcdReadReg(uint16_t lcdReg) {
 }
 
 uint16_t lcdGetHeight(void) {
-	if(PORTRAIT)
-		return lcd_height;
-	else if(LANDSCAPE)
-		return lcd_width;
+	return lcd_height;
 }
 
 uint16_t lcdGetWidth(void) {
-	if(PORTRAIT)
-		return lcd_width;
-	else if(LANDSCAPE)
-		return lcd_height;
+	return lcd_width;
 }
 
 static void lcdSetCursor(uint16_t x, uint16_t y) {
