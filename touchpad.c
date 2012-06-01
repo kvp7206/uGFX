@@ -18,7 +18,7 @@ static uint16_t readX(void) {
 	uint8_t rxbuf[2];
 	uint16_t x;
 
-	txbuf[0] = 0x90;
+	txbuf[0] = 0xd0;
 	SET_CS(0);
 	spiSend(&SPID1, 1, txbuf);
 	spiReceive(&SPID1, 2, rxbuf);
@@ -35,7 +35,7 @@ static uint16_t readY(void) {
     uint8_t rxbuf[2];
     uint16_t y;
 
-    txbuf[0] = 0xd0;
+    txbuf[0] = 0x90;
     SET_CS(0);
     spiSend(&SPID1, 1, txbuf);
     spiReceive(&SPID1, 2, rxbuf);
@@ -55,7 +55,7 @@ uint16_t tpReadX(void) {
 		results += readX();
 	}
 
-	x = (((lcdGetWidth()-1) * (results/CONVERSIONS)) / 2048);
+	x = (((lcdGetHeight()-1) * (results/CONVERSIONS)) / 2048);
 
 	return x;
 }
@@ -67,7 +67,7 @@ uint16_t tpReadY(void) {
 	for(i=0; i<CONVERSIONS; i++)
 		results += readY();
 
-	y = (((lcdGetHeight()-1) * (results/CONVERSIONS)) / 2048);
+	y = (((lcdGetWidth()-1) * (results/CONVERSIONS)) / 2048);
 
 	return y;
 }
