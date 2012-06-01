@@ -29,16 +29,7 @@ uint16_t tpReadX(void) {
 	
 	x = (((lcdGetWidth()-1) * x)/2048);
 
-	switch(lcdGetOrientation()) {
-		case portrait:
-			break;
-		case portraitInv:
-			break;
-		case landscape:
-			break;
-		case landscapeInv:
-			break;
-	}
+	return x;
 }
 
 uint16_t tpReadY(void) {
