@@ -13,7 +13,7 @@ void tpInit(void) {
 	spiStart(&SPID1, &spicfg);	
 }
 
-static uint16_t readX(void) {
+static __inline uint16_t readX(void) {
 	uint8_t txbuf[1];
 	uint8_t rxbuf[2];
 	uint16_t x;
@@ -30,7 +30,7 @@ static uint16_t readX(void) {
 	return x;
 }
 
-static uint16_t readY(void) {
+static __inline uint16_t readY(void) {
 	uint8_t txbuf[1];
     uint8_t rxbuf[2];
     uint16_t y;
@@ -52,6 +52,7 @@ uint16_t tpReadX(void) {
 	uint16_t i, x;
 
 	for(i=0; i<CONVERSIONS; i++) {
+		readX();	
 		results += readX();
 	}
 
@@ -64,8 +65,10 @@ uint16_t tpReadY(void) {
 	uint32_t results;
 	uint16_t i, y;
 
-	for(i=0; i<CONVERSIONS; i++)
+	for(i=0; i<CONVERSIONS; i++) {
+		readY();
 		results += readY();
+	}
 
 	y = (((lcdGetWidth()-1) * (results/CONVERSIONS)) / 2048);
 
