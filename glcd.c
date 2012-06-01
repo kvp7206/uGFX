@@ -146,6 +146,10 @@ void lcdSetOrientation(uint8_t newOrientation) {
 	}
 }
 
+uint16_t lcdGetOrientation(void) {
+	return orientation;
+}
+
 void lcdSetWindow(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
 	if(orientation == portrait) {
 		lcdWriteReg(0x0050, x);                    /* Horizontal GRAM Start Address      */

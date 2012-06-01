@@ -62,6 +62,7 @@ void lcdDrawString(uint16_t x, uint16_t y, uint8_t *str,uint16_t color, uint16_t
 void lcdDrawChar(uint16_t x, uint16_t y, unsigned char c, uint16_t charcolor, uint16_t bkColor);
 uint16_t lcdGetHeight(void);
 uint16_t lcdGetWidth(void);
+uint16_t lcdGetOrientation(void);
 uint16_t lcdBGR2RGB(uint16_t color);
 uint16_t lcdGetPixelColor(uint16_t x, uint16_t y);
 
