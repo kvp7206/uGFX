@@ -10,6 +10,7 @@
 
 void tpInit(void);
 void tpWriteData(uint8_t data);
+void tpDrawCross(uint16_t x, uint16_t y);
 uint16_t tpReadData(void);
 uint16_t tpReadX(void);
 uint16_t tpReadY(void);
