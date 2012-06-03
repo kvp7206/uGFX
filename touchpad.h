@@ -9,10 +9,9 @@
 #define SET_CS(a)		(TP_PORT->BSRR = 1 << (TP_CS + (a ? 0 : 16)))
 
 void tpInit(void);
-void tpWriteData(uint8_t data);
-void tpDrawCross(uint16_t x, uint16_t y);
-uint16_t tpReadData(void);
+uint8_t tpIRQ(void);
 uint16_t tpReadX(void);
 uint16_t tpReadY(void);
+void tpDrawCross(uint16_t x, uint16_t y);
 
 #endif

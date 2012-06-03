@@ -116,7 +116,7 @@ void tpCalibrate(void) {
 		cal[i][0] = tpReadX();
 		cal[i][1] = tpReadY();
 		while(tpIRQ());
-		lcdDrawRect(cross[i][0]-15, cross[i][1]-15, cross[i][0]+16, cross[i][1]+16, 1, Red);
+		lcdDrawRect(cross[i][0]-15, cross[i][1]-15, cross[i][0]+16, cross[i][1]+16, filled, Red);
 	}
 
 	for(i=0, j=0; i<3; i++) {
