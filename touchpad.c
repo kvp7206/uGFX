@@ -1,7 +1,8 @@
 #include "touchpad.h"
 #include "glcd.h"
 
-static int16_t x_cal, y_cal;
+static struct cal cal;
+static int16_t x_cal = 0, y_cal = 0;
 
 static void spicb(SPIDriver *spip);
 static const SPIConfig spicfg = {
@@ -53,7 +54,7 @@ uint8_t __inline tpIRQ(void) {
 	return (!palReadPad(TP_PORT, TP_IRQ));
 }
 
-uint16_t tpReadX(void) {
+static uint16_t tpReadRealX(void) {
 	uint32_t results = 0;
 	uint16_t i, x;
 
@@ -64,10 +65,10 @@ uint16_t tpReadX(void) {
 
 	x = (((lcdGetHeight()-1) * (results/CONVERSIONS)) / 2048);
 
-	return x + x_cal;
+	return x;
 }
 
-uint16_t tpReadY(void) {
+static uint16_t tpReadRealY(void) {
 	uint32_t results = 0;
 	uint16_t i, y;
 
@@ -78,7 +79,15 @@ uint16_t tpReadY(void) {
 
 	y = (((lcdGetWidth()-1) * (results/CONVERSIONS)) / 2048);
 
-	return y + y_cal;
+	return y;
+}
+
+uint16_t tpReadX(void) {
+	return cal.xm * tpReadRealX() - cal.xn;
+}
+
+uint16_t tpReadY(void) {
+	return cal.ym * tpReadRealY() - cal.yn;
 }
 
 void tpDrawCross(uint16_t x, uint16_t y) {
@@ -101,6 +110,40 @@ void tpDrawCross(uint16_t x, uint16_t y) {
 }
 
 void tpCalibrate(void) {
+	int16_t cross[2][2] = {{40,40}, {200, 280}};
+	int16_t points[2][2];
+	uint8_t i;
+	char buffer[32];
+
+	lcdClear(Red);
+	lcdDrawString(40, 10, "Touchpad Calibration", White, Red);
+
+	for(i=0; i<2; i++) {
+		tpDrawCross(cross[i][0], cross[i][1]);
+		while(!tpIRQ());
+		points[i][0] = tpReadRealX();
+		points[i][1] = tpReadRealY();
+		while(tpIRQ());
+		lcdFillArea(cross[i][0]-15, cross[i][1]-15, cross[i][0]+16, cross[i][1]+16, Red);
+	}
+
+	cal.xm = (cross[1][0] - cross[0][0]) / (points[1][0] - points[0][0]);
+	cal.ym = (cross[1][1] - cross[0][1]) / (points[1][1] - points[0][1]);
+
+	cal.xn = cross[0][0] - cal.xm * points[0][0];
+	cal.yn = cross[0][1] - cal.ym * points[0][1];
+
+	sprintf(buffer, "cal->xm = %d", cal.xm);
+	lcdDrawString(50, 50, buffer, White, Red);
+	sprintf(buffer, "cal->ym = %d", cal.ym);
+	lcdDrawString(50, 70, buffer, White, Red);
+	sprintf(buffer, "cal->xn = %d", cal.xn);
+	lcdDrawString(50, 90, buffer, White, Red);
+	sprintf(buffer, "cal->yn = %d", cal.yn);
+	lcdDrawString(50, 110, buffer, White, Red);
+}
+
+void tpCalibrate2(void) {
 	uint16_t cross[3][2] = {{20,40}, {220,160}, {50,300}};
 	uint16_t cal[3][2];
 	uint8_t i, j;
