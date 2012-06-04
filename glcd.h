@@ -44,7 +44,7 @@
 (uint16_t)( (( red   >> 3 ) << 11 ) | (( green >> 2 ) << 5  ) | ( blue  >> 3 ))
 
 enum orientation {portrait, landscape, portraitInv, landscapeInv};
-enum filles{frame, filled};
+enum filled {frame, filled};
 
 void lcdInit(void);
 void lcdClear(uint16_t color);
