@@ -2,7 +2,6 @@
 #include "glcd.h"
 
 static struct cal cal;
-static int16_t x_cal = 0, y_cal = 0;
 
 static void spicb(SPIDriver *spip);
 static const SPIConfig spicfg = {
@@ -91,27 +90,27 @@ uint16_t tpReadY(void) {
 }
 
 void tpDrawCross(uint16_t x, uint16_t y) {
-	lcdDrawLine(x-15,y,x-2,y,0xffff);
-	lcdDrawLine(x+2,y,x+15,y,0xffff);
-	lcdDrawLine(x,y-15,x,y-2,0xffff);
-	lcdDrawLine(x,y+2,x,y+15,0xffff);
+	lcdDrawLine(x-15, y, x-2, y, 0xffff);
+	lcdDrawLine(x+2, y, x+15, y, 0xffff);
+	lcdDrawLine(x, y-15, x, y-2, 0xffff);
+	lcdDrawLine(x, y+2, x, y+15, 0xffff);
   
-	lcdDrawLine(x-15,y+15,x-7,y+15,RGB565CONVERT(184,158,131));
-	lcdDrawLine(x-15,y+7,x-15,y+15,RGB565CONVERT(184,158,131));
+	lcdDrawLine(x-15, y+15, x-7, y+15, RGB565CONVERT(184, 158, 131));
+	lcdDrawLine(x-15, y+7, x-15, y+15, RGB565CONVERT(184, 158, 131));
 
-	lcdDrawLine(x-15,y-15,x-7,y-15,RGB565CONVERT(184,158,131));
-	lcdDrawLine(x-15,y-7,x-15,y-15,RGB565CONVERT(184,158,131));
+	lcdDrawLine(x-15, y-15, x-7, y-15, RGB565CONVERT(184, 158, 131));
+	lcdDrawLine(x-15, y-7, x-15, y-15, RGB565CONVERT(184, 158, 131));
 
-	lcdDrawLine(x+7,y+15,x+15,y+15,RGB565CONVERT(184,158,131));
-	lcdDrawLine(x+15,y+7,x+15,y+15,RGB565CONVERT(184,158,131));
+	lcdDrawLine(x+7, y+15, x+15, y+15, RGB565CONVERT(184, 158, 131));
+	lcdDrawLine(x+15, y+7, x+15, y+15, RGB565CONVERT(184, 158, 131));
 
-	lcdDrawLine(x+7,y-15,x+15,y-15,RGB565CONVERT(184,158,131));
-	lcdDrawLine(x+15,y-15,x+15,y-7,RGB565CONVERT(184,158,131));    
+	lcdDrawLine(x+7, y-15, x+15, y-15, RGB565CONVERT(184, 158, 131));
+	lcdDrawLine(x+15, y-15, x+15, y-7, RGB565CONVERT(184, 158, 131));    
 }
 
 void tpCalibrate(void) {
-	int16_t cross[2][2] = {{40,40}, {200, 280}};
-	int16_t points[2][2];
+	uint16_t cross[2][2] = {{40,40}, {200, 280}};
+	uint16_t points[2][2];
 	uint8_t i;
 	char buffer[32];
 
