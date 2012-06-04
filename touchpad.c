@@ -132,14 +132,5 @@ void tpCalibrate(void) {
 
 	cal.xn = (float)cross[0][0] - cal.xm * (float)points[0][0];
 	cal.yn = (float)cross[0][1] - cal.ym * (float)points[0][1];
-
-	sprintf(buffer, "cal->xm = %d", cal.xm);
-	lcdDrawString(50, 50, buffer, White, Red);
-	sprintf(buffer, "cal->ym = %d", cal.ym);
-	lcdDrawString(50, 70, buffer, White, Red);
-	sprintf(buffer, "cal->xn = %d", cal.xn);
-	lcdDrawString(50, 90, buffer, White, Red);
-	sprintf(buffer, "cal->yn = %d", cal.yn);
-	lcdDrawString(50, 110, buffer, White, Red);
 }
 
