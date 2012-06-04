@@ -3,7 +3,6 @@
 
 static struct cal cal;
 
-static void spicb(SPIDriver *spip);
 static const SPIConfig spicfg = {
 	NULL,
 	GPIOC,
@@ -49,7 +48,7 @@ static __inline uint16_t readY(void) {
 	return y;
 }
 
-uint8_t __inline tpIRQ(void) {
+uint8_t tpIRQ(void) {
 	return (!palReadPad(TP_PORT, TP_IRQ));
 }
 
@@ -112,7 +111,6 @@ void tpCalibrate(void) {
 	uint16_t cross[2][2] = {{40,40}, {200, 280}};
 	uint16_t points[2][2];
 	uint8_t i;
-	char buffer[32];
 
 	lcdClear(Red);
 	lcdDrawString(40, 10, "Touchpad Calibration", White, Red);

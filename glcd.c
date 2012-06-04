@@ -275,12 +275,12 @@ void lcdDrawChar(uint16_t x, uint16_t y, unsigned char c, uint16_t charcolor, ui
 	}
 }
 
-void lcdDrawString(uint16_t x, uint16_t y, uint8_t *str, uint16_t color, uint16_t bkcolor) {
+void lcdDrawString(uint16_t x, uint16_t y, unsigned char *str, uint16_t color, uint16_t bkcolor) {
 	uint8_t TempChar;
 
 	do {
 		TempChar = *str++;  
-		lcdDrawChar(x,y,TempChar,color,bkcolor);    
+		lcdDrawChar(x, y, TempChar, color, bkcolor);    
 		if(x<232) {
 			x+=8;
 		} else if(y<304) {
@@ -306,8 +306,6 @@ uint16_t lcdBGR2RGB(uint16_t color) {
 }
 
 void lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
-	uint16_t i;
-
 	lcdDrawRect(x0, y0, x1, y1, 1, color);
 }
 
