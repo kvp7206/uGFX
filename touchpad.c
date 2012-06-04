@@ -83,11 +83,11 @@ static uint16_t tpReadRealY(void) {
 }
 
 uint16_t tpReadX(void) {
-	return cal.xm * tpReadRealX() - cal.xn;
+	return cal.xm * tpReadRealX() + cal.xn;
 }
 
 uint16_t tpReadY(void) {
-	return cal.ym * tpReadRealY() - cal.yn;
+	return cal.ym * tpReadRealY() + cal.yn;
 }
 
 void tpDrawCross(uint16_t x, uint16_t y) {
@@ -127,11 +127,11 @@ void tpCalibrate(void) {
 		lcdFillArea(cross[i][0]-15, cross[i][1]-15, cross[i][0]+16, cross[i][1]+16, Red);
 	}
 
-	cal.xm = (cross[1][0] - cross[0][0]) / (points[1][0] - points[0][0]);
-	cal.ym = (cross[1][1] - cross[0][1]) / (points[1][1] - points[0][1]);
+	cal.xm = ((float)cross[1][0] - (float)cross[0][0]) / ((float)points[1][0] - (float)points[0][0]);
+	cal.ym = ((float)cross[1][1] - (float)cross[0][1]) / ((float)points[1][1] - (float)points[0][1]);
 
-	cal.xn = cross[0][0] - cal.xm * points[0][0];
-	cal.yn = cross[0][1] - cal.ym * points[0][1];
+	cal.xn = (float)cross[0][0] - cal.xm * (float)points[0][0];
+	cal.yn = (float)cross[0][1] - cal.ym * (float)points[0][1];
 
 	sprintf(buffer, "cal->xm = %d", cal.xm);
 	lcdDrawString(50, 50, buffer, White, Red);
@@ -141,41 +141,5 @@ void tpCalibrate(void) {
 	lcdDrawString(50, 90, buffer, White, Red);
 	sprintf(buffer, "cal->yn = %d", cal.yn);
 	lcdDrawString(50, 110, buffer, White, Red);
-}
-
-void tpCalibrate2(void) {
-	uint16_t cross[3][2] = {{20,40}, {220,160}, {50,300}};
-	uint16_t cal[3][2];
-	uint8_t i, j;
-	int16_t a, b;
-	unsigned char buffer[32];
-
-	lcdClear(Red);
-	lcdDrawString(40, 10, "Touchpad Calibration", White, Red);
-	
-	for(i=0; i<3; i++) {
-		tpDrawCross(cross[i][0], cross[i][1]);
-		while(!tpIRQ());
-		cal[i][0] = tpReadX();
-		cal[i][1] = tpReadY();
-		while(tpIRQ());
-		lcdDrawRect(cross[i][0]-15, cross[i][1]-15, cross[i][0]+16, cross[i][1]+16, filled, Red);
-	}
-
-	for(i=0, j=0; i<3; i++) {
-		sprintf(buffer, "X: %d", cal[i][0]);
-		lcdDrawString(100, 100+(i*20)+j, buffer, White, Red);
-		sprintf(buffer, "Y: %d", cal[i][1]);
-		lcdDrawString(100, 120+(i*20)+j, buffer, White, Red);
-		j += 40;
-	}
-
-	for(a=0, b=0, i=0; i<3; i++) {
-		a += (cross[i][0] - cal[i][0]);
-		b += (cross[i][1] - cal[i][1]);
-	}
-
-	x_cal = (a / 3);
-	y_cal = (b / 3);
 }
 

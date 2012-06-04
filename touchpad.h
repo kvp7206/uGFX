@@ -9,10 +9,10 @@
 #define SET_CS(a)		(TP_PORT->BSRR = 1 << (TP_CS + (a ? 0 : 16)))
 
 volatile struct cal {
-	int16_t xm;
-	int16_t ym;
-	int16_t xn;
-	int16_t yn;
+	float xm;
+	float ym;
+	float xn;
+	float yn;
 };
 
 void tpInit(void);
