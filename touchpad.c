@@ -52,7 +52,7 @@ uint8_t tpIRQ(void) {
 	return (!palReadPad(TP_PORT, TP_IRQ));
 }
 
-static uint16_t tpReadRealX(void) {
+uint16_t tpReadRealX(void) {
 	uint32_t results = 0;
 	uint16_t i, x;
 
@@ -61,12 +61,12 @@ static uint16_t tpReadRealX(void) {
 		results += readX();
 	}
 
-	x = (((lcdGetHeight()-1) * (results/CONVERSIONS)) / 2048);
+	x = (((SCREEN_WIDTH-1) * (results/CONVERSIONS)) / 2048);
 
 	return x;
 }
 
-static uint16_t tpReadRealY(void) {
+uint16_t tpReadRealY(void) {
 	uint32_t results = 0;
 	uint16_t i, y;
 
@@ -75,17 +75,45 @@ static uint16_t tpReadRealY(void) {
 		results += readY();
 	}
 
-	y = (((lcdGetWidth()-1) * (results/CONVERSIONS)) / 2048);
+	y = (((SCREEN_HEIGHT-1) * (results/CONVERSIONS)) / 2048);
 
 	return y;
 }
 
 uint16_t tpReadX(void) {
-	return cal.xm * tpReadRealX() + cal.xn;
+	uint16_t x, y;
+
+	x = cal.xm * tpReadRealX() + cal.xn;
+	y = cal.ym * tpReadRealY() + cal.yn;
+
+	switch(lcdGetOrientation()) {
+		case portrait:
+			return x;
+		case landscape:
+			return SCREEN_HEIGHT - y;
+		case portraitInv:
+			return SCREEN_WIDTH - x;
+		case landscapeInv:
+			return y;
+	}
 }
 
 uint16_t tpReadY(void) {
-	return cal.ym * tpReadRealY() + cal.yn;
+	uint16_t x, y;
+
+	x = cal.xm * tpReadRealX() + cal.xn;
+	y = cal.ym * tpReadRealY() + cal.yn;
+
+	switch(lcdGetOrientation()) {
+		case portrait:
+			return y;
+		case landscape:
+			return x;
+		case portraitInv:
+			return SCREEN_HEIGHT - y;
+		case landscapeInv:
+			return SCREEN_WIDTH - x;
+	}
 }
 
 void tpDrawCross(uint16_t x, uint16_t y) {
@@ -112,6 +140,7 @@ void tpCalibrate(void) {
 	uint16_t points[2][2];
 	uint8_t i;
 
+	lcdSetOrientation(portrait);
 	lcdClear(Red);
 	lcdDrawString(40, 10, "Touchpad Calibration", White, Red);
 
