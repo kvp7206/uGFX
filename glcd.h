@@ -7,8 +7,8 @@
 #define SCREEN_WIDTH	320
 #define SCREEN_HEIGHT	240
 
-#define PORTRAIT	(orientation == portrait || orientation == portraitInv)
-#define LANDSCAPE	(orientation == landscape || orientation == landscapeInv)
+#define PORTRAIT	(lcdGetOrientation() == portrait || lcdGetOrientation() == portraitInv)
+#define LANDSCAPE	(lcdGetOrientation() == landscape || lcdGetOrientation() == landscapeInv)
 
 /* uncomment if no board.h file used 
 #define LCD_DATA_PORT       GPIOE
