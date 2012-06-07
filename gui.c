@@ -40,10 +40,10 @@ Thread *guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, unsign
 
 	buttonStruct = chHeapAlloc(NULL, sizeof(struct buttonStruct_t));
 
-	buttonStruct->x0 = 100;
-	buttonStruct->y0 = 100;
-	buttonStruct->x1 = 200;
-	buttonStruct->y1 = 200;
+	buttonStruct->x0 = x0;
+	buttonStruct->y0 = y0;
+	buttonStruct->x1 = x1;
+	buttonStruct->y1 = y1;
 	buttonStruct->state = state;
 
 	lcdDrawRectString(x0, y0, x1, y1, str, fontColor, buttonColor);
