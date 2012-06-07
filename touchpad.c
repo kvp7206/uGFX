@@ -1,7 +1,9 @@
 #include "touchpad.h"
 #include "glcd.h"
 
-static struct cal cal;
+static struct cal cal = {
+	1, 1, 0, 0
+};
 
 static const SPIConfig spicfg = {
 	NULL,
