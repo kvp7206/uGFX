@@ -16,22 +16,21 @@ static msg_t buttonThread(struct buttonStruct_t *a) {
 	}
 }
 
-static msg_t TouchPadThread(void *arg) {
-    (void)arg;
+static msg_t TouchPadThread(uint16_t updateInterval) {
 	chRegSetThreadName("GUI");
 
 	while(TRUE) {
 		x = tpReadX();
 		y = tpReadY();
 
-		chThdSleepMilliseconds(10);
+		chThdSleepMilliseconds(updateInterval);
 	}
 }
 
 
-void guiInit(void) {
+void guiInit(uint16_t updateInterval) {
 	Thread *tp = NULL;
-	tp = chThdCreateFromHeap(NULL, THD_WA_SIZE(64), HIGHPRIO-1, TouchPadThread, NULL);
+	tp = chThdCreateFromHeap(NULL, THD_WA_SIZE(64), HIGHPRIO-1, TouchPadThread, updateInterval);
 }
 
 Thread *guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, unsigned char *str, uint16_t fontColor, uint16_t buttonColor, uint8_t *state) {
