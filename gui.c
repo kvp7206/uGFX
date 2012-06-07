@@ -35,6 +35,5 @@ void guiInit(void) {
 
 void guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, unsigned char *str, uint16_t fontColor, uint16_t buttonColor, uint8_t *state) {
 	lcdDrawRectString(x0, y0, x1, y1, str, fontColor, buttonColor);
-
 }
 
