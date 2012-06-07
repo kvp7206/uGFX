@@ -10,15 +10,6 @@
 #define PORTRAIT	(lcdGetOrientation() == portrait || lcdGetOrientation() == portraitInv)
 #define LANDSCAPE	(lcdGetOrientation() == landscape || lcdGetOrientation() == landscapeInv)
 
-/* uncomment if no board.h file used 
-#define LCD_DATA_PORT       GPIOE
-#define LCD_CMD_PORT        GPIOD
-#define LCD_CS              12
-#define LCD_RS              13
-#define LCD_WR              14
-#define LCD_RD              15
-*/
-
 #define Set_CS			LCD_CMD_PORT->ODR  |= (1 << LCD_CS);
 #define Clr_CS			LCD_CMD_PORT->ODR  &= ~(1 << LCD_CS);
 #define Set_RS			LCD_CMD_PORT->ODR  |= (1 << LCD_RS);
