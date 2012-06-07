@@ -28,5 +28,5 @@ Add $(LCDINC) to INCDIR:
 	         $(CHIBIOS)/os/various ../common
 
 ### Use
-include glcd.h header file wherever you need it.
+include header files wherever you need it.
 
