@@ -6,16 +6,16 @@ git clone https://github.com/tectu/Chibios-LCD-Driver lcd
 
 ### Edit boardfiles:
 add the following to your board.h file, matching to your pinconfig:
-	#define TP_PORT				GPIOC
-	#define TP_IRQ				4
-	#define TP_CS				6
+	#define TP_PORT			GPIOC
+	#define TP_IRQ			4
+	#define TP_CS			6
 
-	#define LCD_DATA_PORT		GPIOE
-	#define LCD_CMD_PORT		GPIOD
-	#define LCD_CS				12
-	#define LCD_RS				13
-	#define LCD_WR				14
-	#define LCD_RD				15
+	#define LCD_DATA_PORT	GPIOE
+	#define LCD_CMD_PORT	GPIOD
+	#define LCD_CS			12
+	#define LCD_RS			13
+	#define LCD_WR			14
+	#define LCD_RD			15
 
 ### Edit Makefile:
 include lcd.mk:
