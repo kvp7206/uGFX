@@ -6,7 +6,7 @@ git clone https://github.com/tectu/Chibios-LCD-Driver lcd
 
 ### Edit boardfiles:
 add the following to your board.h file, matching to your pinconfig:
-	\#define TP_PORT				GPIOC
+	#define TP_PORT				GPIOC
 	#define TP_IRQ				4
 	#define TP_CS				6
 
