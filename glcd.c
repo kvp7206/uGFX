@@ -79,19 +79,19 @@ uint16_t lcdGetWidth(void) {
 
 static void lcdSetCursor(uint16_t x, uint16_t y) {
 	if(DeviceCode==0x8989) {
-		if(orientation == portrait || orientation == portraitInv) {
+		if(PORTRAIT) {
 			lcdWriteReg(0x004e, x);
 	    	lcdWriteReg(0x004f, y);
-		} else if(orientation == landscape || orientation == landscapeInv) {
+		} else if(LANDSCAPE) {
 			lcdWriteReg(0x004e, y);
 			lcdWriteReg(0x004f, x);
 		}
 	}
 	else if(DeviceCode==0x9919) {
-		if(orientation == portrait || orientation == portraitInv) {
+		if(PORTRAIT) {
 			lcdWriteReg(0x004e, x);
 			lcdWriteReg(0x004f, y);
-		} else if(orientation == landscape || orientation == landscapeInv) {
+		} else if(LANDSCAPE) {
 			lcdWriteReg(0x004e, y);
 			lcdWriteReg(0x004f, x);
 		}
@@ -146,14 +146,14 @@ uint16_t lcdGetOrientation(void) {
 }
 
 void lcdSetWindow(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
-	if(orientation == portrait) {
+	if(lcdGetOrientation() == portrait) {
 		lcdWriteReg(0x0050, x);                    /* Horizontal GRAM Start Address      */
 		lcdWriteReg(0x0051, x+width-1);                /* Horizontal GRAM End   Address (-1) */
 		lcdWriteReg(0x0052, y);                    /* Vertical   GRAM Start Address      */
 		lcdWriteReg(0x0053, y+height-1);                /* Vertical   GRAM End   Address (-1) */
 		lcdWriteReg(0x0020, x);
 		lcdWriteReg(0x0021, y);
-	} else if(orientation == landscape) {
+	} else if(lcdGetOrientation() == landscape) {
 		lcdWriteReg(0x0050, y);                    /* Vertical   GRAM Start Address      */
 		lcdWriteReg(0x0051, y+height-1);                /* Vertical   GRAM End   Address (-1) */
 		lcdWriteReg(0x0052, x);                    /* Horizontal GRAM Start Address      */
