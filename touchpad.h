@@ -15,12 +15,49 @@ volatile struct cal {
 	float yn;
 };
 
+/*
+ * Description: initializes touchpad (SPI)
+ *
+ * param: none
+ *
+ * return: none
+ */
 void tpInit(void);
+
+/*
+ * Description: reads out PEN_IRQ from touchpad controller
+ *
+ * param: none
+ *
+ * return: 1 = touchpad pressed / 0 = touchpad not pressed
+ */
 uint8_t tpIRQ(void);
+
+/*
+ * Description: reads-out X coordinate, calibrated
+ *
+ * param: none
+ *
+ * return: X coordinate, relative to screen zero-point
+ */
 uint16_t tpReadX(void);
+
+/*
+ * Description: reads-out Y coordinate, calibrated
+ *
+ * param: none
+ *
+ * return: Y coordinate, relative to screen zero-point
+ */
 uint16_t tpReadY(void);
+
+/*
+ * Description: calibration routine
+ *
+ * param: none
+ *
+ * return: none
+ */
 void tpCalibrate(void);
-void tpCalibrate2(void);
-void tpDrawCross(uint16_t x, uint16_t y);
 
 #endif

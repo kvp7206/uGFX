@@ -116,7 +116,7 @@ uint16_t tpReadY(void) {
 	}
 }
 
-void tpDrawCross(uint16_t x, uint16_t y) {
+static void tpDrawCross(uint16_t x, uint16_t y) {
 	lcdDrawLine(x-15, y, x-2, y, 0xffff);
 	lcdDrawLine(x+2, y, x+15, y, 0xffff);
 	lcdDrawLine(x, y-15, x, y-2, 0xffff);
