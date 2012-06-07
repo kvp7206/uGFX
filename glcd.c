@@ -145,31 +145,40 @@ uint16_t lcdGetOrientation(void) {
 	return orientation;
 }
 
-void lcdSetWindow(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
-	if(lcdGetOrientation() == portrait) {
-		lcdWriteReg(0x0050, x);                    /* Horizontal GRAM Start Address      */
-		lcdWriteReg(0x0051, x+width-1);                /* Horizontal GRAM End   Address (-1) */
-		lcdWriteReg(0x0052, y);                    /* Vertical   GRAM Start Address      */
-		lcdWriteReg(0x0053, y+height-1);                /* Vertical   GRAM End   Address (-1) */
-		lcdWriteReg(0x0020, x);
-		lcdWriteReg(0x0021, y);
-	} else if(lcdGetOrientation() == landscape) {
-		lcdWriteReg(0x0050, y);                    /* Vertical   GRAM Start Address      */
-		lcdWriteReg(0x0051, y+height-1);                /* Vertical   GRAM End   Address (-1) */
-		lcdWriteReg(0x0052, x);                    /* Horizontal GRAM Start Address      */
-		lcdWriteReg(0x0053, x+width-1);                /* Horizontal GRAM End   Address (-1) */
-		lcdWriteReg(0x0020, y);
-		lcdWriteReg(0x0021, x);
+void lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
+	lcdSetCursor(x0, y0);
+
+	switch(lcdGetOrientation()) {
+		case portrait:
+			lcdWriteReg(0x44, ((x0+x1-1) << 8) | x0);
+			lcdWriteReg(0x45, y0);
+			lcdWriteReg(0x46, y0+y1-1);
+			break;
+		case landscape:
+			lcdWriteReg(0x44, ((y0+y1-1) << 8) | y1);
+			lcdWriteReg(0x45, x0);
+			lcdWriteReg(0x46, x0+x1-1);
+			break;
+		case portraitInv:
+            lcdWriteReg(0x44, ((x0+x1-1) << 8) | x0);
+            lcdWriteReg(0x45, y0);
+            lcdWriteReg(0x46, y0+y1-1);
+			break;
+		case landscapeInv:
+            lcdWriteReg(0x44, ((y0+y1-1) << 8) | y1);
+            lcdWriteReg(0x45, x0);
+            lcdWriteReg(0x46, x0+x1-1);
+			break;
 	}
 }
 
 void lcdClear(uint16_t color) {
-	uint32_t index=0;
+	uint32_t index = 0;
 
 	lcdSetCursor(0,0); 
 	Clr_CS; 
 	lcdWriteIndex(0x0022);
-	for(index=0;index<76800;index++)
+	for(index = 0; index < SCREEN_WIDTH * SCREEN_HEIGHT; index++)
 		lcdWriteData(color);
 	Set_CS;
 }
@@ -307,7 +316,19 @@ uint16_t lcdBGR2RGB(uint16_t color) {
 }
 
 void lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
-	lcdDrawRect(x0, y0, x1, y1, 1, color);
+	lcdDrawRect(x0, y0, x1, y1, filled, color);
+	/*
+	uint32_t index = 0, area;
+
+	area = ((x1-x0)*(y1-y0));
+
+    lcdSetWindow(x0, y0, x1, y1);
+	Clr_CS; 
+    lcdWriteIndex(0x0022);
+    for(index = 0; index < area; index++)
+        lcdWriteData(color);
+    Set_CS;
+	*/
 }
 
 void lcdDrawRect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t filled, uint16_t color) {
