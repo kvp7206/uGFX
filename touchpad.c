@@ -52,7 +52,7 @@ uint8_t tpIRQ(void) {
 	return (!palReadPad(TP_PORT, TP_IRQ));
 }
 
-uint16_t tpReadRealX(void) {
+static uint16_t tpReadRealX(void) {
 	uint32_t results = 0;
 	uint16_t i, x;
 
@@ -66,7 +66,7 @@ uint16_t tpReadRealX(void) {
 	return x;
 }
 
-uint16_t tpReadRealY(void) {
+static uint16_t tpReadRealY(void) {
 	uint32_t results = 0;
 	uint16_t i, y;
 

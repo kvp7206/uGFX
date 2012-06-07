@@ -19,8 +19,6 @@ void tpInit(void);
 uint8_t tpIRQ(void);
 uint16_t tpReadX(void);
 uint16_t tpReadY(void);
-uint16_t tpReadRealX(void);
-uint16_t tpReadRealY(void);
 void tpCalibrate(void);
 void tpCalibrate2(void);
 void tpDrawCross(uint16_t x, uint16_t y);
