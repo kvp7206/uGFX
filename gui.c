@@ -7,6 +7,17 @@
 uint16_t x, y;
 unsigned char buffer[32];
 
+static void TouchPadThread(uint16_t updateInterval) {
+	chRegSetThreadName("GUI");
+
+	while(TRUE) {
+		x = tpReadX();
+		y = tpReadY();
+
+		chThdSleepMilliseconds(updateInterval);
+	}
+}
+
 static void buttonThread(struct button_t *a) {
 	uint16_t x0, y0, x1, y1;
 
@@ -22,17 +33,6 @@ static void buttonThread(struct button_t *a) {
 			*(a->state) = 0;
 
 		chThdSleepMilliseconds(a->interval);
-	}
-}
-
-static void TouchPadThread(uint16_t updateInterval) {
-	chRegSetThreadName("GUI");
-
-	while(TRUE) {
-		x = tpReadX();
-		y = tpReadY();
-
-		chThdSleepMilliseconds(updateInterval);
 	}
 }
 
