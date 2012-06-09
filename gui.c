@@ -4,9 +4,10 @@
 #include "glcd.h"
 #include "touchpad.h"
 
-volatile uint16_t x, y;
+uint16_t x, y;
+unsigned char buffer[32];
 
-static msg_t buttonThread(struct button_t *a) {
+static void buttonThread(struct button_t *a) {
 	uint16_t x0, y0, x1, y1;
 
 	x0 = a->x0;
@@ -24,7 +25,7 @@ static msg_t buttonThread(struct button_t *a) {
 	}
 }
 
-static msg_t TouchPadThread(uint16_t updateInterval) {
+static void TouchPadThread(uint16_t updateInterval) {
 	chRegSetThreadName("GUI");
 
 	while(TRUE) {
@@ -35,6 +36,32 @@ static msg_t TouchPadThread(uint16_t updateInterval) {
 	}
 }
 
+static void barThread(struct bar_t *a) {
+	uint16_t percent = 0, value = 0, value_old = 0;
+
+	while(TRUE) {
+		percent = *(a->percent);
+		if(percent > 100)
+			percent = 100;	
+
+		if(a->orientation == horizontal) {
+			value = ((((a->x1)-(a->x0)) * percent) / 100);
+			if(value_old > value || value == 0)
+				lcdFillArea(a->x0+1, a->y0+1, a->x1, a->y1, a->bkColor);
+			else
+				lcdDrawRect(a->x0+1, a->y0+1, a->x0+value, a->y1, filled, a->valueColor);	
+		} else if(a->orientation == vertical) {
+			value = ((((a->y1)-(a->y0)) * percent) / 100);
+			if(value_old > value || value == 0)
+				lcdFillArea(a->x0+1, a->y0+1, a->x1, a->y1, a->bkColor);
+			else
+				lcdDrawRect(a->x0+1, a->y0+1, a->x1, a->y0+value, filled, a->valueColor);
+		}
+
+		value_old = value;
+		chThdSleepMilliseconds(a->interval);
+	}
+}
 
 void guiInit(uint16_t updateInterval) {
 	Thread *tp = NULL;
@@ -54,8 +81,29 @@ Thread *guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, unsign
 	button->interval = interval;
 
 	lcdDrawRectString(x0, y0, x1, y1, str, fontColor, buttonColor);
-	tp = chThdCreateFromHeap(NULL, THD_WA_SIZE(512), NORMALPRIO, buttonThread, button);
+	tp = chThdCreateFromHeap(NULL, THD_WA_SIZE(64), NORMALPRIO, buttonThread, button);
 
 	return tp;
 }
 
+Thread *guiDrawBarGraph(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t orientation, uint16_t frameColor, uint16_t bkColor, uint16_t valueColor, uint16_t interval, uint16_t *percent) {
+	struct bar_t *bar;
+	Thread *tp = NULL;
+
+	bar = chHeapAlloc(NULL, sizeof(struct bar_t));
+	bar->x0 = x0;
+	bar->y0 = y0;
+	bar->x1 = x1;
+	bar->y1 = y1;
+	bar->orientation = orientation;
+	bar->frameColor = frameColor;
+	bar->bkColor = bkColor;
+	bar->valueColor = valueColor;
+	bar->percent = percent;
+	bar->interval = interval;
+
+	lcdDrawRect(x0, y0, x1, y1, frame, frameColor);
+	tp = chThdCreateFromHeap(NULL, THD_WA_SIZE(64), NORMALPRIO, barThread, bar);
+
+	return tp;
+}
