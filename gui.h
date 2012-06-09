@@ -1,12 +1,23 @@
 #ifndef GUI_H
 #define GUI_H
 
-struct buttonStruct_t {
+struct button_t {
 	uint16_t x0;
 	uint16_t y0;
 	uint16_t x1;
 	uint16_t y1;
-	uint8_t *state;
+	uint32_t *state;
+	uint16_t interval;
+};
+
+struct keymatrix_t {
+	uint16_t x0;
+	uint16_t y0;
+	uint16_t off;
+	uint16_t size;
+	uint16_t digits;
+	uint32_t *number;
+	uint16_t interval;
 };
 
 /*
@@ -31,7 +42,16 @@ void guiInit(uint16_t updateIntervl);
  *
  * return: pointer to created thread
  */
-Thread *guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, unsigned char *str, uint16_t fontColor, uint16_t buttonColor, uint8_t *state);
+Thread *guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, unsigned char *str, uint16_t fontColor, uint16_t buttonColor, uint16_t inverval, uint8_t *state);
+
+/*
+ * Description: draws keymatrix
+ *
+ * param:
+ *
+ * return: pointer to created thread
+ */
+Thread *guiDrawKeymatrix(uint16_t x0, uint16_t y0, uint16_t size, uint16_t space, uint16_t fontColor, uint16_t buttonColor, uint16_t inverval, uint16_t digits, uint32_t *number);
 
 #endif
 

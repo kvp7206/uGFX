@@ -1,7 +1,7 @@
 #ifndef GLCD_H
 #define GLCD_H
 
-#include <ch.h>			// types
+#include <ch.h>	
 #include <hal.h>
 
 #define SCREEN_WIDTH	240
