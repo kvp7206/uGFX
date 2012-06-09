@@ -25,45 +25,53 @@ static msg_t buttonThread(struct button_t *a) {
 }
 
 static msg_t keymatrixThread(struct keymatrix_t *a) {
-	uint16_t i, x0, y0, size, off;
+	uint16_t i, tpx, tpy, x0, y0, size, off;
 
 	x0 = a->x0;
 	y0 = a->y0;
 	off = a->off;
 	size = a->size;
-	memset(a->number, 0, sizeof(a->number));
+	memset(a->number, 0, a->digits * sizeof(a->number));
+	i = 0;
 
 	while(TRUE) {
-
-		for(i = 0; i < a->digits; i++) {
-			while(tpIRQ());
-			if(x >= x0 && x <= x0+size && y >= y0 && y <= y0+size)
+			while(!tpIRQ());	
+			tpx = tpReadX();
+			tpy = tpReadY();
+			if(tpx >= x0 && tpx <= x0+size && tpy >= y0 && tpy <= y0+size)
 				a->number[i] = 7;
-			else if(x >= x0+off && x <= x0+off+size && y >= y0 && y <= y0+size)
+			else if(tpx >= x0+off && tpx <= x0+off+size && tpy >= y0 && tpy <= y0+size)
 				a->number[i] = 8;
-			else if(x >= x0+off+off && x <= x0+off+off+size && y >= y0 && y <= y0+size)
+			else if(tpx >= x0+off+off && tpx <= x0+off+off+size && tpy >= y0 && tpy <= y0+size)
 				a->number[i] = 9;
-			else if(x >= x0 && x <= x0+size && y >= y0+off && y <= y0+off+size)
+			else if(tpx >= x0 && tpx <= x0+size && tpy >= y0+off && tpy <= y0+off+size)
 				a->number[i] = 4;
-			else if(x >= x0+off && x <= x0+off+size && y >= y0+off && y <= y0+off+size)
+			else if(tpx >= x0+off && tpx <= x0+off+size && tpy >= y0+off && tpy <= y0+off+size)
 				a->number[i] = 5;
-			else if(x >= x0+off+off && x <= x0+off+off+size && y >= y0+off && y <= y0+off+size)
+			else if(tpx >= x0+off+off && tpx <= x0+off+off+size && tpy >= y0+off && tpy <= y0+off+size)
 				a->number[i] = 6;
-			else if(x >= x0 && x <= x0+size && y >= y0+off+off && y <= y0+off+off+size)
+			else if(tpx >= x0 && tpx <= x0+size && tpy >= y0+off+off && tpy <= y0+off+off+size)
 				a->number[i] = 1;
-			else if(x >= x0+off && x <= x0+off+size && y >= y0+off+off && y <= y0+off+off+size)
+			else if(tpx >= x0+off && tpx <= x0+off+size && tpy >= y0+off+off && tpy <= y0+off+off+size)
 				a->number[i] = 2;
-			else if(x >= x0+off+off && x <= x0+off+off+size && y >= y0+off+off && y <= y0+off+off+size)
+			else if(tpx >= x0+off+off && tpx <= x0+off+off+size && tpy >= y0+off+off && tpy <= y0+off+off+size)
 				a->number[i] = 3;
-			else if(x >= x0 && x <= x0+size && y >= y0+off+off+off && y <= y0+off+off+off+size)
+			else if(tpx >= x0 && tpx <= x0+size && tpy >= y0+off+off+off && tpy <= y0+off+off+off+size)
 				a->number[i] = 0;
-			else if(x >= x0+off && x <= x0+off+size && y >= y0+off+off+off && y <= y0+off+off+off+size)
+			else if(tpx >= x0+off && tpx <= x0+off+size && tpy >= y0+off+off+off && tpy <= y0+off+off+off+size)
 				a->number[i] = 0;
-			else if(x >= x0+off+off && x <= x0+off+off+size && y >= y0+off+off+off && y <= y0+off+off+off+size)
+			else if(tpx >= x0+off+off && tpx <= x0+off+off+size && tpy >= y0+off+off+off && tpy <= y0+off+off+off+size)
 				a->number[i] = 0;
-			while(!tpIRQ());
+
+			if(i >= a->digits) {
+				i = 0;
+				memset(a->number, 0, a->digits * sizeof(a->number));
+			} else {
+				i++;
+			}
+			
+			while(tpIRQ());
 			chThdSleepMilliseconds(a->interval);
-		}
 	}
 }
 
