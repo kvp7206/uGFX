@@ -8,46 +8,15 @@ static uint8_t font_width = 8, font_height = 16;
 uint16_t lcd_width, lcd_height;
 
 static __inline void lcdWriteIndex(uint16_t index) {
-	Clr_RS;
-	Set_RD;
-  
-	palWritePort(LCD_DATA_PORT, index);
-
-	Clr_WR;
-	Set_WR;
+	lld_lcdWriteIndex(index);
 }
 
 static __inline void lcdWriteData(uint16_t data) {
-	Set_RS;
-
-	palWritePort(LCD_DATA_PORT, data);
-
-	Clr_WR;
-	Set_WR;
+	lld_lcdWriteData(data);
 }
 
 static __inline uint16_t lcdReadData(void) { 
-	uint16_t value;
-
-	Set_RS;
-	Set_WR;
-	Clr_RD;
-
-  	// change pin mode to digital input
-	LCD_DATA_PORT->CRH = 0x44444444;
-	LCD_DATA_PORT->CRL = 0x44444444;
-
-
-	value = palReadPort(LCD_DATA_PORT); // dummy
-	value = palReadPort(LCD_DATA_PORT);	
-
-	// change pin mode back to digital output
-	LCD_DATA_PORT->CRH = 0x33333333;
-	LCD_DATA_PORT->CRL = 0x33333333;
-
-	Set_RD;
-
-	return value;
+	return lld_lcdReadData();
 }
 
 static __inline void lcdWriteReg(uint16_t lcdReg,uint16_t lcdRegValue) { 
@@ -70,11 +39,11 @@ static __inline uint16_t lcdReadReg(uint16_t lcdReg) {
 }
 
 uint16_t lcdGetHeight(void) {
-	return lcd_height;
+	return lld_lcdGetHeight();
 }
 
 uint16_t lcdGetWidth(void) {
-	return lcd_width;
+	return lld_lcdGetWidth();
 }
 
 static void lcdSetCursor(uint16_t x, uint16_t y) {
@@ -744,5 +713,9 @@ void lcdInit() {
     lcdWriteReg(0x004e,0);     
   }
   lcdDelay(5);  		
+
+	lcd_height = SCREEN_HEIGHT;
+	lcd_width = SCREEN_WIDTH;
+
 }
 

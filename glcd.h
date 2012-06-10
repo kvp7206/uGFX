@@ -1,8 +1,9 @@
 #ifndef GLCD_H
 #define GLCD_H
 
-#include <ch.h>	
-#include <hal.h>
+#include "ch.h"
+#include "hal.h"
+#include "drivers/ssd1289_lld.h"
 
 #define SCREEN_WIDTH	240
 #define SCREEN_HEIGHT	320
