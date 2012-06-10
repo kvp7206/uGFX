@@ -217,6 +217,10 @@ void lld_lcdInit(void) {
     lcdWriteReg(0x004e,0x0000);		lcdDelay(5);
 }
 
+uint16_t lld_lcdGetOrientation(void) {
+	return orientation;
+}
+
 uint16_t lld_lcdGetHeight(void) {
 	return lcd_height;
 }

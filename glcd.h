@@ -5,8 +5,8 @@
 #include "hal.h"
 #include "drivers/ssd1289_lld.h"
 
-#define SCREEN_WIDTH	240
-#define SCREEN_HEIGHT	320
+#define SCREEN_WIDTH    240
+#define SCREEN_HEIGHT   320
 
 #define PORTRAIT	(lcdGetOrientation() == portrait || lcdGetOrientation() == portraitInv)
 #define LANDSCAPE	(lcdGetOrientation() == landscape || lcdGetOrientation() == landscapeInv)
@@ -40,7 +40,6 @@ enum filled {frame, filled};
 
 void lcdInit(void);
 void lcdClear(uint16_t color);
-void lcdTest(void);
 void lcdSetOrientation(uint8_t newOrientation);
 void lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 void lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);

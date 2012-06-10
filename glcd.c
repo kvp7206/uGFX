@@ -2,10 +2,15 @@
 #include "fonts.h"
 #include <math.h>
 
-extern uint8_t orientation;
 uint16_t DeviceCode;
 uint8_t font_width = 8, font_height = 16;
 uint16_t lcd_width, lcd_height;
+
+void lcdInit(void) {
+	lld_lcdInit();
+	lcd_width = SCREEN_WIDTH;
+	lcd_height = SCREEN_HEIGHT;
+}
 
 uint16_t lcdGetHeight(void) {
 	return lld_lcdGetHeight();
@@ -15,16 +20,16 @@ uint16_t lcdGetWidth(void) {
 	return lld_lcdGetWidth();
 }
 
+uint16_t lcdGetOrientation(void) {
+	return lld_lcdGetOrientation();
+}
+
 static void lcdSetCursor(uint16_t x, uint16_t y) {
 	lld_lcdSetCursor(x, y);
 }
 
 void lcdSetOrientation(uint8_t newOrientation) {
 	lld_lcdSetOrientation(newOrientation);
-}
-
-uint16_t lcdGetOrientation(void) {
-	return orientation;
 }
 
 void lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
@@ -236,27 +241,5 @@ void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint
 	else
 		P += 5 + 2*(a++ - b--);
 	} while(a <= b);
-}
-
-void lcdTest(void) {
-	uint16_t x;
-	uint8_t y;
-	uint8_t r,g,b;
-
-	for(y = 0; y < lcd_height; y++) {
-		for(x = 0; x < lcd_width; x++) {
-			r = x + y;
-			g = x - y;
-			b = y - x;
-			lcdDrawPixel(y, x, RGB565CONVERT(r,g,b));
-		}
-	}
-}
-
-void lcdInit() {
-	lld_lcdInit();
-
-	lcd_height = SCREEN_HEIGHT;
-	lcd_width = SCREEN_WIDTH;
 }
 

@@ -3,6 +3,7 @@
 
 #include "ch.h"
 #include "hal.h"
+#include "glcd.h"
 
 #define CONVERSIONS 3
 
