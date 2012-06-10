@@ -2,7 +2,6 @@
 #include "fonts.h"
 #include <math.h>
 
-uint16_t DeviceCode;
 uint8_t font_width = 8, font_height = 16;
 uint16_t lcd_width, lcd_height;
 
