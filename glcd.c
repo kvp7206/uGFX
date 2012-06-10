@@ -2,7 +2,7 @@
 #include "fonts.h"
 #include <math.h>
 
-uint8_t orientation;
+extern uint8_t orientation;
 uint16_t DeviceCode;
 uint8_t font_width = 8, font_height = 16;
 uint16_t lcd_width, lcd_height;
@@ -16,62 +16,11 @@ uint16_t lcdGetWidth(void) {
 }
 
 static void lcdSetCursor(uint16_t x, uint16_t y) {
-	if(DeviceCode==0x8989) {
-		if(PORTRAIT) {
-			lcdWriteReg(0x004e, x);
-	    	lcdWriteReg(0x004f, y);
-		} else if(LANDSCAPE) {
-			lcdWriteReg(0x004e, y);
-			lcdWriteReg(0x004f, x);
-		}
-	}
-	else if(DeviceCode==0x9919) {
-		if(PORTRAIT) {
-			lcdWriteReg(0x004e, x);
-			lcdWriteReg(0x004f, y);
-		} else if(LANDSCAPE) {
-			lcdWriteReg(0x004e, y);
-			lcdWriteReg(0x004f, x);
-		}
-	} else {
-		lcdWriteReg(0x0020, x);
-		lcdWriteReg(0x0021, y); 
-	}
-}
-
-void lcdDelay(uint16_t us) {
-	chThdSleepMicroseconds(us);
+	lld_lcdSetCursor(x, y);
 }
 
 void lcdSetOrientation(uint8_t newOrientation) {
-	orientation = newOrientation;
-
-	switch(orientation) {
-		case portrait:
-			lcdWriteReg(0x0001, 0x2B3F); 
-			lcdWriteReg(0x0011, 0x6070);
-			lcd_height = SCREEN_HEIGHT;
-			lcd_width = SCREEN_WIDTH;
-			break;
-		case landscape:
-			lcdWriteReg(0x0001, 0x293F);
-			lcdWriteReg(0x0011, 0x6078);
-			lcd_height = SCREEN_WIDTH;
-			lcd_width = SCREEN_HEIGHT;
-			break;
-		case portraitInv:
-			lcdWriteReg(0x0001, 0x693F);
-			lcdWriteReg(0x0011, 0x6040);
-			lcd_height = SCREEN_HEIGHT;
-			lcd_width = SCREEN_WIDTH;
-			break;
-		case landscapeInv:
-			lcdWriteReg(0x0001, 0x6B3F);
-			lcdWriteReg(0x0011, 0x6048);
-			lcd_height = SCREEN_WIDTH;
-			lcd_width = SCREEN_HEIGHT;
-			break;
-	}
+	lld_lcdSetOrientation(newOrientation);
 }
 
 uint16_t lcdGetOrientation(void) {
@@ -79,62 +28,19 @@ uint16_t lcdGetOrientation(void) {
 }
 
 void lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
-	lcdSetCursor(x0, y0);
-
-	switch(lcdGetOrientation()) {
-		case portrait:
-			lcdWriteReg(0x44, ((x0+x1-1) << 8) | x0);
-			lcdWriteReg(0x45, y0);
-			lcdWriteReg(0x46, y0+y1-1);
-			break;
-		case landscape:
-			lcdWriteReg(0x44, ((y0+y1-1) << 8) | y1);
-			lcdWriteReg(0x45, x0);
-			lcdWriteReg(0x46, x0+x1-1);
-			break;
-		case portraitInv:
-            lcdWriteReg(0x44, ((x0+x1-1) << 8) | x0);
-            lcdWriteReg(0x45, y0);
-            lcdWriteReg(0x46, y0+y1-1);
-			break;
-		case landscapeInv:
-            lcdWriteReg(0x44, ((y0+y1-1) << 8) | y1);
-            lcdWriteReg(0x45, x0);
-            lcdWriteReg(0x46, x0+x1-1);
-			break;
-	}
+	lld_lcdSetWindow(x0, y0, x1, y1);
 }
 
 void lcdClear(uint16_t color) {
-	uint32_t index = 0;
-
-	lcdSetCursor(0,0); 
-	Clr_CS; 
-	lcdWriteIndex(0x0022);
-	for(index = 0; index < SCREEN_WIDTH * SCREEN_HEIGHT; index++)
-		lcdWriteData(color);
-	Set_CS;
+	lld_lcdClear(color);
 }
 
 uint16_t lcdGetPixelColor(uint16_t x, uint16_t y) {
-	uint16_t dummy;
-
-	lcdSetCursor(x,y);
-	Clr_CS;
-	lcdWriteIndex(0x0022);  
-	dummy = lcdReadData();
-	dummy = lcdReadData(); 	
-	Set_CS;
-
-	if( DeviceCode==0x7783 || DeviceCode==0x4531 || DeviceCode==0x8989 )
-		return dummy;
-	else
-		return lcdBGR2RGB(dummy);
+	lld_lcdGetPixelColor(x, y);
 }
 
-void lcdDrawPixel(uint16_t x, uint16_t y, uint16_t point) {
-	lcdSetCursor(x, y);
-	lcdWriteReg(0x0022, point);
+void lcdDrawPixel(uint16_t x, uint16_t y, uint16_t color) {
+	lld_lcdDrawPixel(x, y, color);
 }
 
 void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color) {

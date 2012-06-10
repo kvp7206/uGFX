@@ -2,10 +2,11 @@
 
 #ifdef LCD_USE_SSD1289
 
+uint8_t orientation;
 extern uint16_t DeviceCode;
 extern uint16_t lcd_width, lcd_height;
 
-__inline void lcdWriteIndex(uint16_t index) {
+static __inline void lcdWriteIndex(uint16_t index) {
     Clr_RS;
     Set_RD;
   
@@ -15,7 +16,7 @@ __inline void lcdWriteIndex(uint16_t index) {
     Set_WR;
 }
 
-__inline void lcdWriteData(uint16_t data) {
+static __inline void lcdWriteData(uint16_t data) {
 	Set_RS;
 
 	palWritePort(LCD_DATA_PORT, data);
@@ -24,14 +25,14 @@ __inline void lcdWriteData(uint16_t data) {
 	Set_WR;
 }
 
-__inline void lcdWriteReg(uint16_t lcdReg,uint16_t lcdRegValue) { 
+static __inline void lcdWriteReg(uint16_t lcdReg,uint16_t lcdRegValue) { 
     Clr_CS;
     lcdWriteIndex(lcdReg);    
     lcdWriteData(lcdRegValue);  
     Set_CS; 
 }
 
-__inline uint16_t lcdReadData(void) {
+static __inline uint16_t lcdReadData(void) {
 	uint16_t value;
 
 	Set_RS;
@@ -54,7 +55,7 @@ __inline uint16_t lcdReadData(void) {
 	return value;
 }
 
-__inline uint16_t lcdReadReg(uint16_t lcdReg) {
+static __inline uint16_t lcdReadReg(uint16_t lcdReg) {
     uint16_t lcdRAM;
 
     Clr_CS;
@@ -64,6 +65,110 @@ __inline uint16_t lcdReadReg(uint16_t lcdReg) {
     Set_CS;
 
     return lcdRAM;
+}
+
+static __inline void lcdDelay(uint16_t us) {
+	chThdSleepMicroseconds(us);
+}
+
+void lld_lcdSetCursor(uint16_t x, uint16_t y) {
+	if(PORTRAIT) {
+		lcdWriteReg(0x004e, x); 
+		lcdWriteReg(0x004f, y); 
+	} else if(LANDSCAPE) {
+		lcdWriteReg(0x004e, y); 
+		lcdWriteReg(0x004f, x); 
+	} 
+}
+
+void lld_lcdSetOrientation(uint8_t newOrientation) {
+    orientation = newOrientation;
+
+    switch(orientation) {
+        case portrait:
+            lcdWriteReg(0x0001, 0x2B3F); 
+            lcdWriteReg(0x0011, 0x6070);
+            lcd_height = SCREEN_HEIGHT;
+            lcd_width = SCREEN_WIDTH;
+            break;
+        case landscape:
+            lcdWriteReg(0x0001, 0x293F);
+            lcdWriteReg(0x0011, 0x6078);
+            lcd_height = SCREEN_WIDTH;
+            lcd_width = SCREEN_HEIGHT;
+            break;
+        case portraitInv:
+            lcdWriteReg(0x0001, 0x693F);
+            lcdWriteReg(0x0011, 0x6040);
+            lcd_height = SCREEN_HEIGHT;
+            lcd_width = SCREEN_WIDTH;
+            break;
+        case landscapeInv:
+            lcdWriteReg(0x0001, 0x6B3F);
+            lcdWriteReg(0x0011, 0x6048);
+            lcd_height = SCREEN_WIDTH;
+            lcd_width = SCREEN_HEIGHT;
+            break;
+    }
+}
+
+void lld_lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
+    lcdSetCursor(x0, y0);
+
+    switch(lcdGetOrientation()) {
+        case portrait:
+            lcdWriteReg(0x44, ((x0+x1-1) << 8) | x0);
+            lcdWriteReg(0x45, y0);
+            lcdWriteReg(0x46, y0+y1-1);
+            break;
+        case landscape:
+            lcdWriteReg(0x44, ((y0+y1-1) << 8) | y1);
+            lcdWriteReg(0x45, x0);
+            lcdWriteReg(0x46, x0+x1-1);
+            break;
+        case portraitInv:
+            lcdWriteReg(0x44, ((x0+x1-1) << 8) | x0);
+            lcdWriteReg(0x45, y0);
+            lcdWriteReg(0x46, y0+y1-1);
+            break;
+        case landscapeInv:
+            lcdWriteReg(0x44, ((y0+y1-1) << 8) | y1);
+            lcdWriteReg(0x45, x0);
+            lcdWriteReg(0x46, x0+x1-1);
+            break;
+    }
+}
+
+void lld_lcdClear(uint16_t color) {
+    uint32_t index = 0;
+
+    lld_lcdSetCursor(0,0);
+    Clr_CS;
+    lcdWriteIndex(0x0022);
+    for(index = 0; index < SCREEN_WIDTH * SCREEN_HEIGHT; index++)
+        lcdWriteData(color);
+    Set_CS;
+}
+
+uint16_t lld_lcdGetPixelColor(uint16_t x, uint16_t y) {
+    uint16_t dummy;
+
+    lld_lcdSetCursor(x,y);
+    Clr_CS;
+    lcdWriteIndex(0x0022);
+    dummy = lcdReadData();
+    dummy = lcdReadData();
+    Set_CS;
+
+    if( DeviceCode==0x7783 || DeviceCode==0x4531 || DeviceCode==0x8989 )
+        return dummy;
+    else
+        return lcdBGR2RGB(dummy);
+}
+
+void lld_lcdDrawPixel(uint16_t x, uint16_t y, uint16_t color) {
+    lld_lcdSetCursor(x, y);
+    lcdWriteReg(0x0022, color);
 }
 
 void lld_lcdInit(void) {
@@ -108,8 +213,8 @@ void lld_lcdInit(void) {
     lcdWriteReg(0x0023,0x0000);    	lcdDelay(5);
     lcdWriteReg(0x0024,0x0000);    	lcdDelay(5);
     lcdWriteReg(0x0025,0x8000);    	lcdDelay(5);
-    lcdWriteReg(0x004f,0);			lcdDelay(5);      
-    lcdWriteReg(0x004e,0);			lcdDelay(5);
+    lcdWriteReg(0x004f,0x0000);		lcdDelay(5);      
+    lcdWriteReg(0x004e,0x0000);		lcdDelay(5);
 }
 
 uint16_t lld_lcdGetHeight(void) {
