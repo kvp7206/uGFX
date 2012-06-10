@@ -51,6 +51,7 @@ void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8
 void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint16_t color);
 void lcdDrawString(uint16_t x, uint16_t y, unsigned char *str, uint16_t color, uint16_t bkColor);
 void lcdDrawChar(uint16_t x, uint16_t y, unsigned char c, uint16_t charcolor, uint16_t bkColor);
+void lcdDelay(uint16_t us);
 uint16_t lcdGetHeight(void);
 uint16_t lcdGetWidth(void);
 uint16_t lcdGetOrientation(void);
