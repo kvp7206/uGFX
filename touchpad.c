@@ -124,17 +124,17 @@ static void tpDrawCross(uint16_t x, uint16_t y) {
 	lcdDrawLine(x, y-15, x, y-2, 0xffff);
 	lcdDrawLine(x, y+2, x, y+15, 0xffff);
   
-	lcdDrawLine(x-15, y+15, x-7, y+15, 0x48368);
-	lcdDrawLine(x-15, y+7, x-15, y+15, 0x48368);
+	lcdDrawLine(x-15, y+15, x-7, y+15, RGB565CONVERT(184,158,131));
+	lcdDrawLine(x-15, y+7, x-15, y+15, RGB565CONVERT(184,158,131));
 
-	lcdDrawLine(x-15, y-15, x-7, y-15, 0x48368);
-	lcdDrawLine(x-15, y-7, x-15, y-15, 0x48368);
+	lcdDrawLine(x-15, y-15, x-7, y-15, RGB565CONVERT(184,158,131));
+	lcdDrawLine(x-15, y-7, x-15, y-15, RGB565CONVERT(184,158,131));
 
-	lcdDrawLine(x+7, y+15, x+15, y+15, 0x48368);
-	lcdDrawLine(x+15, y+7, x+15, y+15, 0x48368);
+	lcdDrawLine(x+7, y+15, x+15, y+15, RGB565CONVERT(184,158,131));
+	lcdDrawLine(x+15, y+7, x+15, y+15, RGB565CONVERT(184,158,131));
 
-	lcdDrawLine(x+7, y-15, x+15, y-15, 0x48368);
-	lcdDrawLine(x+15, y-15, x+15, y-7, 0x48368);    
+	lcdDrawLine(x+7, y-15, x+15, y-15, RGB565CONVERT(184,158,131));
+	lcdDrawLine(x+15, y-15, x+15, y-7, RGB565CONVERT(184,158,131));    
 }
 
 void tpCalibrate(void) {
