@@ -41,10 +41,10 @@ Add $(LCDINC) to INCDIR:
 	         $(CHIBIOS)/os/various ../common
 
 ### Use
-include header files wherever you need it.
+1. include header files wherever you need it.
 
-define the controller type you want to use anywhere in your project. For example:
+2. define the controller type you want to use anywhere in your project. For example:
 
-#define LCD_USE_SSD1289
-#define TOUCHPAD_USE_ADS7843
+	#define LCD_USE_SSD1289
+	#define TOUCHPAD_USE_ADS7843
 
