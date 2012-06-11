@@ -160,10 +160,7 @@ uint16_t lld_lcdGetPixelColor(uint16_t x, uint16_t y) {
     dummy = lcdReadData();
     Set_CS;
 
-    if( DeviceCode==0x7783 || DeviceCode==0x4531 || DeviceCode==0x8989 )
-        return dummy;
-    else
-        return lcdBGR2RGB(dummy);
+	return dummy;
 }
 
 void lld_lcdDrawPixel(uint16_t x, uint16_t y, uint16_t color) {
