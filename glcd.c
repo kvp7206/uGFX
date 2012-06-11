@@ -40,7 +40,7 @@ void lcdClear(uint16_t color) {
 }
 
 uint16_t lcdGetPixelColor(uint16_t x, uint16_t y) {
-	lld_lcdGetPixelColor(x, y);
+	return lld_lcdGetPixelColor(x, y);
 }
 
 void lcdDrawPixel(uint16_t x, uint16_t y, uint16_t color) {
@@ -109,7 +109,7 @@ void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t co
    }
 }
 
-void lcdDrawChar(uint16_t x, uint16_t y, unsigned char c, uint16_t charcolor, uint16_t bkcolor) {
+void lcdDrawChar(uint16_t x, uint16_t y, const char c, uint16_t charcolor, uint16_t bkcolor) {
 	uint16_t i = 0;
 	uint16_t j = 0;
 	unsigned char buffer[16];
@@ -128,7 +128,7 @@ void lcdDrawChar(uint16_t x, uint16_t y, unsigned char c, uint16_t charcolor, ui
 	}
 }
 
-void lcdDrawString(uint16_t x, uint16_t y, unsigned char *str, uint16_t color, uint16_t bkcolor) {
+void lcdDrawString(uint16_t x, uint16_t y, const char *str, uint16_t color, uint16_t bkcolor) {
 	uint8_t TempChar;
 
 	do {
