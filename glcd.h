@@ -4,6 +4,7 @@
 #include "ch.h"
 #include "hal.h"
 #include "drivers/ssd1289_lld.h"
+#include "drivers/s6d1121_lld.h"
 
 #define SCREEN_WIDTH    240
 #define SCREEN_HEIGHT   320
