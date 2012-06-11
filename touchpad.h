@@ -9,7 +9,7 @@
 
 #define SET_CS(a)		(TP_PORT->BSRR = 1 << (TP_CS + (a ? 0 : 16)))
 
-volatile struct cal {
+struct cal {
 	float xm;
 	float ym;
 	float xn;

@@ -1,7 +1,7 @@
 #include "touchpad.h"
 #include "glcd.h"
 
-static struct cal cal = {
+volatile static struct cal cal = {
 	1, 1, 0, 0
 };
 
