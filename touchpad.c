@@ -98,6 +98,8 @@ uint16_t tpReadX(void) {
 		case landscapeInv:
 			return y;
 	}
+
+	return x;
 }
 
 uint16_t tpReadY(void) {
@@ -116,6 +118,8 @@ uint16_t tpReadY(void) {
 		case landscapeInv:
 			return SCREEN_WIDTH - x;
 	}
+
+	return y;
 }
 
 static void tpDrawCross(uint16_t x, uint16_t y) {
