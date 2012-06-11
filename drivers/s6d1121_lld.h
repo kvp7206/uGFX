@@ -2,7 +2,7 @@
 #define S6D1121_H
 
 #include "glcd.h"
-#include "lcdconf.h"
+#include "glcdconf.h"
 
 #ifdef LCD_USE_S6D1121
 

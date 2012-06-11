@@ -4,6 +4,7 @@
 #include "ch.h"
 #include "hal.h"
 #include "glcd.h"
+#include "drivers/ads7843_lld.h"
 
 #define CONVERSIONS 3
 
