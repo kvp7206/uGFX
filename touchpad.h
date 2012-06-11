@@ -19,11 +19,11 @@ volatile struct cal {
 /*
  * Description: initializes touchpad (SPI)
  *
- * param: none
+ * param: SPI driver
  *
  * return: none
  */
-void tpInit(void);
+void tpInit(SPIDriver *spip);
 
 /*
  * Description: reads out PEN_IRQ from touchpad controller

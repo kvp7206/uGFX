@@ -12,8 +12,8 @@ static const SPIConfig spicfg = {
 	SPI_CR1_SPE | SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0,
 };
 
-void tpInit(void) {
-	spiStart(&SPID1, &spicfg);	
+void tpInit(SPIDriver *spip) {
+	spiStart(spip, &spicfg);	
 }
 
 static __inline uint16_t readX(void) {
