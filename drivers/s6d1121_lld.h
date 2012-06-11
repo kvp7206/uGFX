@@ -1,6 +1,10 @@
 #ifndef S6D1121_H
 #define S6D1121_H
+
 #include "glcd.h"
+#include "lcdconf.h"
+
+#ifdef LCD_USE_S6D1121
 
 // I/O assignments
 #define LCD_BL_GPIO			GPIOB
@@ -35,5 +39,6 @@ uint16_t lld_lcdGetOrientation(void);
 uint16_t lld_lcdGetHeight(void);
 uint16_t lld_lcdGetWidth(void);
 
+#endif
 #endif
 

@@ -1,9 +1,10 @@
 #ifndef SSD1289_H
 #define SSD1289_H
 
-#ifndef LCD_USE_SSD1289
-
 #include "glcd.h"
+#include "lcdconf.h"
+
+#ifdef LCD_USE_SSD1289
 
 #define Set_CS		palSetPad(LCD_CMD_PORT, LCD_CS);
 #define Clr_CS		palClearPad(LCD_CMD_PORT, LCD_CS);
@@ -27,3 +28,4 @@ uint16_t lld_lcdGetWidth(void);
 
 #endif
 #endif
+
