@@ -12,15 +12,6 @@
 #define PORTRAIT	(lcdGetOrientation() == portrait || lcdGetOrientation() == portraitInv)
 #define LANDSCAPE	(lcdGetOrientation() == landscape || lcdGetOrientation() == landscapeInv)
 
-#define Set_CS			palSetPad(LCD_CMD_PORT, LCD_CS);
-#define Clr_CS			palClearPad(LCD_CMD_PORT, LCD_CS);
-#define Set_RS			palSetPad(LCD_CMD_PORT, LCD_RS);
-#define Clr_RS			palClearPad(LCD_CMD_PORT, LCD_RS);
-#define Set_WR			palSetPad(LCD_CMD_PORT, LCD_WR);
-#define Clr_WR			palClearPad(LCD_CMD_PORT, LCD_WR);
-#define Set_RD			palSetPad(LCD_CMD_PORT, LCD_RD);
-#define Clr_RD			palClearPad(LCD_CMD_PORT, LCD_RD);
-
 /* LCD color */
 #define White          0xFFFF
 #define Black          0x0000
