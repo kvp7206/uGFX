@@ -3,7 +3,7 @@
 #ifdef LCD_USE_SSD1289
 
 uint8_t orientation;
-extern uint16_t DeviceCode;
+uint16_t DeviceCode;
 extern uint16_t lcd_width, lcd_height;
 
 static __inline void lcdWriteIndex(uint16_t index) {
