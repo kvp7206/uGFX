@@ -43,3 +43,8 @@ Add $(LCDINC) to INCDIR:
 ### Use
 include header files wherever you need it.
 
+define the controller type you want to use anywhere in your project. For example:
+
+#define LCD_USE_SSD1289
+#define TOUCHPAD_USE_ADS7843
+
