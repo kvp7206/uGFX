@@ -122,7 +122,8 @@ void tpCalibrate(void) {
 
 	lcdSetOrientation(portrait);
 	lcdClear(Red);
-	lcdDrawString(40, 10, "Touchpad Calibration", White, Red);
+	cx=40; cy=10;
+	lcdDrawString("Touchpad Calibration");
 
 	for(i=0; i<2; i++) {
 		tpDrawCross(cross[i][0], cross[i][1]);

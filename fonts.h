@@ -1,12 +1,27 @@
-#ifndef ASCIILIB_H
-#define ASCIILIB_H  
+/*
+ * fonts.h
+ *
+ * File containing prototype of the fonts for display
+ *
+ *
+ */
 
-#include <string.h>
+#include <stdint.h>
 
-//#define  ASCII_8X16_MS_Gothic
-#define  ASCII_8X16_System
+#ifndef _FONT_
+#define _FONT_
 
-void GetASCIICode(unsigned char* pBuffer,unsigned char ASCII);
+#define FONT_TABLE_HEIGHT_IDX 				0
+#define FONT_TABLE_PAD_AFTER_CHAR_IDX 		1
+#define FONT_TABLE_LINE_SPACING_IDX 		2
+#define FONT_TABLE_DECENDERS_HEIGHT_IDX 	3
+#define FONT_TABLE_UNUSED_IDX				4
+#define FONT_TABLE_CHAR_LOOKUP_IDX			5
 
-#endif 
+extern const uint8_t font_Small[];
+extern const uint8_t font_Larger[];
+//extern const uint8_t font_Medium[];
+extern const uint8_t font_MediumBold[];
+extern const uint8_t font_LargeNumbers[];
 
+#endif
