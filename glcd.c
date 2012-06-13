@@ -8,7 +8,7 @@ uint16_t lcd_width, lcd_height;
 uint16_t bgcolor=White, fgcolor=Black;
 uint16_t cx, cy;
 
-static uint8_t tpText=1;
+static uint8_t tpText=0;
 
 const uint8_t* font;
 
@@ -118,6 +118,10 @@ void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t co
    }
 }
 
+void lcdEnableTransparentText(uint8_t en) {
+	tpText=en;
+}
+
 void lcdDrawChar(char c) {
 	const uint8_t* ptr;
 
@@ -164,8 +168,19 @@ void lcdDrawChar(char c) {
 	}
 }
 
-void lcdDrawString(const char *str) {
+void lcdPutString(const char *str) {
 	while (*str) lcdDrawChar(*str++);
+}
+
+void lcdDrawString(uint16_t x, uint16_t y, const char *str, uint16_t color, uint16_t bkcolor) {
+	uint16_t _bg=bgcolor, _fg=fgcolor;
+	cx=x;
+	cy=y;
+	bgcolor=bkcolor;
+	fgcolor=color;
+	lcdPutString(str);
+	bgcolor=_bg;
+	fgcolor=_fg;
 }
 
 uint16_t lcdMeasureChar(char c) {
@@ -257,18 +272,13 @@ void lcdDrawRect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t fil
 
 void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const char *str, uint16_t fontColor, uint16_t bkColor) {
 	uint16_t off_left, off_up;
-	uint16_t _fontClr=fgcolor;
 
 	off_left = ((x1-x0)-lcdMeasureString(str))/2;
 	off_up = ((y1-y0) - lcdGetCurFontHeight()) / 2;
 
 	lcdDrawRect(x0, y0, x1, y1, 1, bkColor);
 
-	cx=x0+off_left;
-	cy=y0+off_up;
-	fgcolor=fontColor;
-	lcdDrawString(str);
-	fgcolor=_fontClr;
+	lcdDrawString(x0+off_left, y0+off_up, str, fontColor, bkColor);
 }
 
 void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint16_t color) {
