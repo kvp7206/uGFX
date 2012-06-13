@@ -34,7 +34,7 @@ enum filled {frame, filled};
 // For text rendering only
 extern uint16_t bgcolor, fgcolor;
 extern uint16_t cx, cy;
-extern const uint8_t* font;
+extern uint8_t* font;
 
 // A few macros
 #define lcdGotoXY(x,y)				{ cx=x; cy=y; }

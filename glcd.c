@@ -4,13 +4,10 @@
 #include <math.h>
 
 uint16_t lcd_width, lcd_height;
-
 uint16_t bgcolor=White, fgcolor=Black;
 uint16_t cx, cy;
-
 static uint8_t tpText=0;
-
-const uint8_t* font;
+uint8_t* font;
 
 void lcdInit(void) {
 	lld_lcdInit();
@@ -128,47 +125,45 @@ void lcdEnableTransparentText(uint8_t en) {
 
 void lcdDrawChar(char c) {
 	const uint8_t* ptr;
-
-	uint8_t fontHeight=lcdGetCurFontHeight();
-	uint8_t sps=font[FONT_TABLE_PAD_AFTER_CHAR_IDX];
-
+	uint8_t fontHeight = lcdGetCurFontHeight();
+	uint8_t sps = font[FONT_TABLE_PAD_AFTER_CHAR_IDX];
 	uint16_t chi;
-
 	uint16_t x,y;
 
 	// No support for nongraphic characters, so just ignore them
-	if (c<0x20||c>0x7F) {
-		if (c=='\n') lcdLineBreak();
+	if(c < 0x20 || c > 0x7F) {
+		if(c=='\n')
+			lcdLineBreak();
 		return;
 	}
 
-	chi=*(uint16_t*)(&font[FONT_TABLE_CHAR_LOOKUP_IDX+ (c-0x20)*2]);
+	chi = *(uint16_t*)(&font[FONT_TABLE_CHAR_LOOKUP_IDX + (c-0x20)*2]);
 
-	ptr=font+chi;
+	ptr = font + chi;
 
-	uint8_t fontWidth=*(ptr++);
+	uint8_t fontWidth = *(ptr++);
 
-	if (cx+fontWidth>lcdGetWidth()) lcdLineBreak();
+	if(cx + fontWidth > lcdGetWidth())
+		lcdLineBreak();
 
-	for (x=0;x<fontWidth;x++) {
-		chi=*(uint16_t*)ptr;
-
-		for (y=0;y<fontHeight;y++) {
-
-			if (chi&0x01)
+	for(x = 0; x < fontWidth; x++) {
+		chi = *(uint16_t*)ptr;
+		for(y = 0; y < fontHeight; y++) {
+			if(chi & 0x01)
 				lcdDrawPixel(cx+x, cy+y, fgcolor);
-			else if (!tpText)
+			else if(!tpText)
 				lcdDrawPixel(cx+x, cy+y, bgcolor);
 
-			chi>>=1;
+			chi >>= 1;
 		}
-		ptr+=2;
+		ptr += 2;
 	}
 
-	cx+=fontWidth;
-	if (sps!=0) {
-		if (!tpText) lcdFillArea(cx,cy,sps,fontHeight,fgcolor);
-		cx+=sps;
+	cx += fontWidth;
+	if(sps != 0) {
+		if(!tpText)
+			lcdFillArea(cx, cy, sps, fontHeight, fgcolor);
+		cx += sps;
 	}
 }
 
@@ -177,47 +172,48 @@ void lcdPutString(const char *str) {
 }
 
 void lcdDrawString(uint16_t x, uint16_t y, const char *str, uint16_t color, uint16_t bkcolor) {
-	uint16_t _bg=bgcolor, _fg=fgcolor;
-	cx=x;
-	cy=y;
-	bgcolor=bkcolor;
-	fgcolor=color;
+	uint16_t _bg = bgcolor, _fg = fgcolor;
+	cx = x;
+	cy = y;
+	bgcolor = bkcolor;
+	fgcolor = color;
 	lcdPutString(str);
-	bgcolor=_bg;
-	fgcolor=_fg;
+	bgcolor = _bg;
+	fgcolor = _fg;
 }
 
 uint16_t lcdMeasureChar(char c) {
-	const uint8_t* ptr;
+	const uint8_t *ptr;
 
 	// First get spaces after each character, usually 0 but can change
-	uint8_t sps=font[FONT_TABLE_PAD_AFTER_CHAR_IDX];
+	uint8_t sps = font[FONT_TABLE_PAD_AFTER_CHAR_IDX];
 
 	uint16_t chi;
 
-	if (c<0x20||c>0x7F) {
+	if(c < 0x20 || c > 0x7F)
 		return 0;
-	}
 
-	chi=*(uint16_t*)(&font[FONT_TABLE_CHAR_LOOKUP_IDX+ (c-0x20)*2]);
+	chi = *(uint16_t*)(&font[FONT_TABLE_CHAR_LOOKUP_IDX + (c-0x20)*2]);
 
-	ptr=font+chi;
+	ptr = font + chi;
 
-	uint8_t fontWidth=*(ptr++);
+	uint8_t fontWidth = *(ptr++);
 
-	return fontWidth+sps;
+	return fontWidth + sps;
 }
 
-uint16_t lcdMeasureString(const char* str) {
-	uint16_t result=0;
-	while (*str) result+=lcdMeasureChar(*str++);
+uint16_t lcdMeasureString(const char *str) {
+	uint16_t result = 0;
+
+	while (*str)result += lcdMeasureChar(*str++);
+
 	return result;
 }
 
 void lcdLineBreak() {
 	// x=0 seems too much on the edge. So I keep it at 3
-	cx=3;
-	cy+=lcdGetCurFontHeight();
+	cx = 3;
+	cy += lcdGetCurFontHeight();
 }
 
 uint16_t lcdBGR2RGB(uint16_t color) {
