@@ -3,6 +3,7 @@
 
 #include "ch.h"
 #include "hal.h"
+#include "fonts.h"
 #include "drivers/ssd1289_lld.h"
 #include "drivers/s6d1121_lld.h"
 
@@ -38,7 +39,6 @@ extern const uint8_t* font;
 // A few macros
 #define lcdGotoXY(x,y)				{ cx=x; cy=y; }
 #define lcdGetCurFontHeight()		(font[FONT_TABLE_HEIGHT_IDX])
-#define lcdSetFont(fnt)				{ font=fnt; }
 
 void lcdInit(void);
 
@@ -54,6 +54,7 @@ void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const
 void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint16_t color);
 
 void lcdEnableTransparentText(uint8_t en);
+void lcdSetFont(uint8_t *fnt);
 void lcdDrawChar(char c);
 void lcdPutString(const char *str);
 void lcdDrawString(uint16_t x, uint16_t y, const char *str, uint16_t color, uint16_t bkcolor);

@@ -118,8 +118,12 @@ void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t co
    }
 }
 
+void lcdSetFont(uint8_t *fnt) {
+	font = fnt;
+}
+
 void lcdEnableTransparentText(uint8_t en) {
-	tpText=en;
+	tpText = en;
 }
 
 void lcdDrawChar(char c) {
