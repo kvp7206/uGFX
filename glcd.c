@@ -14,6 +14,8 @@ void lcdInit(void) {
 	lcd_width = SCREEN_WIDTH;
 	lcd_height = SCREEN_HEIGHT;
 
+	lcdSetOrientation(portrait);
+	lcdSetFontTransparency(transparent);
 	lcdSetFont(font_MediumBold);
 }
 
@@ -119,7 +121,7 @@ void lcdSetFont(uint8_t *fnt) {
 	font = fnt;
 }
 
-void lcdEnableTransparentText(uint8_t transparency) {
+void lcdSetFontTransparency(uint8_t transparency) {
 	tpText = transparency;
 }
 
