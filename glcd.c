@@ -1,14 +1,23 @@
 #include "glcd.h" 
 #include "fonts.h"
+#include <stdlib.h>
 #include <math.h>
 
-uint8_t font_width = 8, font_height = 16;
 uint16_t lcd_width, lcd_height;
+
+uint16_t bgcolor=White, fgcolor=Black;
+uint16_t cx, cy;
+
+static uint8_t tpText=0;
+
+const uint8_t* font;
 
 void lcdInit(void) {
 	lld_lcdInit();
 	lcd_width = SCREEN_WIDTH;
 	lcd_height = SCREEN_HEIGHT;
+
+	lcdSetFont(font_MediumBold);
 }
 
 uint16_t lcdGetHeight(void) {
@@ -109,41 +118,102 @@ void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t co
    }
 }
 
-void lcdDrawChar(uint16_t x, uint16_t y, const char c, uint16_t charcolor, uint16_t bkcolor) {
-	uint16_t i = 0;
-	uint16_t j = 0;
-	unsigned char buffer[16];
-	unsigned char tmp_char=0;
+void lcdEnableTransparentText(uint8_t en) {
+	tpText=en;
+}
 
-	GetASCIICode(buffer,c);
+void lcdDrawChar(char c) {
+	const uint8_t* ptr;
 
-	for (i=0;i<16;i++) {
-		tmp_char=buffer[i];
-		for (j=0;j<8;j++) {
-			if (((tmp_char >> (7-j)) & 0x01) == 0x01)
-				lcdDrawPixel(x+j,y+i,charcolor);
-			else
-				lcdDrawPixel(x+j,y+i,bkcolor);
+	uint8_t fontHeight=lcdGetCurFontHeight();
+	uint8_t sps=font[FONT_TABLE_PAD_AFTER_CHAR_IDX];
+
+	uint16_t chi;
+
+	uint16_t x,y;
+
+	// No support for nongraphic characters, so just ignore them
+	if (c<0x20||c>0x7F) {
+		if (c=='\n') lcdLineBreak();
+		return;
+	}
+
+	chi=*(uint16_t*)(&font[FONT_TABLE_CHAR_LOOKUP_IDX+ (c-0x20)*2]);
+
+	ptr=font+chi;
+
+	uint8_t fontWidth=*(ptr++);
+
+	if (cx+fontWidth>lcdGetWidth()) lcdLineBreak();
+
+	for (x=0;x<fontWidth;x++) {
+		chi=*(uint16_t*)ptr;
+
+		for (y=0;y<fontHeight;y++) {
+
+			if (chi&0x01)
+				lcdDrawPixel(cx+x, cy+y, fgcolor);
+			else if (!tpText)
+				lcdDrawPixel(cx+x, cy+y, bgcolor);
+
+			chi>>=1;
 		}
+		ptr+=2;
+	}
+
+	cx+=fontWidth;
+	if (sps!=0) {
+		if (!tpText) lcdFillArea(cx,cy,sps,fontHeight,fgcolor);
+		cx+=sps;
 	}
 }
 
-void lcdDrawString(uint16_t x, uint16_t y, const char *str, uint16_t color, uint16_t bkcolor) {
-	uint8_t TempChar;
+void lcdPutString(const char *str) {
+	while (*str) lcdDrawChar(*str++);
+}
 
-	do {
-		TempChar = *str++;  
-		lcdDrawChar(x, y, TempChar, color, bkcolor);    
-		if(x<232) {
-			x+=8;
-		} else if(y<304) {
-			x=0;
-			y+=16;
-		} else {
-			x=0;
-			y=0;
-		}    
-	} while(*str != 0);
+void lcdDrawString(uint16_t x, uint16_t y, const char *str, uint16_t color, uint16_t bkcolor) {
+	uint16_t _bg=bgcolor, _fg=fgcolor;
+	cx=x;
+	cy=y;
+	bgcolor=bkcolor;
+	fgcolor=color;
+	lcdPutString(str);
+	bgcolor=_bg;
+	fgcolor=_fg;
+}
+
+uint16_t lcdMeasureChar(char c) {
+	const uint8_t* ptr;
+
+	// First get spaces after each character, usually 0 but can change
+	uint8_t sps=font[FONT_TABLE_PAD_AFTER_CHAR_IDX];
+
+	uint16_t chi;
+
+	if (c<0x20||c>0x7F) {
+		return 0;
+	}
+
+	chi=*(uint16_t*)(&font[FONT_TABLE_CHAR_LOOKUP_IDX+ (c-0x20)*2]);
+
+	ptr=font+chi;
+
+	uint8_t fontWidth=*(ptr++);
+
+	return fontWidth+sps;
+}
+
+uint16_t lcdMeasureString(const char* str) {
+	uint16_t result=0;
+	while (*str) result+=lcdMeasureChar(*str++);
+	return result;
+}
+
+void lcdLineBreak() {
+	// x=0 seems too much on the edge. So I keep it at 3
+	cx=3;
+	cy+=lcdGetCurFontHeight();
 }
 
 uint16_t lcdBGR2RGB(uint16_t color) {
@@ -200,16 +270,15 @@ void lcdDrawRect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t fil
 	}
 }
 
-void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t *str, uint16_t fontColor, uint16_t bkColor) {
-	if(((strlen(str)*8) < (x1-x0)) && ((y1-y0) > font_height)) {
-		uint16_t off_left, off_up;
+void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const char *str, uint16_t fontColor, uint16_t bkColor) {
+	uint16_t off_left, off_up;
 
-		off_left = ((x1-x0) - (strlen(str) * font_width)) / 2;
-		off_up = ((y1-y0) - font_height) / 2;
+	off_left = ((x1-x0)-lcdMeasureString(str))/2;
+	off_up = ((y1-y0) - lcdGetCurFontHeight()) / 2;
 
-		lcdDrawRect(x0, y0, x1, y1, 1, bkColor);
-		lcdDrawString(x0 + off_left, y0 + off_up, str, fontColor, bkColor);
-	}
+	lcdDrawRect(x0, y0, x1, y1, 1, bkColor);
+
+	lcdDrawString(x0+off_left, y0+off_up, str, fontColor, bkColor);
 }
 
 void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint16_t color) {

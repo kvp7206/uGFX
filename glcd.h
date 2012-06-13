@@ -30,21 +30,42 @@
 enum orientation {portrait, landscape, portraitInv, landscapeInv};
 enum filled {frame, filled};
 
+// For text rendering only
+extern uint16_t bgcolor, fgcolor;
+extern uint16_t cx, cy;
+extern const uint8_t* font;
+
+// A few macros
+#define lcdGotoXY(x,y)				{ cx=x; cy=y; }
+#define lcdGetCurFontHeight()		(font[FONT_TABLE_HEIGHT_IDX])
+#define lcdSetFont(fnt)				{ font=fnt; }
+
 void lcdInit(void);
+
 void lcdClear(uint16_t color);
 void lcdSetOrientation(uint8_t newOrientation);
 void lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 void lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
+
 void lcdDrawPixel(uint16_t x, uint16_t y, uint16_t point);
 void lcdDrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
 void lcdDrawRect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t filled, uint16_t color);
-void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t* str, uint16_t fontColor, uint16_t bkColor);
+void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const char* str, uint16_t fontColor, uint16_t bkColor);
 void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint16_t color);
-void lcdDrawString(uint16_t x, uint16_t y, const char *str, uint16_t color, uint16_t bkColor);
-void lcdDrawChar(uint16_t x, uint16_t y, const char c, uint16_t charcolor, uint16_t bkColor);
+
+void lcdEnableTransparentText(uint8_t en);
+void lcdDrawChar(char c);
+void lcdPutString(const char *str);
+void lcdDrawString(uint16_t x, uint16_t y, const char *str, uint16_t color, uint16_t bkcolor);
+void lcdLineBreak(void);
+
+uint16_t lcdMeasureChar(char c);
+uint16_t lcdMeasureString(const char* str);
+
 uint16_t lcdGetHeight(void);
 uint16_t lcdGetWidth(void);
 uint16_t lcdGetOrientation(void);
+
 uint16_t lcdBGR2RGB(uint16_t color);
 uint16_t lcdGetPixelColor(uint16_t x, uint16_t y);
 

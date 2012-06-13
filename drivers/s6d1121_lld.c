@@ -40,7 +40,7 @@ inline void lld_lcdwrite(uint16_t db)
 }
 
 static __inline uint16_t lcdReadData(void) {
-	uint16_t value;
+	uint16_t value=0;
 
 	LCD_RS_HIGH;
 	LCD_WR_HIGH;
@@ -83,21 +83,15 @@ static __inline uint16_t lcdReadReg(uint16_t lcdReg) {
 }
 
 void lcdWriteIndex(uint16_t lcdReg) {
-	LCD_CS_LOW;
 	LCD_RS_LOW;
 
 	lld_lcdwrite(lcdReg);
 
 	LCD_RS_HIGH;
-	LCD_CS_HIGH;
 }
 
 void lcdWriteData(uint16_t lcdData) {
-	LCD_CS_LOW;
-
 	lld_lcdwrite(lcdData);
-
-	LCD_CS_HIGH;
 }
 
 void lcdWriteReg(uint16_t lcdReg, uint16_t lcdRegValue) {

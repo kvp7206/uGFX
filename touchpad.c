@@ -122,6 +122,7 @@ void tpCalibrate(void) {
 
 	lcdSetOrientation(portrait);
 	lcdClear(Red);
+	cx=40; cy=10;
 	lcdDrawString(40, 10, "Touchpad Calibration", White, Red);
 
 	for(i=0; i<2; i++) {
