@@ -53,7 +53,7 @@ void lcdDrawRect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t fil
 void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const char* str, uint16_t fontColor, uint16_t bkColor);
 void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint16_t color);
 
-void lcdEnableTransparentText(uint8_t en);
+void lcdEnableTransparentText(uint8_t transparency);
 void lcdSetFont(uint8_t *fnt);
 void lcdDrawChar(char c);
 void lcdPutString(const char *str);

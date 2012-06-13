@@ -119,8 +119,8 @@ void lcdSetFont(uint8_t *fnt) {
 	font = fnt;
 }
 
-void lcdEnableTransparentText(uint8_t en) {
-	tpText = en;
+void lcdEnableTransparentText(uint8_t transparency) {
+	tpText = transparency;
 }
 
 void lcdDrawChar(char c) {
@@ -132,7 +132,7 @@ void lcdDrawChar(char c) {
 
 	// No support for nongraphic characters, so just ignore them
 	if(c < 0x20 || c > 0x7F) {
-		if(c=='\n')
+		if(c == '\n')
 			lcdLineBreak();
 		return;
 	}
