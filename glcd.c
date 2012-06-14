@@ -56,65 +56,52 @@ void lcdDrawPixel(uint16_t x, uint16_t y, uint16_t color) {
 }
 
 void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color) {
-   int16_t dy, dx;
-   int16_t  addx=1, addy=1;
-   int16_t P, diff;
+	int16_t dy, dx;
+	int16_t  addx=1, addy=1;
+	int16_t P, diff;
 
-   int16_t i=0;
-   dx = abs((int16_t)(x2 - x1));
-   dy = abs((int16_t)(y2 - y1));
+	int16_t i=0;
+	dx = abs((int16_t)(x2 - x1));
+	dy = abs((int16_t)(y2 - y1));
 
-   if(x1 > x2)
-      addx = -1;
-   if(y1 > y2)
-      addy = -1;
+	if(x1 > x2)
+		addx = -1;
+	if(y1 > y2)
+		addy = -1;
 
-   if(dx >= dy)
-   {
-      dy *= 2;
-      P = dy - dx;
-      diff = P - dx;
+	if(dx >= dy) {
+		dy *= 2;
+		P = dy - dx;
+		diff = P - dx;
 
-      for(; i<=dx; ++i)
-      {
-         lcdDrawPixel(x1, y1, color);
+		for(; i<=dx; ++i) {
+			lcdDrawPixel(x1, y1, color);
+			if(P < 0) {
+				P  += dy;
+				x1 += addx;
+			} else {
+				P  += diff;
+				x1 += addx;
+				y1 += addy;
+			}
+		}
+	} else {
+		dx *= 2;
+		P = dx - dy;
+		diff = P - dy;
 
-         if(P < 0)
-         {
-            P  += dy;
-            x1 += addx;
-         }
-         else
-         {
-            P  += diff;
-            x1 += addx;
-            y1 += addy;
-         }
-      }
-   }
-   else
-   {
-      dx *= 2;
-      P = dx - dy;
-      diff = P - dy;
-
-      for(; i<=dy; ++i)
-      {
-         lcdDrawPixel(x1, y1, color);
-
-         if(P < 0)
-         {
-            P  += dx;
-            y1 += addy;
-         }
-         else
-         {
-            P  += diff;
-            x1 += addx;
-            y1 += addy;
-         }
-      }
-   }
+		for(; i<=dy; ++i) {
+			lcdDrawPixel(x1, y1, color);
+			if(P < 0) {
+				P  += dx;
+				y1 += addy;
+			} else {
+				P  += diff;
+				x1 += addx;
+				y1 += addy;
+			}
+		}
+	}
 }
 
 <<<<<<< HEAD
