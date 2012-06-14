@@ -117,8 +117,13 @@ void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t co
    }
 }
 
+<<<<<<< HEAD
 void lcdSetFont(const uint8_t *fnt) {
 	font = fnt;
+=======
+void lcdSetFont(const uint8_t *newFont) {
+	font = newFont;
+>>>>>>> cleanups
 }
 
 void lcdSetFontTransparency(uint8_t transparency) {
