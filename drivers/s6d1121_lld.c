@@ -96,13 +96,9 @@ void lcdWriteData(uint16_t lcdData) {
 
 void lcdWriteReg(uint16_t lcdReg, uint16_t lcdRegValue) {
 	LCD_CS_LOW;
-	LCD_RS_LOW;
 
-	lld_lcdwrite(lcdReg);
-
-	LCD_RS_HIGH;
-
-	lld_lcdwrite(lcdRegValue);
+	lcdWriteIndex(lcdReg);
+	lcdWriteData(lcdRegValue);
 
 	LCD_CS_HIGH;
 }
@@ -215,26 +211,22 @@ void lld_lcdSetOrientation(uint8_t newOrientation) {
 
     switch(orientation) {
         case portrait:
-            lcdWriteReg(0x0001, 0x2B3F);
-            lcdWriteReg(0x0011, 0x6070);
+            lcdWriteReg(0x03, 0x03);
             lcd_height = SCREEN_HEIGHT;
             lcd_width = SCREEN_WIDTH;
             break;
         case landscape:
-            lcdWriteReg(0x0001, 0x293F);
-            lcdWriteReg(0x0011, 0x6078);
+        	// Not implemented yet
             lcd_height = SCREEN_WIDTH;
             lcd_width = SCREEN_HEIGHT;
             break;
         case portraitInv:
-            lcdWriteReg(0x0001, 0x693F);
-            lcdWriteReg(0x0011, 0x6040);
+        	// Not implemented yet
             lcd_height = SCREEN_HEIGHT;
             lcd_width = SCREEN_WIDTH;
             break;
         case landscapeInv:
-            lcdWriteReg(0x0001, 0x6B3F);
-            lcdWriteReg(0x0011, 0x6048);
+        	// Not implemented yet
             lcd_height = SCREEN_WIDTH;
             lcd_width = SCREEN_HEIGHT;
             break;
