@@ -5,9 +5,9 @@
 
 uint16_t lcd_width, lcd_height;
 uint16_t bgcolor=White, fgcolor=Black;
-uint16_t cx, cy;
+uint16_t cx=0, cy=0;
 static uint8_t tpText=0;
-uint8_t* font;
+const uint8_t* font;
 
 void lcdInit(void) {
 	lld_lcdInit();
@@ -117,7 +117,7 @@ void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t co
    }
 }
 
-void lcdSetFont(uint8_t *fnt) {
+void lcdSetFont(const uint8_t *fnt) {
 	font = fnt;
 }
 
@@ -164,7 +164,7 @@ void lcdDrawChar(char c) {
 	cx += fontWidth;
 	if(sps != 0) {
 		if(!tpText)
-			lcdFillArea(cx, cy, sps, fontHeight, fgcolor);
+			lcdFillArea(cx, cy, cx+sps, cy+fontHeight, bgcolor);
 		cx += sps;
 	}
 }

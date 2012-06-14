@@ -35,7 +35,7 @@ enum transparency {solid, transparent};
 // For text rendering only
 extern uint16_t bgcolor, fgcolor;
 extern uint16_t cx, cy;
-extern uint8_t* font;
+extern const uint8_t* font;
 
 // A few macros
 #define lcdGotoXY(x,y)				{ cx=x; cy=y; }
@@ -55,7 +55,7 @@ void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const
 void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint16_t color);
 
 void lcdSetFontTransparency(uint8_t transparency);
-void lcdSetFont(uint8_t *fnt);
+void lcdSetFont(const uint8_t *fnt);
 void lcdDrawChar(char c);
 void lcdPutString(const char *str);
 void lcdDrawString(uint16_t x, uint16_t y, const char *str, uint16_t color, uint16_t bkcolor);
