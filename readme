@@ -43,8 +43,5 @@ Add $(LCDINC) to INCDIR:
 ### Use
 1. include header files wherever you need it.
 
-2. define the controller type you want to use anywhere in your project. For example:
-
-	#define LCD_USE_SSD1289
-	#define TOUCHPAD_USE_ADS7843
+2. select the controller type you want to use in glcdconf.h
 
