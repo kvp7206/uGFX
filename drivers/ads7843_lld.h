@@ -8,6 +8,7 @@
 
 uint16_t lld_readX(void);
 uint16_t lld_readY(void);
+uint16_t lld_readZ(void);
 
 #endif
 #endif

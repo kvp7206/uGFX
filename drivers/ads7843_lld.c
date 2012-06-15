@@ -36,4 +36,8 @@ __inline uint16_t lld_readY(void) {
     return y;
 }
 
+__inline uint16_t lld_readZ(void) {
+	return 0;
+}
+
 #endif

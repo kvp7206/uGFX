@@ -6,7 +6,8 @@ LCDSRC = 	${CHIBIOS}/ext/lcd/glcd.c \
 			${CHIBIOS}/ext/lcd/gui.c \
 			${CHIBIOS}/ext/lcd/drivers/ssd1289_lld.c \
 			${CHIBIOS}/ext/lcd/drivers/s6d1121_lld.c \
-			${CHIBIOS}/ext/lcd/drivers/ads7843_lld.c
+			${CHIBIOS}/ext/lcd/drivers/ads7843_lld.c \
+			${CHIBIOS}/ext/lcd/drivers/xpt2046_lld.c \
 
 LCDINC = 	${CHIBIOS}/ext/lcd \
 			${CHIBIOS}/etc/lcd/drivers

@@ -8,7 +8,7 @@
 
 
 /***** TOUCHPAD CONTROLLER *****/
-#define TOUCHPAD_USE_ADS7843
-
+//#define TOUCHPAD_USE_ADS7843
+#define TOUCHPAD_USE_XPT2046
 
 #endif

@@ -54,6 +54,17 @@ uint16_t tpReadX(void);
 uint16_t tpReadY(void);
 
 /*
+ * Description: reads-out Z value / pressure
+ *				only available when controller supports, returns
+ *				zero otherwise.
+ *
+ * param:		none
+ *
+ * return:		pressure on the touchpad
+ */
+uint16_t tpReadZ(void);
+
+/*
  * Description: calibration routine
  *
  * param: none

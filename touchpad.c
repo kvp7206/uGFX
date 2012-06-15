@@ -96,6 +96,10 @@ uint16_t tpReadY(void) {
 	return y;
 }
 
+uint16_t tpReadZ(void) {
+	return lld_readZ();
+}
+
 static void tpDrawCross(uint16_t x, uint16_t y) {
 	lcdDrawLine(x-15, y, x-2, y, 0xffff);
 	lcdDrawLine(x+2, y, x+15, y, 0xffff);
