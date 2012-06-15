@@ -150,6 +150,10 @@ void lld_lcdClear(uint16_t color) {
     Set_CS;
 }
 
+void lld_lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
+
+}
+
 uint16_t lld_lcdGetPixelColor(uint16_t x, uint16_t y) {
     uint16_t dummy;
 

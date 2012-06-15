@@ -218,19 +218,7 @@ uint16_t lcdBGR2RGB(uint16_t color) {
 }
 
 void lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
-	lcdDrawRect(x0, y0, x1, y1, filled, color);
-	/*
-	uint32_t index = 0, area;
-
-	area = ((x1-x0)*(y1-y0));
-
-    lcdSetWindow(x0, y0, x1, y1);
-	Clr_CS; 
-    lcdWriteIndex(0x0022);
-    for(index = 0; index < area; index++)
-        lcdWriteData(color);
-    Set_CS;
-	*/
+	lld_lcdFillArea(x0, y0, x1, y1, color);
 }
 
 void lcdDrawRect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t filled, uint16_t color) {
