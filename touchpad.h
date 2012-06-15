@@ -5,6 +5,7 @@
 #include "hal.h"
 #include "glcd.h"
 #include "drivers/ads7843_lld.h"
+#include "drivers/xpt2046_lld.h"
 
 #define CONVERSIONS 3
 
