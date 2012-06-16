@@ -115,29 +115,26 @@ void lld_lcdSetOrientation(uint8_t newOrientation) {
 void lld_lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
     lld_lcdSetCursor(x0, y0);
 
-	x1 -= x0;
-	y1 -= y0;
-
     switch(lcdGetOrientation()) {
         case portrait:
-            lld_lcdWriteReg(0x44, ((x0+x1-1) << 8) | x0);
+            lld_lcdWriteReg(0x44, ((x1-1) << 8) | x0);
             lld_lcdWriteReg(0x45, y0);
-            lld_lcdWriteReg(0x46, y0+y1-1);
+            lld_lcdWriteReg(0x46, y1-1);
             break;
         case landscape:
-            lld_lcdWriteReg(0x44, ((y0+y1-1) << 8) | y1);
+            lld_lcdWriteReg(0x44, ((y1-1) << 8) | y1);
             lld_lcdWriteReg(0x45, x0);
-            lld_lcdWriteReg(0x46, x0+x1-1);
+            lld_lcdWriteReg(0x46, x1-1);
             break;
         case portraitInv:
-            lld_lcdWriteReg(0x44, ((x0+x1-1) << 8) | x0);
+            lld_lcdWriteReg(0x44, ((x1-1) << 8) | x0);
             lld_lcdWriteReg(0x45, y0);
-            lld_lcdWriteReg(0x46, y0+y1-1);
+            lld_lcdWriteReg(0x46, y1-1);
             break;
         case landscapeInv:
-            lld_lcdWriteReg(0x44, ((y0+y1-1) << 8) | y1);
+            lld_lcdWriteReg(0x44, ((y1-1) << 8) | y1);
             lld_lcdWriteReg(0x45, x0);
-            lld_lcdWriteReg(0x46, x0+x1-1);
+            lld_lcdWriteReg(0x46, x1-1);
             break;
     }
 }
