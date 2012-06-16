@@ -71,6 +71,10 @@ static __inline void lcdDelay(uint16_t us) {
 	chThdSleepMicroseconds(us);
 }
 
+__inline lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
+
+}
+
 void lld_lcdSetCursor(uint16_t x, uint16_t y) {
 	if(PORTRAIT) {
 		lld_lcdWriteReg(0x004e, x); 

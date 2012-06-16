@@ -16,6 +16,7 @@
 #define Clr_RD		palClearPad(LCD_CMD_PORT, LCD_RD);
 
 void lld_lcdInit(void);
+void lld_lcdWriteStream(uint16_t *buffer, uint16_t size);
 void lld_lcdSetCursor(uint16_t x, uint16_t y);
 void lld_lcdSetOrientation(uint8_t newOrientation);
 void lld_lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
