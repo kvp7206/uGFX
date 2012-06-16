@@ -1,13 +1,13 @@
-# LCD files.
-LCDSRC = 	${CHIBIOS}/ext/lcd/glcd.c \
-			${CHIBIOS}/ext/lcd/fonts.c \
-			${CHIBIOS}/ext/lcd/touchpad.c \
-			${CHIBIOS}/ext/lcd/graph.c \
-			${CHIBIOS}/ext/lcd/gui.c \
-			${CHIBIOS}/ext/lcd/drivers/ssd1289_lld.c \
-			${CHIBIOS}/ext/lcd/drivers/s6d1121_lld.c \
-			${CHIBIOS}/ext/lcd/drivers/ads7843_lld.c \
-			${CHIBIOS}/ext/lcd/drivers/xpt2046_lld.c \
+LCDLIB =	$(CHIBIOS)/ext/lcd
 
-LCDINC = 	${CHIBIOS}/ext/lcd \
-			${CHIBIOS}/etc/lcd/drivers
+include 	$(LCDLIB)/drivers/drivers.mk
+
+LCDSRC = 	$(LCDLIB)/glcd.c \
+			$(LCDLIB)/fonts.c \
+			$(LCDLIB)/touchpad.c \
+			$(LCDLIB)/graph.c \
+			$(LCDLIB)/gui.c \
+			$(LCD_DRIVERS_SRC)
+
+LCDINC = 	$(LCDLIB) \
+			$(LCD_DRIVERS_INC)
