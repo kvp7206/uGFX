@@ -4,8 +4,8 @@
 #include "ch.h"
 #include "hal.h"
 #include "glcd.h"
-#include "drivers/touchpad/ads7843_lld.h"
-#include "drivers/touchpad/xpt2046_lld.h"
+#include "ads7843_lld.h"
+#include "xpt2046_lld.h"
 
 #define CONVERSIONS 3
 

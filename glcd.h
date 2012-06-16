@@ -4,8 +4,8 @@
 #include "ch.h"
 #include "hal.h"
 #include "fonts.h"
-#include "drivers/lcd/ssd1289_lld.h"
-#include "drivers/lcd/s6d1121_lld.h"
+#include "ssd1289_lld.h"
+#include "s6d1121_lld.h"
 
 #define SCREEN_WIDTH    240
 #define SCREEN_HEIGHT   320
