@@ -74,13 +74,13 @@ static __inline void lcdDelay(uint16_t us) {
 __inline void lld_lcdWriteStreamStart(void) {
 	#ifdef LCD_USE_GPIO
 		Clr_CS
-		Clr_RS;
-		Set_RD;
+		lld_lcdWriteIndex(0x0022);
+	#endif
 
-		palWritePort(LCD_DATA_PORT, 0x0022);
+	#ifdef LCD_USE_SPI
+	#endif
 
-		Clr_WR;
-		Set_WR;
+	#ifdef LCD_USE_FSCM
 	#endif
 }
 
@@ -88,16 +88,21 @@ __inline void lld_lcdWriteStreamStop(void) {
 	#ifdef LCD_USE_GPIO
 		Set_CS;	
 	#endif
+
+	#ifdef LCD_USE_SPI
+	#endif
+
+	#ifdef LCD_USE_FSMC
+	#endif
 }
 
 __inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
 	uint16_t i;
 
-	for(i = 0; i < size; i++) {
-		palWritePort(LCD_DATA_PORT, buffer[i]);
-
-		Clr_WR;
-		Set_WR;
+	Set_RS;
+	
+	for(i = 0; i < 100; i++) {
+		lld_lcdWriteData(buffer[i]);
 	}
 }
 
