@@ -173,7 +173,8 @@ void lcdDrawChar(char c) {
 }
 
 void lcdPutString(const char *str) {
-	while (*str) lcdDrawChar(*str++);
+	while(*str)
+		lcdDrawChar(*str++);
 }
 
 void lcdDrawString(uint16_t x, uint16_t y, const char *str, uint16_t color, uint16_t bkcolor) {
