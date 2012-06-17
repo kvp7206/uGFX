@@ -71,8 +71,34 @@ static __inline void lcdDelay(uint16_t us) {
 	chThdSleepMicroseconds(us);
 }
 
-__inline lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
+__inline void lld_lcdWriteStreamStart(void) {
+	#ifdef LCD_USE_GPIO
+		Clr_CS
+		Clr_RS;
+		Set_RD;
 
+		palWritePort(LCD_DATA_PORT, 0x0022);
+
+		Clr_WR;
+		Set_WR;
+	#endif
+}
+
+__inline void lld_lcdWriteStreamStop(void) {
+	#ifdef LCD_USE_GPIO
+		Set_CS;	
+	#endif
+}
+
+__inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
+	uint16_t i;
+
+	for(i = 0; i < size; i++) {
+		palWritePort(LCD_DATA_PORT, buffer[i]);
+
+		Clr_WR;
+		Set_WR;
+	}
 }
 
 void lld_lcdSetCursor(uint16_t x, uint16_t y) {

@@ -59,6 +59,14 @@ void lcdDrawPixel(uint16_t x, uint16_t y, uint16_t color) {
 	lld_lcdDrawPixel(x, y, color);
 }
 
+static void lcdWriteStreamStart(void) {
+	lld_lcdWriteStreamStart();
+}
+
+static void lcdWriteStreamStop(void) {
+	lld_lcdWriteStreamStop();
+}
+
 static void lcdWriteStream(uint16_t *buffer, uint16_t size) {
 	lld_lcdWriteStream(buffer, size);
 }
