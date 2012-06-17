@@ -4,9 +4,9 @@
 #include <math.h>
 
 uint16_t lcd_width, lcd_height;
-uint16_t bgcolor=White, fgcolor=Black;
-uint16_t cx=0, cy=0;
-static uint8_t tpText=0;
+uint16_t bgcolor = White, fgcolor = Black;
+uint16_t cx = 0, cy = 0;
+static uint8_t tpText = 0;
 const uint8_t* font;
 
 void lcdInit(void) {
@@ -71,18 +71,18 @@ static void lcdWriteStream(uint16_t *buffer, uint16_t size) {
 	lld_lcdWriteStream(buffer, size);
 }
 
-void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color) {
+void lcdDrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
 	int16_t dy, dx;
-	int16_t  addx=1, addy=1;
+	int16_t addx = 1, addy = 1;
 	int16_t P, diff;
 
-	int16_t i=0;
-	dx = abs((int16_t)(x2 - x1));
-	dy = abs((int16_t)(y2 - y1));
+	int16_t i = 0;
+	dx = abs((int16_t)(x1 - x0));
+	dy = abs((int16_t)(y1 - y0));
 
-	if(x1 > x2)
+	if(x0 > x1)
 		addx = -1;
-	if(y1 > y2)
+	if(y0 > y1)
 		addy = -1;
 
 	if(dx >= dy) {
@@ -91,14 +91,14 @@ void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t co
 		diff = P - dx;
 
 		for(; i<=dx; ++i) {
-			lcdDrawPixel(x1, y1, color);
+			lcdDrawPixel(x0, y0, color);
 			if(P < 0) {
 				P  += dy;
-				x1 += addx;
+				x0 += addx;
 			} else {
 				P  += diff;
-				x1 += addx;
-				y1 += addy;
+				x0 += addx;
+				y0 += addy;
 			}
 		}
 	} else {
@@ -107,14 +107,14 @@ void lcdDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t co
 		diff = P - dy;
 
 		for(; i<=dy; ++i) {
-			lcdDrawPixel(x1, y1, color);
+			lcdDrawPixel(x0, y0, color);
 			if(P < 0) {
 				P  += dx;
-				y1 += addy;
+				y0 += addy;
 			} else {
 				P  += diff;
-				x1 += addx;
-				y1 += addy;
+				x0 += addx;
+				y0 += addy;
 			}
 		}
 	}
