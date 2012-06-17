@@ -101,7 +101,7 @@ __inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
 
 	Set_RS;
 	
-	for(i = 0; i < 100; i++) {
+	for(i = 0; i < size; i++) {
 		palWritePort(LCD_DATA_PORT, buffer[i]);
 
 		Clr_WR;
