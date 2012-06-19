@@ -72,6 +72,7 @@ struct GLCDDriver {
   /** @brief Virtual Methods Table.*/
   const struct GLCDDriverVMT *vmt;
   _base_asynchronous_channel_data
+  /* WARNING: Do not add any data to this struct above this comment, only below */
 };
 
 #ifdef __cplusplus
