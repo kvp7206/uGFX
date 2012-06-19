@@ -23,13 +23,13 @@
 static uint8_t orientation;
 extern uint16_t lcd_width, lcd_height;
 
-inline void lld_lcddelay(void)
+static inline void lld_lcddelay(void)
 {
 	asm volatile ("nop");
 	asm volatile ("nop");
 }
 
-inline void lld_lcdwrite(uint16_t db)
+static inline void lld_lcdwrite(uint16_t db)
 {
 	LCD_D4_GPIO->BSRR.W=((~db&0xFFF0)<<16)|(db&0xFFF0);
 	LCD_D0_GPIO->BSRR.W=((~db&0x000F)<<16)|(db&0x000F);
@@ -39,7 +39,7 @@ inline void lld_lcdwrite(uint16_t db)
 	LCD_WR_HIGH;
 }
 
-static __inline uint16_t lcdReadData(void) {
+static __inline uint16_t lld_lcdReadData(void) {
 	uint16_t value=0;
 
 	LCD_RS_HIGH;
@@ -68,21 +68,21 @@ static __inline uint16_t lcdReadData(void) {
 	return value;
 }
 
-static __inline uint16_t lcdReadReg(uint16_t lcdReg) {
+static __inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
     uint16_t lcdRAM;
 
     LCD_CS_LOW;
     LCD_RS_LOW;
     lld_lcdwrite(lcdReg);
     LCD_RS_HIGH;
-    lcdRAM = lcdReadData();
+    lcdRAM = lld_lcdReadData();
 
     LCD_CS_HIGH;
 
     return lcdRAM;
 }
 
-void lcdWriteIndex(uint16_t lcdReg) {
+void lld_lcdWriteIndex(uint16_t lcdReg) {
 	LCD_RS_LOW;
 
 	lld_lcdwrite(lcdReg);
@@ -90,15 +90,15 @@ void lcdWriteIndex(uint16_t lcdReg) {
 	LCD_RS_HIGH;
 }
 
-void lcdWriteData(uint16_t lcdData) {
+void lld_lcdWriteData(uint16_t lcdData) {
 	lld_lcdwrite(lcdData);
 }
 
 void lcdWriteReg(uint16_t lcdReg, uint16_t lcdRegValue) {
 	LCD_CS_LOW;
 
-	lcdWriteIndex(lcdReg);
-	lcdWriteData(lcdRegValue);
+	lld_lcdWriteIndex(lcdReg);
+	lld_lcdWriteData(lcdRegValue);
 
 	LCD_CS_HIGH;
 }
@@ -205,6 +205,54 @@ void lld_lcdSetCursor(uint16_t x, uint16_t y) {
 	}
 }
 
+static __inline void lld_lcdWriteStreamStart(void) {
+	#ifdef LCD_USE_GPIO
+		LCD_CS_LOW;
+		lld_lcdWriteIndex(0x0022);
+	#endif
+
+	#ifdef LCD_USE_SPI
+	#endif
+
+	#ifdef LCD_USE_FSMC
+	#endif
+}
+
+static __inline void lld_lcdWriteStreamStop(void) {
+	#ifdef LCD_USE_GPIO
+		LCD_CS_HIGH;
+	#endif
+
+	#ifdef LCD_USE_SPI
+	#endif
+
+	#ifdef LCD_USE_FSMC
+	#endif
+}
+
+__inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
+	uint16_t i;
+
+	for(i = 0; i < size; i++) {
+		lld_lcdwrite(buffer[i]);
+	}
+}
+
+void lld_lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
+	uint32_t index = 0, area;
+
+	area = ((x1-x0)*(y1-y0));
+
+    lld_lcdSetWindow(x0, y0, x1, y1);
+
+    lld_lcdWriteStreamStart();
+
+    for(index = 0; index < area; index++)
+        lld_lcdWriteData(color);
+
+    lld_lcdWriteStreamStop();
+}
+
 // Do not use now, will be fixed in future
 void lld_lcdSetOrientation(uint8_t newOrientation) {
     orientation = newOrientation;
@@ -234,30 +282,30 @@ void lld_lcdSetOrientation(uint8_t newOrientation) {
 }
 
 void lld_lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
-    lld_lcdSetCursor(x0, y0);
-
-    switch(lcdGetOrientation()) {
+	switch(lcdGetOrientation()) {
         case portrait:
-            lcdWriteReg(0x47, ((x0+x1-1) << 8) | x0);
+            lcdWriteReg(0x46, ((x1-1) << 8) | x0);
             lcdWriteReg(0x48, y0);
-            lcdWriteReg(0x47, y0+y1-1);
+            lcdWriteReg(0x47, y1-1);
             break;
         case landscape:
-            lcdWriteReg(0x47, ((y0+y1-1) << 8) | y1);
+            lcdWriteReg(0x46, ((x0-1) << 8) | x1);
             lcdWriteReg(0x48, x0);
-            lcdWriteReg(0x47, x0+x1-1);
+            lcdWriteReg(0x47, x1-1);
             break;
         case portraitInv:
-            lcdWriteReg(0x47, ((x0+x1-1) << 8) | x0);
+            lcdWriteReg(0x46, ((x1-1) << 8) | x0);
             lcdWriteReg(0x48, y0);
-            lcdWriteReg(0x47, y0+y1-1);
+            lcdWriteReg(0x47, y1-1);
             break;
         case landscapeInv:
-            lcdWriteReg(0x47, ((y0+y1-1) << 8) | y1);
+            lcdWriteReg(0x46, ((y0-1) << 8) | y1);
             lcdWriteReg(0x48, x0);
-            lcdWriteReg(0x47, x0+x1-1);
+            lcdWriteReg(0x47, x1-1);
             break;
     }
+
+	 lld_lcdSetCursor(x0, y0);
 }
 
 void lld_lcdClear(uint16_t color) {
@@ -265,9 +313,9 @@ void lld_lcdClear(uint16_t color) {
 
     lld_lcdSetCursor(0,0);
    	LCD_CS_LOW;
-    lcdWriteIndex(0x0022);
+    lld_lcdWriteIndex(0x0022);
     for(index = 0; index < SCREEN_WIDTH * SCREEN_HEIGHT; index++)
-        lcdWriteData(color);
+        lld_lcdWriteData(color);
     LCD_CS_HIGH;
 }
 
@@ -277,9 +325,9 @@ uint16_t lld_lcdGetPixelColor(uint16_t x, uint16_t y) {
 
     lld_lcdSetCursor(x,y);
     LCD_CS_LOW;
-    lcdWriteIndex(0x0022);
-    dummy = lcdReadData();
-    dummy = lcdReadData();
+    lld_lcdWriteIndex(0x0022);
+    dummy = lld_lcdReadData();
+    dummy = lld_lcdReadData();
     LCD_CS_HIGH;
 
 	return dummy;
