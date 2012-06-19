@@ -25,6 +25,11 @@ struct bar_t {
 
 enum {horizontal, vertical};
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 /*
  * Description: starts main GUI thread which keeps X and Y coordinates of touchpad updated for guiDraw() threads
  *
@@ -65,6 +70,10 @@ Thread *guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, unsign
  * return : pointer to created thread
  */
 Thread *guiDrawBarGraph(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t orientation, uint16_t frameColor, uint16_t bkColor, uint16_t valueColor, uint16_t interval, uint16_t *percent);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

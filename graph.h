@@ -1,6 +1,11 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 /*
  * Description: does draw axis arrows and grid
  *
@@ -38,5 +43,9 @@ void graphDrawDots(int16_t coord[][2], uint16_t entries, uint16_t radius, uint16
  * return: none
  */	
 void graphDrawNet(int16_t coord[][2], uint16_t entries, uint16_t radius, uint16_t lineColor, uint16_t dotColor);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

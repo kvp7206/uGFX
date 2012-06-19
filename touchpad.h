@@ -18,6 +18,11 @@ struct cal {
 	float yn;
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 /*
  * Description: initializes touchpad (SPI)
  *
@@ -73,6 +78,10 @@ uint16_t tpReadZ(void);
  * return: none
  */
 void tpCalibrate(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

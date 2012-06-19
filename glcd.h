@@ -41,6 +41,11 @@ extern const uint8_t* font;
 #define lcdGotoXY(x,y)				{ cx=x; cy=y; }
 #define lcdGetCurFontHeight()		(font[FONT_TABLE_HEIGHT_IDX])
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 void lcdInit(void);
 
 void lcdClear(uint16_t color);
@@ -70,5 +75,9 @@ uint16_t lcdGetOrientation(void);
 
 uint16_t lcdBGR2RGB(uint16_t color);
 uint16_t lcdGetPixelColor(uint16_t x, uint16_t y);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

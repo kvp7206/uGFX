@@ -6,6 +6,7 @@ uint8_t orientation;
 uint16_t DeviceCode;
 extern uint16_t lcd_width, lcd_height;
 
+#ifdef LCD_USE_GPIO
 static __inline void lld_lcdWriteIndex(uint16_t index) {
     Clr_RS;
     Set_RD;
@@ -67,47 +68,80 @@ static __inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
     return lcdRAM;
 }
 
-static __inline void lcdDelay(uint16_t us) {
-	chThdSleepMicroseconds(us);
-}
-
 __inline void lld_lcdWriteStreamStart(void) {
-	#ifdef LCD_USE_GPIO
-		Clr_CS
-		lld_lcdWriteIndex(0x0022);
-	#endif
-
-	#ifdef LCD_USE_SPI
-	#endif
-
-	#ifdef LCD_USE_FSCM
-	#endif
+	Clr_CS
+	lld_lcdWriteIndex(0x0022);
 }
 
 __inline void lld_lcdWriteStreamStop(void) {
-	#ifdef LCD_USE_GPIO
-		Set_CS;	
-	#endif
-
-	#ifdef LCD_USE_SPI
-	#endif
-
-	#ifdef LCD_USE_FSMC
-	#endif
+	Set_CS;
 }
 
 __inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
 	uint16_t i;
 
 	Set_RS;
-	
+
 	for(i = 0; i < size; i++) {
 		palWritePort(LCD_DATA_PORT, buffer[i]);
-
 		Clr_WR;
 		Set_WR;
 	}
 }
+
+#endif
+
+#ifdef LCD_USE_FSMC
+
+#define LCD_REG              (*((volatile uint16_t *) 0x60000000)) /* RS = 0 */
+#define LCD_RAM              (*((volatile uint16_t *) 0x60020000)) /* RS = 1 */
+
+static __inline void lld_lcdWriteIndex(uint16_t index) {
+	LCD_REG = index;
+}
+
+static __inline void lld_lcdWriteData(uint16_t data) {
+	LCD_RAM = data;
+}
+
+static __inline void lld_lcdWriteReg(uint16_t lcdReg,uint16_t lcdRegValue) {
+	LCD_REG = lcdReg;
+	LCD_RAM = lcdRegValue;
+}
+
+static __inline uint16_t lld_lcdReadData(void) {
+	return (LCD_RAM);
+}
+
+static __inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
+	LCD_REG = lcdReg;
+	return (LCD_RAM);
+}
+
+__inline void lld_lcdWriteStreamStart(void) {
+	LCD_REG = 0x0022;
+}
+
+__inline void lld_lcdWriteStreamStop(void) {
+
+}
+
+__inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
+	uint16_t i;
+	for(i = 0; i < size; i++)
+		LCD_RAM = buffer[i];
+}
+#endif
+
+#ifdef LCD_USE_SPI
+/* TODO! */
+#endif
+
+static __inline void lcdDelay(uint16_t us) {
+	chThdSleepMicroseconds(us);
+}
+
+
 
 void lld_lcdSetCursor(uint16_t x, uint16_t y) {
 	if(PORTRAIT) {
@@ -183,33 +217,38 @@ void lld_lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_
 	area = ((x1-x0)*(y1-y0));
 
     lld_lcdSetWindow(x0, y0, x1, y1);
-    Clr_CS; 
-    lld_lcdWriteIndex(0x0022);
+
+
+    lld_lcdWriteStreamStart();
+
     for(index = 0; index < area; index++)
         lld_lcdWriteData(color);
-    Set_CS;
+
+    lld_lcdWriteStreamStop();
 }
 
 void lld_lcdClear(uint16_t color) {
     uint32_t index = 0;
 
     lld_lcdSetCursor(0, 0);
-    Clr_CS;
-    lld_lcdWriteIndex(0x0022);
+    lld_lcdWriteStreamStart();
+
     for(index = 0; index < SCREEN_WIDTH * SCREEN_HEIGHT; index++)
-        lld_lcdWriteData(color);
-    Set_CS;
+    	lld_lcdWriteData(color);
+
+    lld_lcdWriteStreamStop();
 }
 
 uint16_t lld_lcdGetPixelColor(uint16_t x, uint16_t y) {
     uint16_t dummy;
 
     lld_lcdSetCursor(x,y);
-    Clr_CS;
-    lld_lcdWriteIndex(0x0022);
+    lld_lcdWriteStreamStart();
+
     dummy = lld_lcdReadData();
     dummy = lld_lcdReadData();
-    Set_CS;
+
+    lld_lcdWriteStreamStop();
 
 	return dummy;
 }
@@ -220,6 +259,24 @@ void lld_lcdDrawPixel(uint16_t x, uint16_t y, uint16_t color) {
 }
 
 void lld_lcdInit(void) {
+#ifdef LCD_USE_FSMC
+	/* FSMC setup. TODO: this only works for STM32F1 */
+	rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
+	int FSMC_Bank = 0;
+	/* timing structure */
+	/* from datasheet:
+        address setup: 0ns
+        address hold: 0ns
+        Data setup: 5ns
+        Data hold: 5ns
+        Data access: 250ns
+        output hold: 100ns
+	 */
+	FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_1 | FSMC_BTR1_DATAST_1;
+
+	/* Bank1 NOR/SRAM control register configuration */
+	FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
+#endif
 	DeviceCode = lld_lcdReadReg(0x0000);
 
 	lld_lcdWriteReg(0x0000,0x0001);		lcdDelay(5);
