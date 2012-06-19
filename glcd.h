@@ -28,6 +28,7 @@
 enum orientation {portrait, landscape, portraitInv, landscapeInv};
 enum filled {frame, filled};
 enum transparency {solid, transparent};
+enum powermode {poweroff, poweron, standby};
 
 // For text rendering only
 extern uint16_t bgcolor, fgcolor;
@@ -49,6 +50,7 @@ void lcdClear(uint16_t color);
 void lcdSetOrientation(uint8_t newOrientation);
 void lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 void lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
+void lcdSetPowerMode(uint8_t powerMode);
 
 void lcdDrawPixel(uint16_t x, uint16_t y, uint16_t point);
 void lcdDrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);

@@ -35,6 +35,10 @@ static void lcdSetCursor(uint16_t x, uint16_t y) {
 	lld_lcdSetCursor(x, y);
 }
 
+void lcdSetPowerMode(uint8_t powerMode) {
+	lld_lcdSetPowerMode(powerMode);
+}
+
 void lcdSetOrientation(uint8_t newOrientation) {
 	lld_lcdSetOrientation(newOrientation);
 }
