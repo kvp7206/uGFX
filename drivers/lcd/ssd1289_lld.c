@@ -91,6 +91,10 @@ __inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
 
 #endif
 
+#ifdef LCD_USE_SPI
+	/* TODO */
+#endif
+
 #ifdef LCD_USE_FSMC
 
 #define LCD_REG              (*((volatile uint16_t *) 0x60000000)) /* RS = 0 */
@@ -133,15 +137,9 @@ __inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
 }
 #endif
 
-#ifdef LCD_USE_SPI
-/* TODO! */
-#endif
-
 static __inline void lcdDelay(uint16_t us) {
 	chThdSleepMicroseconds(us);
 }
-
-
 
 void lld_lcdSetCursor(uint16_t x, uint16_t y) {
 	if(PORTRAIT) {
