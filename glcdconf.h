@@ -1,6 +1,8 @@
 #ifndef GLCDCONF_H
 #define GLCDCONF_H
 
+#define SCREEN_WIDTH    240
+#define SCREEN_HEIGHT   320
 
 /***** LCD CONTROLLER *****/
 #define LCD_USE_SSD1289

@@ -11,8 +11,8 @@ const uint8_t* font;
 
 void lcdInit(void) {
 	lld_lcdInit();
-	lcd_width = SCREEN_WIDTH;
-	lcd_height = SCREEN_HEIGHT;
+	lcd_width = lcdGetWidth();
+	lcd_height = lcdGetHeight();
 
 	lcdSetOrientation(portrait);
 	lcdSetFontTransparency(transparent);

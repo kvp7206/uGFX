@@ -7,9 +7,6 @@
 #include "ssd1289_lld.h"
 #include "s6d1121_lld.h"
 
-#define SCREEN_WIDTH    240
-#define SCREEN_HEIGHT   320
-
 #define PORTRAIT	(lcdGetOrientation() == portrait || lcdGetOrientation() == portraitInv)
 #define LANDSCAPE	(lcdGetOrientation() == landscape || lcdGetOrientation() == landscapeInv)
 
