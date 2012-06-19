@@ -41,12 +41,45 @@ extern const uint8_t* font;
 #define lcdGotoXY(x,y)				{ cx=x; cy=y; }
 #define lcdGetCurFontHeight()		(font[FONT_TABLE_HEIGHT_IDX])
 
+/**
+ * @brief   Structure representing a GLCD driver.
+ */
+typedef struct GLCDDriver GLCDDriver;
+
+/**
+ * @brief   @p GLCDDriver specific methods.
+ */
+#define _glcd_driver_methods                                              \
+  _base_asynchronous_channel_methods
+
+/**
+ * @extends BaseAsynchronousChannelVMT
+ *
+ * @brief   @p GLCDDriver virtual methods table.
+ */
+struct GLCDDriverVMT {
+  _glcd_driver_methods
+};
+
+/**
+ * @extends BaseAsynchronousChannel
+ *
+ * @brief   GLCD driver class.
+ * @details This class extends @p BaseAsynchronousChannel by adding physical
+ *          I/O queues.
+ */
+struct GLCDDriver {
+  /** @brief Virtual Methods Table.*/
+  const struct GLCDDriverVMT *vmt;
+  _base_asynchronous_channel_data
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-void lcdInit(void);
+void lcdInit(GLCDDriver *);
 
 void lcdClear(uint16_t color);
 void lcdSetOrientation(uint8_t newOrientation);
@@ -61,8 +94,10 @@ void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint
 
 void lcdSetFontTransparency(uint8_t transparency);
 void lcdSetFont(const uint8_t *newFont);
-void lcdDrawChar(char c);
-void lcdPutString(const char *str);
+void lcdMoveCursor(uint16_t x, uint16_t y, uint16_t color, uint16_t bkcolor);
+msg_t lcdDrawChar(char c);
+size_t lcdWriteString(const char *str, size_t n);
+size_t lcdPutString(const char *str);
 void lcdDrawString(uint16_t x, uint16_t y, const char *str, uint16_t color, uint16_t bkcolor);
 void lcdLineBreak(void);
 

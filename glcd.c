@@ -3,13 +3,82 @@
 #include <stdlib.h>
 #include <math.h>
 
+/*===========================================================================*/
+/* Driver local functions.                                                   */
+/*===========================================================================*/
+
+/*
+ * Interface implementation. The interface is write only
+ */
+
+static size_t writes(void *ip, const uint8_t *bp, size_t n) {
+	(void)ip;
+	return lcdWriteString(bp, n);
+}
+
+static size_t reads(void *ip, uint8_t *bp, size_t n) {
+	(void)ip;
+	(void)bp;
+	(void)n;
+	return 0;
+}
+
+static msg_t put(void *ip, uint8_t b) {
+	(void)ip;
+	return lcdDrawChar((char)b);
+}
+
+static msg_t get(void *ip) {
+	(void)ip;
+	return RDY_OK;
+}
+
+static msg_t putt(void *ip, uint8_t b, systime_t timeout) {
+	(void)ip;
+	(void)timeout;
+	/* TODO: handle timeout */
+	return lcdDrawChar((char)b);
+}
+
+static msg_t gett(void *ip, systime_t timeout) {
+	(void)ip;
+	(void)timeout;
+	return RDY_OK;
+}
+
+static size_t writet(void *ip, const uint8_t *bp, size_t n, systime_t time) {
+	(void)ip;
+	(void)time;
+	return lcdWriteString(bp, n);
+}
+
+static size_t readt(void *ip, uint8_t *bp, size_t n, systime_t time) {
+	(void)ip;
+	(void)bp;
+	(void)n;
+	(void)time;
+	return 0;
+}
+
+static chnflags_t getflags(void *ip) {
+  _chn_get_and_clear_flags_impl(ip);
+}
+
+static const struct GLCDDriverVMT vmt = {
+  writes, reads, put, get,
+  putt, gett, writet, readt,
+  getflags
+};
+
 uint16_t lcd_width, lcd_height;
 uint16_t bgcolor = White, fgcolor = Black;
 uint16_t cx = 0, cy = 0;
 static uint8_t tpText = 0;
 const uint8_t* font;
 
-void lcdInit(void) {
+void lcdInit(GLCDDriver *glcdp) {
+	glcdp->vmt = &vmt;
+
 	lld_lcdInit();
 	lcd_width = SCREEN_WIDTH;
 	lcd_height = SCREEN_HEIGHT;
@@ -128,7 +197,7 @@ void lcdSetFontTransparency(uint8_t transparency) {
 	tpText = transparency;
 }
 
-void lcdDrawChar(char c) {
+msg_t lcdDrawChar(char c) {
 	const uint8_t* ptr;
 	uint8_t fontHeight = lcdGetCurFontHeight();
 	uint8_t sps = font[FONT_TABLE_PAD_AFTER_CHAR_IDX];
@@ -139,7 +208,7 @@ void lcdDrawChar(char c) {
 	if(c < 0x20 || c > 0x7F) {
 		if(c == '\n')
 			lcdLineBreak();
-		return;
+		return RDY_OK;
 	}
 
 	chi = *(uint16_t*)(&font[FONT_TABLE_CHAR_LOOKUP_IDX + (c-0x20)*2]);
@@ -170,11 +239,38 @@ void lcdDrawChar(char c) {
 			lcdFillArea(cx, cy, cx+sps, cy+fontHeight, bgcolor);
 		cx += sps;
 	}
+
+	/* TODO: proper return codes */
+	return RDY_OK;
 }
 
-void lcdPutString(const char *str) {
-	while(*str)
-		lcdDrawChar(*str++);
+size_t lcdWriteString(const char *str, size_t n) {
+	size_t l = 0;
+	for(l = 0; l < n; l++) {
+		if(lcdDrawChar(*str++) != RDY_OK)
+			break;
+	}
+
+	return l;
+}
+
+size_t lcdPutString(const char *str) {
+	size_t l = 0;
+	while(*str) {
+		if(lcdDrawChar(*str++) != RDY_OK)
+			break;
+
+		l++;
+	}
+
+	return l;
+}
+
+void lcdMoveCursor(uint16_t x, uint16_t y, uint16_t color, uint16_t bkcolor) {
+	cx = x;
+	cy = y;
+	bgcolor = bkcolor;
+	fgcolor = color;
 }
 
 void lcdDrawString(uint16_t x, uint16_t y, const char *str, uint16_t color, uint16_t bkcolor) {
