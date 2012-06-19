@@ -28,6 +28,11 @@
 #define LCD_D0_GPIO			GPIOD
 #define LCD_D4_GPIO			GPIOE
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 void lld_lcdInit(void);
 void lld_lcdSetCursor(uint16_t x, uint16_t y);
 void lld_lcdSetOrientation(uint8_t newOrientation);
@@ -38,6 +43,10 @@ uint16_t lld_lcdGetPixelColor(uint16_t x, uint16_t y);
 uint16_t lld_lcdGetOrientation(void);
 uint16_t lld_lcdGetHeight(void);
 uint16_t lld_lcdGetWidth(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 #endif
