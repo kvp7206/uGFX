@@ -8,9 +8,9 @@
 
 
 /***** LCD INTERFACE *****/
- #define LCD_USE_GPIO
+#define LCD_USE_GPIO
 // #define LCD_USE_SPI
-//#define LCD_USE_FSMC
+// #define LCD_USE_FSMC
 
 
 /***** TOUCHPAD CONTROLLER *****/
