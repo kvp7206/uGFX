@@ -35,19 +35,19 @@ void graphDrawSystem(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_
 	}
 }
 
-void graphDrawDots(int16_t coord[][2], uint16_t entries, uint16_t radius, uint16_t color) {
+void graphDrawDots(int coord[][2], uint16_t entries, uint16_t radius, uint16_t color) {
 	uint16_t i;
 
-	for(i=0; i<entries; i++)
+	for(i = 0; i < entries; i++)
 		lcdDrawCircle(coord[i][0]+x, y-coord[i][1], radius, 1, color);
 }
 
-void graphDrawNet(int16_t coord[][2], uint16_t entries, uint16_t radius, uint16_t lineColor, uint16_t dotColor) {
+void graphDrawNet(int coord[][2], uint16_t entries, uint16_t radius, uint16_t lineColor, uint16_t dotColor) {
 	uint16_t i;
 
 	for(i = 0; i < entries; ++i)
 		lcdDrawLine(coord[i-1][0]+x, y-coord[i-1][1], coord[i][0]+x, y-coord[i][1], lineColor); 
-	for(i=0; i<entries; ++i)
+	for(i = 0; i < entries; ++i)
 		if(radius != 0)
 			lcdDrawCircle(coord[i][0]+x, y-coord[i][1], radius, 1, dotColor);
 }
