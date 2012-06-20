@@ -73,7 +73,6 @@ static const struct GLCDDriverVMT vmt = {
 uint16_t lcd_width, lcd_height;
 uint16_t bgcolor = White, fgcolor = Black;
 uint16_t cx = 0, cy = 0;
-uint16_t cursor_x = 0, cursor_y = 0;
 static uint8_t tpText = 0;
 const uint8_t* font;
 
@@ -273,7 +272,6 @@ size_t lcdPutString(const char *str) {
 
 void lcdMoveCursor(uint16_t x, uint16_t y, uint16_t color, uint16_t bkcolor) {
 	cx = x;
-	cursor_x = x;
 	cy = y;
 	bgcolor = bkcolor;
 	fgcolor = color;
@@ -319,7 +317,8 @@ uint16_t lcdMeasureString(const char *str) {
 }
 
 void lcdLineBreak() {
-	cx = cursor_x;
+	// x=0 seems too much on the edge. So I keep it at 3
+	cx = 3;
 	cy += lcdGetCurFontHeight();
 }
 
