@@ -7,6 +7,7 @@ LCDSRC = 	$(LCDLIB)/glcd.c \
 			$(LCDLIB)/touchpad.c \
 			$(LCDLIB)/graph.c \
 			$(LCDLIB)/gui.c \
+			$(LCDLIB)/console.c \
 			$(LCD_DRIVERS_SRC)
 
 LCDINC = 	$(LCDLIB) \
