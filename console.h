@@ -35,6 +35,8 @@ struct GLCDConsole {
   /* WARNING: Do not add any data to this struct above this comment, only below */
   /* text buffer */
   uint8_t *buf;
+  /* font */
+  const uint8_t *font;
   /* lcd area to use */
   uint16_t x0,y0,x1,y1;
   /* current cursor position, in character coordinates (not pixels) */
@@ -46,7 +48,8 @@ struct GLCDConsole {
   /* font size in pixels */
   uint8_t fx,fy;
   /* buffer index */
-  uint16_t bidx;
+  uint16_t bidx, blen, bstrt;
+  bool_t full;
 };
 
 #ifdef __cplusplus
@@ -55,6 +58,9 @@ extern "C" {
 
 msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1,
 		const uint8_t *font, uint8_t *buffer, uint16_t bkcolor, uint16_t color);
+
+msg_t lcdConsolePut(GLCDConsole *console, char c);
+msg_t lcdConsoleWrite(GLCDConsole *console, uint8_t *bp, size_t n);
 
 #ifdef __cplusplus
 }
