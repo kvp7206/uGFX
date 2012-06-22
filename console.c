@@ -87,8 +87,8 @@ msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t x1
 	console->fx = *(ptr++);
 
 	/* calculate the size of the console in characters */
-	console->sx = (x1-x0)/console->fx;
-	console->sy = (y1-y0)/console->fy;
+	console->sx = (x1-x0);
+	console->sy = (y1-y0);
 
 	console->cx = 0;
 	console->cy = 0;
@@ -96,7 +96,7 @@ msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t x1
 	console->y0 = y0;
 
 	console->buf = buffer;
-	console->bidx = 0;
+	console->wptr = 0;
 	console->blen = console->sx*console->sy;
 	console->bstrt = 0;
 
@@ -112,56 +112,82 @@ msg_t lcdConsoleUpdate(GLCDConsole *console) {
 }
 
 msg_t lcdConsolePut(GLCDConsole *console, char c) {
+	uint8_t width = console->fx;
+	uint16_t i;
+	uint16_t s = console->wptr;
+	bool_t redraw = FALSE;
 
 	if(console->full) {
 		return RDY_RESET;
 	}
 
-	bool_t redraw = FALSE;
-	/* write character to current position in buffer */
-	console->buf[console->bidx++] = c;
+	/* write character to current position in buffer and update wptr */
+	console->buf[console->wptr] = c;
 
-	if(console->bidx == console->blen) {
+	if(++console->wptr == console->blen) {
 		/* wrap around to the beginning */
-		console->bidx = 0;
+		console->wptr = 0;
 	}
 
-	if(c == '\n') {
-		console->cx = 0;
-		console->cy++;
-		redraw = TRUE;
-	} else if(c == '\r') {
-		console->cx = 0;
-	} else {
-		console->cx++;
-	}
+	lcdSetFont(console->font);
+	lcdSetFontTransparency(solid);
+	/* keep looping until we've finished writing
+	 * we may write more than one character if the console needs to be re-drawn
+	 * at the end of the loop leave the cursor set to the position for the next character
+	 * checks to see if this is out of range will be performed at the start of that character
+	 */
+	do {
+		if(console->buf[s] == '\n') {
+			console->cx = 0;
+			console->cy += console->fy;
+		} else if(console->buf[s] == '\r') {
+			/* TODO: work backwards through the buffer to the start of the current line */
+			//console->cx = 0;
+		} else {
+			if(console->cx >= console->sx) {
+				console->cx = 0;
+				console->cy += console->fy;
+			}
 
-	if(console->cx > console->sx) {
-		/* character has extended beyond end of line */
-		redraw = TRUE;
-	}
+			if((console->cy + console->fy) >= console->sy) {
+				/* we've gone beyond the end of the console */
+				//console->full = TRUE;
+				//return RDY_RESET;
+				/* start at beginning of buffer and remove the first line */
 
-	if(redraw && console->cy == console->sy) {
+				/* increment s from bstrt until it has been incremented more than
+				 * console->sx or finds a new line */
+				s = console->bstrt;
+				console->cx = 0;
 
-		/* we've gone past the end of the console */
-		console->full = TRUE;
-		return RDY_RESET;
-		/* start at beginning of buffer and remove the first line */
-		uint16_t i;
+				while((console->cx <= console->sx) && (console->buf[s % console->blen] != '\n')) {
+					s++;
+					/* TODO: increment based on the width of the character at s */
+					/* TODO: this doesn't handle carriage return */
+					console->cx += width;
+				}
 
-		/* increment i from bstrt until it has been incremented more than console->sx or finds a new line */
-		for(i = console->bstrt; ((i - console->bstrt) < console->sx) && (console->buf[i % console->sx] != '\n'); i++);
+				/* update bstrt to the new start point of the console */
+				console->bstrt = s;
 
-		/* update bstrt to the new start point of the console */
-		console->bstrt = i;
-	} else {
-		/* just draw the character at the current position */
-		lcdMoveCursor(console->x0 + console->cx*console->fx, console->y0 + console->cy*console->fy,
-				console->color, console->bkcolor);
+				/* reset the cursor */
+				console->cx = 0;
+				console->cy = 0;
+			}
+			lcdMoveCursor(console->x0 + console->cx, console->y0 + console->cy,
+					console->color, console->bkcolor);
+			lcdDrawChar(console->buf[s]);
 
-		lcdSetFont(console->font);
-		lcdDrawChar(c);
-	}
+			/* update cursor */
+			console->cx += width;
+		}
+
+		/* finally increment index */
+		if(++s == console->blen)
+			s = 0;
+
+	} while(s != console->wptr);
+
 }
 
 msg_t lcdConsoleWrite(GLCDConsole *console, uint8_t *bp, size_t n) {

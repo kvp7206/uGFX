@@ -48,7 +48,7 @@ struct GLCDConsole {
   /* font size in pixels */
   uint8_t fx,fy;
   /* buffer index */
-  uint16_t bidx, blen, bstrt;
+  uint16_t wptr, blen, bstrt;
   bool_t full;
 };
 
