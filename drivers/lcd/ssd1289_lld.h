@@ -2,7 +2,6 @@
 #define SSD1289_H
 
 #include "glcd.h"
-#include "glcdconf.h"
 
 #ifdef LCD_USE_SSD1289
 

@@ -1,7 +1,7 @@
 #ifndef XPT2046_LLD_H
 #define XPT2046_LLD_H
 
-#include "glcdconf.h"
+#include "glcd.h"
 #include "touchpad.h"
 
 #ifdef TOUCHPAD_USE_XPT2046
