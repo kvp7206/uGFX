@@ -78,13 +78,9 @@ msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t x1
 	uint16_t x,y;
 
 	console->vmt = &vmt;
-	/* read font, get size */
-	/* TODO: this is messy. improve font handling.
-	 * this assumes that all characters are as wide as A */
+	/* read font, get height */
 	console->fy = font[FONT_TABLE_HEIGHT_IDX];
-	chi = *(uint16_t*)(&font[FONT_TABLE_CHAR_LOOKUP_IDX + ('A'-0x20)*2]);
-	ptr = font + chi;
-	console->fx = *(ptr++);
+
 
 	/* calculate the size of the console in characters */
 	console->sx = (x1-x0);
@@ -104,7 +100,6 @@ msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t x1
 	console->color = color;
 
 	console->font = font;
-	console->full = FALSE;
 }
 
 msg_t lcdConsoleUpdate(GLCDConsole *console) {
@@ -112,14 +107,10 @@ msg_t lcdConsoleUpdate(GLCDConsole *console) {
 }
 
 msg_t lcdConsolePut(GLCDConsole *console, char c) {
-	uint8_t width = console->fx;
 	uint16_t i;
 	uint16_t s = console->wptr;
+	uint8_t width;
 	bool_t redraw = FALSE;
-
-	if(console->full) {
-		return RDY_RESET;
-	}
 
 	/* write character to current position in buffer and update wptr */
 	console->buf[console->wptr] = c;
@@ -137,22 +128,25 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 	 * checks to see if this is out of range will be performed at the start of that character
 	 */
 	do {
+		width = lcdMeasureChar(console->buf[s]);
 		if(console->buf[s] == '\n') {
+			/* clear the text at the end of the line */
+			if(console->cx < console->sx)
+				lcdDrawRect(console->cx, console->cy, console->sx, console->cy + console->fy,
+						1, console->bkcolor);
 			console->cx = 0;
 			console->cy += console->fy;
 		} else if(console->buf[s] == '\r') {
 			/* TODO: work backwards through the buffer to the start of the current line */
 			//console->cx = 0;
 		} else {
-			if(console->cx >= console->sx) {
+			if((console->cx + width) >= console->sx) {
 				console->cx = 0;
 				console->cy += console->fy;
 			}
 
 			if((console->cy + console->fy) >= console->sy) {
 				/* we've gone beyond the end of the console */
-				//console->full = TRUE;
-				//return RDY_RESET;
 				/* start at beginning of buffer and remove the first line */
 
 				/* increment s from bstrt until it has been incremented more than
@@ -164,7 +158,7 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 					s++;
 					/* TODO: increment based on the width of the character at s */
 					/* TODO: this doesn't handle carriage return */
-					console->cx += width;
+					console->cx += lcdMeasureChar(console->buf[s % console->blen]);
 				}
 
 				/* update bstrt to the new start point of the console */

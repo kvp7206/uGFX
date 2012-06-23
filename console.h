@@ -38,18 +38,17 @@ struct GLCDConsole {
   /* font */
   const uint8_t *font;
   /* lcd area to use */
-  uint16_t x0,y0,x1,y1;
-  /* current cursor position, in character coordinates (not pixels) */
+  uint16_t x0,y0;
+  /* current cursor position, in pixels */
   uint16_t cx,cy;
-  /* console size in characters */
+  /* console size in pixels */
   uint16_t sx,sy;
   /* foreground and background colour */
   uint16_t bkcolor, color;
   /* font size in pixels */
-  uint8_t fx,fy;
+  uint8_t fy;
   /* buffer index */
   uint16_t wptr, blen, bstrt;
-  bool_t full;
 };
 
 #ifdef __cplusplus
