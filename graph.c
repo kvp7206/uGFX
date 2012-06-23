@@ -30,7 +30,7 @@ void graphDrawSystem(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_
 	lcdDrawLine(x0, y1, x0-5, y1+5, color);
 	lcdDrawLine(x0, y1, x0+5, y1+5, color);
 	for(i=1; i<(length / grid_Y); i++) {
-		off = x0 + i * grid_Y;
+		off = y0 + i * grid_Y;
 		lcdDrawLine(x0-MARKSIZE, off, x0+MARKSIZE, off, color);	
 	}
 }
