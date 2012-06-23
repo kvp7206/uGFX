@@ -11,11 +11,12 @@ extern "C" {
  *
  * param:
  *		- x0, y0, x1, y1:	location of arrows
+ *		- gridX, gridY:		grid size in X and Y direction
  *		- color:			color of arrows
  *
  * return: none
  */
-void graphDrawSystem(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
+void graphDrawSystem(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t gridX, uint16_t gridY, uint16_t color);
 
 /*
  * Description: does draw coordinates into graph as dots

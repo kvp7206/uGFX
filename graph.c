@@ -1,26 +1,26 @@
 #include "glcd.h"
 
-#define GRID_X		20
-#define GRID_Y		20
-
 #define MARKSIZE	5 	// half
 
-static uint16_t x, y;	// origins in graph
+static uint16_t x, y;			// origins in graph
+static uint16_t grid_X, grid_Y;	//grids
 
-void graphDrawSystem(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
+void graphDrawSystem(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t gridX, uint16_t gridY, uint16_t color) {
 	uint16_t i, length;
 	volatile uint16_t off;
 
 	x = x0;
 	y = y0;
+	grid_X = gridX;
+	grid_Y = gridY;
 
 	// X-Axis
 	length = x1 - x0;
 	lcdDrawLine(x0, y0, x1, y0, color);
 	lcdDrawLine(x1, y0, x1-5, y0+5, color);
 	lcdDrawLine(x1, y0, x1-5, y0-5, color);	
-	for(i=1; i<(length / GRID_X); i++) {
-		off = x0 + i*GRID_X;
+	for(i=1; i<(length / grid_X); i++) {
+		off = x0 + i * grid_X;
 		lcdDrawLine(off, y0-MARKSIZE, off, y0+MARKSIZE, color);
 	}
 
@@ -29,8 +29,8 @@ void graphDrawSystem(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_
 	lcdDrawLine(x0, y0, x0, y1, color);
 	lcdDrawLine(x0, y1, x0-5, y1+5, color);
 	lcdDrawLine(x0, y1, x0+5, y1+5, color);
-	for(i=1; i<(length / GRID_Y); i++) {
-		off = x0 + i*GRID_Y;
+	for(i=1; i<(length / grid_Y); i++) {
+		off = x0 + i * grid_Y;
 		lcdDrawLine(x0-MARKSIZE, off, x0+MARKSIZE, off, color);	
 	}
 }
