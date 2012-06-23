@@ -45,3 +45,10 @@ Add $(LCDINC) to INCDIR:
 
 2. select the controller type you want to use in glcdconf.h
 
+### Maintainer & Contributors
+Contributors:	- Badger
+				- Abhishek 
+
+Maintainer:		- Joel Bodenmann aka Tectu <joel@unormal.org>
+
+
