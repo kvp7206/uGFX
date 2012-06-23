@@ -142,14 +142,22 @@ static __inline void lld_lcdDelay(uint16_t us) {
 }
 
 void lld_lcdSetPowerMode(uint8_t powerMode) {
-	/* TODO */
-
 	switch(powerMode) {
-		case poweroff:
+		case powerOff:
+			lld_lcdWriteReg(0x0010, 0x0000);	// leave sleep mode
+			lld_lcdWriteReg(0x0007, 0x0000);	// halt operation
+			lld_lcdWriteReg(0x0000, 0x0000);	// turn off oszillator
+			lld_lcdWriteReg(0x0010, 0x0001);	// enter sleepmode
 			break;
-		case poweron:
+		case powerOn:
+			lld_lcdWriteReg(0x0010, 0x0000);	// leave sleep mode
+			lld_lcdInit();
 			break;
-		case standby:
+		case sleepOn:
+			lld_lcdWriteReg(0x0010, 0x0001);	// enter sleep mode
+			break;
+		case sleepOff:
+			lld_lcdWriteReg(0x0010, 0x0000);	// leave sleep mode
 			break;
 	}
 }

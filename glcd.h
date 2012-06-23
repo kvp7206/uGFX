@@ -28,7 +28,7 @@
 enum orientation {portrait, landscape, portraitInv, landscapeInv};
 enum filled {frame, filled};
 enum transparency {solid, transparent};
-enum powermode {poweroff, poweron, standby};
+enum powermode {powerOff, powerOn, sleepOn, sleepOff};
 
 // For text rendering only
 extern uint16_t bgcolor, fgcolor;
