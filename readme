@@ -11,16 +11,24 @@ add the following to your board.h file, matching to your pinconfig:
 	#define TP_CS					6
 
 	#define LCD_DATA_PORT_1			GPIOB
-	#define LCD_DATA_PORT_2			GPIOC
-	#define LCD_DATA_PORT_1_BASE	8
-	#define LCD_DATA_PORT_2_BASE	0
+	#define LCD_DATA_PORT_2			GPIOB
+	#define LCD_DATA_PORT_3			GPIOC
+	#define LCD_DATA_PORT_4			GPIOE
+	#define LCD_DATA_PORT_1_BASE	12
+	#define LCD_DATA_PORT_2_BASE	8
+	#define LCD_DATA_PORT_3_BASE	4
+	#define LCD_DATA_PORT_4_BASE	0	
 	#define LCD_CMD_PORT			GPIOD
 	#define LCD_CS					12
 	#define LCD_RS					13
 	#define LCD_WR					14
 	#define LCD_RD					15
 
-in this example, we use GPIOC[0:7] for DB[0:7] and GPIOB[8:15] for DB[8:15]
+in this example we use the following pin config for 16-bit GPIO interfacing:
+
+	GPIOB 8-15
+	GPIOC 4-7
+	GPIOE 0-3
 
 ### Edit Makefile:
 include lcd.mk:
