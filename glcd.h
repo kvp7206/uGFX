@@ -46,33 +46,7 @@ extern const uint8_t* font;
  */
 typedef struct GLCDDriver GLCDDriver;
 
-/**
- * @brief   @p GLCDDriver specific methods.
- */
-#define _glcd_driver_methods                                              \
-  _base_asynchronous_channel_methods
-
-/**
- * @extends BaseAsynchronousChannelVMT
- *
- * @brief   @p GLCDDriver virtual methods table.
- */
-struct GLCDDriverVMT {
-  _glcd_driver_methods
-};
-
-/**
- * @extends BaseAsynchronousChannel
- *
- * @brief   GLCD driver class.
- * @details This class extends @p BaseAsynchronousChannel by adding physical
- *          I/O queues.
- */
 struct GLCDDriver {
-  /** @brief Virtual Methods Table.*/
-  const struct GLCDDriverVMT *vmt;
-  _base_asynchronous_channel_data
-  /* WARNING: Do not add any data to this struct above this comment, only below */
 };
 
 #ifdef __cplusplus
@@ -86,6 +60,7 @@ void lcdClear(uint16_t color);
 void lcdSetOrientation(uint8_t newOrientation);
 void lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 void lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
+void lcdWriteArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t *buffer, size_t n);
 
 void lcdDrawPixel(uint16_t x, uint16_t y, uint16_t point);
 void lcdDrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
