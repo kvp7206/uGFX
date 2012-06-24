@@ -11,7 +11,8 @@ static __inline void lld_lcdWriteIndex(uint16_t index) {
     Clr_RS;
     Set_RD;
   
-    palWritePort(LCD_DATA_PORT, index);
+	LCD_DATA_PORT_1->BSRR = (((~index >> 8) << 16) | (index >> 8) << LCD_DATA_PORT_1_BASE);
+	LCD_DATA_PORT_2->BSRR = (((~index & 0xFF) << 16) | (index & 0xFF) << LCD_DATA_PORT_2_BASE);
 
     Clr_WR;
     Set_WR;
@@ -20,7 +21,8 @@ static __inline void lld_lcdWriteIndex(uint16_t index) {
 static __inline void lld_lcdWriteData(uint16_t data) {
 	Set_RS;
 
-	palWritePort(LCD_DATA_PORT, data);
+    LCD_DATA_PORT_1->BSRR = (((~data >> 8) << 16) | (data >> 8) << LCD_DATA_PORT_1_BASE);
+    LCD_DATA_PORT_2->BSRR = (((~data & 0xFF) << 16) | (data & 0xFF) << LCD_DATA_PORT_2_BASE);
 
 	Clr_WR;
 	Set_WR;
@@ -83,7 +85,8 @@ __inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
 	Set_RS;
 
 	for(i = 0; i < size; i++) {
-		palWritePort(LCD_DATA_PORT, buffer[i]);
+		LCD_DATA_PORT_1->BSRR = (((~buffer[i] >> 8) << 16) | (buffer[i] >> 8) << LCD_DATA_PORT_1_BASE);
+		LCD_DATA_PORT_2->BSRR = (((~buffer[i] & 0xFF) << 16) | (buffer[i] & 0xFF) << LCD_DATA_PORT_2_BASE);
 		Clr_WR;
 		Set_WR;
 	}
