@@ -394,10 +394,10 @@ void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint
 			lcdDrawPixel(x-b, y-a, color);
 		}
 
-	if(P < 0)
-		P += 3 + 2*a++;
-	else
-		P += 5 + 2*(a++ - b--);
-	} while(a <= b);
+		if(P < 0)
+			P += 3 + 2*a++;
+		else
+			P += 5 + 2*(a++ - b--);
+		} while(a <= b);
 }
 
