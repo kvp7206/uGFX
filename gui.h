@@ -6,7 +6,8 @@ struct button_t {
 	uint16_t y0;
 	uint16_t x1;
 	uint16_t y1;
-	uint32_t *state;
+	uint8_t *state;
+	uint8_t *active;
 	uint16_t interval;
 };
 
@@ -21,9 +22,11 @@ struct bar_t {
 	uint16_t valueColor;
 	uint16_t interval;
 	uint8_t *percent;
+	uint8_t *active;
 };
 
 enum {horizontal, vertical};
+enum {inactive, active};
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,7 +56,7 @@ void guiInit(uint16_t updateIntervl);
  *
  * return: pointer to created thread
  */
-Thread *guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, unsigned char *str, uint16_t fontColor, uint16_t buttonColor, uint16_t inverval, uint8_t *state);
+Thread *guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, unsigned char *str, uint16_t fontColor, uint16_t buttonColor, uint16_t inverval, uint8_t *active, uint8_t *state);
 
 /*
  * Description: draws a bar graph and updates it's value
@@ -69,7 +72,7 @@ Thread *guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, unsign
  *
  * return : pointer to created thread
  */
-Thread *guiDrawBarGraph(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t orientation, uint16_t frameColor, uint16_t bkColor, uint16_t valueColor, uint16_t interval, uint16_t *percent);
+Thread *guiDrawBarGraph(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t orientation, uint16_t frameColor, uint16_t bkColor, uint16_t valueColor, uint16_t interval, uint8_t *active, uint16_t *percent);
 
 #ifdef __cplusplus
 }
