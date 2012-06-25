@@ -84,7 +84,7 @@ msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t x1
 
 	/* calculate the size of the console in characters */
 	console->sx = (x1-x0);
-	console->sy = ((int16_t)((y1-y0)/console->fy))*console->fy;
+	console->sy = (((int16_t)((y1-y0)/console->fy))-1)*console->fy;
 
 	console->cx = 0;
 	console->cy = 0;
@@ -102,13 +102,10 @@ msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t x1
 	console->font = font;
 }
 
-msg_t lcdConsoleUpdate(GLCDConsole *console) {
-
-}
-
 msg_t lcdConsolePut(GLCDConsole *console, char c) {
 	uint8_t width;
-	bool_t redraw = FALSE;
+	bool_t newline = FALSE;
+
 
 	if(c == '\n') {
 		/* clear the text at the end of the line */
@@ -123,19 +120,26 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 	} else {
 		width = lcdMeasureChar(c, console->font);
 		if((console->cx + width) >= console->sx) {
+			chprintf(&SD1, "[1] ");
 			console->cx = 0;
 			console->cy += console->fy;
 		}
 
-		if((console->cy + console->fy) >= console->sy) {
+		if(
+				(console->cy > console->sy)) {
+			chprintf(&SD1, "[2] ");
+			if(newline)
+				chprintf(&SD1, "* ");
 			lcdVerticalScroll(console->x0, console->y0, console->x0 + console->sx,
 					console->y0 + console->sy, console->fy);
 			/* reset the cursor */
 			console->cx = 0;
-			while((console->cy) >= console->sy)
-				console->cy -= console->fy;
+			console->cy = console->sy;
+		} else if(newline) {
+			chprintf(&SD1, "[3] ");
+			console->cy += console->fy;
 		}
-
+		//chprintf(&SD1, "'%c' at [%d, %d]\r\n", c, console->x0 + console->cx, console->y0 + console->cy);
 		lcdDrawChar(console->x0 + console->cx, console->y0 + console->cy, c,
 				console->font, console->color, console->bkcolor, solid);
 

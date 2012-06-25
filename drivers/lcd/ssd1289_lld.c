@@ -6,6 +6,9 @@ uint8_t orientation;
 uint16_t DeviceCode;
 extern uint16_t lcd_width, lcd_height;
 
+/* TODO: use max(height, width) */
+static uint16_t buf[SCREEN_HEIGHT];
+
 #ifdef LCD_USE_GPIO
 static __inline void lld_lcdWriteIndex(uint16_t index) {
     Clr_RS;
@@ -131,6 +134,21 @@ __inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
 	for(i = 0; i < size; i++)
 		LCD_RAM = buffer[i];
 }
+
+__inline void lld_lcdReadStreamStart(void) {
+	LCD_REG = 0x0022;
+}
+
+__inline void lld_lcdReadStreamStop(void) {
+
+}
+
+__inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
+	uint16_t i;
+	for(i = 0; i < size; i++) {
+		buffer[i] = LCD_RAM;
+	}
+}
 #endif
 
 #ifdef LCD_USE_SPI
@@ -146,10 +164,10 @@ static __inline void lcdDelay(uint16_t us) {
 void lld_lcdSetCursor(uint16_t x, uint16_t y) {
 	if(PORTRAIT) {
 		lld_lcdWriteReg(0x004e, x); 
-		lld_lcdWriteReg(0x004f, y); 
+		lld_lcdWriteReg(0x004f, y);
 	} else if(LANDSCAPE) {
 		lld_lcdWriteReg(0x004e, y); 
-		lld_lcdWriteReg(0x004f, x); 
+		lld_lcdWriteReg(0x004f, x);
 	} 
 }
 
@@ -336,17 +354,31 @@ uint16_t lld_lcdGetWidth(void) {
 
 #include "chprintf.h"
 
+/* a positive lines value shifts the screen up, negative down */
 void lld_lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines) {
+	uint16_t row0, row1;
+	uint16_t i;
 	lld_lcdSetWindow(x0, y0, x1, y1);
 
-	/* if negative shift, then subtract from the height of the area */
-	lines = (lines < 0) ? ((y1-y0) + lines) : lines;
+	for(i = 0; i < ((y1-y0) - abs(lines)); i++) {
+		if(lines > 0) {
+			row0 = y0 + i + lines;
+			row1 = y0 + i;
+		} else {
+			row0 = (y1 - i - 1) + lines;
+			row1 = (y1 - i - 1);
+		}
+		/* read row0 into the buffer and then write at row1*/
+		lld_lcdSetWindow(x0, row0, x1, row0);
+		lld_lcdReadStreamStart();
+		lld_lcdReadStream(buf, x1-x0);
+		lld_lcdReadStreamStop();
 
-	/* driver accepts only 9 bit line value */
-	lld_lcdWriteReg(0x0041, (uint16_t)lines & 0x01FF);
-
-	/* enable the scroll */
-	lld_lcdWriteReg(0x0007, (0x0001 << 9) | 0x0133);
+		lld_lcdSetWindow(x0, row1, x1, row1);
+		lld_lcdWriteStreamStart();
+		lld_lcdWriteStream(buf, x1-x0);
+		lld_lcdWriteStreamStop();
+	}
 }
 
 #endif
