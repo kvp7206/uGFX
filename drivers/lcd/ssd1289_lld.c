@@ -43,7 +43,7 @@ static __inline uint16_t lld_lcdReadData(void) {
 	Set_WR;
 	Clr_RD;
 
-	value = lld_lcdReadGPIO(LCD_DATA_PORT);
+	value = lld_lcdReadGPIO();
 
     Set_RD;
 
