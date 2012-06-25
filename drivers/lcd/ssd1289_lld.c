@@ -29,8 +29,10 @@ static __inline void lld_lcdWriteData(uint16_t data) {
 
 static __inline void lld_lcdWriteReg(uint16_t lcdReg,uint16_t lcdRegValue) { 
     Clr_CS;
+
     lld_lcdWriteIndex(lcdReg);    
     lld_lcdWriteData(lcdRegValue);  
+
     Set_CS; 
 }
 
@@ -62,6 +64,7 @@ static __inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
 
 __inline void lld_lcdWriteStreamStart(void) {
 	Clr_CS
+
 	lld_lcdWriteIndex(0x0022);
 }
 
