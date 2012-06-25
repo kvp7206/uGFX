@@ -70,9 +70,11 @@ static void barThread(struct bar_t *a) {
 	}
 }
 
-void guiInit(uint16_t updateInterval) {
+Thread *guiInit(uint16_t updateInterval) {
 	Thread *tp = NULL;
 	tp = chThdCreateFromHeap(NULL, THD_WA_SIZE(64), HIGHPRIO-1, TouchPadThread, updateInterval);
+
+	return tp;
 }
 
 Thread *guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *str, uint16_t fontColor, uint16_t buttonColor, uint16_t interval, uint8_t *active, uint8_t *state) {

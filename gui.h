@@ -39,9 +39,9 @@ extern "C" {
  * param:
  *		- updateInterval: update interval in milliseconds until next coordinates read-out
  *
- * return: none
+ * return: pointer to created thread
  */
-void guiInit(uint16_t updateIntervl);
+Thread *guiInit(uint16_t updateIntervl);
 
 /*
  * Description:	draws button and creates thread which keeps pressed/unpressed state up-to-date
