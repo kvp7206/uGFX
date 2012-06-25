@@ -1,34 +1,8 @@
-Chibios LCD Driver
+please read the wiki pages to this project carefully, before you ask any questions:
 
-### checkout Driver code into ext/
-cd chibios/ext
-git clone https://github.com/tectu/Chibios-LCD-Driver lcd
+http://chibios.org/dokuwiki/doku.php?id=chibios:community&#lcd_driver_touch_screen_graphical_user_interface
 
-### Edit Makefile:
-include lcd.mk:
-	include $(CHIBIOS)/ext/lcd/lcd.mk
 
-Add $(LCDSRC) to CSRC:
-	CSRC = $(PORTSRC) \
-	       $(KERNSRC) \
-	       $(TESTSRC) \
-	       $(HALSRC) \
-	       $(PLATFORMSRC) \
-	       $(BOARDSRC) \
-	       $(FATFSSRC) \
-	       $(LCDSRC) \
-	       $(CHIBIOS)/os/various/evtimer.c \
-	       $(CHIBIOS)/os/various/syscalls.c
-
-Add $(LCDINC) to INCDIR:
-	INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
-	         $(HALINC) $(PLATFORMINC) $(BOARDINC) \
-	         $(FATFSINC) \
-	         $(LCDINC) \
-	         $(CHIBIOS)/os/various ../common
-
-### Use
-read here: http://chibios.org/dokuwiki/doku.php?id=chibios:community:introduction
 
 ### Maintainer & Contributors
 Contributors:	- Badger
