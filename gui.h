@@ -52,6 +52,7 @@ void guiInit(uint16_t updateIntervl);
  *		- fontColor:		color of string
  *		- buttonColor:		color of button
  *		- interval:			interval in ms which updates state
+ *		- active:			pointer to uint8_t. 1 = thread active, 0 = thread inactive
  *		- state:			pointer to variable which keeps state (1 = pressed, 0 = unpressed)
  *
  * return: pointer to created thread
@@ -68,6 +69,7 @@ Thread *guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, unsign
  *		- bkColor:			color of piece inside bar with is not set
  *		- valueColor:		color of value that will be drawn into bar
  *		- interval:			interval in ms which updates percentage
+ *		- active:			pointer to uint8_t. 1 = thread active, 0 = thread inactive
  *		- percent:			pointer value from 0 to 100 percent
  *
  * return : pointer to created thread
