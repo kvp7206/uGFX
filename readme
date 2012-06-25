@@ -14,10 +14,10 @@ add the following to your board.h file, matching to your pinconfig:
 	#define LCD_DATA_PORT_2			GPIOB
 	#define LCD_DATA_PORT_3			GPIOC
 	#define LCD_DATA_PORT_4			GPIOE
-	#define LCD_DATA_PORT_1_BASE	12
-	#define LCD_DATA_PORT_2_BASE	8
-	#define LCD_DATA_PORT_3_BASE	4
-	#define LCD_DATA_PORT_4_BASE	0	
+	#define LCD_DATA_PORT_1_BASE	0
+	#define LCD_DATA_PORT_2_BASE	4
+	#define LCD_DATA_PORT_3_BASE	8
+	#define LCD_DATA_PORT_4_BASE	12	
 	#define LCD_CMD_PORT			GPIOD
 	#define LCD_CS					12
 	#define LCD_RS					13
