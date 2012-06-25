@@ -75,7 +75,7 @@ void guiInit(uint16_t updateInterval) {
 	tp = chThdCreateFromHeap(NULL, THD_WA_SIZE(64), HIGHPRIO-1, TouchPadThread, updateInterval);
 }
 
-Thread *guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, unsigned char *str, uint16_t fontColor, uint16_t buttonColor, uint16_t interval, uint8_t *active, uint8_t *state) {
+Thread *guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *str, uint16_t fontColor, uint16_t buttonColor, uint16_t interval, uint8_t *active, uint8_t *state) {
 	struct button_t *button;
 	Thread *tp = NULL;
 
