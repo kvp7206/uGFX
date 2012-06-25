@@ -352,8 +352,6 @@ uint16_t lld_lcdGetWidth(void) {
 	return lcd_width;
 }
 
-#include "chprintf.h"
-
 /* a positive lines value shifts the screen up, negative down */
 void lld_lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines) {
 	uint16_t row0, row1;
