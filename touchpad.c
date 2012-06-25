@@ -126,8 +126,8 @@ void tpCalibrate(void) {
 
 	lcdSetOrientation(portrait);
 	lcdClear(Red);
-	cx=40; cy=10;
-	lcdDrawString(40, 10, "Touchpad Calibration", White, Red);
+	/* Abhishek: need to specify a font to use here, should probably make sure it exists somehow */
+	lcdDrawString(40, 10, "Touchpad Calibration", font_Larger, White, Red, solid);
 
 	for(i=0; i<2; i++) {
 		tpDrawCross(cross[i][0], cross[i][1]);

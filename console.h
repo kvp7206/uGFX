@@ -1,6 +1,8 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
+#include "glcd.h"
+
 /**
  * @brief   Structure representing a GLCD driver.
  */
@@ -36,7 +38,7 @@ struct GLCDConsole {
   /* text buffer */
   uint8_t *buf;
   /* font */
-  const uint8_t *font;
+  font_t font;
   /* lcd area to use */
   uint16_t x0,y0;
   /* current cursor position, in pixels */
@@ -56,7 +58,7 @@ extern "C" {
 #endif
 
 msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1,
-		const uint8_t *font, uint8_t *buffer, uint16_t bkcolor, uint16_t color);
+		font_t font, uint8_t *buffer, uint16_t bkcolor, uint16_t color);
 
 msg_t lcdConsolePut(GLCDConsole *console, char c);
 msg_t lcdConsoleWrite(GLCDConsole *console, uint8_t *bp, size_t n);

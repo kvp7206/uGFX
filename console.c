@@ -72,7 +72,7 @@ static const struct GLCDConsoleVMT vmt = {
 
 
 msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t x1,
-		uint16_t y1, const uint8_t *font, uint8_t *buffer, uint16_t bkcolor, uint16_t color) {
+		uint16_t y1, font_t font, uint8_t *buffer, uint16_t bkcolor, uint16_t color) {
 	const uint8_t* ptr;
 	uint16_t chi;
 	uint16_t x,y;
@@ -110,10 +110,6 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 	uint8_t width;
 	bool_t redraw = FALSE;
 
-
-	lcdSetFont(console->font);
-	lcdSetFontTransparency(solid);
-
 	if(c == '\n') {
 		/* clear the text at the end of the line */
 		if(console->cx < console->sx)
@@ -125,7 +121,7 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 		/* TODO: work backwards through the buffer to the start of the current line */
 		//console->cx = 0;
 	} else {
-		width = lcdMeasureChar(c);
+		width = lcdMeasureChar(c, console->font);
 		if((console->cx + width) >= console->sx) {
 			console->cx = 0;
 			console->cy += console->fy;
@@ -139,9 +135,9 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 			while((console->cy) >= console->sy)
 				console->cy -= console->fy;
 		}
-		lcdMoveCursor(console->x0 + console->cx, console->y0 + console->cy,
-				console->color, console->bkcolor);
-		lcdDrawChar(c);
+
+		lcdDrawChar(console->x0 + console->cx, console->y0 + console->cy, c,
+				console->font, console->color, console->bkcolor, solid);
 
 		/* update cursor */
 		console->cx += width;

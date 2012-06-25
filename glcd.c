@@ -4,10 +4,6 @@
 #include <math.h>
 
 uint16_t lcd_width, lcd_height;
-uint16_t bgcolor = White, fgcolor = Black;
-uint16_t cx = 0, cy = 0;
-static uint8_t tpText = 0;
-const uint8_t* font;
 
 void lcdInit(GLCDDriver *glcdp) {
 
@@ -16,8 +12,6 @@ void lcdInit(GLCDDriver *glcdp) {
 	lcd_height = SCREEN_HEIGHT;
 
 	lcdSetOrientation(portrait);
-	lcdSetFontTransparency(transparent);
-	lcdSetFont(font_MediumBold);
 }
 
 uint16_t lcdGetHeight(void) {
@@ -129,126 +123,120 @@ void lcdDrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t co
 	}
 }
 
-void lcdSetFont(const uint8_t *newFont) {
-	font = newFont;
-}
-
-void lcdSetFontTransparency(uint8_t transparency) {
-	tpText = transparency;
-}
-
-msg_t lcdDrawChar(char c) {
+int lcdDrawChar(uint16_t cx, uint16_t cy, char c, font_t font, uint16_t color, uint16_t bkcolor, bool_t tpText) {
+	/* Working pointer */
 	const uint8_t* ptr;
-	uint8_t fontHeight = lcdGetCurFontHeight();
-	uint8_t sps = font[FONT_TABLE_PAD_AFTER_CHAR_IDX];
-	uint16_t chi;
-	uint16_t x,y;
-	uint16_t buf[20*16];
+	uint8_t x, y;
+	
+	/* Variables to store character details */
+	uint8_t charWidth;
+	uint8_t charHeight = lcdGetFontHeight(font);
+	uint8_t padAfterChar = font[FONT_TABLE_PAD_AFTER_CHAR_IDX];
+	
+	/* Local var to hold offset in font table */
+	uint16_t charStartOffset;
 
+	/* Working buffer for fast non-transparent text rendering [patch by Badger] */
+	static uint16_t buf[20*16];
 
-	// No support for nongraphic characters, so just ignore them
+	/* No support for nongraphic characters, so just ignore them */
 	if(c < 0x20 || c > 0x7F) {
 		return RDY_OK;
 	}
 
-	chi = *(uint16_t*)(&font[FONT_TABLE_CHAR_LOOKUP_IDX + (c-0x20)*2]);
+	/* Read the offset of the character data in the font table from the lookup table */
+	charStartOffset = *(uint16_t*)(&font[FONT_TABLE_CHAR_LOOKUP_IDX + (c - 0x20) * 2]);
 
-	ptr = font + chi;
+	/* After we're done, position the pointer at the offset.
+	 * The first byte that is immediately read will be the font width 
+	 * After that, actual 16-bit font data follows, first column down */
+	ptr = font + charStartOffset;
+	charWidth = *(ptr++);
 
-	uint8_t fontWidth = *(ptr++);
-
-	for(x = 0; x < fontWidth; x++) {
-		chi = *(uint16_t*)ptr;
-		for(y = 0; y < fontHeight; y++) {
+	/* Loop through the data and display. The font data is LSB first, down the column */
+	for(x = 0; x < charWidth; x++) {
+		/* Get the font bitmap data for the column */
+		uint16_t charData = *(uint16_t*)ptr;
+		
+		for(y = 0; y < charHeight; y++) {
+			/* Draw the LSB on the screen accordingly. */
 			if(!tpText) {
-				buf[y*fontWidth+x] = (chi & 0x01) ? fgcolor : bgcolor;
+				/* Store data into working buffer (patch by Badger),
+				 * Then write it all onto the LCD in one stroke */
+				buf[y*charWidth + x] = (charData & 0x01) ? color : bkcolor;
 			} else {
-				lcdDrawPixel(cx+x, cy+y, fgcolor);
+				/* Just draw the needed pixels onto the LCD */
+				if (charData & 0x01)
+					lcdDrawPixel(cx+x, cy+y, color);
 			}
-			chi >>= 1;
+			
+			/* Shift the data down by one bit */	
+			charData >>= 1;
 		}
+		
+		/* Increment pointer by 2 bytes to the next column */
 		ptr += 2;
 	}
 
-	if(!tpText)
-		lcdWriteArea(cx, cy, cx+fontWidth, cy+fontHeight, buf, fontWidth*fontHeight);
-
-	/* TODO: proper return codes */
-	return RDY_OK;
-}
-
-size_t lcdWriteString(const char *str, size_t n) {
-	size_t l = 0;
-	for(l = 0; l < n; l++) {
-		if(lcdDrawChar(*str++) != RDY_OK)
-			break;
+	if(!tpText) {
+		/* [Patch by Badger] Write all in one stroke */
+		lcdWriteArea(cx, cy, cx+charWidth, cy+charHeight, buf, charWidth*charHeight);
+		
+		/* Do padding after character, if needed for solid text rendering
+		 * TODO: To be optimised */
+		if (padAfterChar != 0) {
+			lcdFillArea(cx+charWidth, cy+charHeight, cx+charWidth+padAfterChar, cy+charHeight, bkcolor);
+		}
 	}
 
-	return l;
+	/* Return the width of the character, we need it so that lcdDrawString may work
+	 * We don't have a static address counter */
+
+	/* Abhishek: what should padAfter be?
+	 * return charWidth+padAfter;
+	 */
+	return charWidth;
 }
 
-size_t lcdPutString(const char *str) {
-	size_t l = 0;
-	while(*str) {
-		if(lcdDrawChar(*str++) != RDY_OK)
-			break;
-
-		l++;
+/* WARNING: No boundary checks! Unpredictable behaviour if text exceeds boundary */
+void lcdDrawString(uint16_t x, uint16_t y, const char *str, font_t font, uint16_t color, uint16_t bkcolor, bool_t tpText) {
+	uint16_t cx=x, cy=y;
+	
+	while (*str) {
+		cx += lcdDrawChar(cx, cy, *str++, font, color, bkcolor, tpText);
 	}
-
-	return l;
 }
 
-void lcdMoveCursor(uint16_t x, uint16_t y, uint16_t color, uint16_t bkcolor) {
-	cx = x;
-	cy = y;
-	bgcolor = bkcolor;
-	fgcolor = color;
-}
+uint16_t lcdMeasureChar(char c, font_t font) {
+	/* Variables to store character details */
+	uint8_t charWidth;
+	uint8_t padAfterChar = font[FONT_TABLE_PAD_AFTER_CHAR_IDX];
+	
+	/* Local var to hold offset in font table */
+	uint16_t charStartOffset;
 
-void lcdDrawString(uint16_t x, uint16_t y, const char *str, uint16_t color, uint16_t bkcolor) {
-	uint16_t _bg = bgcolor, _fg = fgcolor;
-	cx = x;
-	cy = y;
-	bgcolor = bkcolor;
-	fgcolor = color;
-	lcdPutString(str);
-	bgcolor = _bg;
-	fgcolor = _fg;
-}
-
-uint16_t lcdMeasureChar(char c) {
-	const uint8_t *ptr;
-
-	// First get spaces after each character, usually 0 but can change
-	uint8_t sps = font[FONT_TABLE_PAD_AFTER_CHAR_IDX];
-
-	uint16_t chi;
-
-	if(c < 0x20 || c > 0x7F)
+	/* No support for nongraphic characters, so just ignore them */
+	if(c < 0x20 || c > 0x7F) {
 		return 0;
+	}
 
-	chi = *(uint16_t*)(&font[FONT_TABLE_CHAR_LOOKUP_IDX + (c-0x20)*2]);
+	/* Read the offset of the character data in the font table from the lookup table */
+	charStartOffset = *(uint16_t*)(&font[FONT_TABLE_CHAR_LOOKUP_IDX + (c - 0x20) * 2]);
 
-	ptr = font + chi;
-
-	uint8_t fontWidth = *(ptr++);
-
-	return fontWidth + sps;
+	/* Retrurn the byte at the offset, that's our charWidth */
+	charWidth = *(font + charStartOffset);
+	
+	return charWidth+padAfterChar;
 }
 
-uint16_t lcdMeasureString(const char *str) {
+uint16_t lcdMeasureString(const char *str, font_t font) {
 	uint16_t result = 0;
 
-	while (*str)result += lcdMeasureChar(*str++);
+	/* Measure each char width, add it, return the result */
+	while (*str)
+		result += lcdMeasureChar(*str++, font);
 
 	return result;
-}
-
-void lcdLineBreak() {
-	// x=0 seems too much on the edge. So I keep it at 3
-	cx = 3;
-	cy += lcdGetCurFontHeight();
 }
 
 uint16_t lcdBGR2RGB(uint16_t color) {
@@ -289,15 +277,15 @@ void lcdDrawRect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t fil
 	}
 }
 
-void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const char *str, uint16_t fontColor, uint16_t bkColor) {
+void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const char* str, font_t font, uint16_t fontColor, uint16_t bkColor) {
 	uint16_t off_left, off_up;
 
-	off_left = ((x1-x0)-lcdMeasureString(str))/2;
+	off_left = ((x1-x0)-lcdMeasureString(str, font))/2;
 	off_up = ((y1-y0) - lcdGetCurFontHeight()) / 2;
 
 	lcdDrawRect(x0, y0, x1, y1, 1, bkColor);
-
-	lcdDrawString(x0+off_left, y0+off_up, str, fontColor, bkColor);
+	/* Abhishek: default to solid text for this? */
+	lcdDrawString(x0+off_left, y0+off_up, str, font, fontColor, bkColor, solid);
 }
 
 void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint16_t color) {

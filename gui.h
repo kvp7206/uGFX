@@ -1,6 +1,8 @@
 #ifndef GUI_H
 #define GUI_H
 
+#include "glcd.h"
+
 struct button_t {
 	uint16_t x0;
 	uint16_t y0;
@@ -53,7 +55,7 @@ void guiInit(uint16_t updateIntervl);
  *
  * return: pointer to created thread
  */
-Thread *guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, unsigned char *str, uint16_t fontColor, uint16_t buttonColor, uint16_t inverval, uint8_t *state);
+Thread *guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, unsigned char *str, font_t font, uint16_t fontColor, uint16_t buttonColor, uint16_t inverval, uint8_t *state);
 
 /*
  * Description: draws a bar graph and updates it's value

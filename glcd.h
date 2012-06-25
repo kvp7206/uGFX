@@ -5,7 +5,7 @@
 #include "hal.h"
 #include "fonts.h"
 
-#if !defined(LCD_USE_FSMC) | !defined(LCD_USE_GPIO) | !defined(LCD_USE_SPI)
+#if !defined(LCD_USE_FSMC) && !defined(LCD_USE_GPIO) && !defined(LCD_USE_SPI)
 #include "glcdconf.h"
 #endif
 
@@ -37,14 +37,10 @@ enum orientation {portrait, landscape, portraitInv, landscapeInv};
 enum filled {frame, filled};
 enum transparency {solid, transparent};
 
-// For text rendering only
-extern uint16_t bgcolor, fgcolor;
-extern uint16_t cx, cy;
-extern const uint8_t* font;
+typedef const uint8_t* font_t;
 
 // A few macros
-#define lcdGotoXY(x,y)				{ cx=x; cy=y; }
-#define lcdGetCurFontHeight()		(font[FONT_TABLE_HEIGHT_IDX])
+#define lcdGetFontHeight(font)		(font[FONT_TABLE_HEIGHT_IDX])
 
 /**
  * @brief   Structure representing a GLCD driver.
@@ -58,7 +54,7 @@ struct GLCDDriver {
 extern "C" {
 #endif
 
-
+/* Core functions */
 void lcdInit(GLCDDriver *);
 
 void lcdClear(uint16_t color);
@@ -67,31 +63,31 @@ void lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 void lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
 void lcdWriteArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t *buffer, size_t n);
 
+/* Drawing functions */
 void lcdDrawPixel(uint16_t x, uint16_t y, uint16_t point);
 void lcdDrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
 void lcdDrawRect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t filled, uint16_t color);
-void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const char* str, uint16_t fontColor, uint16_t bkColor);
+void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const char* str, font_t font, uint16_t fontColor, uint16_t bkColor);
 void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint16_t color);
 
-void lcdSetFontTransparency(uint8_t transparency);
-void lcdSetFont(const uint8_t *newFont);
-void lcdMoveCursor(uint16_t x, uint16_t y, uint16_t color, uint16_t bkcolor);
-msg_t lcdDrawChar(char c);
-size_t lcdWriteString(const char *str, size_t n);
-size_t lcdPutString(const char *str);
-void lcdDrawString(uint16_t x, uint16_t y, const char *str, uint16_t color, uint16_t bkcolor);
-void lcdLineBreak(void);
+/* Text Rendering Functions */
+int lcdDrawChar(uint16_t cx, uint16_t cy, char c, font_t font, uint16_t color, uint16_t bkcolor, bool_t tpText);
+void lcdDrawString(uint16_t x, uint16_t y, const char *str, font_t font, uint16_t color, uint16_t bkcolor, bool_t tpText);
 
-uint16_t lcdMeasureChar(char c);
-uint16_t lcdMeasureString(const char* str);
+/* Character measuring functions */
+uint16_t lcdMeasureChar(char c, font_t font);
+uint16_t lcdMeasureString(const char* str, font_t font);
 
+/* Size and orientation related */
 uint16_t lcdGetHeight(void);
 uint16_t lcdGetWidth(void);
 uint16_t lcdGetOrientation(void);
 
+/* BGR->RGB and pixel readback */
 uint16_t lcdBGR2RGB(uint16_t color);
 uint16_t lcdGetPixelColor(uint16_t x, uint16_t y);
 
+/* Scrolling function */
 void lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines);
 
 #ifdef __cplusplus
