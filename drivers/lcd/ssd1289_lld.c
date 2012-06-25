@@ -334,5 +334,20 @@ uint16_t lld_lcdGetWidth(void) {
 	return lcd_width;
 }
 
+#include "chprintf.h"
+
+void lld_lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines) {
+	lld_lcdSetWindow(x0, y0, x1, y1);
+
+	/* if negative shift, then subtract from the height of the area */
+	lines = (lines < 0) ? ((y1-y0) + lines) : lines;
+
+	/* driver accepts only 9 bit line value */
+	lld_lcdWriteReg(0x0041, (uint16_t)lines & 0x01FF);
+
+	/* enable the scroll */
+	lld_lcdWriteReg(0x0007, (0x0001 << 9) | 0x0133);
+}
+
 #endif
 

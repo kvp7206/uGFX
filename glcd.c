@@ -330,3 +330,9 @@ void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint
 	} while(a <= b);
 }
 
+void lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines) {
+	lld_lcdVerticalScroll(x0,y0,x1,y1,lines);
+}
+
+
+

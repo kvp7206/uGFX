@@ -350,5 +350,15 @@ uint16_t lld_lcdGetWidth(void) {
 	return lcd_width;
 }
 
+void lld_lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines) {
+	lld_lcdSetWindow(x0, y0, x1, y1);
+
+	/* if negative shift, then subtract from the height of the area */
+	lines = (lines < 0) ? ((y1-y0) + lines) : lines;
+
+	/* TODO: implement */
+}
+
+
 #endif
 

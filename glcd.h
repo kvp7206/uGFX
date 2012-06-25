@@ -4,6 +4,11 @@
 #include "ch.h"
 #include "hal.h"
 #include "fonts.h"
+
+#if !defined(LCD_USE_FSMC) | !defined(LCD_USE_GPIO) | !defined(LCD_USE_SPI)
+#include "glcdconf.h"
+#endif
+
 #include "ssd1289_lld.h"
 #include "s6d1121_lld.h"
 
@@ -86,6 +91,8 @@ uint16_t lcdGetOrientation(void);
 
 uint16_t lcdBGR2RGB(uint16_t color);
 uint16_t lcdGetPixelColor(uint16_t x, uint16_t y);
+
+void lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines);
 
 #ifdef __cplusplus
 }

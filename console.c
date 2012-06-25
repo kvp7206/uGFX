@@ -84,7 +84,7 @@ msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t x1
 
 	/* calculate the size of the console in characters */
 	console->sx = (x1-x0);
-	console->sy = (y1-y0);
+	console->sy = ((int16_t)((y1-y0)/console->fy))*console->fy;
 
 	console->cx = 0;
 	console->cy = 0;
@@ -107,80 +107,45 @@ msg_t lcdConsoleUpdate(GLCDConsole *console) {
 }
 
 msg_t lcdConsolePut(GLCDConsole *console, char c) {
-	uint16_t i;
-	uint16_t s = console->wptr;
 	uint8_t width;
 	bool_t redraw = FALSE;
 
-	/* write character to current position in buffer and update wptr */
-	console->buf[console->wptr] = c;
-
-	if(++console->wptr == console->blen) {
-		/* wrap around to the beginning */
-		console->wptr = 0;
-	}
 
 	lcdSetFont(console->font);
 	lcdSetFontTransparency(solid);
-	/* keep looping until we've finished writing
-	 * we may write more than one character if the console needs to be re-drawn
-	 * at the end of the loop leave the cursor set to the position for the next character
-	 * checks to see if this is out of range will be performed at the start of that character
-	 */
-	do {
-		width = lcdMeasureChar(console->buf[s]);
-		if(console->buf[s] == '\n') {
-			/* clear the text at the end of the line */
-			if(console->cx < console->sx)
-				lcdDrawRect(console->cx, console->cy, console->sx, console->cy + console->fy,
-						1, console->bkcolor);
+
+	if(c == '\n') {
+		/* clear the text at the end of the line */
+		if(console->cx < console->sx)
+			lcdDrawRect(console->cx, console->cy, console->sx, console->cy + console->fy,
+					1, console->bkcolor);
+		console->cx = 0;
+		console->cy += console->fy;
+	} else if(c == '\r') {
+		/* TODO: work backwards through the buffer to the start of the current line */
+		//console->cx = 0;
+	} else {
+		width = lcdMeasureChar(c);
+		if((console->cx + width) >= console->sx) {
 			console->cx = 0;
 			console->cy += console->fy;
-		} else if(console->buf[s] == '\r') {
-			/* TODO: work backwards through the buffer to the start of the current line */
-			//console->cx = 0;
-		} else {
-			if((console->cx + width) >= console->sx) {
-				console->cx = 0;
-				console->cy += console->fy;
-			}
-
-			if((console->cy + console->fy) >= console->sy) {
-				/* we've gone beyond the end of the console */
-				/* start at beginning of buffer and remove the first line */
-
-				/* increment s from bstrt until it has been incremented more than
-				 * console->sx or finds a new line */
-				s = console->bstrt;
-				console->cx = 0;
-
-				while((console->cx <= console->sx) && (console->buf[s % console->blen] != '\n')) {
-					s++;
-					/* TODO: increment based on the width of the character at s */
-					/* TODO: this doesn't handle carriage return */
-					console->cx += lcdMeasureChar(console->buf[s % console->blen]);
-				}
-
-				/* update bstrt to the new start point of the console */
-				console->bstrt = s;
-
-				/* reset the cursor */
-				console->cx = 0;
-				console->cy = 0;
-			}
-			lcdMoveCursor(console->x0 + console->cx, console->y0 + console->cy,
-					console->color, console->bkcolor);
-			lcdDrawChar(console->buf[s]);
-
-			/* update cursor */
-			console->cx += width;
 		}
 
-		/* finally increment index */
-		if(++s == console->blen)
-			s = 0;
+		if((console->cy + console->fy) >= console->sy) {
+			lcdVerticalScroll(console->x0, console->y0, console->x0 + console->sx,
+					console->y0 + console->sy, console->fy);
+			/* reset the cursor */
+			console->cx = 0;
+			while((console->cy) >= console->sy)
+				console->cy -= console->fy;
+		}
+		lcdMoveCursor(console->x0 + console->cx, console->y0 + console->cy,
+				console->color, console->bkcolor);
+		lcdDrawChar(c);
 
-	} while(s != console->wptr);
+		/* update cursor */
+		console->cx += width;
+	}
 
 }
 
