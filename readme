@@ -4,32 +4,6 @@ Chibios LCD Driver
 cd chibios/ext
 git clone https://github.com/tectu/Chibios-LCD-Driver lcd
 
-### Edit boardfiles:
-add the following to your board.h file, matching to your pinconfig:
-	#define TP_PORT					GPIOC
-	#define TP_IRQ					4
-	#define TP_CS					6
-
-	#define LCD_DATA_PORT_1			GPIOB
-	#define LCD_DATA_PORT_2			GPIOB
-	#define LCD_DATA_PORT_3			GPIOC
-	#define LCD_DATA_PORT_4			GPIOE
-	#define LCD_DATA_PORT_1_BASE	0
-	#define LCD_DATA_PORT_2_BASE	4
-	#define LCD_DATA_PORT_3_BASE	8
-	#define LCD_DATA_PORT_4_BASE	12	
-	#define LCD_CMD_PORT			GPIOD
-	#define LCD_CS					12
-	#define LCD_RS					13
-	#define LCD_WR					14
-	#define LCD_RD					15
-
-in this example we use the following pin config for 16-bit GPIO interfacing:
-
-	GPIOB 8-15
-	GPIOC 4-7
-	GPIOE 0-3
-
 ### Edit Makefile:
 include lcd.mk:
 	include $(CHIBIOS)/ext/lcd/lcd.mk
@@ -54,9 +28,7 @@ Add $(LCDINC) to INCDIR:
 	         $(CHIBIOS)/os/various ../common
 
 ### Use
-1. include header files wherever you need it.
-
-2. select the controller type you want to use in glcdconf.h
+read here: http://chibios.org/dokuwiki/doku.php?id=chibios:community:introduction
 
 ### Maintainer & Contributors
 Contributors:	- Badger

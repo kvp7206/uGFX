@@ -8,13 +8,6 @@ extern uint16_t lcd_width, lcd_height;
 
 #ifdef LCD_USE_GPIO
 
-static __inline void lld_lcdWriteGPIO(uint16_t d) {
-	palWriteGroup(LCD_DATA_PORT_1, PAL_GROUP_MASK(4), LCD_DATA_PORT_1_BASE, d >> 0);
-	palWriteGroup(LCD_DATA_PORT_2, PAL_GROUP_MASK(4), LCD_DATA_PORT_2_BASE, d >> 4);
-	palWriteGroup(LCD_DATA_PORT_3, PAL_GROUP_MASK(4), LCD_DATA_PORT_3_BASE, d >> 8);
-	palWriteGroup(LCD_DATA_PORT_4, PAL_GROUP_MASK(4), LCD_DATA_PORT_4_BASE, d >> 12);
-}	
-
 static __inline void lld_lcdWriteIndex(uint16_t index) {
     Clr_RS;
     Set_RD;
@@ -48,16 +41,7 @@ static __inline uint16_t lld_lcdReadData(void) {
 	Set_WR;
 	Clr_RD;
 
-	// change pin mode to digital input
-	LCD_DATA_PORT->CRH = 0x44444444;
-	LCD_DATA_PORT->CRL = 0x44444444;
-
-    value = palReadPort(LCD_DATA_PORT); // dummy
-    value = palReadPort(LCD_DATA_PORT); 
-
-    // change pin mode back to digital output
-    LCD_DATA_PORT->CRH = 0x33333333;
-    LCD_DATA_PORT->CRL = 0x33333333;
+	value = lld_lcdReadGPIO(LCD_DATA_PORT);
 
     Set_RD;
 
