@@ -8,7 +8,7 @@ extern uint16_t lcd_width, lcd_height;
 
 #ifdef LCD_USE_GPIO
 
-static __inline lld_lcdWriteGPIO(uint16_t d) {
+static __inline void lld_lcdWriteGPIO(uint16_t d) {
 	LCD_DATA_PORT_1->BSRR = ((((~d >> 12 & 0xF) << 16) | (d >> 12 & 0xF)) << LCD_DATA_PORT_1_BASE);
 	LCD_DATA_PORT_2->BSRR = ((((~d >> 8 & 0xF) << 16) | (d >> 8 & 0xF)) << LCD_DATA_PORT_2_BASE);
 	LCD_DATA_PORT_3->BSRR = ((((~d >> 4 & 0xF) << 16) | (d >> 4 & 0xF)) << LCD_DATA_PORT_3_BASE);
