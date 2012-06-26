@@ -179,3 +179,28 @@ uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_
 	return 1;
 }
 
+uint8_t guiDrawWheel(uint16_t x0, uint16_t y0, uint16_t radius1, uint16_t radius2, uint16_t bkColor, uint16_t valueColor, uint8_t *active, uint8_t *value) {
+	struct guiNode_t *newNode;
+
+	newNode = chHeapAlloc(NULL, sizeof(struct guiNode_t));
+	if(newNode == NULL)
+		return 0;
+
+	newNode->type = wheel;
+	newNode->x0 = x0;
+	newNode->y0 = y0;
+	newNode->r1 = radius1;
+	newNode->r2 = radius2;
+	newNode->active = active;
+	newNode->state = value;
+
+	if(addNode(newNode) != 1)
+		return 0;
+
+	// lcdDraw functions
+
+	chHeapFree(newNode);
+
+	return 1;
+}
+
