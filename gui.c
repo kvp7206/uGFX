@@ -125,7 +125,8 @@ uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *
 	newNode->active = active;
 	newNode->state = state;	
 
-	addNode(newNode);
+	if(addNode(newNode) != 1)
+		return 0;
 	
 	lcdDrawRectString(x0, y0, x1, y1, str, fontColor, buttonColor);
 
