@@ -102,10 +102,10 @@ static void guiThread(const uint16_t interval) {
 	}
 }
 
-Thread *guiInit(uint16_t interval) {
+Thread *guiInit(uint16_t interval, tprio_t priority) {
 	Thread *tp = NULL;
 
-	tp = chThdCreateFromHeap(NULL, THD_WA_SIZE(10240), HIGHPRIO-1, guiThread, interval);
+	tp = chThdCreateFromHeap(NULL, THD_WA_SIZE(10240), priority, guiThread, interval);
 
 	return tp;
 }
