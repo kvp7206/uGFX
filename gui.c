@@ -56,7 +56,7 @@ static void deleteNode(char *name) {
 	}
 }
 
-static void printNodes(BaseSequentialStream *chp) {
+void guiPrintNodes(BaseSequentialStream *chp) {
 	struct guiNode_t *pointer = firstGUI;
 
 	chprintf(chp, "\r\n\nguiNodes:\r\n\n");
@@ -67,8 +67,8 @@ static void printNodes(BaseSequentialStream *chp) {
 		chprintf(chp, "x1:      %d\r\n", pointer->x1);
 		chprintf(chp, "y1:      %d\r\n", pointer->y1);
 		chprintf(chp, "name:    %s\r\n", pointer->name);
-		chprintf(chp, "*active: 0x%x\r\n", pointer->active);
-		chprintf(chp, "*state:  0x%x\r\n", pointer->state);
+		chprintf(chp, "active:  %d\r\n", *(pointer->active));
+		chprintf(chp, "state:   %d\r\n", *(pointer->state));
 		chprintf(chp, "*next:   0x%x\r\n", pointer->next);
 		chprintf(chp, "\r\n\n");
 		pointer = pointer->next;
@@ -91,9 +91,11 @@ static void guiThread(const uint16_t interval) {
 					*(node->state) = 1;
 				else
 					*(node->state) = 0;
-
-				chThdSleepMilliseconds(interval);
+			} else {
+				*(node->state) = 0;
 			}
+
+			chThdSleepMilliseconds(interval);
 		}
 		
 		chThdSleepMilliseconds(interval);
