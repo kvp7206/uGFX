@@ -1,120 +1,121 @@
-#include "ch.h"
-#include "hal.h"
 #include "gui.h"
-#include "glcd.h"
-#include "touchpad.h"
 
-uint16_t x, y;
-unsigned char buffer[32];
+static struct guiNode_t *firstGUI = NULL;
 
-static void TouchPadThread(uint16_t updateInterval) {
+static uint16_t addNode(struct guiNode_t *newNode) {
+	struct guiNode_t *new;
+
+	if(firstGUI == NULL) {
+		firstGUI = chHeapAlloc(NULL, sizeof(struct guiNode_t));
+		if(firstGUI == NULL)
+			return 0;
+
+		*firstGUI = *newNode;
+		firstGUI->next = NULL;
+	} else {
+		new = firstGUI;
+		while(new->next != NULL)
+			new = new->next;
+
+		new->next = chHeapAlloc(NULL, sizeof(struct guiNode_t));
+		if(new->next == NULL)
+			return 0;
+
+		new = new->next;
+		*new = *newNode;
+		new->next = NULL;
+	}
+
+	return 1;
+}
+
+static void deleteNode(char *name) {
+	struct guiNode_t *pointer, *pointer1;
+
+	if(firstGUI != NULL) {
+		if(strcmp(firstGUI->name, name) == 0) {
+			pointer = firstGUI->next;
+			free(firstGUI);
+			firstGUI = pointer;
+		} else {
+			pointer = firstGUI;
+
+			while(pointer->next != NULL) {
+				pointer1 = pointer->next;
+
+				if(strcmp(firstGUI->name, name) == 0) {
+					pointer->next = pointer1->next;
+					free(pointer1);
+					break;
+				}
+
+				pointer = pointer1;
+
+			}
+		}
+	}
+}
+
+void printNodes(BaseSequentialStream *chp) {
+	struct guiNode_t *pointer = firstGUI;
+
+	chprintf(chp, "\r\n\nguiNodes:\r\n\n");
+
+	while(pointer != NULL) {
+		chprintf(chp, "x0:      %d\r\n", pointer->x0);
+		chprintf(chp, "y0:      %d\r\n", pointer->y0);
+		chprintf(chp, "x1:      %d\r\n", pointer->x1);
+		chprintf(chp, "y1:      %d\r\n", pointer->y1);
+		chprintf(chp, "name:    %s\r\n", pointer->name);
+		chprintf(chp, "*active: 0x%x\r\n", pointer->active);
+		chprintf(chp, "*state:  0x%x\r\n", pointer->state);
+		chprintf(chp, "*next:   0x%x\r\n", pointer->next);
+		chprintf(chp, "\r\n\n");
+		pointer = pointer->next;
+	}
+}
+
+static void guiThread(const uint16_t interval) {
+	uint16_t x, y;
+	struct guiNode_t *node;
+
 	chRegSetThreadName("GUI");
 
 	while(TRUE) {
 		x = tpReadX();
 		y = tpReadY();
 
-		chThdSleepMilliseconds(updateInterval);
+		chThdSleepMilliseconds(interval);
 	}
 }
 
-static void buttonThread(struct button_t *a) {
-	uint16_t x0, y0, x1, y1;
-
-	x0 = a->x0;
-	y0 = a->y0;
-	x1 = a->x1;
-	y1 = a->y1;
-
-	while(TRUE) {
-		if(*(a->active) == active) {
-			if(x >= x0 && x <= x1 && y >= y0 && y <= y1)
-				*(a->state) = 1;
-			else
-				*(a->state) = 0;
-		} else {
-			*(a->state) = 0;
-		}
-
-		chThdSleepMilliseconds(a->interval);
-	}
-}
-
-static void barThread(struct bar_t *a) {
-	uint16_t percent = 0, value = 0, value_old = 0;
-
-	while(TRUE) {
-		if(*(a->active) == active) {
-			percent = *(a->percent);
-			if(percent > 100)
-				percent = 100;	
-
-			if(a->orientation == horizontal) {
-				value = ((((a->x1)-(a->x0)) * percent) / 100);
-				if(value_old > value || value == 0)
-					lcdFillArea(a->x0+1, a->y0+1, a->x1, a->y1, a->bkColor);
-				else
-					lcdDrawRect(a->x0+1, a->y0+1, a->x0+value, a->y1, filled, a->valueColor);	
-			} else if(a->orientation == vertical) {
-				value = ((((a->y1)-(a->y0)) * percent) / 100);
-				if(value_old > value || value == 0)
-					lcdFillArea(a->x0+1, a->y0+1, a->x1, a->y1, a->bkColor);
-				else
-					lcdDrawRect(a->x0+1, a->y0+1, a->x1, a->y0+value, filled, a->valueColor);
-			}
-
-			value_old = value;
-		}
-
-		chThdSleepMilliseconds(a->interval);
-	}
-}
-
-Thread *guiInit(uint16_t updateInterval) {
+Thread *guiInit(uint16_t interval) {
 	Thread *tp = NULL;
-	tp = chThdCreateFromHeap(NULL, THD_WA_SIZE(64), HIGHPRIO-1, TouchPadThread, updateInterval);
+
+	tp = chThdCreateFromHeap(NULL, THD_WA_SIZE(10240), HIGHPRIO-1, guiThread, interval);
 
 	return tp;
 }
 
-Thread *guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *str, uint16_t fontColor, uint16_t buttonColor, uint16_t interval, uint8_t *active, uint8_t *state) {
-	struct button_t *button;
-	Thread *tp = NULL;
+uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *str, uint16_t fontColor, uint16_t buttonColor, uint8_t *active, uint8_t *state) {
+	struct guiNode_t *newNode;
 
-	button = chHeapAlloc(NULL, sizeof(struct button_t));
-	button->x0 = x0;
-	button->y0 = y0;
-	button->x1 = x1;
-	button->y1 = y1;
-	button->state = state;
-	button->active = active;
-	button->interval = interval;
+	newNode = chHeapAlloc(NULL, sizeof(struct guiNode_t));
+	if(newNode == NULL)
+		return 0;
+	
+	newNode->x0 = x0;
+	newNode->y0 = y0;
+	newNode->x1 = x1;
+	newNode->y1 = y1;
+	newNode->name = str;
+	newNode->active = active;
+	newNode->state = state;	
 
+	addNode(newNode);
+	
 	lcdDrawRectString(x0, y0, x1, y1, str, fontColor, buttonColor);
-	tp = chThdCreateFromHeap(NULL, THD_WA_SIZE(64), NORMALPRIO, buttonThread, button);
 
-	return tp;
+	return 1;
 }
 
-Thread *guiDrawBarGraph(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t orientation, uint16_t frameColor, uint16_t bkColor, uint16_t valueColor, uint16_t interval, uint8_t *active, uint16_t *percent) {
-	struct bar_t *bar;
-	Thread *tp = NULL;
-
-	bar = chHeapAlloc(NULL, sizeof(struct bar_t));
-	bar->x0 = x0;
-	bar->y0 = y0;
-	bar->x1 = x1;
-	bar->y1 = y1;
-	bar->orientation = orientation;
-	bar->frameColor = frameColor;
-	bar->bkColor = bkColor;
-	bar->valueColor = valueColor;
-	bar->percent = percent;
-	bar->interval = interval;
-	bar->active = active;
-
-	lcdDrawRect(x0, y0, x1, y1, frame, frameColor);
-	tp = chThdCreateFromHeap(NULL, THD_WA_SIZE(64), NORMALPRIO, barThread, bar);
-
-	return tp;
-}
