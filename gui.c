@@ -127,7 +127,7 @@ Thread *guiInit(uint16_t interval, tprio_t priority) {
 	return tp;
 }
 
-uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *str, uint16_t fontColor, uint16_t buttonColor, uint8_t *active, uint8_t *state) {
+uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *str, uint16_t fontColor, uint16_t buttonColor, char *name, uint8_t *active, uint8_t *state) {
 	struct guiNode_t *newNode;
 
 	newNode = chHeapAlloc(NULL, sizeof(struct guiNode_t));
@@ -135,6 +135,7 @@ uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *
 		return 0;
 	
 	newNode->type = button;
+	newNode->name = name;
 	newNode->x0 = x0;
 	newNode->y0 = y0;
 	newNode->x1 = x1;
@@ -153,7 +154,7 @@ uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *
 	return 1;
 }
 
-uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t orientation, uint16_t frameColor, uint16_t bkColor, uint16_t valueColor, uint8_t *active, uint8_t *value) {
+uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t orientation, uint16_t frameColor, uint16_t bkColor, uint16_t valueColor, char *name, uint8_t *active, uint8_t *value) {
 	struct guiNode_t *newNode;
 
 	newNode = chHeapAlloc(NULL, sizeof(struct guiNode_t));
@@ -161,6 +162,7 @@ uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_
 		return 0;
 
 	newNode->type = slider;
+	newNode->type = name;
 	newNode->x0 = x0;
 	newNode->y0 = y0;
 	newNode->x1 = x1;
@@ -172,14 +174,14 @@ uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_
 	if(addNode(newNode) != 1)
 		return 0;
 
-	// lcdDraw functions
+	lcdDrawRect(x0, y0, x1, y1, frame, frameColor);
 
 	chHeapFree(newNode);
 
 	return 1;
 }
 
-uint8_t guiDrawWheel(uint16_t x0, uint16_t y0, uint16_t radius1, uint16_t radius2, uint16_t bkColor, uint16_t valueColor, uint8_t *active, uint8_t *value) {
+uint8_t guiDrawWheel(uint16_t x0, uint16_t y0, uint16_t radius1, uint16_t radius2, uint16_t bkColor, uint16_t valueColor, char *name, uint8_t *active, uint8_t *value) {
 	struct guiNode_t *newNode;
 
 	newNode = chHeapAlloc(NULL, sizeof(struct guiNode_t));
@@ -187,6 +189,7 @@ uint8_t guiDrawWheel(uint16_t x0, uint16_t y0, uint16_t radius1, uint16_t radius
 		return 0;
 
 	newNode->type = wheel;
+	newNode->name = name;
 	newNode->x0 = x0;
 	newNode->y0 = y0;
 	newNode->r1 = radius1;
