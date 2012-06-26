@@ -71,8 +71,8 @@ static const struct GLCDConsoleVMT vmt = {
 };
 
 
-msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t x1,
-		uint16_t y1, font_t font, uint8_t *buffer, uint16_t bkcolor, uint16_t color) {
+msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t width, uint16_t height,
+		font_t font, uint16_t bkcolor, uint16_t color) {
 	const uint8_t* ptr;
 	uint16_t chi;
 	uint16_t x,y;
@@ -81,20 +81,14 @@ msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t x1
 	/* read font, get height */
 	console->fy = font[FONT_TABLE_HEIGHT_IDX];
 
-
-	/* calculate the size of the console in characters */
-	console->sx = (x1-x0);
-	console->sy = (((int16_t)((y1-y0)/console->fy))-1)*console->fy;
+	/* calculate the size of the console as an integer multiple of characters */
+	console->sx = width;
+	console->sy = (((int16_t)(height/console->fy))-1)*console->fy;
 
 	console->cx = 0;
 	console->cy = 0;
 	console->x0 = x0;
 	console->y0 = y0;
-
-	console->buf = buffer;
-	console->wptr = 0;
-	console->blen = console->sx*console->sy;
-	console->bstrt = 0;
 
 	console->bkcolor = bkcolor;
 	console->color = color;
@@ -104,8 +98,6 @@ msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t x1
 
 msg_t lcdConsolePut(GLCDConsole *console, char c) {
 	uint8_t width;
-	bool_t newline = FALSE;
-
 
 	if(c == '\n') {
 		/* clear the text at the end of the line */
@@ -120,26 +112,19 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 	} else {
 		width = lcdMeasureChar(c, console->font);
 		if((console->cx + width) >= console->sx) {
-			chprintf(&SD1, "[1] ");
 			console->cx = 0;
 			console->cy += console->fy;
 		}
 
-		if(
-				(console->cy > console->sy)) {
-			chprintf(&SD1, "[2] ");
-			if(newline)
-				chprintf(&SD1, "* ");
+		if((console->cy > console->sy)) {
+
 			lcdVerticalScroll(console->x0, console->y0, console->x0 + console->sx,
-					console->y0 + console->sy, console->fy);
+					console->y0 + console->sy + console->fy, console->fy);
 			/* reset the cursor */
 			console->cx = 0;
 			console->cy = console->sy;
-		} else if(newline) {
-			chprintf(&SD1, "[3] ");
-			console->cy += console->fy;
 		}
-		//chprintf(&SD1, "'%c' at [%d, %d]\r\n", c, console->x0 + console->cx, console->y0 + console->cy);
+
 		lcdDrawChar(console->x0 + console->cx, console->y0 + console->cy, c,
 				console->font, console->color, console->bkcolor, solid);
 

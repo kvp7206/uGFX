@@ -191,11 +191,7 @@ int lcdDrawChar(uint16_t cx, uint16_t cy, char c, font_t font, uint16_t color, u
 
 	/* Return the width of the character, we need it so that lcdDrawString may work
 	 * We don't have a static address counter */
-
-	/* Abhishek: what should padAfter be?
-	 * return charWidth+padAfter;
-	 */
-	return charWidth;
+	return charWidth + padAfterChar;
 }
 
 /* WARNING: No boundary checks! Unpredictable behaviour if text exceeds boundary */
