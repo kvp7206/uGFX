@@ -86,13 +86,14 @@ static void guiThread(const uint16_t interval) {
 			if(*(node->active) == active) {
 				x = tpReadX();
 				y = tpReadY();
-				
-				if(x >= node->x0 && x <= node->x1 && y >= node->y0 && y <= node->y1)
-					*(node->state) = 1;
-				else
+				if(node->type == button) {
+					if(x >= node->x0 && x <= node->x1 && y >= node->y0 && y <= node->y1)
+						*(node->state) = 1;
+					else
+						*(node->state) = 0;
+				} else {
 					*(node->state) = 0;
-			} else {
-				*(node->state) = 0;
+				}
 			}
 		}
 		
@@ -119,6 +120,7 @@ uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *
 	newNode->y0 = y0;
 	newNode->x1 = x1;
 	newNode->y1 = y1;
+	newNode->type = button;
 	newNode->name = str;
 	newNode->active = active;
 	newNode->state = state;	

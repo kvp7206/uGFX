@@ -7,6 +7,7 @@
 #include "touchpad.h"
 
 static struct guiNode_t {
+	uint8_t type;
 	uint16_t x0;
 	uint16_t y0;
 	uint16_t x1;
@@ -21,6 +22,7 @@ static struct guiNode_t {
 extern "C" {
 #endif
 
+enum {button};
 enum {horizontal, vertical};
 enum {inactive, active};
 
