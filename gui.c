@@ -35,7 +35,7 @@ static void deleteNode(char *name) {
 	if(firstGUI != NULL) {
 		if(strcmp(firstGUI->name, name) == 0) {
 			pointer = firstGUI->next;
-			free(firstGUI);
+			chHeapFree(firstGUI);
 			firstGUI = pointer;
 		} else {
 			pointer = firstGUI;
@@ -45,7 +45,7 @@ static void deleteNode(char *name) {
 
 				if(strcmp(firstGUI->name, name) == 0) {
 					pointer->next = pointer1->next;
-					free(pointer1);
+					chHeapFree(pointer1);
 					break;
 				}
 
