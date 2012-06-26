@@ -83,9 +83,12 @@ static void guiThread(const uint16_t interval) {
 
 	while(TRUE) {
 		for(node = firstGUI; node; node = node->next) {
+			// check if GUI element is active
 			if(*(node->active) == active) {
 				x = tpReadX();
 				y = tpReadY();
+
+				// we got a button
 				if(node->type == button) {
 					if(x >= node->x0 && x <= node->x1 && y >= node->y0 && y <= node->y1)
 						*(node->state) = 1;
@@ -93,6 +96,16 @@ static void guiThread(const uint16_t interval) {
 						*(node->state) = 0;
 				} else {
 					*(node->state) = 0;
+				}
+
+				// we got a slider
+				if(node->type == slider) {
+
+				}
+
+				// we got a keymatrix
+				if(node->type == keymatrix) {
+
 				}
 			}
 		}

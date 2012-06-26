@@ -22,7 +22,7 @@ static struct guiNode_t {
 extern "C" {
 #endif
 
-enum {button};
+enum {button, slider, keymatrix};
 enum {horizontal, vertical};
 enum {inactive, active};
 
