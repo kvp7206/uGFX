@@ -56,7 +56,7 @@ static void deleteNode(char *name) {
 	}
 }
 
-void printNodes(BaseSequentialStream *chp) {
+static void printNodes(BaseSequentialStream *chp) {
 	struct guiNode_t *pointer = firstGUI;
 
 	chprintf(chp, "\r\n\nguiNodes:\r\n\n");
@@ -82,9 +82,20 @@ static void guiThread(const uint16_t interval) {
 	chRegSetThreadName("GUI");
 
 	while(TRUE) {
-		x = tpReadX();
-		y = tpReadY();
+		for(node = firstGUI; node; node = node->next) {
+			if(*(node->active) == active) {
+				x = tpReadX();
+				y = tpReadY();
+				
+				if(x >= node->x0 && x <= node->x1 && y >= node->y0 && y <= node->y1)
+					*(node->state) = 1;
+				else
+					*(node->state) = 0;
 
+				chThdSleepMilliseconds(interval);
+			}
+		}
+		
 		chThdSleepMilliseconds(interval);
 	}
 }
