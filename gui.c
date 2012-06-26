@@ -94,8 +94,6 @@ static void guiThread(const uint16_t interval) {
 			} else {
 				*(node->state) = 0;
 			}
-
-			chThdSleepMilliseconds(interval);
 		}
 		
 		chThdSleepMilliseconds(interval);
