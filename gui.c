@@ -103,6 +103,11 @@ static void guiThread(const uint16_t interval) {
 
 				}
 
+				// we got a wheel
+				if(node->type == wheel) {
+
+				}
+
 				// we got a keymatrix
 				if(node->type == keymatrix) {
 
@@ -129,11 +134,11 @@ uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *
 	if(newNode == NULL)
 		return 0;
 	
+	newNode->type = button;
 	newNode->x0 = x0;
 	newNode->y0 = y0;
 	newNode->x1 = x1;
 	newNode->y1 = y1;
-	newNode->type = button;
 	newNode->name = str;
 	newNode->active = active;
 	newNode->state = state;	
@@ -142,6 +147,32 @@ uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *
 		return 0;
 	
 	lcdDrawRectString(x0, y0, x1, y1, str, fontColor, buttonColor);
+
+	chHeapFree(newNode);
+
+	return 1;
+}
+
+uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t orientation, uint16_t frameColor, uint16_t bkColor, uint16_t valueColor, uint8_t *active, uint8_t *value) {
+	struct guiNode_t *newNode;
+
+	newNode = chHeapAlloc(NULL, sizeof(struct guiNode_t));
+	if(newNode == NULL)
+		return 0;
+
+	newNode->type = slider;
+	newNode->x0 = x0;
+	newNode->y0 = y0;
+	newNode->x1 = x1;
+	newNode->y1 = y1;
+	newNode->state = value;
+	newNode->active = active;
+	newNode->orientation = orientation;
+
+	if(addNode(newNode) != 1)
+		return 0;
+
+	// lcdDraw functions
 
 	chHeapFree(newNode);
 
