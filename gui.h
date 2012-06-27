@@ -63,12 +63,13 @@ uint8_t guiDeleteElement(char *label);
  *				- str:				string that gets drawn into the rectangle - button's lable
  *				- fontColor:		color of the lable
  *				- buttonColor:		color of the rectangle
+ *				- shadow:			draws a black shadow with N pixels size if != 0 
  *				- active:			pass pointer to variable which holds the state 'active' or 'inactive'
  *				- state:			pass pointer to variable whcih will keep the state of the button (pressed / unpressed)'
  *
  * return:		1 if button successfully created
  */
-uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *str, uint16_t fontColor, uint16_t buttonColor, char *label, uint8_t *active, uint8_t *state);
+uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *str, uint16_t fontColor, uint16_t buttonColor, uint16_t shadow, char *label, uint8_t *active, uint8_t *state);
 
 uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t orientation, uint16_t frameColor, uint16_t bkColor, uint16_t valueColor, char *label, uint8_t *active, uint8_t *value);
 
