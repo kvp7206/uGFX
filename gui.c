@@ -135,7 +135,7 @@ uint8_t guiDeleteElement(char *label) {
 	return deleteElement(label);
 }
 
-uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *str, uint16_t fontColor, uint16_t buttonColor, uint16_t shadow, char *label, uint8_t *active, uint8_t *state) {
+uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *str, font_t font, uint16_t fontColor, uint16_t buttonColor, uint16_t shadow, char *label, uint8_t *active, uint8_t *state) {
 	struct guiNode_t *newNode;
 	uint16_t i;
 
@@ -156,7 +156,7 @@ uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *
 	if(addElement(newNode) != 1)
 		return 0;
 	
-	lcdDrawRectString(x0, y0, x1, y1, str, fontColor, buttonColor);
+	lcdDrawRectString(x0, y0, x1, y1, str, font, fontColor, buttonColor);
 
 	if(shadow != 0) {
 		for(i = 0; i < shadow; i++) {

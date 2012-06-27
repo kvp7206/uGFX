@@ -2,6 +2,8 @@
 
 #ifdef LCD_USE_S6D1121
 
+static uint16_t buf[((SCREEN_HEIGHT > SCREEN_WIDTH ) ? SCREEN_HEIGHT : SCREEN_WIDTH)];
+
 #define LCD_RST_LOW		palClearPad(LCD_RST_GPIO, LCD_RST_PIN)
 #define LCD_RST_HIGH	palSetPad(LCD_RST_GPIO, LCD_RST_PIN)
 
@@ -238,6 +240,18 @@ __inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
 	}
 }
 
+__inline void lld_lcdReadStreamStart(void) {
+	/* TODO */
+}
+
+__inline void lld_lcdReadStreamStop(void) {
+	/* TODO */
+}
+
+__inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
+	/* TODO */
+}
+
 void lld_lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
 	uint32_t index = 0, area;
 
@@ -349,6 +363,36 @@ uint16_t lld_lcdGetHeight(void) {
 uint16_t lld_lcdGetWidth(void) {
 	return lcd_width;
 }
+
+/* a positive lines value shifts the screen up, negative down */
+/* TODO: test this */
+void lld_lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines) {
+	uint16_t row0, row1;
+	uint16_t i;
+	lld_lcdSetWindow(x0, y0, x1, y1);
+
+	for(i = 0; i < ((y1-y0) - abs(lines)); i++) {
+		if(lines > 0) {
+			row0 = y0 + i + lines;
+			row1 = y0 + i;
+		} else {
+			row0 = (y1 - i - 1) + lines;
+			row1 = (y1 - i - 1);
+		}
+
+		/* read row0 into the buffer and then write at row1*/
+		lld_lcdSetWindow(x0, row0, x1, row0);
+		lld_lcdReadStreamStart();
+		lld_lcdReadStream(buf, x1-x0);
+		lld_lcdReadStreamStop();
+
+		lld_lcdSetWindow(x0, row1, x1, row1);
+		lld_lcdWriteStreamStart();
+		lld_lcdWriteStream(buf, x1-x0);
+		lld_lcdWriteStreamStop();
+	}
+}
+
 
 #endif
 

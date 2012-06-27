@@ -6,6 +6,8 @@ uint8_t orientation;
 uint16_t DeviceCode;
 extern uint16_t lcd_width, lcd_height;
 
+static uint16_t buf[((SCREEN_HEIGHT > SCREEN_WIDTH ) ? SCREEN_HEIGHT : SCREEN_WIDTH)];
+
 #ifdef LCD_USE_GPIO
 
 static __inline void lld_lcdWriteIndex(uint16_t index) {
@@ -63,7 +65,7 @@ static __inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
 }
 
 __inline void lld_lcdWriteStreamStart(void) {
-	Clr_CS
+	Clr_CS;
 
 	lld_lcdWriteIndex(0x0022);
 }
@@ -81,6 +83,25 @@ __inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
 		lld_lcdWriteGPIO(buffer[i]);
 		Clr_WR;
 		Set_WR;
+	}
+}
+
+__inline void lld_lcdReadStreamStart(void) {
+	Clr_CS
+	lld_lcdWriteIndex(0x0022);
+}
+
+__inline void lld_lcdReadStreamStop(void) {
+	Set_CS;
+}
+
+__inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
+	uint16_t i;
+	/* throw away first value read */
+	volatile uint16_t dummy = LCD_RAM;
+
+	for(i = 0; i < size; i++) {
+		buffer[i] = LCD_RAM;
 	}
 }
 
@@ -114,6 +135,7 @@ static __inline uint16_t lld_lcdReadData(void) {
 
 static __inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
 	LCD_REG = lcdReg;
+	volatile uint16_t dummy = LCD_RAM;
 	return (LCD_RAM);
 }
 
@@ -129,6 +151,24 @@ __inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
 	uint16_t i;
 	for(i = 0; i < size; i++)
 		LCD_RAM = buffer[i];
+}
+
+__inline void lld_lcdReadStreamStart(void) {
+	LCD_REG = 0x0022;
+}
+
+__inline void lld_lcdReadStreamStop(void) {
+
+}
+
+__inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
+	uint16_t i;
+	/* throw away first value read */
+	volatile uint16_t dummy = LCD_RAM;
+
+	for(i = 0; i < size; i++) {
+		buffer[i] = LCD_RAM;
+	}
 }
 #endif
 
@@ -158,13 +198,19 @@ void lld_lcdSetPowerMode(uint8_t powerMode) {
 }
 
 void lld_lcdSetCursor(uint16_t x, uint16_t y) {
+	/* Reg 0x004E is an 8 bit value
+	 * Reg 0x004F is 9 bit
+	 * Use a bit mask to make sure they are not set too high
+	 */
+
 	if(PORTRAIT) {
-		lld_lcdWriteReg(0x004e, x); 
-		lld_lcdWriteReg(0x004f, y); 
+		lld_lcdWriteReg(0x004e, x & 0x00FF);
+		lld_lcdWriteReg(0x004f, y & 0x01FF);
 	} else if(LANDSCAPE) {
-		lld_lcdWriteReg(0x004e, y); 
-		lld_lcdWriteReg(0x004f, x); 
+		lld_lcdWriteReg(0x004e, y & 0x00FF);
+		lld_lcdWriteReg(0x004f, x & 0x01FF);
 	} 
+
 }
 
 void lld_lcdSetOrientation(uint8_t newOrientation) {
@@ -201,26 +247,35 @@ void lld_lcdSetOrientation(uint8_t newOrientation) {
 void lld_lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
     lld_lcdSetCursor(x0, y0);
 
+    /* Reg 0x44 - Horizontal RAM address position
+     * 		Upper Byte - HEA
+     * 		Lower Byte - HSA
+     * 		0 <= HSA <= HEA <= 0xEF
+     * Reg 0x45,0x46 - Vertical RAM address position
+     * 		Lower 9 bits gives 0-511 range in each value
+     * 		0 <= Reg(0x45) <= Reg(0x46) <= 0x13F
+     */
+
     switch(lcdGetOrientation()) {
         case portrait:
-            lld_lcdWriteReg(0x44, ((x1-1) << 8) | x0);
-            lld_lcdWriteReg(0x45, y0);
-            lld_lcdWriteReg(0x46, y1-1);
+            lld_lcdWriteReg(0x44, (((x1-1) << 8) & 0xFF00 ) | (x0 & 0x00FF));
+            lld_lcdWriteReg(0x45, y0 & 0x01FF);
+            lld_lcdWriteReg(0x46, (y1-1) & 0x01FF);
             break;
         case landscape:
-            lld_lcdWriteReg(0x44, ((y1-1) << 8) | y1);
-            lld_lcdWriteReg(0x45, x0);
-            lld_lcdWriteReg(0x46, x1-1);
+            lld_lcdWriteReg(0x44, (((y1-1) << 8) & 0xFF00) | (y1 & 0x00FF));
+            lld_lcdWriteReg(0x45, x0 & 0x01FF);
+            lld_lcdWriteReg(0x46, (x1-1) & 0x01FF);
             break;
         case portraitInv:
-            lld_lcdWriteReg(0x44, ((x1-1) << 8) | x0);
-            lld_lcdWriteReg(0x45, y0);
-            lld_lcdWriteReg(0x46, y1-1);
+            lld_lcdWriteReg(0x44, (((x1-1) << 8) & 0xFF00) | (x0 & 0x00FF));
+            lld_lcdWriteReg(0x45, y0 & 0x01FF);
+            lld_lcdWriteReg(0x46, (y1-1) & 0x01FF);
             break;
         case landscapeInv:
-            lld_lcdWriteReg(0x44, ((y1-1) << 8) | y1);
-            lld_lcdWriteReg(0x45, x0);
-            lld_lcdWriteReg(0x46, x1-1);
+            lld_lcdWriteReg(0x44, (((y1-1) << 8) & 0xFF00) | (y1 & 0x00FF));
+            lld_lcdWriteReg(0x45, x0 & 0x01FF);
+            lld_lcdWriteReg(0x46, (x1-1) & 0x01FF);
             break;
     }
 }
@@ -346,6 +401,34 @@ uint16_t lld_lcdGetHeight(void) {
 
 uint16_t lld_lcdGetWidth(void) {
 	return lcd_width;
+}
+
+/* a positive lines value shifts the screen up, negative down */
+void lld_lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines) {
+	uint16_t row0, row1;
+	uint16_t i;
+	lld_lcdSetWindow(x0, y0, x1, y1);
+
+	for(i = 0; i < ((y1-y0) - abs(lines)); i++) {
+		if(lines > 0) {
+			row0 = y0 + i + lines;
+			row1 = y0 + i;
+		} else {
+			row0 = (y1 - i - 1) + lines;
+			row1 = (y1 - i - 1);
+		}
+
+		/* read row0 into the buffer and then write at row1*/
+		lld_lcdSetWindow(x0, row0, x1, row0);
+		lld_lcdReadStreamStart();
+		lld_lcdReadStream(buf, x1-x0);
+		lld_lcdReadStreamStop();
+
+		lld_lcdSetWindow(x0, row1, x1, row1);
+		lld_lcdWriteStreamStart();
+		lld_lcdWriteStream(buf, x1-x0);
+		lld_lcdWriteStreamStop();
+	}
 }
 
 #endif

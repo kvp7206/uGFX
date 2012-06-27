@@ -1,7 +1,7 @@
 #ifndef ADS7843_LLD_H
 #define ADS7843_LLD_H
 
-#include "glcdconf.h"
+#include "glcd.h"
 #include "touchpad.h"
 
 #ifdef TOUCHPAD_USE_ADS7843

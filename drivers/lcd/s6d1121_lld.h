@@ -2,7 +2,6 @@
 #define S6D1121_H
 
 #include "glcd.h"
-#include "glcdconf.h"
 
 #ifdef LCD_USE_S6D1121
 
@@ -43,6 +42,7 @@ uint16_t lld_lcdGetPixelColor(uint16_t x, uint16_t y);
 uint16_t lld_lcdGetOrientation(void);
 uint16_t lld_lcdGetHeight(void);
 uint16_t lld_lcdGetWidth(void);
+void lld_lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines);
 
 #ifdef __cplusplus
 }
