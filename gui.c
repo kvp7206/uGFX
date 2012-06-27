@@ -190,7 +190,7 @@ uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_
 	if(addElement(newNode) != 1)
 		return 0;
 
-	lcdDrawRect(x0, y0, x1, y1, frame, frameColor);
+	// lcdDraw functions
 
 	chHeapFree(newNode);
 
