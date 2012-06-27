@@ -185,7 +185,8 @@ static __inline void lcdDelay(uint16_t us) {
 
 void lld_lcdSetCursor(uint16_t x, uint16_t y) {
 	/* Reg 0x004E is an 8 bit value
-	 * Reg 0x004F is 8 bit
+	 * Reg 0x004F is 9 bit
+	 * Use a bit mask to make sure they are not set too high
 	 */
 
 	if(PORTRAIT) {
