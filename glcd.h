@@ -54,7 +54,6 @@ extern "C" {
 
 /* Core functions */
 void lcdInit(GLCDDriver *GLCDD1);
-
 void lcdClear(uint16_t color);
 void lcdSetOrientation(uint8_t newOrientation);
 void lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
