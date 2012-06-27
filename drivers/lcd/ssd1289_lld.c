@@ -188,22 +188,15 @@ void lld_lcdSetCursor(uint16_t x, uint16_t y) {
 	/* Reg 0x004E is an 8 bit value
 	 * Reg 0x004F is 8 bit
 	 */
-	/*
-	 * 	if(PORTRAIT) {
+
+	if(PORTRAIT) {
 		lld_lcdWriteReg(0x004e, x & 0x00FF);
 		lld_lcdWriteReg(0x004f, y & 0x01FF);
 	} else if(LANDSCAPE) {
 		lld_lcdWriteReg(0x004e, y & 0x00FF);
 		lld_lcdWriteReg(0x004f, x & 0x01FF);
 	} 
-	 */
-	if(PORTRAIT) {
-		lld_lcdWriteReg(0x004e, x);
-		lld_lcdWriteReg(0x004f, y);
-	} else if(LANDSCAPE) {
-		lld_lcdWriteReg(0x004e, y);
-		lld_lcdWriteReg(0x004f, x);
-	}
+
 }
 
 void lld_lcdSetOrientation(uint8_t newOrientation) {
@@ -251,9 +244,9 @@ void lld_lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
 
     switch(lcdGetOrientation()) {
         case portrait:
-            lld_lcdWriteReg(0x44, (((x1-1) << 8) ) | (x0 ));
-            lld_lcdWriteReg(0x45, y0);
-            lld_lcdWriteReg(0x46, (y1-1));
+            lld_lcdWriteReg(0x44, (((x1-1) << 8) & 0xFF00 ) | (x0 & 0x00FF));
+            lld_lcdWriteReg(0x45, y0 & 0x01FF);
+            lld_lcdWriteReg(0x46, (y1-1) & 0x01FF);
             break;
         case landscape:
             lld_lcdWriteReg(0x44, (((y1-1) << 8) & 0xFF00) | (y1 & 0x00FF));
