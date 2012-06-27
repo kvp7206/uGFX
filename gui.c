@@ -2,7 +2,7 @@
 
 static struct guiNode_t *firstGUI = NULL;
 
-static uint16_t addNode(struct guiNode_t *newNode) {
+static uint8_t addElement(struct guiNode_t *newNode) {
 	struct guiNode_t *new;
 
 	if(firstGUI == NULL) {
@@ -29,7 +29,7 @@ static uint16_t addNode(struct guiNode_t *newNode) {
 	return 1;
 }
 
-static uint8_t deleteNode(char *name) {
+static uint8_t deleteElement(char *name) {
 	struct guiNode_t *pointer, *pointer1;
 
 	if(firstGUI != NULL) {
@@ -60,7 +60,7 @@ static uint8_t deleteNode(char *name) {
 	return 0;	// not successful
 }
 
-void guiPrintNodes(BaseSequentialStream *chp) {
+void guiPrintElements(BaseSequentialStream *chp) {
 	struct guiNode_t *pointer = firstGUI;
 
 	chprintf(chp, "\r\n\nguiNodes:\r\n\n");
@@ -152,7 +152,7 @@ uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *
 	newNode->active = active;
 	newNode->state = state;	
 
-	if(addNode(newNode) != 1)
+	if(addElement(newNode) != 1)
 		return 0;
 	
 	lcdDrawRectString(x0, y0, x1, y1, str, fontColor, buttonColor);
@@ -179,7 +179,7 @@ uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_
 	newNode->active = active;
 	newNode->orientation = orientation;
 
-	if(addNode(newNode) != 1)
+	if(addElement(newNode) != 1)
 		return 0;
 
 	lcdDrawRect(x0, y0, x1, y1, frame, frameColor);
@@ -205,7 +205,7 @@ uint8_t guiDrawWheel(uint16_t x0, uint16_t y0, uint16_t radius1, uint16_t radius
 	newNode->active = active;
 	newNode->state = value;
 
-	if(addNode(newNode) != 1)
+	if(addElement(newNode) != 1)
 		return 0;
 
 	// lcdDraw functions

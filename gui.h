@@ -46,7 +46,7 @@ Thread *guiInit(uint16_t interval, tprio_t priority);
  *
  * return:		none
  */
-void guiPrintNode(BaseSequentialStream *chp);
+void guiPrintElements(BaseSequentialStream *chp);
 
 /*
  * Description: deletes a GUI element from the linked list
