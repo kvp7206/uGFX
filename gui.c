@@ -160,8 +160,8 @@ uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *
 
 	if(shadow != 0) {
 		for(i = 0; i < shadow; i++) {
-			lcdDrawLine(x1+i, y0-i, x1+i, y1-i-1, Black);
-			lcdDrawLine(x0+i, y0-i, x1+i, y0-i, Black);
+			lcdDrawLine(x0+shadow, y1+i, x1+shadow-1, y1+i, Black);
+			lcdDrawLine(x1+i, y0+shadow, x1+i, y1+shadow-1, Black);
 		}
 	}
 
