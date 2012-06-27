@@ -97,12 +97,23 @@ __inline void lld_lcdReadStreamStop(void) {
 
 __inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
 	uint16_t i;
-	/* throw away first value read */
-	volatile uint16_t dummy = LCD_RAM;
+	volatile uint16_t dummy;
 
-	for(i = 0; i < size; i++) {
-		buffer[i] = LCD_RAM;
-	}
+	#ifdef LCD_USE_GPIO
+		dummy = lld_lcdReadGPIO();
+		for(i = 0; i < size; i++)
+			buffer[i] = lld_lcdReadGPIO();
+	#endif
+
+	#ifdef LCD_USE_SPI
+		/* ToDo */
+	#endif
+
+	#ifdef LCD_USE_FSMC
+		dummy = LCD_RAM;
+		for(i = 0; i < size; i++)
+			buffer[i] = LCD_RAM;
+	#endif
 }
 
 #endif
