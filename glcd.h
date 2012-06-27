@@ -12,9 +12,6 @@
 #include "ssd1289_lld.h"
 #include "s6d1121_lld.h"
 
-#define SCREEN_WIDTH    240
-#define SCREEN_HEIGHT   320
-
 #define PORTRAIT	(lcdGetOrientation() == portrait || lcdGetOrientation() == portraitInv)
 #define LANDSCAPE	(lcdGetOrientation() == landscape || lcdGetOrientation() == landscapeInv)
 
@@ -36,6 +33,7 @@
 enum orientation {portrait, landscape, portraitInv, landscapeInv};
 enum filled {frame, filled};
 enum transparency {solid, transparent};
+enum powermode {powerOff, powerOn, sleepOn, sleepOff};
 
 typedef const uint8_t* font_t;
 
@@ -62,6 +60,7 @@ void lcdSetOrientation(uint8_t newOrientation);
 void lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 void lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
 void lcdWriteArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t *buffer, size_t n);
+void lcdSetPowerMode(uint8_t powerMode);
 
 /* Drawing functions */
 void lcdDrawPixel(uint16_t x, uint16_t y, uint16_t point);

@@ -8,8 +8,8 @@ uint16_t lcd_width, lcd_height;
 void lcdInit(GLCDDriver *glcdp) {
 
 	lld_lcdInit();
-	lcd_width = SCREEN_WIDTH;
-	lcd_height = SCREEN_HEIGHT;
+	lcd_width = lcdGetWidth();
+	lcd_height = lcdGetHeight();
 
 	lcdSetOrientation(portrait);
 }
@@ -28,6 +28,10 @@ uint16_t lcdGetOrientation(void) {
 
 static void lcdSetCursor(uint16_t x, uint16_t y) {
 	lld_lcdSetCursor(x, y);
+}
+
+void lcdSetPowerMode(uint8_t powerMode) {
+	lld_lcdSetPowerMode(powerMode);
 }
 
 void lcdSetOrientation(uint8_t newOrientation) {
@@ -307,11 +311,11 @@ void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint
 			lcdDrawPixel(x-b, y-a, color);
 		}
 
-	if(P < 0)
-		P += 3 + 2*a++;
-	else
-		P += 5 + 2*(a++ - b--);
-	} while(a <= b);
+		if(P < 0)
+			P += 3 + 2*a++;
+		else
+			P += 5 + 2*(a++ - b--);
+		} while(a <= b);
 }
 
 void lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines) {

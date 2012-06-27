@@ -11,11 +11,12 @@ extern "C" {
  *
  * param:
  *		- x0, y0, x1, y1:	location of arrows
+ *		- gridX, gridY:		grid size in X and Y direction
  *		- color:			color of arrows
  *
  * return: none
  */
-void graphDrawSystem(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
+void graphDrawSystem(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t gridX, uint16_t gridY, uint16_t color);
 
 /*
  * Description: does draw coordinates into graph as dots
@@ -28,7 +29,7 @@ void graphDrawSystem(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_
  *
  * return: none
  */
-void graphDrawDots(int16_t coord[][2], uint16_t entries, uint16_t radius, uint16_t color);
+void graphDrawDots(int coord[][2], uint16_t entries, uint16_t radius, uint16_t color);
 
 /*
  * Description: does draw coordinates into graph connected by lines
@@ -42,7 +43,7 @@ void graphDrawDots(int16_t coord[][2], uint16_t entries, uint16_t radius, uint16
  *
  * return: none
  */	
-void graphDrawNet(int16_t coord[][2], uint16_t entries, uint16_t radius, uint16_t lineColor, uint16_t dotColor);
+void graphDrawNet(int coord[][2], uint16_t entries, uint16_t radius, uint16_t lineColor, uint16_t dotColor);
 
 #ifdef __cplusplus
 }

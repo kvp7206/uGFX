@@ -1,7 +1,10 @@
 #ifndef GUI_H
 #define GUI_H
 
+#include "ch.h"
+#include "hal.h"
 #include "glcd.h"
+#include "touchpad.h"
 
 struct button_t {
 	uint16_t x0;
@@ -12,70 +15,78 @@ struct button_t {
 	uint16_t interval;
 };
 
-struct bar_t {
+static struct guiNode_t {
+	uint8_t type;
 	uint16_t x0;
 	uint16_t y0;
 	uint16_t x1;
 	uint16_t y1;
-	uint16_t orientation;
-	uint16_t frameColor;
-	uint16_t bkColor;
-	uint16_t valueColor;
-	uint16_t interval;
-	uint8_t *percent;
+	uint16_t r1;
+	uint16_t r2;
+	uint8_t orientation;
+	uint8_t *active;
+	uint8_t *state;
+	char *label;
+	struct guiNode_t *next;
 };
-
-enum {horizontal, vertical};
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+enum {button, slider, wheel, keymatrix};
+enum {horizontal, vertical};
+enum {inactive, active};
 
 /*
- * Description: starts main GUI thread which keeps X and Y coordinates of touchpad updated for guiDraw() threads
+ * Description: creates the GUI thread
  *
- * param:
- *		- updateInterval: update interval in milliseconds until next coordinates read-out
+ * param:		- interval:	thread sleep in milliseconds after each GUI element update
+ *				- priority: priority of the thread
  *
- * return: none
+ * return:		pointer to created thread
  */
-void guiInit(uint16_t updateIntervl);
+Thread *guiInit(uint16_t interval, tprio_t priority);
 
 /*
- * Description:	draws button and creates thread which keeps pressed/unpressed state up-to-date
+ * Description: prints all GUI elements structs (linked list)
+ * 
+ * param:		- chp: pointer to output stream
  *
- * param:
- *		- x0, y0, x1, y1: 	coordinates where button gets drawn
- *		- str:				string written centered into button
- *		- fontColor:		color of string
- *		- buttonColor:		color of button
- *		- interval:			interval in ms which updates state
- *		- state:			pointer to variable which keeps state (1 = pressed, 0 = unpressed)
- *
- * return: pointer to created thread
+ * return:		none
  */
-Thread *guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, unsigned char *str, font_t font, uint16_t fontColor, uint16_t buttonColor, uint16_t inverval, uint8_t *state);
+
+void guiPrintElements(BaseSequentialStream *chp);
 
 /*
- * Description: draws a bar graph and updates it's value
+ * Description: deletes a GUI element from the linked list
  *
- * param:
- *		- x0, y0, x1, y1:	coordinates where bar graph gets drawn
- *		- orientation:		horizontal or vertical
- *		- frameColor:		color of the frame
- *		- bkColor:			color of piece inside bar with is not set
- *		- valueColor:		color of value that will be drawn into bar
- *		- interval:			interval in ms which updates percentage
- *		- percent:			pointer value from 0 to 100 percent
+ * param:		- label: label of the element (parameter of each guiDrawXXX function)
  *
- * return : pointer to created thread
+ * return:		1 if successful, 0 otherwise
  */
-Thread *guiDrawBarGraph(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t orientation, uint16_t frameColor, uint16_t bkColor, uint16_t valueColor, uint16_t interval, uint16_t *percent);
+uint8_t guiDeleteElement(char *label);
+/*
+ * Description: draws a button on the screen and keeps it's state up to date
+ *
+ * param:		- x0, y0, x1, y1:	start and end coordinates of the button's rectangle
+ *				- str:				string that gets drawn into the rectangle - button's lable
+ *				- fontColor:		color of the lable
+ *				- buttonColor:		color of the rectangle
+ *				- shadow:			draws a black shadow with N pixels size if != 0 
+ *				- active:			pass pointer to variable which holds the state 'active' or 'inactive'
+ *				- state:			pass pointer to variable whcih will keep the state of the button (pressed / unpressed)'
+ *
+ * return:		1 if button successfully created
+ */
+uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *str, font_t font, uint16_t fontColor, uint16_t buttonColor, uint16_t shadow, char *label, uint8_t *active, uint8_t *state);
+
+uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t orientation, uint16_t frameColor, uint16_t bkColor, uint16_t valueColor, char *label, uint8_t *active, uint8_t *value);
+
+uint8_t guiDrawWheel(uint16_t x0, uint16_t y0, uint16_t radius1, uint16_t radius2, uint16_t bkColor, uint16_t valueColor, char *label, uint8_t *active, uint8_t *value);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-
