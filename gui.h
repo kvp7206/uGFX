@@ -6,15 +6,6 @@
 #include "glcd.h"
 #include "touchpad.h"
 
-struct button_t {
-	uint16_t x0;
-	uint16_t y0;
-	uint16_t x1;
-	uint16_t y1;
-	uint32_t *state;
-	uint16_t interval;
-};
-
 static struct guiNode_t {
 	uint8_t type;
 	uint16_t x0;
