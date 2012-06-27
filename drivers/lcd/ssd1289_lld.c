@@ -6,8 +6,7 @@ uint8_t orientation;
 uint16_t DeviceCode;
 extern uint16_t lcd_width, lcd_height;
 
-/* TODO: use max(height, width) */
-static uint16_t buf[SCREEN_HEIGHT];
+static uint16_t buf[((SCREEN_HEIGHT > SCREEN_WIDTH ) ? SCREEN_HEIGHT : SCREEN_WIDTH)];
 
 #ifdef LCD_USE_GPIO
 static __inline void lld_lcdWriteIndex(uint16_t index) {

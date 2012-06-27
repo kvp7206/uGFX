@@ -2,6 +2,8 @@
 
 #ifdef LCD_USE_S6D1121
 
+static uint16_t buf[((SCREEN_HEIGHT > SCREEN_WIDTH ) ? SCREEN_HEIGHT : SCREEN_WIDTH)];
+
 #define LCD_RST_LOW		palClearPad(LCD_RST_GPIO, LCD_RST_PIN)
 #define LCD_RST_HIGH	palSetPad(LCD_RST_GPIO, LCD_RST_PIN)
 
