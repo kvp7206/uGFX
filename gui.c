@@ -132,7 +132,7 @@ Thread *guiInit(uint16_t interval, tprio_t priority) {
 }
 
 uint8_t guiDeleteElement(char *name) {
-	return deleteNode(name);
+	return deleteElement(name);
 }
 
 uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *str, uint16_t fontColor, uint16_t buttonColor, char *name, uint8_t *active, uint8_t *state) {
