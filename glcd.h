@@ -53,7 +53,7 @@ extern "C" {
 #endif
 
 /* Core functions */
-void lcdInit(GLCDDriver *);
+void lcdInit(GLCDDriver *GLCDD1);
 
 void lcdClear(uint16_t color);
 void lcdSetOrientation(uint8_t newOrientation);
