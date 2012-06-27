@@ -17,7 +17,7 @@ static struct guiNode_t {
 	uint8_t orientation;
 	uint8_t *active;
 	uint8_t *state;
-	char *name;
+	char *label;
 	struct guiNode_t *next;
 };
 
@@ -51,11 +51,11 @@ void guiPrintElements(BaseSequentialStream *chp);
 /*
  * Description: deletes a GUI element from the linked list
  *
- * param:		- name: name of the element (parameter of each guiDrawXXX function)
+ * param:		- label: label of the element (parameter of each guiDrawXXX function)
  *
  * return:		1 if successful, 0 otherwise
  */
-uint8_t guiDeleteElement(char *name);
+uint8_t guiDeleteElement(char *label);
 /*
  * Description: draws a button on the screen and keeps it's state up to date
  *
@@ -68,11 +68,11 @@ uint8_t guiDeleteElement(char *name);
  *
  * return:		1 if button successfully created
  */
-uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *str, uint16_t fontColor, uint16_t buttonColor, char *name, uint8_t *active, uint8_t *state);
+uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *str, uint16_t fontColor, uint16_t buttonColor, char *label, uint8_t *active, uint8_t *state);
 
-uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t orientation, uint16_t frameColor, uint16_t bkColor, uint16_t valueColor, char *name, uint8_t *active, uint8_t *value);
+uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t orientation, uint16_t frameColor, uint16_t bkColor, uint16_t valueColor, char *label, uint8_t *active, uint8_t *value);
 
-uint8_t guiDrawWheel(uint16_t x0, uint16_t y0, uint16_t radius1, uint16_t radius2, uint16_t bkColor, uint16_t valueColor, char *name, uint8_t *active, uint8_t *value);
+uint8_t guiDrawWheel(uint16_t x0, uint16_t y0, uint16_t radius1, uint16_t radius2, uint16_t bkColor, uint16_t valueColor, char *label, uint8_t *active, uint8_t *value);
 
 #ifdef __cplusplus
 }

@@ -29,11 +29,11 @@ static uint8_t addElement(struct guiNode_t *newNode) {
 	return 1;
 }
 
-static uint8_t deleteElement(char *name) {
+static uint8_t deleteElement(char *label) {
 	struct guiNode_t *pointer, *pointer1;
 
 	if(firstGUI != NULL) {
-		if(strcmp(firstGUI->name, name) == 0) {
+		if(strcmp(firstGUI->label, label) == 0) {
 			pointer = firstGUI->next;
 			chHeapFree(firstGUI);
 			firstGUI = pointer;
@@ -43,7 +43,7 @@ static uint8_t deleteElement(char *name) {
 			while(pointer->next != NULL) {
 				pointer1 = pointer->next;
 
-				if(strcmp(firstGUI->name, name) == 0) {
+				if(strcmp(firstGUI->label, label) == 0) {
 					pointer->next = pointer1->next;
 					chHeapFree(pointer1);
 					break;
@@ -70,7 +70,7 @@ void guiPrintElements(BaseSequentialStream *chp) {
 		chprintf(chp, "y0:      %d\r\n", pointer->y0);
 		chprintf(chp, "x1:      %d\r\n", pointer->x1);
 		chprintf(chp, "y1:      %d\r\n", pointer->y1);
-		chprintf(chp, "name:    %s\r\n", pointer->name);
+		chprintf(chp, "label:    %s\r\n", pointer->label);
 		chprintf(chp, "active:  %d\r\n", *(pointer->active));
 		chprintf(chp, "state:   %d\r\n", *(pointer->state));
 		chprintf(chp, "*next:   0x%x\r\n", pointer->next);
@@ -131,11 +131,11 @@ Thread *guiInit(uint16_t interval, tprio_t priority) {
 	return tp;
 }
 
-uint8_t guiDeleteElement(char *name) {
-	return deleteElement(name);
+uint8_t guiDeleteElement(char *label) {
+	return deleteElement(label);
 }
 
-uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *str, uint16_t fontColor, uint16_t buttonColor, char *name, uint8_t *active, uint8_t *state) {
+uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *str, uint16_t fontColor, uint16_t buttonColor, char *label, uint8_t *active, uint8_t *state) {
 	struct guiNode_t *newNode;
 
 	newNode = chHeapAlloc(NULL, sizeof(struct guiNode_t));
@@ -143,12 +143,12 @@ uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *
 		return 0;
 	
 	newNode->type = button;
-	newNode->name = name;
+	newNode->label = label;
 	newNode->x0 = x0;
 	newNode->y0 = y0;
 	newNode->x1 = x1;
 	newNode->y1 = y1;
-	newNode->name = str;
+	newNode->label = str;
 	newNode->active = active;
 	newNode->state = state;	
 
@@ -162,7 +162,7 @@ uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *
 	return 1;
 }
 
-uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t orientation, uint16_t frameColor, uint16_t bkColor, uint16_t valueColor, char *name, uint8_t *active, uint8_t *value) {
+uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t orientation, uint16_t frameColor, uint16_t bkColor, uint16_t valueColor, char *label, uint8_t *active, uint8_t *value) {
 	struct guiNode_t *newNode;
 
 	newNode = chHeapAlloc(NULL, sizeof(struct guiNode_t));
@@ -170,7 +170,7 @@ uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_
 		return 0;
 
 	newNode->type = slider;
-	newNode->type = name;
+	newNode->type = label;
 	newNode->x0 = x0;
 	newNode->y0 = y0;
 	newNode->x1 = x1;
@@ -189,7 +189,7 @@ uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_
 	return 1;
 }
 
-uint8_t guiDrawWheel(uint16_t x0, uint16_t y0, uint16_t radius1, uint16_t radius2, uint16_t bkColor, uint16_t valueColor, char *name, uint8_t *active, uint8_t *value) {
+uint8_t guiDrawWheel(uint16_t x0, uint16_t y0, uint16_t radius1, uint16_t radius2, uint16_t bkColor, uint16_t valueColor, char *label, uint8_t *active, uint8_t *value) {
 	struct guiNode_t *newNode;
 
 	newNode = chHeapAlloc(NULL, sizeof(struct guiNode_t));
@@ -197,7 +197,7 @@ uint8_t guiDrawWheel(uint16_t x0, uint16_t y0, uint16_t radius1, uint16_t radius
 		return 0;
 
 	newNode->type = wheel;
-	newNode->name = name;
+	newNode->label = label;
 	newNode->x0 = x0;
 	newNode->y0 = y0;
 	newNode->r1 = radius1;
