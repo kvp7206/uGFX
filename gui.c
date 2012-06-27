@@ -29,7 +29,7 @@ static uint16_t addNode(struct guiNode_t *newNode) {
 	return 1;
 }
 
-static void deleteNode(char *name) {
+static uint8_t deleteNode(char *name) {
 	struct guiNode_t *pointer, *pointer1;
 
 	if(firstGUI != NULL) {
@@ -53,7 +53,11 @@ static void deleteNode(char *name) {
 
 			}
 		}
+
+		return 1; // successful
 	}
+
+	return 0;	// not successful
 }
 
 void guiPrintNodes(BaseSequentialStream *chp) {
@@ -125,6 +129,10 @@ Thread *guiInit(uint16_t interval, tprio_t priority) {
 	tp = chThdCreateFromHeap(NULL, THD_WA_SIZE(512), priority, guiThread, interval);
 
 	return tp;
+}
+
+uint8_t guiDeleteElement(char *name) {
+	return deleteNode(name);
 }
 
 uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *str, uint16_t fontColor, uint16_t buttonColor, char *name, uint8_t *active, uint8_t *state) {

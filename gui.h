@@ -49,6 +49,14 @@ Thread *guiInit(uint16_t interval, tprio_t priority);
 void guiPrintNode(BaseSequentialStream *chp);
 
 /*
+ * Description: deletes a GUI element from the linked list
+ *
+ * param:		- name: name of the element (parameter of each guiDrawXXX function)
+ *
+ * return:		1 if successful, 0 otherwise
+ */
+uint8_t guiDeleteElement(char *name);
+/*
  * Description: draws a button on the screen and keeps it's state up to date
  *
  * param:		- x0, y0, x1, y1:	start and end coordinates of the button's rectangle
