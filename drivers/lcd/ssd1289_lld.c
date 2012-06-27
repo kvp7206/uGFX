@@ -71,7 +71,7 @@ static __inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
 }
 
 __inline void lld_lcdWriteStreamStart(void) {
-	Clr_CS
+	Clr_CS;
 	lld_lcdWriteIndex(0x0022);
 }
 
