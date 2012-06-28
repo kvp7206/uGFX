@@ -23,6 +23,7 @@ static size_t reads(void *ip, uint8_t *bp, size_t n) {
 	(void)ip;
 	(void)bp;
 	(void)n;
+
 	return 0;
 }
 
@@ -32,23 +33,28 @@ static msg_t put(void *ip, uint8_t b) {
 
 static msg_t get(void *ip) {
 	(void)ip;
+
 	return RDY_OK;
 }
 
 static msg_t putt(void *ip, uint8_t b, systime_t timeout) {
 	(void)timeout;
+
 	/* TODO: handle timeout */
+
 	return lcdConsolePut((GLCDConsole *)ip, (char)b);
 }
 
 static msg_t gett(void *ip, systime_t timeout) {
 	(void)ip;
 	(void)timeout;
+
 	return RDY_OK;
 }
 
 static size_t writet(void *ip, const uint8_t *bp, size_t n, systime_t time) {
 	(void)time;
+
 	return lcdConsoleWrite((GLCDConsole *)ip, bp, n);
 }
 
@@ -57,22 +63,22 @@ static size_t readt(void *ip, uint8_t *bp, size_t n, systime_t time) {
 	(void)bp;
 	(void)n;
 	(void)time;
+
 	return 0;
 }
 
 static chnflags_t getflags(void *ip) {
-  _chn_get_and_clear_flags_impl(ip);
+	_chn_get_and_clear_flags_impl(ip);
 }
 
 static const struct GLCDConsoleVMT vmt = {
-  writes, reads, put, get,
-  putt, gett, writet, readt,
-  getflags
+	writes, reads, put, get,
+	putt, gett, writet, readt,
+	getflags
 };
 
 
-msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t width, uint16_t height,
-		font_t font, uint16_t bkcolor, uint16_t color) {
+msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t width, uint16_t height, font_t font, uint16_t bkcolor, uint16_t color) {
 	const uint8_t* ptr;
 	uint16_t chi;
 	uint16_t x,y;
