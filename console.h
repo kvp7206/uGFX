@@ -53,7 +53,7 @@ struct GLCDConsole {
 extern "C" {
 #endif
 
-msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t width, uint16_t height font_t font, uint16_t bkcolor, uint16_t color);
+msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t width, uint16_t height, font_t font, uint16_t bkcolor, uint16_t color);
 msg_t lcdConsolePut(GLCDConsole *console, char c);
 msg_t lcdConsoleWrite(GLCDConsole *console, uint8_t *bp, size_t n);
 
