@@ -281,7 +281,7 @@ void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const
 	uint16_t off_left, off_up;
 
 	off_left = ((x1-x0)-lcdMeasureString(str, font))/2;
-	off_up = ((y1-y0) - lcdGetCurFontHeight()) / 2;
+	off_up = ((y1-y0) - lcdGetFontHeight(font)) / 2;
 
 	lcdDrawRect(x0, y0, x1, y1, 1, bkColor);
 	/* Abhishek: default to solid text for this? */
