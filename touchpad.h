@@ -9,7 +9,8 @@
 
 #define CONVERSIONS 3
 
-#define SET_CS(a)		(TP_PORT->BSRR = 1 << (TP_CS + (a ? 0 : 16)))
+#define TP_CS_HIGH		palSetPad(TP_PORT, TP_CS)
+#define TP_CS_LOW		palClearPad(TP_PORT, TP_CS)
 
 struct cal {
 	float xm;

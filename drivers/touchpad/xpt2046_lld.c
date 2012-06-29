@@ -8,10 +8,10 @@ __inline uint16_t lld_readX(void) {
     uint16_t x;
 
     txbuf[0] = 0xd0;
-    SET_CS(0);
-    spiSend(&SPID1, 1, txbuf);
+    TP_CS_LOW;
+	spiSend(&SPID1, 1, txbuf);
     spiReceive(&SPID1, 2, rxbuf);
-    SET_CS(1);
+    TP_CS_HIGH;
 
     x = rxbuf[0] << 4;
     x |= rxbuf[1] >> 4;
@@ -25,10 +25,10 @@ __inline uint16_t lld_readY(void) {
     uint16_t y;
 
     txbuf[0] = 0x90;
-    SET_CS(0);
+    TP_CS_LOW;
     spiSend(&SPID1, 1, txbuf);
     spiReceive(&SPID1, 2, rxbuf);
-    SET_CS(1);
+    TP_CS_HIGH;
 
     y = rxbuf[0] << 4;
     y |= rxbuf[1] >> 4;
