@@ -54,8 +54,8 @@ int main(void) {
 	clearActive = active;
 	
 	// draw a button to set, and one to clear the LED
-	guiDrawButton(10, 10, 60, 60, "Set", Black, Yellow, "SetButton", &setActive, &setState);
-	guiDrawButton(70, 10, 120, 60, "Clear", Black, Red, "ClearButton", &clearActive, &clearState);
+	guiDrawButton(10, 10, 60, 60, "Set", font_Larger, Black, Yellow, 6, "SetButton", &setActive, &setState);
+	guiDrawButton(70, 10, 120, 60, "Clear", font_Larger, Black, Red, 6, "ClearButton", &clearActive, &clearState);
 
 	// you can delete a GUI element at any time from the GUI. You have to pass the GUI element name here.
 	// please note that you have to redraw the screen to delete the element yourself.
