@@ -129,7 +129,7 @@ void tpCalibrate(void) {
 	/* Abhishek: need to specify a font to use here, should probably make sure it exists somehow */
 	lcdDrawString(40, 10, "Touchpad Calibration", font_Larger, White, Red, solid);
 
-	for(i=0; i<2; i++) {
+	for(i = 0; i < 2; i++) {
 		tpDrawCross(cross[i][0], cross[i][1]);
 		while(!tpIRQ());
 		points[i][0] = tpReadRealX();
