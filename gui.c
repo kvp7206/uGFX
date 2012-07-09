@@ -189,6 +189,9 @@ uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_
 	if(addElement(newNode) != 1)
 		return 0;
 
+	(void)frameColor;
+	(void)bkColor;
+	(void)valueColor;
 	// lcdDraw functions
 
 	chHeapFree(newNode);
@@ -215,6 +218,8 @@ uint8_t guiDrawWheel(uint16_t x0, uint16_t y0, uint16_t radius1, uint16_t radius
 	if(addElement(newNode) != 1)
 		return 0;
 
+	(void)bkColor;
+	(void)valueColor;
 	// lcdDraw functions
 
 	chHeapFree(newNode);
