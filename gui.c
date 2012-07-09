@@ -99,22 +99,20 @@ static void guiThread(const uint16_t interval) {
 					} else {
 						*(node->state) = 0;
 					}
-				} else {
-					*(node->state) = 0;
 				}
 
 				// we got a slider
-				if(node->type == slider) {
+				else if(node->type == slider) {
 
 				}
 
 				// we got a wheel
-				if(node->type == wheel) {
+				else if(node->type == wheel) {
 
 				}
 
 				// we got a keymatrix
-				if(node->type == keymatrix) {
+				else if(node->type == keymatrix) {
 
 				}
 			}
