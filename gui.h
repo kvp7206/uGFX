@@ -6,7 +6,7 @@
 #include "glcd.h"
 #include "touchpad.h"
 
-static struct guiNode_t {
+struct guiNode_t {
 	uint8_t type;
 	uint16_t x0;
 	uint16_t y0;
