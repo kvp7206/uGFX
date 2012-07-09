@@ -16,6 +16,7 @@ struct guiNode_t {
 	uint16_t y1;
 	uint16_t r1;
 	uint16_t r2;
+	uint16_t shadow;
 	uint8_t orientation;
 	uint8_t *active;
 	uint8_t *state;

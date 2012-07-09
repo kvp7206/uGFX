@@ -20,5 +20,8 @@
 #define TOUCHPAD_USE_XPT2046
 
 
+/***** GUI OPTIONS *****/
+#define GUI_USE_ANIMATIONS
+
 #endif
 

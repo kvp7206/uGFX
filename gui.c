@@ -80,7 +80,7 @@ void guiPrintElements(BaseSequentialStream *chp) {
 }
 
 static void guiThread(const uint16_t interval) {
-	uint16_t x, y;
+	uint16_t x, y, color;
 	struct guiNode_t *node;
 
 	chRegSetThreadName("GUI");
@@ -94,10 +94,11 @@ static void guiThread(const uint16_t interval) {
 
 				// we got a button
 				if(node->type == button) {
-					if(x >= node->x0 && x <= node->x1 && y >= node->y0 && y <= node->y1)
+					if(x >= node->x0 && x <= node->x1 && y >= node->y0 && y <= node->y1) {
 						*(node->state) = 1;
-					else
+					} else {
 						*(node->state) = 0;
+					}
 				} else {
 					*(node->state) = 0;
 				}
@@ -149,6 +150,7 @@ uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *
 	newNode->y0 = y0;
 	newNode->x1 = x1;
 	newNode->y1 = y1;
+	newNode->shadow = shadow;
 	newNode->active = active;
 	newNode->state = state;	
 
