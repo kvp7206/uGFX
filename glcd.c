@@ -11,6 +11,7 @@ void lcdInit(GLCDDriver *glcdp) {
 	lcd_width = lcdGetWidth();
 	lcd_height = lcdGetHeight();
 
+	lcdSetPowerMode(powerOn);
 	lcdSetOrientation(portrait);
 }
 
