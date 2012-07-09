@@ -46,7 +46,6 @@ Thread *guiInit(uint16_t interval, tprio_t priority);
  *
  * return:		none
  */
-
 void guiPrintElements(BaseSequentialStream *chp);
 
 /*
@@ -57,6 +56,7 @@ void guiPrintElements(BaseSequentialStream *chp);
  * return:		1 if successful, 0 otherwise
  */
 uint8_t guiDeleteElement(char *label);
+
 /*
  * Description: draws a button on the screen and keeps it's state up to date
  *
