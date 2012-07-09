@@ -2,6 +2,7 @@
 
 static struct guiNode_t *firstGUI = NULL;
 uint16_t x, y; 	// global touchpad coordinates
+uint16_t value_old; // needed for slider
 
 static uint8_t addElement(struct guiNode_t *newNode) {
 	struct guiNode_t *new;
@@ -90,6 +91,28 @@ static inline void buttonUpdate(struct guiNode_t *node) {
 
 static inline void sliderUpdate(struct guiNode_t *node) {
 	(void)node;
+
+	uint16_t percent = 0, value = 0;
+
+	percent = *(node->state);
+	if(percent > 100)
+		percent = 100;	
+
+	if(node->orientation == horizontal) {
+		value = ((((node->x1)-(node->x0)) * percent) / 100);
+		if(value_old > value || value == 0)
+			lcdFillArea(node->x0+1, node->y0+1, node->x1, node->y1, node->bkColor);
+		else
+			lcdDrawRect(node->x0+1, node->y0+1, node->x0+value, node->y1, filled, node->valueColor);	
+	} else if(node->orientation == vertical) {
+		value = ((((node->y1)-(node->y0)) * percent) / 100);
+		if(value_old > value || value == 0)
+			lcdFillArea(node->x0+1, node->y0+1, node->x1, node->y1, node->bkColor);
+		else
+			lcdDrawRect(node->x0+1, node->y0+1, node->x1, node->y0+value, filled, node->valueColor);
+	}
+
+	value_old = value;
 }
 
 static inline void wheelUpdate(struct guiNode_t *node) {
@@ -193,6 +216,8 @@ uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_
 	newNode->y0 = y0;
 	newNode->x1 = x1;
 	newNode->y1 = y1;
+	newNode->bkColor = bkColor;
+	newNode->valueColor = valueColor;
 	newNode->state = value;
 	newNode->active = active;
 	newNode->orientation = orientation;
@@ -200,11 +225,12 @@ uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_
 	if(addElement(newNode) != 1)
 		return 0;
 
-	(void)frameColor;
 	(void)bkColor;
 	(void)valueColor;
+	
 	// lcdDraw functions
-
+	lcdDrawRect(x0, y0, x1, y1, frame, frameColor);
+	
 	chHeapFree(newNode);
 
 	return 1;
@@ -238,8 +264,11 @@ uint8_t guiDrawWheel(uint16_t x0, uint16_t y0, uint16_t radius1, uint16_t radius
 	return 1;
 }
 
-uint8_t guiDrawKeymatrix(uint16_t x0, uint16_t y0, uint16_t buttonSize, uint16_t space, uint16_t shadow, uint16_t buttonColor, uint16_t fontColor, font_t font, char *label, uint8_t *active, uint8_t *value) {
+uint8_t guiDrawKeymatrix(uint16_t x0, uint16_t y0, uint16_t size, uint16_t space, uint16_t shadow, uint16_t buttonColor, uint16_t fontColor, font_t font, char *label, uint8_t *active, uint8_t *value) {
 	struct guiNode_t *newNode;
+	uint16_t off;
+	uint8_t keyActive = active;
+	uint8_t key_7_state;
 
 	newNode = chHeapAlloc(NULL, sizeof(struct guiNode_t));
 	if(newNode == NULL)
@@ -256,11 +285,9 @@ uint8_t guiDrawKeymatrix(uint16_t x0, uint16_t y0, uint16_t buttonSize, uint16_t
 	if(addElement(newNode) != 1)
 		return 0;
 
-	(void)buttonSize;
-	(void)space;
-	(void)buttonColor;
-	(void)fontColor;
-	// lcdDrawFunctions
+	off = size + space;
+
+	guiDrawButton(x0, y0, x0+size, y0+size, "7", font, fontColor, buttonColor, shadow, "key_7", &keyActive, &key_7_state); 
 
 	chHeapFree(newNode);
 
