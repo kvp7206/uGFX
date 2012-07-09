@@ -8,6 +8,7 @@ LCDSRC = 	$(LCDLIB)/glcd.c \
 			$(LCDLIB)/graph.c \
 			$(LCDLIB)/gui.c \
 			$(LCDLIB)/console.c \
+			$(LCDLIB)/fastMath.c \
 			$(LCD_DRIVERS_SRC)
 
 LCDINC = 	$(LCDLIB) \

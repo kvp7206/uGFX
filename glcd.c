@@ -319,6 +319,34 @@ void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint
 		} while(a <= b);
 }
 
+void lcdDrawEllipse(uint16_t x, uint16_t y, uint16_t a, uint16_t b, uint16_t color) {
+	int dx = 0, dy = b; /* im I. Quadranten von links oben nach rechts unten */
+	long a2 = a*a, b2 = b*b;
+	long err = b2-(2*b-1)*a2, e2; /* Fehler im 1. Schritt */
+
+	do {
+		lcdDrawPixel(x+dx, y+dy, color); /* I. Quadrant */
+		lcdDrawPixel(x-dx, y+dy, color); /* II. Quadrant */
+		lcdDrawPixel(x-dx, y-dy, color); /* III. Quadrant */
+		lcdDrawPixel(x+dx, y-dy, color); /* IV. Quadrant */
+
+		e2 = 2*err;
+		if(e2 <  (2*dx+1)*b2) {
+			dx++;
+			err += (2*dx+1)*b2;
+		}
+		if(e2 > -(2*dy-1)*a2) {
+			dy--;
+			err -= (2*dy-1)*a2;
+		}
+	} while(dy >= 0); 
+
+	while(dx++ < a) { /* fehlerhafter Abbruch bei flachen Ellipsen (b=1) */
+		lcdDrawPixel(x+dx, y, color); /* -> Spitze der Ellipse vollenden */
+		lcdDrawPixel(x-dx, y, color);
+   }   
+}
+
 void lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines) {
 	lld_lcdVerticalScroll(x0,y0,x1,y1,lines);
 }
