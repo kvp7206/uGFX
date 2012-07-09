@@ -2,7 +2,7 @@
 
 static struct guiNode_t *firstGUI = NULL;
 uint16_t x, y; 	// global touchpad coordinates
-uint16_t value_old; // needed for slider
+uint16_t percent, value_old; // needed for slider
 
 static uint8_t addElement(struct guiNode_t *newNode) {
 	struct guiNode_t *new;
@@ -90,14 +90,33 @@ static inline void buttonUpdate(struct guiNode_t *node) {
 }
 
 static inline void sliderUpdate(struct guiNode_t *node) {
-	(void)node;
+	uint16_t value, length;
 
-	uint16_t percent = 0, value = 0;
+	if(node->orientation == horizontal)
+		length = node->x1 - node->x0;
+	else if(node->orientation == vertical)
+		length = node->y1 - node->y0;
 
-	percent = *(node->state);
+	if(node->mode == modePassive) {
+		percent = *(node->state);
+	} else if(node->mode == modeActive) {
+		if(x >= node->x0 && x <= node->x1 && y >= node->y0 && y <= node->y1) {
+			if(node->orientation == horizontal) {
+				percent = (((x - node->x0) * 100) / length);
+			} else if(node->orientation == vertical) {
+				percent = (((y - node->y0) * 100) / length);
+			}
+		}
+
+		*(node->state) = percent;
+	}
+
+	// a bit of safety here
 	if(percent > 100)
-		percent = 100;	
-
+		percent = 100;
+	if(percent < 0)
+		percent = 0;
+	
 	if(node->orientation == horizontal) {
 		value = ((((node->x1)-(node->x0)) * percent) / 100);
 		if(value_old > value || value == 0)
@@ -203,7 +222,7 @@ uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *
 	return 1;
 }
 
-uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t orientation, uint16_t frameColor, uint16_t bkColor, uint16_t valueColor, char *label, uint8_t *active, uint8_t *value) {
+uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t orientation, uint8_t mode, uint16_t frameColor, uint16_t bkColor, uint16_t valueColor, char *label, uint8_t *active, uint8_t *value) {
 	struct guiNode_t *newNode;
 
 	newNode = chHeapAlloc(NULL, sizeof(struct guiNode_t));
@@ -216,6 +235,7 @@ uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_
 	newNode->y0 = y0;
 	newNode->x1 = x1;
 	newNode->y1 = y1;
+	newNode->mode = mode;
 	newNode->bkColor = bkColor;
 	newNode->valueColor = valueColor;
 	newNode->state = value;
