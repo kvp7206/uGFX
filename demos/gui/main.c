@@ -45,8 +45,8 @@ int main(void) {
 
 	// Initializes the GUI thread
 	// 10ms interval
-	// HIGHPRIO-2 thread priority level
-	guiInit(10, HIGHPRIO-2);
+	// HIGHPRIO thread priority level
+	guiInit(10, HIGHPRIO);
 
 	// set the following buttons to active
 	// buttons wouldn't have any effect if you set these variables to 'inactive'
