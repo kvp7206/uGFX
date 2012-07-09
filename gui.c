@@ -107,7 +107,7 @@ static void guiThread(const uint16_t interval) {
 
 	while(TRUE) {
 		for(node = firstGUI; node; node = node->next) {
-			// check if GUI element is active
+			// check if GUI element is set active
 			if(*(node->active) == active) {
 				x = tpReadX();
 				y = tpReadY();
