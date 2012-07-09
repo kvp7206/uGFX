@@ -2,7 +2,6 @@
 
 static struct guiNode_t *firstGUI = NULL;
 uint16_t x, y; 	// global touchpad coordinates
-uint16_t percent, value_old; // needed for slider
 
 static uint8_t addElement(struct guiNode_t *newNode) {
 	struct guiNode_t *new;
@@ -90,7 +89,7 @@ static inline void buttonUpdate(struct guiNode_t *node) {
 }
 
 static inline void sliderUpdate(struct guiNode_t *node) {
-	uint16_t value, length;
+	uint16_t length;
 
 	if(node->orientation == horizontal)
 		length = node->x1 - node->x0;
@@ -98,40 +97,40 @@ static inline void sliderUpdate(struct guiNode_t *node) {
 		length = node->y1 - node->y0;
 
 	if(node->mode == modePassive) {
-		percent = *(node->state);
+		node->percentage = *(node->state);
 	} else if(node->mode == modeActive) {
 		if(x >= node->x0 && x <= node->x1 && y >= node->y0 && y <= node->y1) {
 			if(node->orientation == horizontal) {
-				percent = (((x - node->x0) * 100) / length);
+				node->percentage = (((x - node->x0) * 100) / length);
 			} else if(node->orientation == vertical) {
-				percent = (((y - node->y0) * 100) / length);
+				node->percentage = (((y - node->y0) * 100) / length);
 			}
 		}
 
-		*(node->state) = percent;
+		*(node->state) = node->percentage;
 	}
 
 	// a bit of safety here
-	if(percent > 100)
-		percent = 100;
-	if(percent < 0)
-		percent = 0;
+	if(node->percentage > 100)
+		node->percentage = 100;
+	if(node->percentage < 0)
+		node->percentage = 0;
 	
 	if(node->orientation == horizontal) {
-		value = ((((node->x1)-(node->x0)) * percent) / 100);
-		if(value_old > value || value == 0)
+		node->value = ((((node->x1)-(node->x0)) * node->percentage) / 100);
+		if(node->oldValue > node->value || node->value == 0)
 			lcdFillArea(node->x0+1, node->y0+1, node->x1, node->y1, node->bkColor);
 		else
-			lcdDrawRect(node->x0+1, node->y0+1, node->x0+value, node->y1, filled, node->valueColor);	
+			lcdDrawRect(node->x0+1, node->y0+1, node->x0+node->value, node->y1, filled, node->valueColor);	
 	} else if(node->orientation == vertical) {
-		value = ((((node->y1)-(node->y0)) * percent) / 100);
-		if(value_old > value || value == 0)
+		node->value = ((((node->y1)-(node->y0)) * node->percentage) / 100);
+		if(node->oldValue > node->value || node->value == 0)
 			lcdFillArea(node->x0+1, node->y0+1, node->x1, node->y1, node->bkColor);
 		else
-			lcdDrawRect(node->x0+1, node->y0+1, node->x1, node->y0+value, filled, node->valueColor);
+			lcdDrawRect(node->x0+1, node->y0+1, node->x1, node->y0+node->value, filled, node->valueColor);
 	}
 
-	value_old = value;
+	node->oldValue = node->value;
 }
 
 static inline void wheelUpdate(struct guiNode_t *node) {
@@ -241,6 +240,7 @@ uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_
 	newNode->state = value;
 	newNode->active = active;
 	newNode->orientation = orientation;
+	newNode->percentage = 0;
 
 	if(addElement(newNode) != 1)
 		return 0;
