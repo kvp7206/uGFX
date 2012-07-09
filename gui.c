@@ -149,7 +149,6 @@ uint8_t guiDrawButton(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, char *
 	newNode->y0 = y0;
 	newNode->x1 = x1;
 	newNode->y1 = y1;
-	newNode->label = str;
 	newNode->active = active;
 	newNode->state = state;	
 
@@ -178,7 +177,7 @@ uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_
 		return 0;
 
 	newNode->type = slider;
-	newNode->type = label;
+	newNode->label = label;
 	newNode->x0 = x0;
 	newNode->y0 = y0;
 	newNode->x1 = x1;
