@@ -238,3 +238,32 @@ uint8_t guiDrawWheel(uint16_t x0, uint16_t y0, uint16_t radius1, uint16_t radius
 	return 1;
 }
 
+uint8_t guiDrawKeymatrix(uint16_t x0, uint16_t y0, uint16_t buttonSize, uint16_t space, uint16_t shadow, uint16_t buttonColor, uint16_t fontColor, font_t font, char *label, uint8_t *active, uint8_t *value) {
+	struct guiNode_t *newNode;
+
+	newNode = chHeapAlloc(NULL, sizeof(struct guiNode_t));
+	if(newNode == NULL)
+		return 0;
+
+	newNode->type = keymatrix;
+	newNode->label = label;
+	newNode->x0 = x0;
+	newNode->y0 = y0;
+	newNode->shadow = shadow;
+	newNode->active = active;
+	newNode->state = value;
+
+	if(addElement(newNode) != 1)
+		return 0;
+
+	(void)buttonSize;
+	(void)space;
+	(void)buttonColor;
+	(void)fontColor;
+	// lcdDrawFunctions
+
+	chHeapFree(newNode);
+
+	return 1;
+}
+

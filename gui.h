@@ -79,6 +79,8 @@ uint8_t guiDrawSlider(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_
 
 uint8_t guiDrawWheel(uint16_t x0, uint16_t y0, uint16_t radius1, uint16_t radius2, uint16_t bkColor, uint16_t valueColor, char *label, uint8_t *active, uint8_t *value);
 
+uint8_t guiDrawKeymatrix(uint16_t x0, uint16_t y0, uint16_t buttonSize, uint16_t space, uint16_t shadow, uint16_t buttonColor, uint16_t fontColor, font_t font, char *label, uint8_t *active, uint8_t *value);
+
 #ifdef __cplusplus
 }
 #endif
