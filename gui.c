@@ -1,6 +1,7 @@
 #include "gui.h"
 
 static struct guiNode_t *firstGUI = NULL;
+uint16_t x, y; 	// global touchpad coordinates
 
 static uint8_t addElement(struct guiNode_t *newNode) {
 	struct guiNode_t *new;
@@ -79,8 +80,27 @@ void guiPrintElements(BaseSequentialStream *chp) {
 	}
 }
 
+static inline void buttonUpdate(struct guiNode_t *node) {
+	if(x >= node->x0 && x <= node->x1 && y >= node->y0 && y <= node->y1) {
+		*(node->state) = 1;
+	} else {
+		*(node->state) = 0;
+	} 
+}
+
+static inline void sliderUpdate(struct guiNode_t *node) {
+	(void)node;
+}
+
+static inline void wheelUpdate(struct guiNode_t *node) {
+	(void)node;
+}
+
+static inline void keymatrixUpdate(struct guiNode_t *node) {
+	(void)node;
+}
+
 static void guiThread(const uint16_t interval) {
-	uint16_t x, y, color;
 	struct guiNode_t *node;
 
 	chRegSetThreadName("GUI");
@@ -92,28 +112,19 @@ static void guiThread(const uint16_t interval) {
 				x = tpReadX();
 				y = tpReadY();
 
-				// we got a button
-				if(node->type == button) {
-					if(x >= node->x0 && x <= node->x1 && y >= node->y0 && y <= node->y1) {
-						*(node->state) = 1;
-					} else {
-						*(node->state) = 0;
-					}
-				}
-
-				// we got a slider
-				else if(node->type == slider) {
-
-				}
-
-				// we got a wheel
-				else if(node->type == wheel) {
-
-				}
-
-				// we got a keymatrix
-				else if(node->type == keymatrix) {
-
+				switch(node->type) {
+					case button:
+						buttonUpdate(node);
+						break;
+					case slider:
+						sliderUpdate(node);
+						break;
+					case wheel:
+						wheelUpdate(node);
+						break;
+					case keymatrix:
+						keymatrixUpdate(node);
+						break;
 				}
 			}
 		}
