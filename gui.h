@@ -4,7 +4,9 @@
 #include "ch.h"
 #include "hal.h"
 #include "glcd.h"
+#include "chprintf.h"
 #include "touchpad.h"
+#include <string.h>
 
 struct guiNode_t {
 	uint8_t type;
