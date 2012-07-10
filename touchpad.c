@@ -143,5 +143,7 @@ void tpCalibrate(void) {
 
 	cal.xn = (float)cross[0][0] - cal.xm * (float)points[0][0];
 	cal.yn = (float)cross[0][1] - cal.ym * (float)points[0][1];
+
+	lcdSetWindow(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
