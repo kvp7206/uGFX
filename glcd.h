@@ -67,7 +67,7 @@ void lcdDrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t co
 void lcdDrawRect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t filled, uint16_t color);
 void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const char* str, font_t font, uint16_t fontColor, uint16_t bkColor);
 void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint16_t color);
-void lcdDrawEllipse(uint16_t x, uint16_t y, uint16_t a, uint16_t b, uint16_t color);
+void lcdDrawEllipse(uint16_t x, uint16_t y, uint16_t a, uint16_t b, uint16_t color, uint8_t filled);
 
 /* Text Rendering Functions */
 int lcdDrawChar(uint16_t cx, uint16_t cy, char c, font_t font, uint16_t color, uint16_t bkcolor, bool_t tpText);
