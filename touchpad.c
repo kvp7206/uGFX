@@ -25,7 +25,7 @@ static __inline uint16_t readY(void) {
 }
 
 uint8_t tpIRQ(void) {
-	return (!palReadPad(TP_PORT, TP_IRQ));
+	return (!palReadPad(TP_IRQ_PORT, TP_IRQ));
 }
 
 static uint16_t tpReadRealX(void) {
