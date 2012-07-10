@@ -5,9 +5,10 @@ http://chibios.org/dokuwiki/doku.php?id=chibios:community
 
 
 ### Maintainer & Contributors
-Contributors:	- Badger
-		- Abhishek 
+Contributors:	- Badger 			-> console implementation
+				- Abhishek 			-> font rendering
+				- Ben William		-> lcdDrawEllipse()
 
-Maintainer:	- Joel Bodenmann aka Tectu <joel@unormal.org>
+Maintainer:		- Joel Bodenmann aka Tectu <joel@unormal.org>
 
 
