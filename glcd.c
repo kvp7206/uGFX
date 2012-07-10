@@ -326,8 +326,8 @@ void lcdDrawEllipse(uint16_t x, uint16_t y, uint16_t a, uint16_t b, uint16_t col
 
 	do {
         if(filled){
-            lcdDrawLine(x-dx,y+dy,x+dx,y+dy);
-            lcdDrawLine(x-dx,y-dy,x+dx,y-dy);
+            lcdDrawLine(x-dx,y+dy,x+dx,y+dy, color);
+            lcdDrawLine(x-dx,y-dy,x+dx,y-dy, color);
         }else{
             lcdDrawPixel(x+dx, y+dy, color); /* I. Quadrant */
             lcdDrawPixel(x-dx, y+dy, color); /* II. Quadrant */
