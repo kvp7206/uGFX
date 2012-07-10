@@ -9,8 +9,8 @@
 
 #define CONVERSIONS 3
 
-#define TP_CS_HIGH		palSetPad(TP_PORT, TP_CS)
-#define TP_CS_LOW		palClearPad(TP_PORT, TP_CS)
+#define TP_CS_HIGH		palSetPad(TP_CS_PORT, TP_CS)
+#define TP_CS_LOW		palClearPad(TP_CS_PORT, TP_CS)
 
 struct cal {
 	float xm;
