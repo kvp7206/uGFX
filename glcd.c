@@ -319,7 +319,7 @@ void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint
 		} while(a <= b);
 }
 
-void lcdDrawEllipse(uint16_t x, uint16_t y, uint16_t a, uint16_t b, uint16_t color, uint8_t filled) {
+void lcdDrawEllipse(uint16_t x, uint16_t y, uint16_t a, uint16_t b, uint8_t filled, uint16_t color) {
 	int dx = 0, dy = b; /* im I. Quadranten von links oben nach rechts unten */
 	long a2 = a*a, b2 = b*b;
 	long err = b2-(2*b-1)*a2, e2; /* Fehler im 1. Schritt */
