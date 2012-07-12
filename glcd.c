@@ -319,16 +319,21 @@ void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint
 		} while(a <= b);
 }
 
-void lcdDrawEllipse(uint16_t x, uint16_t y, uint16_t a, uint16_t b, uint16_t color) {
+void lcdDrawEllipse(uint16_t x, uint16_t y, uint16_t a, uint16_t b, uint16_t color, uint8_t filled) {
 	int dx = 0, dy = b; /* im I. Quadranten von links oben nach rechts unten */
 	long a2 = a*a, b2 = b*b;
 	long err = b2-(2*b-1)*a2, e2; /* Fehler im 1. Schritt */
 
 	do {
-		lcdDrawPixel(x+dx, y+dy, color); /* I. Quadrant */
-		lcdDrawPixel(x-dx, y+dy, color); /* II. Quadrant */
-		lcdDrawPixel(x-dx, y-dy, color); /* III. Quadrant */
-		lcdDrawPixel(x+dx, y-dy, color); /* IV. Quadrant */
+        if(filled){
+            lcdDrawLine(x-dx,y+dy,x+dx,y+dy, color);
+            lcdDrawLine(x-dx,y-dy,x+dx,y-dy, color);
+        }else{
+            lcdDrawPixel(x+dx, y+dy, color); /* I. Quadrant */
+            lcdDrawPixel(x-dx, y+dy, color); /* II. Quadrant */
+            lcdDrawPixel(x-dx, y-dy, color); /* III. Quadrant */
+            lcdDrawPixel(x+dx, y-dy, color); /* IV. Quadrant */
+        }
 
 		e2 = 2*err;
 		if(e2 <  (2*dx+1)*b2) {
