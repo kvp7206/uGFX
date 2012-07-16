@@ -3,8 +3,7 @@
 
 #define GLCD_WORKER_SIZE 512
 
-enum glcd_action {	GLCD_SET_CURSOR,
-					GLCD_SET_POWERMODE,
+enum glcd_action {	GLCD_SET_POWERMODE,
 					GLCD_SET_ORIENTATION,
 					GLCD_SET_WINDOW,
 					GLCD_FILL_AREA,
@@ -28,13 +27,6 @@ enum glcd_result {	GLCD_DONE,
 
 struct glcd_msg_base {
 	_glcd_msg_base
-};
-
-struct glcd_msg_set_cursor {
-	_glcd_msg_base
-
-	uint16_t x;
-	uint16_t y;
 };
 
 struct glcd_msg_powermode {

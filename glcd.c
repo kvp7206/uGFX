@@ -22,13 +22,6 @@ static msg_t ThreadGLCDWorker(void *arg) {
  
 		/* do work here */
 		switch(msg->action) {
-			case GLCD_SET_CURSOR: {
-				EMSG(glcd_msg_set_cursor);
-				lld_lcdSetCursor(emsg->x, emsg->y);
-				msg->result = GLCD_DONE;
-				break;
-			}
-
 			case GLCD_SET_POWERMODE: {
 				EMSG(glcd_msg_powermode);
 				lld_lcdSetPowerMode(emsg->powermode);
@@ -136,16 +129,6 @@ uint16_t lcdGetWidth(void) {
 
 uint16_t lcdGetOrientation(void) {
 	return lld_lcdGetOrientation();
-}
-
-static void lcdSetCursor(uint16_t x, uint16_t y) {
-	struct glcd_msg_set_cursor msg;
- 
-	msg.action = GLCD_SET_CURSOR;
-	msg.x = x;
-	msg.y = y;
-
-	chMsgSend(workerThread, (msg_t)&msg);
 }
 
 void lcdSetPowerMode(uint8_t powerMode) {
