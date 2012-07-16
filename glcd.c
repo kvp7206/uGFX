@@ -1,11 +1,49 @@
 #include "glcd.h" 
-#include "fonts.h"
 #include <stdlib.h>
 #include <math.h>
 
 uint16_t lcd_width, lcd_height;
+static Thread *workerThread = NULL;
+ 
+static WORKING_AREA(waGLCDWorkerThread, GLCD_WORKER_SIZE);
+static msg_t ThreadGLCDWorker(void *arg) {
+	(void)arg;
+	Thread *p;
+ 
+	chRegSetThreadName("GLCDWorker");
+ 
+	while(TRUE) {
+		/* Wait for msg with work to do. */
+		p = chMsgWait();
+		struct glcd_msg_base *msg = (struct glcd_msg_base*)chMsgGet(p);
+		msg->result = GLCD_PROGRESS;
+ 
+		/* do work here */
+		switch(msg->action) {
+			case GLCD_SET_CURSOR: {
+				const struct glcd_msg_set_cursor *emsg = (const struct glcd_msg_set_cursor*)msg;
+				lld_lcdSetCursor(emsg->x, emsg->y);
+				msg->result = GLCD_DONE;
+				break;
+			}
+ 
+			case GLCD_DRAW_PIXEL: {
+				const struct glcd_msg_draw_pixel *emsg = (const struct glcd_msg_draw_pixel*)msg;
+				lld_lcdDrawPixel(emsg->x, emsg->y, emsg->color);
+				msg->result = GLCD_DONE;
+				break;
+			}
+		}
+
+		/* Done, release msg again. */
+		chMsgRelease(p, 0);
+	}
+ 
+	return 0;
+}
 
 void lcdInit(GLCDDriver *glcdp) {
+	workerThread = chThdCreateStatic(waGLCDWorkerThread, sizeof(waGLCDWorkerThread), NORMALPRIO, ThreadGLCDWorker, NULL);
 
 	lld_lcdInit();
 	lcd_width = lcdGetWidth();
@@ -28,7 +66,13 @@ uint16_t lcdGetOrientation(void) {
 }
 
 static void lcdSetCursor(uint16_t x, uint16_t y) {
-	lld_lcdSetCursor(x, y);
+	struct glcd_msg_set_cursor msg;
+ 
+	msg.action = GLCD_SET_CURSOR;
+	msg.x = x;
+	msg.y = y;
+
+	chMsgSend(workerThread, (msg_t)&msg);
 }
 
 void lcdSetPowerMode(uint8_t powerMode) {
@@ -64,7 +108,14 @@ uint16_t lcdGetPixelColor(uint16_t x, uint16_t y) {
 }
 
 void lcdDrawPixel(uint16_t x, uint16_t y, uint16_t color) {
-	lld_lcdDrawPixel(x, y, color);
+	struct glcd_msg_draw_pixel msg;
+ 
+	msg.action = GLCD_DRAW_PIXEL;
+	msg.x = x;
+	msg.y = y;
+	msg.color = color;
+
+	chMsgSend(workerThread, (msg_t)&msg);
 }
 
 static void lcdWriteStreamStart(void) {
