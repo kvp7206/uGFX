@@ -543,3 +543,4 @@ void lcdDrawEllipse(uint16_t x, uint16_t y, uint16_t a, uint16_t b, uint8_t fill
 void lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines) {
 	lld_lcdVerticalScroll(x0,y0,x1,y1,lines);
 }
+

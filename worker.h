@@ -1,7 +1,7 @@
 #ifndef WORKER_H
 #define WORKER_H
 
-#define GLCD_WORKER_SIZE 2048
+#define GLCD_WORKER_SIZE 512
 
 enum glcd_action {	GLCD_SET_CURSOR,
 					GLCD_SET_POWERMODE,
