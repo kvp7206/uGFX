@@ -14,6 +14,7 @@ enum glcd_action {	GLCD_SET_POWERMODE,
 					GLCD_WRITE_STREAM_START,
 					GLCD_WRITE_STREAM_STOP,
 					GLCD_WRITE_STREAM,
+					GLCD_DRAW_CHAR,
 				};
 
 enum glcd_result {	GLCD_DONE,
@@ -106,6 +107,19 @@ struct glcd_msg_write_stream {
 
 	uint16_t *buffer;
 	uint16_t size;
+};
+
+struct glcd_msg_draw_char {
+	_glcd_msg_base
+
+	uint16_t cx;
+	uint16_t cy;
+	char c;
+	const uint8_t *font;
+	uint16_t color;
+	uint16_t bkcolor;
+	bool_t tpText;
+	uint16_t return_value;
 };
 
 #endif

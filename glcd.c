@@ -99,6 +99,14 @@ static msg_t ThreadGLCDWorker(void *arg) {
 				msg->result = GLCD_DONE;
 				break;
 			}
+
+			case GLCD_DRAW_CHAR: {
+				struct glcd_msg_draw_char *emsg = (struct glcd_msg_draw_char*)msg;
+				/* ToDo */
+				// _doDrawChar(emsg);
+				msg->result = emsg->return_value;
+				break;
+			}
 		}
 
 		/* Done, release msg again. */
