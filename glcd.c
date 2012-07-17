@@ -307,7 +307,7 @@ void lcdDrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t co
 	}
 }
 
-int lcdDrawChar(uint16_t cx, uint16_t cy, char c, font_t font, uint16_t color, uint16_t bkcolor, bool_t tpText) {
+uint16_t lcdDrawChar(uint16_t cx, uint16_t cy, char c, font_t font, uint16_t color, uint16_t bkcolor, bool_t tpText) {
 	/* Working pointer */
 	const uint8_t* ptr;
 	uint8_t x, y;

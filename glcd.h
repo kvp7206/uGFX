@@ -71,7 +71,7 @@ void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint
 void lcdDrawEllipse(uint16_t x, uint16_t y, uint16_t a, uint16_t b, uint8_t filled, uint16_t color);
 
 /* Text Rendering Functions */
-int lcdDrawChar(uint16_t cx, uint16_t cy, char c, font_t font, uint16_t color, uint16_t bkcolor, bool_t tpText);
+uint16_t lcdDrawChar(uint16_t cx, uint16_t cy, char c, font_t font, uint16_t color, uint16_t bkcolor, bool_t tpText);
 void lcdDrawString(uint16_t x, uint16_t y, const char *str, font_t font, uint16_t color, uint16_t bkcolor, bool_t tpText);
 
 /* Character measuring functions */
