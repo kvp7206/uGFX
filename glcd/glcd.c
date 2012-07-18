@@ -99,6 +99,13 @@ static msg_t ThreadGLCDWorker(void *arg) {
 				msg->result = GLCD_DONE;
 				break;
 			}
+
+			case GLCD_VERTICAL_SCROLL: {
+				EMSG(glcd_msg_vertical_scroll);
+				lld_lcdVerticalScroll(emsg->x0, emsg->y0, emsg->x1, emsg->y1, emsg->lines);
+				msg->result = GLCD_DONE;
+				break;
+			}
 		}
 
 		/* Done, release msg again. */
@@ -246,6 +253,19 @@ static void lcdWriteStream(uint16_t *buffer, uint16_t size) {
 	msg.action = GLCD_WRITE_STREAM;
 	msg.buffer = buffer;
 	msg.size = size;
+
+	chMsgSend(workerThread, (msg_t)&msg);
+}
+
+void lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines) {
+	struct glcd_msg_vertical_scroll msg;
+
+	msg.action = GLCD_VERTICAL_SCROLL;
+	msg.x0 = x0;
+	msg.y0 = y0;
+	msg.x1 = x1;
+	msg.y1 = y1;
+	msg.lines = lines;
 
 	chMsgSend(workerThread, (msg_t)&msg);
 }
@@ -521,9 +541,5 @@ void lcdDrawEllipse(uint16_t x, uint16_t y, uint16_t a, uint16_t b, uint8_t fill
 		lcdDrawPixel(x+dx, y, color); /* -> Spitze der Ellipse vollenden */
 		lcdDrawPixel(x-dx, y, color);
    }   
-}
-
-void lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines) {
-	lld_lcdVerticalScroll(x0,y0,x1,y1,lines);
 }
 

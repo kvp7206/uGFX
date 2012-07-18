@@ -14,6 +14,7 @@ enum glcd_action {	GLCD_SET_POWERMODE,
 					GLCD_WRITE_STREAM_START,
 					GLCD_WRITE_STREAM_STOP,
 					GLCD_WRITE_STREAM,
+					GLCD_VERTICAL_SCROLL,
 				};
 
 enum glcd_result {	GLCD_DONE,
@@ -106,6 +107,16 @@ struct glcd_msg_write_stream {
 
 	uint16_t *buffer;
 	uint16_t size;
+};
+
+struct glcd_msg_vertical_scroll {
+	_glcd_msg_base
+
+	uint16_t x0;
+	uint16_t y0;
+	uint16_t x1;
+	uint16_t y1;
+	int16_t lines;
 };
 
 #endif
