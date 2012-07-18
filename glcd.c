@@ -372,7 +372,7 @@ uint16_t lcdDrawChar(uint16_t cx, uint16_t cy, char c, font_t font, uint16_t col
 
 /* WARNING: No boundary checks! Unpredictable behaviour if text exceeds boundary */
 void lcdDrawString(uint16_t x, uint16_t y, const char *str, font_t font, uint16_t color, uint16_t bkcolor, bool_t tpText) {
-	uint16_t cx=x, cy=y;
+	uint16_t cx = x, cy = y;
 	
 	while (*str) {
 		cx += lcdDrawChar(cx, cy, *str++, font, color, bkcolor, tpText);
