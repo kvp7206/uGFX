@@ -242,14 +242,14 @@ void lld_lcdSetOrientation(uint8_t newOrientation) {
             break;
         case portraitInv:
             lld_lcdWriteReg(0x0001, 0x6B3F);
-            /* ID = 00 AM = 0 */
+            /* ID = 01 AM = 0 */
             lld_lcdWriteReg(0x0011, 0x6050);
             lcd_height = SCREEN_HEIGHT;
             lcd_width = SCREEN_WIDTH;
             break;
         case landscapeInv:
             lld_lcdWriteReg(0x0001, 0x693F);
-            /* ID = 00 AM = 1 */
+            /* ID = 10 AM = 1 */
             lld_lcdWriteReg(0x0011, 0x6068);
             lcd_height = SCREEN_WIDTH;
             lcd_width = SCREEN_HEIGHT;
