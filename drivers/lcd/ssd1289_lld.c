@@ -100,11 +100,9 @@ __inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
 	uint16_t i;
 	volatile uint16_t dummy;
 
-	#ifdef LCD_USE_GPIO
-		dummy = lld_lcdReadGPIO();
-		for(i = 0; i < size; i++)
-			buffer[i] = lld_lcdReadGPIO();
-	#endif
+	dummy = lld_lcdReadGPIO();
+	for(i = 0; i < size; i++)
+		buffer[i] = lld_lcdReadData();
 }
 
 #endif
