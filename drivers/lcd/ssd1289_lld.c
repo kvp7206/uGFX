@@ -88,6 +88,7 @@ __inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
 
 __inline void lld_lcdReadStreamStart(void) {
 	Clr_CS
+
 	lld_lcdWriteIndex(0x0022);
 }
 
@@ -103,16 +104,6 @@ __inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
 		dummy = lld_lcdReadGPIO();
 		for(i = 0; i < size; i++)
 			buffer[i] = lld_lcdReadGPIO();
-	#endif
-
-	#ifdef LCD_USE_SPI
-		/* ToDo */
-	#endif
-
-	#ifdef LCD_USE_FSMC
-		dummy = LCD_RAM;
-		for(i = 0; i < size; i++)
-			buffer[i] = LCD_RAM;
 	#endif
 }
 
