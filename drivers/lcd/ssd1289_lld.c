@@ -415,9 +415,10 @@ uint16_t lld_lcdGetWidth(void) {
 }
 
 /* a positive lines value shifts the screen up, negative down */
-void lld_lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines) {
+void lld_lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t lines) {
 	uint16_t row0, row1;
 	uint16_t i;
+
 	lld_lcdSetWindow(x0, y0, x1, y1);
 
 	for(i = 0; i < ((y1-y0) - abs(lines)); i++) {
@@ -443,4 +444,4 @@ void lld_lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, i
 }
 
 #endif
-
+T

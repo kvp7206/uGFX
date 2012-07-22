@@ -257,7 +257,7 @@ static void lcdWriteStream(uint16_t *buffer, uint16_t size) {
 	chMsgSend(workerThread, (msg_t)&msg);
 }
 
-void lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines) {
+void lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t lines) {
 	struct glcd_msg_vertical_scroll msg;
 
 	msg.action = GLCD_VERTICAL_SCROLL;
