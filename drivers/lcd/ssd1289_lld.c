@@ -217,7 +217,7 @@ void lld_lcdSetCursor(uint16_t x, uint16_t y) {
 			break;
 		case landscapeInv:
 			lld_lcdWriteReg(0x004e, (SCREEN_WIDTH - y - 1) & 0x00FF);
-			lld_lcdWriteReg(0x004f, (x) & 0x01FF);
+			lld_lcdWriteReg(0x004f, (SCREEN_HEIGHT - x - 1) & 0x01FF);
 			break;
 	}
 }
@@ -241,16 +241,16 @@ void lld_lcdSetOrientation(uint8_t newOrientation) {
             lcd_width = SCREEN_HEIGHT;
             break;
         case portraitInv:
-            lld_lcdWriteReg(0x0001, 0x6B3F);
+            lld_lcdWriteReg(0x0001, 0x2B3F);
             /* ID = 01 AM = 0 */
-            lld_lcdWriteReg(0x0011, 0x6050);
+            lld_lcdWriteReg(0x0011, 0x6040);
             lcd_height = SCREEN_HEIGHT;
             lcd_width = SCREEN_WIDTH;
             break;
         case landscapeInv:
-            lld_lcdWriteReg(0x0001, 0x693F);
-            /* ID = 10 AM = 1 */
-            lld_lcdWriteReg(0x0011, 0x6068);
+            lld_lcdWriteReg(0x0001, 0x293F);
+            /* ID = 01 AM = 1 */
+            lld_lcdWriteReg(0x0011, 0x6048);
             lcd_height = SCREEN_WIDTH;
             lcd_width = SCREEN_HEIGHT;
             break;
@@ -281,14 +281,14 @@ void lld_lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
             lld_lcdWriteReg(0x46, (x1-1) & 0x01FF);
             break;
         case portraitInv:
-            lld_lcdWriteReg(0x44, (((x1-1) & 0x00FF) << 8) | ((x0) & 0x00FF));
+            lld_lcdWriteReg(0x44, (((SCREEN_WIDTH-x0-1) & 0x00FF) << 8) | ((SCREEN_WIDTH - x1) & 0x00FF));
             lld_lcdWriteReg(0x45, (SCREEN_HEIGHT-y1) & 0x01FF);
             lld_lcdWriteReg(0x46, (SCREEN_HEIGHT-y0-1) & 0x01FF);
             break;
         case landscapeInv:
             lld_lcdWriteReg(0x44, (((SCREEN_WIDTH - y0 - 1) & 0x00FF) << 8) | ((SCREEN_WIDTH - y1) & 0x00FF));
-            lld_lcdWriteReg(0x45, (x0) & 0x01FF);
-            lld_lcdWriteReg(0x46, (x1-1) & 0x01FF);
+            lld_lcdWriteReg(0x45, (SCREEN_HEIGHT - x1) & 0x01FF);
+            lld_lcdWriteReg(0x46, (SCREEN_HEIGHT - x0 - 1) & 0x01FF);
             break;
     }
 
