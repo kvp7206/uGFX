@@ -2,7 +2,7 @@
 
 #ifdef TOUCHPAD_USE_ADS7843
 
-__inline uint16_t lld_readX(void) {
+__inline uint16_t lld_tpReadX(void) {
     uint8_t txbuf[1];
     uint8_t rxbuf[2];
     uint16_t x;
@@ -19,7 +19,7 @@ __inline uint16_t lld_readX(void) {
     return x;
 }
 
-__inline uint16_t lld_readY(void) {
+__inline uint16_t lld_tpReadY(void) {
     uint8_t txbuf[1];
     uint8_t rxbuf[2];
     uint16_t y;
@@ -36,7 +36,7 @@ __inline uint16_t lld_readY(void) {
     return y;
 }
 
-__inline uint16_t lld_readZ(void) {
+__inline uint16_t lld_tpReadZ(void) {
 	return 0;
 }
 
