@@ -288,8 +288,6 @@ void lld_lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_
 	area = ((x1-x0)*(y1-y0));
 
     lld_lcdSetWindow(x0, y0, x1, y1);
-
-
     lld_lcdWriteStreamStart();
 
     for(index = 0; index < area; index++)
