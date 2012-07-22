@@ -100,7 +100,7 @@ __inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
 	uint16_t i;
 	volatile uint16_t dummy;
 
-	dummy = lld_lcdReadGPIO();
+	dummy = lld_lcdReadData();
 	for(i = 0; i < size; i++)
 		buffer[i] = lld_lcdReadData();
 }
