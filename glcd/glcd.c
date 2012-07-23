@@ -11,7 +11,7 @@ static WORKING_AREA(waGLCDWorkerThread, GLCD_WORKER_SIZE);
 static msg_t ThreadGLCDWorker(void *arg) {
 	(void)arg;
 	Thread *p;
-	uint16_t ret;
+	uint16_t ret;	// return value
  
 	chRegSetThreadName("GLCDWorker");
  

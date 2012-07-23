@@ -105,11 +105,11 @@ __inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
 		buffer[i] = lld_lcdReadData();
 }
 
-#endif
+#endif // LCD_USE_GPIO 
 
 #ifdef LCD_USE_SPI
 	/* TODO */
-#endif
+#endif // LCD_USE_SPI
 
 #ifdef LCD_USE_FSMC
 
@@ -170,7 +170,7 @@ __inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
 		buffer[i] = LCD_RAM;
 	}
 }
-#endif
+#endif // LCD_USE_FSMC
 
 static __inline void lld_lcdDelay(uint16_t us) {
 	chThdSleepMicroseconds(us);
