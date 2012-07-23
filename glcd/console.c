@@ -101,7 +101,7 @@ msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t wi
 
 	console->font = font;
 
-	lcdDrawRect(x0, y0, width, height,1, console->bkcolor);
+	lcdFillArea(x0, y0, width, height, console->bkcolor);
 }
 
 msg_t lcdConsolePut(GLCDConsole *console, char c) {
@@ -110,8 +110,8 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 	if(c == '\n') {
 		/* clear the text at the end of the line */
 		if(console->cx < console->sx)
-			lcdDrawRect(console->cx, console->cy, console->sx, console->cy + console->fy,
-					1, console->bkcolor);
+			lcdFillArea(console->cx, console->cy, console->sx, console->cy + console->fy,
+					console->bkcolor);
 		console->cx = 0;
 		console->cy += console->fy;
 	} else if(c == '\r') {
@@ -121,8 +121,8 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 		width = lcdMeasureChar(c, console->font);
 		if((console->cx + width) >= console->sx) {
 			/* clear the text at the end of the line */
-			lcdDrawRect(console->cx, console->cy, console->cx + width, console->cy + console->fy,
-						1, console->bkcolor);
+			lcdFillArea(console->cx, console->cy, console->cx + width, console->cy + console->fy,
+						console->bkcolor);
 			console->cx = 0;
 			console->cy += console->fy;
 		}
