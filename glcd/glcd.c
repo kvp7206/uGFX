@@ -1,6 +1,4 @@
 #include "glcd.h" 
-#include <stdlib.h>
-#include <math.h>
 
 #define EMSG(a)	const struct a *emsg = (const struct a*)msg
 

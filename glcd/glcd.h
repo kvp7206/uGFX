@@ -4,7 +4,8 @@
 #include "ch.h"
 #include "hal.h"
 #include "fonts.h"
-#include "worker.h"
+#include "fastMath.h"
+#include "glcdWorker.h"
 
 #if !defined(LCD_USE_FSMC) && !defined(LCD_USE_GPIO) && !defined(LCD_USE_SPI)
 #include "glcdconf.h"
