@@ -11,6 +11,7 @@ static WORKING_AREA(waGLCDWorkerThread, GLCD_WORKER_SIZE);
 static msg_t ThreadGLCDWorker(void *arg) {
 	(void)arg;
 	Thread *p;
+	uint16_t ret;
  
 	chRegSetThreadName("GLCDWorker");
  
@@ -68,8 +69,8 @@ static msg_t ThreadGLCDWorker(void *arg) {
 			}
 
 			case GLCD_GET_PIXEL_COLOR: {
-				/* ToDo */
-
+				EMSG(glcd_msg_get_pixel_color);
+				ret = lld_lcdGetPixelColor(emsg->x, emsg->y);
 				msg->result = GLCD_DONE;
 				break;				
 			}
@@ -109,7 +110,8 @@ static msg_t ThreadGLCDWorker(void *arg) {
 		}
 
 		/* Done, release msg again. */
-		chMsgRelease(p, 0);
+		chMsgRelease(p, ret);
+		ret = 0;
 	}
  
 	return 0;
@@ -213,11 +215,7 @@ uint16_t lcdGetPixelColor(uint16_t x, uint16_t y) {
 	msg.y = y;
 	msg.color = &result;
 
-	chMsgSend(workerThread, (msg_t)&msg);
-
-	while(msg.result != GLCD_DONE);
-
-	return result;
+	return chMsgSend(workerThread, (msg_t)&msg);
 }
 
 void lcdDrawPixel(uint16_t x, uint16_t y, uint16_t color) {
