@@ -22,9 +22,10 @@ enum glcd_result {	GLCD_DONE,
 					GLCD_PROGRESS,
 				};
 
+typedef enum glcd_result glcd_result_t;
+
 #define _glcd_msg_base			\
-	enum glcd_action action;	\
-	enum glcd_result result;
+	enum glcd_action action;
 
 struct glcd_msg_base {
 	_glcd_msg_base
