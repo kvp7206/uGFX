@@ -22,9 +22,10 @@ enum glcd_result {	GLCD_DONE,
 					GLCD_PROGRESS,
 				};
 
+typedef enum glcd_result glcd_result_t;
+
 #define _glcd_msg_base			\
-	enum glcd_action action;	\
-	enum glcd_result result;
+	enum glcd_action action;
 
 struct glcd_msg_base {
 	_glcd_msg_base
@@ -83,6 +84,7 @@ struct glcd_msg_get_pixel_color {
 
 	uint16_t x;
 	uint16_t y;
+	uint16_t color;
 };
 
 struct glcd_msg_draw_pixel {

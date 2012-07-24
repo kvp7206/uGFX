@@ -56,15 +56,15 @@ extern "C" {
 
 /* Core functions */
 void lcdInit(GLCDDriver *GLCDD1);
-void lcdClear(uint16_t color);
-void lcdSetOrientation(uint8_t newOrientation);
-void lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
-void lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
-void lcdWriteArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t *buffer, size_t n);
-void lcdSetPowerMode(uint8_t powerMode);
+glcd_result_t lcdClear(uint16_t color);
+glcd_result_t lcdSetOrientation(uint8_t newOrientation);
+glcd_result_t lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
+glcd_result_t lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
+glcd_result_t lcdWriteArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t *buffer, size_t n);
+glcd_result_t lcdSetPowerMode(uint8_t powerMode);
 
 /* Drawing functions */
-void lcdDrawPixel(uint16_t x, uint16_t y, uint16_t point);
+glcd_result_t lcdDrawPixel(uint16_t x, uint16_t y, uint16_t point);
 void lcdDrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
 void lcdDrawRect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t filled, uint16_t color);
 void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const char* str, font_t font, uint16_t fontColor, uint16_t bkColor);
@@ -89,7 +89,7 @@ uint16_t lcdBGR2RGB(uint16_t color);
 uint16_t lcdGetPixelColor(uint16_t x, uint16_t y);
 
 /* Scrolling function */
-void lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t lines);
+glcd_result_t lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t lines);
 
 #ifdef __cplusplus
 }

@@ -9,7 +9,6 @@ static WORKING_AREA(waGLCDWorkerThread, GLCD_WORKER_SIZE);
 static msg_t ThreadGLCDWorker(void *arg) {
 	(void)arg;
 	Thread *p;
-	uint16_t ret;	// return value
  
 	chRegSetThreadName("GLCDWorker");
  
@@ -17,35 +16,35 @@ static msg_t ThreadGLCDWorker(void *arg) {
 		/* Wait for msg with work to do. */
 		p = chMsgWait();
 		struct glcd_msg_base *msg = (struct glcd_msg_base*)chMsgGet(p);
-		msg->result = GLCD_PROGRESS;
+		glcd_result_t result = GLCD_PROGRESS;
  
 		/* do work here */
 		switch(msg->action) {
 			case GLCD_SET_POWERMODE: {
 				EMSG(glcd_msg_powermode);
 				lld_lcdSetPowerMode(emsg->powermode);
-				msg->result = GLCD_DONE;
+				result = GLCD_DONE;
 				break;
 			}
 
 			case GLCD_SET_ORIENTATION: {
 				EMSG(glcd_msg_orientation);
 				lld_lcdSetOrientation(emsg->newOrientation);
-				msg->result = GLCD_DONE;
+				result = GLCD_DONE;
 				break;
 			}
 
 			case GLCD_SET_WINDOW: {
 				EMSG(glcd_msg_set_window);
 				lld_lcdSetWindow(emsg->x0, emsg->y0, emsg->x1, emsg->y1);
-				msg->result = GLCD_DONE;
+				result = GLCD_DONE;
 				break;
 			}
 
 			case GLCD_FILL_AREA: {
 				EMSG(glcd_msg_fill_area);
 				lld_lcdFillArea(emsg->x0, emsg->y0, emsg->x1, emsg->y1, emsg->color);
-				msg->result = GLCD_DONE;
+				result = GLCD_DONE;
 				break;
 			}
 
@@ -55,61 +54,62 @@ static msg_t ThreadGLCDWorker(void *arg) {
 				lld_lcdWriteStreamStart();
 				lld_lcdWriteStream(emsg->buffer, emsg->size);
 				lld_lcdWriteStreamStop();
-				msg->result = GLCD_DONE;
+				result = GLCD_DONE;
 				break;
 			}
 
 			case GLCD_CLEAR: {
 				EMSG(glcd_msg_clear);
 				lld_lcdClear(emsg->color);
-				msg->result = GLCD_DONE;
+				result = GLCD_DONE;
 				break;
 			}
 
 			case GLCD_GET_PIXEL_COLOR: {
 				EMSG(glcd_msg_get_pixel_color);
-				ret = lld_lcdGetPixelColor(emsg->x, emsg->y);
-				msg->result = GLCD_DONE;
+				((struct glcd_msg_get_pixel_color *)emsg)->color =
+						lld_lcdGetPixelColor(emsg->x, emsg->y);
+				result = GLCD_DONE;
 				break;				
 			}
 
 			case GLCD_DRAW_PIXEL: {
 				EMSG(glcd_msg_draw_pixel);
 				lld_lcdDrawPixel(emsg->x, emsg->y, emsg->color);
-				msg->result = GLCD_DONE;
+				result = GLCD_DONE;
 				break;
 			}
 
 			case GLCD_WRITE_STREAM_START: {
 				lld_lcdWriteStreamStart();
-				msg->result = GLCD_DONE;
+				result = GLCD_DONE;
 				break;
 			}
 
 			case GLCD_WRITE_STREAM_STOP: {
 				lld_lcdWriteStreamStop();
-				msg->result = GLCD_DONE;
+				result = GLCD_DONE;
 				break;
 			}
 
 			case GLCD_WRITE_STREAM: {
 				EMSG(glcd_msg_write_stream);
 				lld_lcdWriteStream(emsg->buffer, emsg->size);
-				msg->result = GLCD_DONE;
+				result = GLCD_DONE;
 				break;
 			}
 
 			case GLCD_VERTICAL_SCROLL: {
 				EMSG(glcd_msg_vertical_scroll);
 				lld_lcdVerticalScroll(emsg->x0, emsg->y0, emsg->x1, emsg->y1, emsg->lines);
-				msg->result = GLCD_DONE;
+				result = GLCD_DONE;
 				break;
 			}
 		}
 
 		/* Done, release msg again. */
-		chMsgRelease(p, ret);
-		ret = 0;
+		chMsgRelease(p, (msg_t)result);
+
 	}
  
 	return 0;
@@ -138,25 +138,25 @@ uint16_t lcdGetOrientation(void) {
 	return lld_lcdGetOrientation();
 }
 
-void lcdSetPowerMode(uint8_t powerMode) {
+glcd_result_t lcdSetPowerMode(uint8_t powerMode) {
 	struct glcd_msg_powermode msg;
 
 	msg.action = GLCD_SET_POWERMODE;
 	msg.powermode = powerMode;
 
-	chMsgSend(workerThread, (msg_t)&msg);
+	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
 }
 
-void lcdSetOrientation(uint8_t newOrientation) {
+glcd_result_t lcdSetOrientation(uint8_t newOrientation) {
 	struct glcd_msg_orientation msg;
 
 	msg.action = GLCD_SET_ORIENTATION;
 	msg.newOrientation = newOrientation;
 
-	chMsgSend(workerThread, (msg_t)&msg);
+	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
 }
 
-void lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
+glcd_result_t lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
 	struct glcd_msg_set_window msg;
 
 	msg.action = GLCD_SET_WINDOW;
@@ -165,10 +165,10 @@ void lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
 	msg.x1 = x1;
 	msg.y1 = y1;
 
-	chMsgSend(workerThread, (msg_t)&msg);
+	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
 }
 
-void lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
+glcd_result_t lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
 	struct glcd_msg_fill_area msg;
 
 	msg.action = GLCD_FILL_AREA;
@@ -178,10 +178,10 @@ void lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t co
 	msg.y1 = y1;
 	msg.color = color;
 
-	chMsgSend(workerThread, (msg_t)&msg);
+	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
 }
 
-void lcdWriteArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t *buffer, size_t n) {
+glcd_result_t lcdWriteArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t *buffer, size_t n) {
 	struct glcd_msg_write_area msg;
 
 	msg.action = GLCD_WRITE_AREA;
@@ -192,16 +192,16 @@ void lcdWriteArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t *
 	msg.buffer = buffer;
 	msg.size = n;
 
-	chMsgSend(workerThread, (msg_t)&msg);
+	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
 }
 
-void lcdClear(uint16_t color) {
+glcd_result_t lcdClear(uint16_t color) {
 	struct glcd_msg_clear msg;
 
 	msg.action = GLCD_CLEAR;
 	msg.color = color;
 
-	chMsgSend(workerThread, (msg_t)&msg);
+	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
 }
 
 uint16_t lcdGetPixelColor(uint16_t x, uint16_t y) {
@@ -211,10 +211,12 @@ uint16_t lcdGetPixelColor(uint16_t x, uint16_t y) {
 	msg.x = x;
 	msg.y = y;
 
-	return chMsgSend(workerThread, (msg_t)&msg);
+	chMsgSend(workerThread, (msg_t)&msg);
+
+	return msg.color;
 }
 
-void lcdDrawPixel(uint16_t x, uint16_t y, uint16_t color) {
+glcd_result_t lcdDrawPixel(uint16_t x, uint16_t y, uint16_t color) {
 	struct glcd_msg_draw_pixel msg;
  
 	msg.action = GLCD_DRAW_PIXEL;
@@ -222,36 +224,36 @@ void lcdDrawPixel(uint16_t x, uint16_t y, uint16_t color) {
 	msg.y = y;
 	msg.color = color;
 
-	chMsgSend(workerThread, (msg_t)&msg);
+	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
 }
 
-static void lcdWriteStreamStart(void) {
+glcd_result_t lcdWriteStreamStart(void) {
 	struct glcd_msg_write_stream_start msg;
 
 	msg.action = GLCD_WRITE_STREAM_START;
 
-	chMsgSend(workerThread, (msg_t)&msg);
+	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
 }
 
-static void lcdWriteStreamStop(void) {
+glcd_result_t lcdWriteStreamStop(void) {
 	struct glcd_msg_write_stream_stop msg;
 
 	msg.action = GLCD_WRITE_STREAM_STOP;
 
-	chMsgSend(workerThread, (msg_t)&msg);
+	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
 }
 
-static void lcdWriteStream(uint16_t *buffer, uint16_t size) {
+glcd_result_t lcdWriteStream(uint16_t *buffer, uint16_t size) {
 	struct glcd_msg_write_stream msg;
 
 	msg.action = GLCD_WRITE_STREAM;
 	msg.buffer = buffer;
 	msg.size = size;
 
-	chMsgSend(workerThread, (msg_t)&msg);
+	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
 }
 
-void lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t lines) {
+glcd_result_t lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t lines) {
 	struct glcd_msg_vertical_scroll msg;
 
 	msg.action = GLCD_VERTICAL_SCROLL;
@@ -261,7 +263,7 @@ void lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint1
 	msg.y1 = y1;
 	msg.lines = lines;
 
-	chMsgSend(workerThread, (msg_t)&msg);
+	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
 }
 
 void lcdDrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
