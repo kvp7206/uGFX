@@ -454,9 +454,7 @@ void lcdDrawRect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t fil
 		y0 = TempY;
 	}
 	if(filled) {
-		for(i=x0; i<x1; i++)
-			for(j=y0; j<y1; j++)
-				lcdDrawPixel(i , j , color);
+		lcdFillArea(x0, y0, x1, y1, color);
 	} else {
 		lcdDrawLine(x0, y0, x1, y0, color);
 		lcdDrawLine(x0, y1, x1, y1, color);
