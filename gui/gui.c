@@ -89,7 +89,7 @@ static inline void buttonUpdate(struct guiNode_t *node) {
 }
 
 static inline void sliderUpdate(struct guiNode_t *node) {
-	uint16_t length;
+	uint16_t length = 1;
 
 	if(node->orientation == horizontal)
 		length = node->x1 - node->x0;
@@ -113,8 +113,6 @@ static inline void sliderUpdate(struct guiNode_t *node) {
 	// a bit of safety here
 	if(node->percentage > 100)
 		node->percentage = 100;
-	if(node->percentage < 0)
-		node->percentage = 0;
 	
 	if(node->orientation == horizontal) {
 		node->value = ((((node->x1)-(node->x0)) * node->percentage) / 100);
@@ -303,6 +301,11 @@ uint8_t guiDrawKeymatrix(uint16_t x0, uint16_t y0, uint16_t size, uint16_t space
 		return 0;
 
 	// lcdDraw functions
+	(void)size;
+	(void)space;
+	(void)buttonColor;
+	(void)fontColor;
+	(void)font;
 
 	chHeapFree(newNode);
 
