@@ -83,7 +83,6 @@ struct glcd_msg_get_pixel_color {
 
 	uint16_t x;
 	uint16_t y;
-	uint16_t color;
 };
 
 struct glcd_msg_draw_pixel {

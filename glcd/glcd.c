@@ -206,12 +206,10 @@ void lcdClear(uint16_t color) {
 
 uint16_t lcdGetPixelColor(uint16_t x, uint16_t y) {
 	struct glcd_msg_get_pixel_color msg;
-	uint16_t result;
 
 	msg.action = GLCD_GET_PIXEL_COLOR;
 	msg.x = x;
 	msg.y = y;
-	msg.color = &result;
 
 	return chMsgSend(workerThread, (msg_t)&msg);
 }
