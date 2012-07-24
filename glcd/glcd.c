@@ -267,49 +267,57 @@ void lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint1
 }
 
 void lcdDrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
-	int16_t dy, dx;
-	int16_t addx = 1, addy = 1;
-	int16_t P, diff;
+	// speed improvement if vertical or horizontal
+	if(x0 == x1) {
+		lcdFillArea(x0, y0, x0+1, y1, color);
+	} else if (y0 == y1) {
+		lcdFillArea(x0, y0, x1, y0+1, color);
 
-	int16_t i = 0;
-	dx = abs((int16_t)(x1 - x0));
-	dy = abs((int16_t)(y1 - y0));
-
-	if(x0 > x1)
-		addx = -1;
-	if(y0 > y1)
-		addy = -1;
-
-	if(dx >= dy) {
-		dy *= 2;
-		P = dy - dx;
-		diff = P - dx;
-
-		for(; i<=dx; ++i) {
-			lcdDrawPixel(x0, y0, color);
-			if(P < 0) {
-				P  += dy;
-				x0 += addx;
-			} else {
-				P  += diff;
-				x0 += addx;
-				y0 += addy;
-			}
-		}
 	} else {
-		dx *= 2;
-		P = dx - dy;
-		diff = P - dy;
+		int16_t dy, dx;
+		int16_t addx = 1, addy = 1;
+		int16_t P, diff;
 
-		for(; i<=dy; ++i) {
-			lcdDrawPixel(x0, y0, color);
-			if(P < 0) {
-				P  += dx;
-				y0 += addy;
-			} else {
-				P  += diff;
-				x0 += addx;
-				y0 += addy;
+		int16_t i = 0;
+		dx = abs((int16_t)(x1 - x0));
+		dy = abs((int16_t)(y1 - y0));
+
+		if(x0 > x1)
+			addx = -1;
+		if(y0 > y1)
+			addy = -1;
+
+		if(dx >= dy) {
+			dy *= 2;
+			P = dy - dx;
+			diff = P - dx;
+
+			for(; i<=dx; ++i) {
+				lcdDrawPixel(x0, y0, color);
+				if(P < 0) {
+					P  += dy;
+					x0 += addx;
+				} else {
+					P  += diff;
+					x0 += addx;
+					y0 += addy;
+				}
+			}
+		} else {
+			dx *= 2;
+			P = dx - dy;
+			diff = P - dy;
+
+			for(; i<=dy; ++i) {
+				lcdDrawPixel(x0, y0, color);
+				if(P < 0) {
+					P  += dx;
+					y0 += addy;
+				} else {
+					P  += diff;
+					x0 += addx;
+					y0 += addy;
+				}
 			}
 		}
 	}
