@@ -116,44 +116,39 @@ float sintable[91]  = {
 
 };
 
-float getSin(unsigned int degree)
-{
+float getSin(unsigned int degree) {
 	degree = degree % 360;
-	if(degree <= 90)
-	{
+
+	if(degree <= 90) {
 		return sintable[degree];
 	}
-	else if(degree <= 180)
-	{
+	else if(degree <= 180) {
 		return sintable[180-degree];
 	}
-	else if(degree <= 270)
-	{
+	else if(degree <= 270) {
 		return sintable[degree-180]*(-1.0);
 	}
-	else
-	{
+	else {
 		return sintable[360-degree]*(-1.0);
 	}
 }
 
-double getCos(unsigned int degree)
-{
+double getCos(unsigned int degree) {
 	degree = degree % 360;
+
 	return getSin(degree+90);
 }
 
 /* signum function */
-char sgn(char x){
+char sgn(char x) {
   return (x > 0) ? 1 : (x < 0) ? -1 : 0;
 }
 
-unsigned char max(unsigned char a, unsigned char b)
-{
+unsigned char max(unsigned char a, unsigned char b) {
 	return (a<b) ? b : a;
 }
 
-unsigned char min (unsigned char a, unsigned char b)
-{
+unsigned char min (unsigned char a, unsigned char b) {
 	return (a<b) ? a : b;
 }
+

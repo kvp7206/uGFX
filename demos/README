@@ -2,17 +2,3 @@ This are a few demos, showing how to use the library.
 
 Please note that this are not compilable projects.
 
-
-Your boarfile do need to contain the following informations:
-
-	#define TP_PORT				GPIOC
-	#define TP_IRQ				4
-	#define TP_CS				6
-
-	#define LCD_DATA_PORT		GPIOE
-	#define LCD_CMD_PORT		GPIOD
-	#define LCD_CS				12
-	#define LCD_RS				13
-	#define LCD_WR				14
-	#define LCD_RD				15
-

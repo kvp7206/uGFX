@@ -6,9 +6,9 @@
 
 #ifdef TOUCHPAD_USE_XPT2046
 
-uint16_t lld_readX(void);
-uint16_t lld_readY(void);
-uint16_t lld_readZ(void);
+uint16_t lld_tpReadX(void);
+uint16_t lld_tpReadY(void);
+uint16_t lld_tpReadZ(void);
 
 #endif
 #endif

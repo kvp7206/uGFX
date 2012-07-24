@@ -1,6 +1,4 @@
 #include "glcd.h" 
-#include <stdlib.h>
-#include <math.h>
 
 #define EMSG(a)	const struct a *emsg = (const struct a*)msg
 
@@ -68,8 +66,9 @@ static msg_t ThreadGLCDWorker(void *arg) {
 			}
 
 			case GLCD_GET_PIXEL_COLOR: {
-				/* ToDo */
-
+				EMSG(glcd_msg_get_pixel_color);
+				((struct glcd_msg_get_pixel_color *)emsg)->color =
+						lld_lcdGetPixelColor(emsg->x, emsg->y);
 				result = GLCD_DONE;
 				break;				
 			}
@@ -110,6 +109,7 @@ static msg_t ThreadGLCDWorker(void *arg) {
 
 		/* Done, release msg again. */
 		chMsgRelease(p, (msg_t)result);
+
 	}
  
 	return 0;
@@ -206,16 +206,14 @@ glcd_result_t lcdClear(uint16_t color) {
 
 uint16_t lcdGetPixelColor(uint16_t x, uint16_t y) {
 	struct glcd_msg_get_pixel_color msg;
-	uint16_t result;
 
 	msg.action = GLCD_GET_PIXEL_COLOR;
 	msg.x = x;
 	msg.y = y;
-	msg.color = &result;
 
 	chMsgSend(workerThread, (msg_t)&msg);
 
-	return result;
+	return msg.color;
 }
 
 glcd_result_t lcdDrawPixel(uint16_t x, uint16_t y, uint16_t color) {
@@ -269,49 +267,57 @@ glcd_result_t lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t 
 }
 
 void lcdDrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
-	int16_t dy, dx;
-	int16_t addx = 1, addy = 1;
-	int16_t P, diff;
+	// speed improvement if vertical or horizontal
+	if(x0 == x1) {
+		lcdFillArea(x0, y0, x0+1, y1, color);
+	} else if (y0 == y1) {
+		lcdFillArea(x0, y0, x1, y0+1, color);
 
-	int16_t i = 0;
-	dx = abs((int16_t)(x1 - x0));
-	dy = abs((int16_t)(y1 - y0));
-
-	if(x0 > x1)
-		addx = -1;
-	if(y0 > y1)
-		addy = -1;
-
-	if(dx >= dy) {
-		dy *= 2;
-		P = dy - dx;
-		diff = P - dx;
-
-		for(; i<=dx; ++i) {
-			lcdDrawPixel(x0, y0, color);
-			if(P < 0) {
-				P  += dy;
-				x0 += addx;
-			} else {
-				P  += diff;
-				x0 += addx;
-				y0 += addy;
-			}
-		}
 	} else {
-		dx *= 2;
-		P = dx - dy;
-		diff = P - dy;
+		int16_t dy, dx;
+		int16_t addx = 1, addy = 1;
+		int16_t P, diff;
 
-		for(; i<=dy; ++i) {
-			lcdDrawPixel(x0, y0, color);
-			if(P < 0) {
-				P  += dx;
-				y0 += addy;
-			} else {
-				P  += diff;
-				x0 += addx;
-				y0 += addy;
+		int16_t i = 0;
+		dx = abs((int16_t)(x1 - x0));
+		dy = abs((int16_t)(y1 - y0));
+
+		if(x0 > x1)
+			addx = -1;
+		if(y0 > y1)
+			addy = -1;
+
+		if(dx >= dy) {
+			dy *= 2;
+			P = dy - dx;
+			diff = P - dx;
+
+			for(; i<=dx; ++i) {
+				lcdDrawPixel(x0, y0, color);
+				if(P < 0) {
+					P  += dy;
+					x0 += addx;
+				} else {
+					P  += diff;
+					x0 += addx;
+					y0 += addy;
+				}
+			}
+		} else {
+			dx *= 2;
+			P = dx - dy;
+			diff = P - dy;
+
+			for(; i<=dy; ++i) {
+				lcdDrawPixel(x0, y0, color);
+				if(P < 0) {
+					P  += dx;
+					y0 += addy;
+				} else {
+					P  += diff;
+					x0 += addx;
+					y0 += addy;
+				}
 			}
 		}
 	}
@@ -456,9 +462,7 @@ void lcdDrawRect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t fil
 		y0 = TempY;
 	}
 	if(filled) {
-		for(i=x0; i<x1; i++)
-			for(j=y0; j<y1; j++)
-				lcdDrawPixel(i , j , color);
+		lcdFillArea(x0, y0, x1, y1, color);
 	} else {
 		lcdDrawLine(x0, y0, x1, y0, color);
 		lcdDrawLine(x0, y1, x1, y1, color);

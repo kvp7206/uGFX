@@ -1,5 +1,5 @@
-#ifndef WORKER_H
-#define WORKER_H
+#ifndef GLCD_WORKER_H
+#define GLCD_WORKER_H
 
 #define GLCD_WORKER_SIZE 512
 

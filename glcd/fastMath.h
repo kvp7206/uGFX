@@ -19,12 +19,13 @@
  *   Copyright: 2011 Roland Domke
  */
 
-#ifndef FASTMATH_H_
-#define FASTMATH_H_
+#ifndef FASTMATH_H
+#define FASTMATH_H
 
 char sgn(char x);
 double getCos(unsigned int degree);
 double getSin(unsigned int degree);
 unsigned char max(unsigned char a, unsigned char b);
 unsigned char min(unsigned char a, unsigned char b);
+
 #endif /* FASTMATH_H_ */

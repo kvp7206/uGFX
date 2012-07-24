@@ -16,14 +16,6 @@ void tpInit(SPIDriver *spip) {
 	spiStart(spip, &spicfg);	
 }
 
-static __inline uint16_t readX(void) {
-	return lld_readX();
-}
-
-static __inline uint16_t readY(void) {
-	return lld_readY();
-}
-
 uint8_t tpIRQ(void) {
 	return (!palReadPad(TP_IRQ_PORT, TP_IRQ));
 }
@@ -33,8 +25,8 @@ static uint16_t tpReadRealX(void) {
 	uint16_t i, x;
 
 	for(i=0; i<CONVERSIONS; i++) {
-		readX();	
-		results += readX();
+		lld_tpReadX();	
+		results += lld_tpReadX();
 	}
 
 	x = (((SCREEN_WIDTH-1) * (results/CONVERSIONS)) / 2048);
@@ -47,8 +39,8 @@ static uint16_t tpReadRealY(void) {
 	uint16_t i, y;
 
 	for(i=0; i<CONVERSIONS; i++) {
-		readY();
-		results += readY();
+		lld_tpReadY();
+		results += lld_tpReadY();
 	}
 
 	y = (((SCREEN_HEIGHT-1) * (results/CONVERSIONS)) / 2048);
@@ -97,7 +89,7 @@ uint16_t tpReadY(void) {
 }
 
 uint16_t tpReadZ(void) {
-	return lld_readZ();
+	return lld_tpReadZ();
 }
 
 static void tpDrawCross(uint16_t x, uint16_t y) {
