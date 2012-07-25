@@ -5,7 +5,6 @@
 #include "hal.h"
 #include "fonts.h"
 #include "fastMath.h"
-#include "glcdWorker.h"
 
 #if !defined(LCD_USE_FSMC) && !defined(LCD_USE_GPIO) && !defined(LCD_USE_SPI)
 #include "glcdconf.h"
@@ -49,6 +48,13 @@ typedef struct GLCDDriver GLCDDriver;
 
 struct GLCDDriver {
 };
+
+enum glcd_result {	GLCD_DONE,
+					GLCD_FAILED,
+					GLCD_PROGRESS,
+				};
+
+typedef enum glcd_result glcd_result_t;
 
 #ifdef __cplusplus
 extern "C" {

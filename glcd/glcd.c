@@ -1,9 +1,15 @@
 #include "glcd.h" 
+#include "glcdWorker.h"
 
 #define EMSG(a)	const struct a *emsg = (const struct a*)msg
 
 uint16_t lcd_width, lcd_height;
 static Thread *workerThread = NULL;
+
+/* internal functions; don't include in header */
+inline glcd_result_t _lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
+inline glcd_result_t _lcdWriteArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t *buffer, size_t n);
+glcd_result_t _lcdDrawChar(struct glcd_msg_draw_char *m);
  
 static WORKING_AREA(waGLCDWorkerThread, GLCD_WORKER_SIZE);
 static msg_t ThreadGLCDWorker(void *arg) {
@@ -43,18 +49,13 @@ static msg_t ThreadGLCDWorker(void *arg) {
 
 			case GLCD_FILL_AREA: {
 				EMSG(glcd_msg_fill_area);
-				lld_lcdFillArea(emsg->x0, emsg->y0, emsg->x1, emsg->y1, emsg->color);
-				result = GLCD_DONE;
+				result = _lcdFillArea(emsg->x0, emsg->y0, emsg->x1, emsg->y1, emsg->color);
 				break;
 			}
 
 			case GLCD_WRITE_AREA: {
 				EMSG(glcd_msg_write_area);
-				lld_lcdSetWindow(emsg->x0, emsg->y0, emsg->x1, emsg->y1);
-				lld_lcdWriteStreamStart();
-				lld_lcdWriteStream(emsg->buffer, emsg->size);
-				lld_lcdWriteStreamStop();
-				result = GLCD_DONE;
+				result = _lcdWriteArea(emsg->x0, emsg->y0, emsg->x1, emsg->y1,  emsg->buffer, emsg->size);
 				break;
 			}
 
@@ -103,6 +104,17 @@ static msg_t ThreadGLCDWorker(void *arg) {
 				EMSG(glcd_msg_vertical_scroll);
 				lld_lcdVerticalScroll(emsg->x0, emsg->y0, emsg->x1, emsg->y1, emsg->lines);
 				result = GLCD_DONE;
+				break;
+			}
+
+			case GLCD_DRAW_CHAR: {
+				EMSG(glcd_msg_draw_char);
+				result = _lcdDrawChar(emsg);
+				break;
+			}
+
+			default: {
+				result = GLCD_FAILED;
 				break;
 			}
 		}
@@ -181,6 +193,12 @@ glcd_result_t lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, ui
 	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
 }
 
+inline glcd_result_t _lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
+	lld_lcdFillArea(x0, y0, x1, y1, color);
+
+	return GLCD_DONE;
+}
+
 glcd_result_t lcdWriteArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t *buffer, size_t n) {
 	struct glcd_msg_write_area msg;
 
@@ -193,6 +211,15 @@ glcd_result_t lcdWriteArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, u
 	msg.size = n;
 
 	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
+}
+
+inline glcd_result_t _lcdWriteArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t *buffer, size_t n) {
+	lld_lcdSetWindow(x0, y0, x1, y1);
+	lld_lcdWriteStreamStart();
+	lld_lcdWriteStream(buffer, n);
+	lld_lcdWriteStreamStop();
+
+	return GLCD_DONE;
 }
 
 glcd_result_t lcdClear(uint16_t color) {
@@ -324,14 +351,32 @@ void lcdDrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t co
 }
 
 uint16_t lcdDrawChar(uint16_t cx, uint16_t cy, char c, font_t font, uint16_t color, uint16_t bkcolor, bool_t tpText) {
+	struct glcd_msg_draw_char msg;
+
+	msg.action = GLCD_DRAW_CHAR;
+	msg.cx = cx;
+	msg.cy = cy;
+	msg.c = c;
+	msg.font = font;
+	msg.color = color;
+	msg.bkcolor = bkcolor;
+	msg.tpText = tpText;
+	msg.ret_width = 0;
+
+	chMsgSend(workerThread, (msg_t)&msg);
+
+	return msg.ret_width;
+}
+
+glcd_result_t _lcdDrawChar(struct glcd_msg_draw_char *m) {
 	/* Working pointer */
 	const uint8_t* ptr;
 	uint8_t x, y;
 	
 	/* Variables to store character details */
 	uint8_t charWidth;
-	uint8_t charHeight = lcdGetFontHeight(font);
-	uint8_t padAfterChar = font[FONT_TABLE_PAD_AFTER_CHAR_IDX];
+	uint8_t charHeight = lcdGetFontHeight(m->font);
+	uint8_t padAfterChar = m->font[FONT_TABLE_PAD_AFTER_CHAR_IDX];
 	
 	/* Local var to hold offset in font table */
 	uint16_t charStartOffset;
@@ -340,17 +385,17 @@ uint16_t lcdDrawChar(uint16_t cx, uint16_t cy, char c, font_t font, uint16_t col
 	static uint16_t buf[20*16];
 
 	/* No support for nongraphic characters, so just ignore them */
-	if(c < 0x20 || c > 0x7F) {
-		return RDY_OK;
+	if(m->c < 0x20 || m->c > 0x7F) {
+		return GLCD_DONE;
 	}
 
 	/* Read the offset of the character data in the font table from the lookup table */
-	charStartOffset = *(uint16_t*)(&font[FONT_TABLE_CHAR_LOOKUP_IDX + (c - 0x20) * 2]);
+	charStartOffset = *(uint16_t*)(&m->font[FONT_TABLE_CHAR_LOOKUP_IDX + (m->c - 0x20) * 2]);
 
 	/* After we're done, position the pointer at the offset.
 	 * The first byte that is immediately read will be the font width 
 	 * After that, actual 16-bit font data follows, first column down */
-	ptr = font + charStartOffset;
+	ptr = m->font + charStartOffset;
 	charWidth = *(ptr++);
 
 	/* Loop through the data and display. The font data is LSB first, down the column */
@@ -360,14 +405,14 @@ uint16_t lcdDrawChar(uint16_t cx, uint16_t cy, char c, font_t font, uint16_t col
 		
 		for(y = 0; y < charHeight; y++) {
 			/* Draw the LSB on the screen accordingly. */
-			if(!tpText) {
+			if(!m->tpText) {
 				/* Store data into working buffer (patch by Badger),
 				 * Then write it all onto the LCD in one stroke */
-				buf[y*charWidth + x] = (charData & 0x01) ? color : bkcolor;
+				buf[y*charWidth + x] = (charData & 0x01) ? m->color : m->bkcolor;
 			} else {
 				/* Just draw the needed pixels onto the LCD */
 				if (charData & 0x01)
-					lcdDrawPixel(cx+x, cy+y, color);
+					lcdDrawPixel(m->cx+x, m->cy+y, m->color);
 			}
 			
 			/* Shift the data down by one bit */	
@@ -378,20 +423,22 @@ uint16_t lcdDrawChar(uint16_t cx, uint16_t cy, char c, font_t font, uint16_t col
 		ptr += 2;
 	}
 
-	if(!tpText) {
+	if(!m->tpText) {
 		/* [Patch by Badger] Write all in one stroke */
-		lcdWriteArea(cx, cy, cx+charWidth, cy+charHeight, buf, charWidth*charHeight);
+		_lcdWriteArea(m->cx, m->cy, m->cx+charWidth, m->cy+charHeight, buf, charWidth*charHeight);
 		
 		/* Do padding after character, if needed for solid text rendering
 		 * TODO: To be optimised */
 		if (padAfterChar != 0) {
-			lcdFillArea(cx+charWidth, cy+charHeight, cx+charWidth+padAfterChar, cy+charHeight, bkcolor);
+			_lcdFillArea(m->cx+charWidth, m->cy+charHeight, m->cx+charWidth+padAfterChar, m->cy+charHeight, m->bkcolor);
 		}
 	}
 
 	/* Return the width of the character, we need it so that lcdDrawString may work
 	 * We don't have a static address counter */
-	return charWidth + padAfterChar;
+	m->ret_width = charWidth + padAfterChar;
+
+	return GLCD_DONE;
 }
 
 /* WARNING: No boundary checks! Unpredictable behaviour if text exceeds boundary */
