@@ -1,6 +1,8 @@
 #ifndef GLCD_WORKER_H
 #define GLCD_WORKER_H
 
+#include "glcd.h"
+
 #define GLCD_WORKER_SIZE 512
 
 enum glcd_action {	GLCD_SET_POWERMODE,
@@ -15,14 +17,8 @@ enum glcd_action {	GLCD_SET_POWERMODE,
 					GLCD_WRITE_STREAM_STOP,
 					GLCD_WRITE_STREAM,
 					GLCD_VERTICAL_SCROLL,
+					GLCD_DRAW_CHAR,
 				};
-
-enum glcd_result {	GLCD_DONE,
-					GLCD_FAILED,
-					GLCD_PROGRESS,
-				};
-
-typedef enum glcd_result glcd_result_t;
 
 #define _glcd_msg_base			\
 	enum glcd_action action;
@@ -118,6 +114,19 @@ struct glcd_msg_vertical_scroll {
 	uint16_t x1;
 	uint16_t y1;
 	int16_t lines;
+};
+
+struct glcd_msg_draw_char {
+	_glcd_msg_base;
+
+	uint16_t cx;
+	uint16_t cy;
+	uint16_t color;
+	uint16_t bkcolor;
+	uint16_t ret_width;
+	char c;
+	font_t font;
+	bool_t tpText;
 };
 
 #endif
