@@ -253,7 +253,7 @@ glcd_result_t lcdWriteStream(uint16_t *buffer, uint16_t size) {
 	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
 }
 
-glcd_result_t lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t lines) {
+glcd_result_t lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines) {
 	struct glcd_msg_vertical_scroll msg;
 
 	msg.action = GLCD_VERTICAL_SCROLL;
