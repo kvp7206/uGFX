@@ -87,7 +87,7 @@ msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t wi
 	/* read font, get height */
 	console->fy = font[FONT_TABLE_HEIGHT_IDX];
 
-	/* calculate the size of the console as an integer multiple of characters */
+	/* calculate the size of the console as an integer multiple of characters height*/
 	console->sx = width;
 	console->sy = (((int16_t)(height/console->fy))-1)*console->fy;
 
@@ -101,7 +101,7 @@ msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t wi
 
 	console->font = font;
 
-	lcdFillArea(x0, y0, width, height, console->bkcolor);
+	lcdFillArea(x0, y0, x0+width, y0+height, console->bkcolor);
 }
 
 msg_t lcdConsolePut(GLCDConsole *console, char c) {
@@ -110,8 +110,9 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 	if(c == '\n') {
 		/* clear the text at the end of the line */
 		if(console->cx < console->sx)
-			lcdFillArea(console->cx, console->cy, console->sx, console->cy + console->fy,
-					console->bkcolor);
+			lcdFillArea(console->x0 + console->cx, console->y0 + console->cy,
+						console->x0 + console->sx, console->y0 + console->cy + console->fy,
+						console->bkcolor);
 		console->cx = 0;
 		console->cy += console->fy;
 	} else if(c == '\r') {
@@ -121,7 +122,8 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 		width = lcdMeasureChar(c, console->font);
 		if((console->cx + width) >= console->sx) {
 			/* clear the text at the end of the line */
-			lcdFillArea(console->cx, console->cy, console->cx + width, console->cy + console->fy,
+			lcdFillArea(console->x0 + console->cx, console->y0 + console->cy,
+						console->x0 + console->cx + width, console->y0 + console->cy + console->fy,
 						console->bkcolor);
 			console->cx = 0;
 			console->cy += console->fy;
