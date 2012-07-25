@@ -280,7 +280,7 @@ glcd_result_t lcdWriteStream(uint16_t *buffer, uint16_t size) {
 	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
 }
 
-glcd_result_t lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t lines) {
+glcd_result_t lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines) {
 	struct glcd_msg_vertical_scroll msg;
 
 	msg.action = GLCD_VERTICAL_SCROLL;
@@ -509,12 +509,12 @@ void lcdDrawRect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t fil
 		y0 = TempY;
 	}
 	if(filled) {
-		lcdFillArea(x0, y0, x1, y1, color);
+		lcdFillArea(x0, y0, x1+1, y1+1, color);
 	} else {
 		lcdDrawLine(x0, y0, x1, y0, color);
 		lcdDrawLine(x0, y1, x1, y1, color);
 		lcdDrawLine(x0, y0, x0, y1, color);
-		lcdDrawLine(x1, y0, x1, y1, color);
+		lcdDrawLine(x1, y0, x1, y1+1, color);
 	}
 }
 
@@ -524,7 +524,7 @@ void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const
 	off_left = ((x1-x0)-lcdMeasureString(str, font))/2;
 	off_up = ((y1-y0) - lcdGetFontHeight(font)) / 2;
 
-	lcdDrawRect(x0, y0, x1, y1, 1, bkColor);
+	lcdDrawRect(x0, y0, x1, y1, filled, bkColor);
 	/* Abhishek: default to solid text for this? */
 	lcdDrawString(x0+off_left, y0+off_up, str, font, fontColor, bkColor, solid);
 }

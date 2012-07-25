@@ -95,7 +95,7 @@ uint16_t lcdBGR2RGB(uint16_t color);
 uint16_t lcdGetPixelColor(uint16_t x, uint16_t y);
 
 /* Scrolling function */
-glcd_result_t lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t lines);
+glcd_result_t lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines);
 
 #ifdef __cplusplus
 }
