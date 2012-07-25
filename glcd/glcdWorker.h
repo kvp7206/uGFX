@@ -125,7 +125,7 @@ struct glcd_msg_draw_char {
 	uint16_t bkcolor;
 	uint16_t ret_width;
 	char c;
-	const uint8_t *font;
+	font_t font;
 	bool_t tpText;
 };
 
