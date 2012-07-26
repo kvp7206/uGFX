@@ -5,12 +5,14 @@ http://chibios.org/dokuwiki/doku.php?id=chibios:community
 
 
 
-### Maintainer & Contributors
-Contributors:	- Badger 			-> console implementation and FSMC
+## Maintainer & Contributors
+Contributors:
+				- Badger 			-> console implementation and FSMC
 				- Abhishek 			-> font rendering
 				- Ben William		-> fastMath and lcdDrawEllipse()
 				- dxli (Dongxu Li)	-> lcdDrawEllipse() filled option
 
-Maintainer:		- Joel Bodenmann aka Tectu <joel@unormal.org>
+Maintainer:
+				- Joel Bodenmann aka Tectu <joel@unormal.org>
 
 
