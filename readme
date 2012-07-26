@@ -7,8 +7,8 @@ http://chibios.org/dokuwiki/doku.php?id=chibios:community
 
 ## Maintainer & Contributors
 Contributors:
-				- Badger 			-> console implementation and FSMC
-				- Abhishek 			-> font rendering
+				- Badger 		-> console implementation and FSMC
+				- Abhishek 		-> font rendering
 				- Ben William		-> fastMath and lcdDrawEllipse()
 				- dxli (Dongxu Li)	-> lcdDrawEllipse() filled option
 
