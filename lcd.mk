@@ -1,4 +1,7 @@
-LCDLIB =	$(CHIBIOS)/ext/lcd
+# don't re-define LCDLIB if it has been set elsewhere, e.g in Makefile
+ifeq ($(LCDLIB),)
+	LCDLIB =	$(CHIBIOS)/ext/lcd
+endif
 
 include 	$(LCDLIB)/drivers/drivers.mk
 include		$(LCDLIB)/glcd/glcd.mk
