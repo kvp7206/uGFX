@@ -11,6 +11,7 @@ Contributors:
 				- Abhishek 		-> font rendering
 				- Ben William		-> fastMath and lcdDrawEllipse()
 				- dxli (Dongxu Li)	-> lcdDrawEllipse() filled option
+				- inmarket			-> ChibiOS'ify and retructure
 
 Maintainer:
 				- Joel Bodenmann aka Tectu <joel@unormal.org>
