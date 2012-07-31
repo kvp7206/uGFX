@@ -87,7 +87,7 @@
 
 /* ---- Required Routines ---- */
 /*
-	The following 4 routines are required.
+	The following 2 routines are required.
 	All other routines are optional.
 */
 
@@ -105,37 +105,6 @@ void gdisp_lld_init(void) {
 	
 	/* Now initialise your display to match */
 	/* Code here */
-}
-
-/**
- * @brief   Sets the power mode for the graphic device.
- * @note    The power modes are powerOn, powerSleep and powerOff.
- *          If powerSleep is not supported it is equivelent to powerOn.
- *
- * @param[in] powerMode    The new power mode
- *
- * @notapi
- */
-void gdisp_lld_setpowermode(gdisp_powermode_t powerMode) {
-	/* Code here */
-	/* if successful
-		GDISP1.Powermode = powerMode;
-	*/
-}
-
-/**
- * @brief   Sets the orientation of the display.
- * @note    This may be ignored if not supported by the device.
- *
- * @param[in] newOrientation    The new orientation
- *
- * @notapi
- */
-void gdisp_lld_setorientation(gdisp_orientation_t newOrientation) {
-	/* Code here */
-	/* if successful
-		GDISP1.Orientation = newOrientation;
-	*/
 }
 
 /**
@@ -170,6 +139,41 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	For good performance it is suggested to implement
 		gdisp_lld_fillarea() and gdisp_lld_blitarea().
 */
+
+#if GDISP_HARDWARE_POWERCONTROL || defined(__DOXYGEN__)
+/**
+ * @brief   Sets the power mode for the graphic device.
+ * @note    The power modes are powerOn, powerSleep and powerOff.
+ *          If powerSleep is not supported it is equivelent to powerOn.
+ *
+ * @param[in] powerMode    The new power mode
+ *
+ * @notapi
+ */
+void gdisp_lld_setpowermode(gdisp_powermode_t powerMode) {
+	/* Code here */
+	/* if successful
+		GDISP1.Powermode = powerMode;
+	*/
+}
+#endif
+
+#if GDISP_HARDWARE_ORIENTATION || defined(__DOXYGEN__)
+/**
+ * @brief   Sets the orientation of the display.
+ * @note    This may be ignored if not supported by the device.
+ *
+ * @param[in] newOrientation    The new orientation
+ *
+ * @notapi
+ */
+void gdisp_lld_setorientation(gdisp_orientation_t newOrientation) {
+	/* Code here */
+	/* if successful
+		GDISP1.Orientation = newOrientation;
+	*/
+}
+#endif
 
 #if GDISP_HARDWARE_CLEARS || defined(__DOXYGEN__)
 	/**

@@ -35,8 +35,8 @@
 */
 
 /**
- * @file    templates/gdisp_lld.h
- * @brief   GDISP Graphic Driver subsystem low level driver header template.
+ * @file    gdispNokia6100/gdisp_lld.h
+ * @brief   GDISP Graphic Driver subsystem low level driver header for the Nokia6100 display.
  *
  * @addtogroup GDISP
  * @{

@@ -35,8 +35,8 @@
 */
 
 /**
- * @file    templates/gdisp_lld_config.h
- * @brief   GDISP Graphic Driver subsystem low level driver header template.
+ * @file    gdispNokia6100/gdisp_lld_config.h
+ * @brief   GDISP Graphic Driver subsystem low level driver header for the Nokia6100 display.
  *
  * @addtogroup GDISP
  * @{
@@ -55,6 +55,18 @@
  * @name    GDISP hardware accelerated support
  * @{
  */
+	/**
+	 * @brief   Hardware supports changing the orientation.
+	 * @details If set to @p FALSE a software stubb is provided.
+	 */
+	#define GDISP_HARDWARE_ORIENTATION		FALSE
+
+	/**
+	 * @brief   Hardware supports power control.
+	 * @details If set to @p FALSE a software stubb is provided.
+	 */
+	#define GDISP_HARDWARE_POWERCONTROL		FALSE
+
 	/**
 	 * @brief   Hardware accelerated line drawing.
 	 * @details If set to @p FALSE software emulation is used.

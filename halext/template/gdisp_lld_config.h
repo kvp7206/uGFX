@@ -56,6 +56,18 @@
  * @{
  */
 	/**
+	 * @brief   Hardware supports changing the orientation.
+	 * @details If set to @p FALSE a software stubb is provided.
+	 */
+	#define GDISP_HARDWARE_ORIENTATION		FALSE
+
+	/**
+	 * @brief   Hardware supports power control.
+	 * @details If set to @p FALSE a software stubb is provided.
+	 */
+	#define GDISP_HARDWARE_POWERCONTROL		FALSE
+
+	/**
 	 * @brief   Hardware accelerated line drawing.
 	 * @details If set to @p FALSE software emulation is used.
 	 */

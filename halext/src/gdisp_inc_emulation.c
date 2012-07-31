@@ -45,6 +45,16 @@
 	required - it will do it.
 */
 
+#if !GDISP_HARDWARE_POWERCONTROL
+	void gdisp_lld_setpowermode(gdisp_powermode_t UNUSED(powerMode)) {
+	}
+#endif
+
+#if !GDISP_HARDWARE_ORIENTATION
+	void gdisp_lld_setorientation(gdisp_orientation_t UNUSED(newOrientation)) {
+	}
+#endif
+
 #if !GDISP_HARDWARE_CLEARS 
 	void gdisp_lld_clear(color_t color) {
 		gdisp_lld_fillarea(0, 0, GDISP1.Width, GDISP1.Height, color);
