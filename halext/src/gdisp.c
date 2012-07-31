@@ -44,11 +44,12 @@
 
 #include "ch.h"
 #include "hal.h"
+#include "gdisp.h"
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
 #if GDISP_NEED_MULTITHREAD
-	#error "GDISP: Multithread support not complete"
+	#warning "GDISP: Multithread support not complete"
 	#define MUTEX_ENTER		/* Not defined yet */
 	#define MUTEX_EXIT		/* Not defined yet */
 #endif
@@ -57,6 +58,15 @@
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
 
+#ifdef UNUSED
+#elif defined(__GNUC__)
+# define UNUSED(x) UNUSED_ ## x __attribute__((unused))
+#elif defined(__LCLINT__)
+# define UNUSED(x) /*@unused@*/ x
+#else
+# define UNUSED(x) x
+#endif
+
 #if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 	/**
 	 * @brief   The size of a font column.
@@ -64,7 +74,7 @@
 	 *			as a uint32_t instead of a uint16_t. Fonts would then take
 	 *			twice the internal program memory.
 	 */
-	typedef uint16_t	fontcolumn_t
+	typedef uint16_t	fontcolumn_t;
 
 	/**
 	 * @brief   Internal font structure.
@@ -73,7 +83,7 @@
 	 *			An array of character widths (uint8_t)
 	 *			Each characters array of column data (fontcolumn_t)
 	 */
-	typedef struct font {
+	struct font {
 		uint8_t		height;
 		uint8_t		charPadding;
 		uint8_t		lineSpacing;
@@ -82,17 +92,18 @@
 		uint8_t		maxWidth;
 		char		minChar;
 		char		maxChar;
-		uint16_t	widthTableOffset;
 		uint16_t	offsetTableOffset;
+		uint16_t	unused1;			/* ensure next field is padded to 8 byte boundary */
+		uint8_t		widthTable[];
 		};
 
 	/**
 	 * @brief   Macro's to get to the complex parts of the font structure.
 	 */
-	#define _getFontPart(f,o,t)		((t)((const uint8_t *)(f)+(o)))
-	#define _getCharWidth(f,c)		(((c) < (f)->minChar || (c) > (f)->maxChar) ? 0 : _getFontPart((f), (f)->widthTableOffset, const uint8_t *)[c - (f)->minChar])
+	#define _getFontPart(f,o,t)		((t)(&((const uint8_t *)(f))[(o)]))
+	#define _getCharWidth(f,c)		(((c) < (f)->minChar || (c) > (f)->maxChar) ? 0 : (f)->widthTable[c - (f)->minChar])
 	#define _getCharOffset(f,c)		(_getFontPart((f), (f)->offsetTableOffset, const uint16_t *)[c - (f)->minChar])
-	#define _getCharData(f,c)		_getFontPart((f), _getCharOffset(c, (f)), const fontcolumn_t *)
+	#define _getCharData(f,c)		_getFontPart((f), _getCharOffset((f),(c)), const fontcolumn_t *)
 #endif
 
 /*===========================================================================*/
@@ -126,7 +137,7 @@
 	 *
 	 * @init
 	 */
-	void gdispInit(GDISPDriver *gdisp) {
+	void gdispInit(GDISPDriver * UNUSED(gdisp)) {
 		/* No mutex required as nothing should happen until the init is complete */
 		gdisp_lld_init();
 		
@@ -411,7 +422,7 @@
 		while(*str) {
 			/* Get the next printable character */
 			c = *str++;
-			w = _getCharWidth(c);
+			w = _getCharWidth(font, c);
 			if (!w) continue;
 			
 			/* Handle inter-character padding */
@@ -451,7 +462,7 @@
 		while(*str) {
 			/* Get the next printable character */
 			c = *str++;
-			w = _getCharWidth(c);
+			w = _getCharWidth(font, c);
 			if (!w) continue;
 			
 			/* Handle inter-character padding */
@@ -513,7 +524,7 @@
 		switch(justify) {
 		case justifyCenter:
 			/* Get the length of the entire string */
-			w = gdispStringWidth(str, font);
+			w = gdispGetStringWidth(str, font);
 			if (w <= cx)
 				xpos = x + (cx - w)/2;
 			else {
@@ -524,7 +535,7 @@
 				while(*str) {
 					/* Get the next printable character */
 					c = *str++;
-					w = _getCharWidth(c);
+					w = _getCharWidth(font, c);
 					if (!w) continue;
 					
 					/* Handle inter-character padding */
@@ -545,13 +556,13 @@
 			break;
 		case justifyRight:
 			/* Find the end of the string */
-			for(rpos = str; *str; str++);
+			for(rstr = str; *str; str++);
 			xpos = x+cx - 2;
 			first = 1;
-			for(str--; str >= rpos; str--) {
+			for(str--; str >= rstr; str--) {
 				/* Get the next printable character */
 				c = *str;
-				w = _getCharWidth(c);
+				w = _getCharWidth(font, c);
 				if (!w) continue;
 				
 				/* Handle inter-character padding */
@@ -571,8 +582,8 @@
 			break;
 		case justifyLeft:
 			/* Fall through */
-			xpos = x+1;
 		default:
+			xpos = x+1;
 			break;
 		}
 		
@@ -585,7 +596,7 @@
 		while(*str) {
 			/* Get the next printable character */
 			c = *str++;
-			w = _getCharWidth(c);
+			w = _getCharWidth(font, c);
 			if (!w) continue;
 			
 			/* Handle inter-character padding */
@@ -660,7 +671,7 @@
 	 *
 	 * @api
 	 */
-	coord_t gdispStringWidth(const char* str, font_t font) {
+	coord_t gdispGetStringWidth(const char* str, font_t font) {
 		/* No mutex required as we only read static data */
 		coord_t		w, x;
 		char		c;
@@ -671,7 +682,7 @@
 		while(*str) {
 			/* Get the next printable character */
 			c = *str++;
-			w = _getCharWidth(c);
+			w = _getCharWidth(font, c);
 			if (!w) continue;
 			
 			/* Handle inter-character padding */

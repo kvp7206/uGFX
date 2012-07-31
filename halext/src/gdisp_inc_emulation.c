@@ -128,7 +128,7 @@
 
 #if !GDISP_HARDWARE_BOX
 	void gdisp_lld_drawbox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
-		coord	x1, y1;
+		coord_t	x1, y1;
 		
 		x1 = x+cx-1;
 		y1 = y+cy-1;
@@ -402,7 +402,7 @@
 		{
 			const fontcolumn_t	*ptr;
 			fontcolumn_t		column;
-			coord_t				width, i, j;
+			coord_t				i, j;
 			
 			ptr = _getCharData(font, c);
 

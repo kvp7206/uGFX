@@ -35,21 +35,17 @@
 */
 
 /**
- * @file    templates/gdisp_lld.h
+ * @file    templates/gdisp_lld_config.h
  * @brief   GDISP Graphic Driver subsystem low level driver header template.
  *
  * @addtogroup GDISP
  * @{
  */
 
-#ifndef _GDISP_LLD_H
-#define _GDISP_LLD_H
+#ifndef _GDISP_LLD_CONFIG_H
+#define _GDISP_LLD_CONFIG_H
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
-
-/*===========================================================================*/
-/* Driver constants.                                                         */
-/*===========================================================================*/
 
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */
@@ -63,79 +59,79 @@
 	 * @brief   Hardware accelerated line drawing.
 	 * @details If set to @p FALSE software emulation is used.
 	 */
-	#define GDISP_HARDWARE_LINES		FALSE
+	#define GDISP_HARDWARE_LINES			FALSE
 
 	/**
 	 * @brief   Hardware accelerated box drawing.
 	 * @details If set to @p FALSE software emulation is used.
 	 */
-	#define GDISP_HARDWARE_BOX			FALSE
+	#define GDISP_HARDWARE_BOX				FALSE
 
 	/**
 	 * @brief   Hardware accelerated screen clears.
 	 * @details If set to @p FALSE software emulation is used.
 	 */
-	#define GDISP_HARDWARE_CLEARS		FALSE
+	#define GDISP_HARDWARE_CLEARS			FALSE
 
 	/**
 	 * @brief   Hardware accelerated rectangular fills.
 	 * @details If set to @p FALSE software emulation is used.
 	 */
-	#define GDISP_HARDWARE_FILLS		FALSE
+	#define GDISP_HARDWARE_FILLS			FALSE
 
 	/**
 	 * @brief   Hardware accelerated fills from an image.
 	 * @details If set to @p FALSE software emulation is used.
 	 */
-	#define GDISP_HARDWARE_BITFILLS		FALSE
+	#define GDISP_HARDWARE_BITFILLS			FALSE
 
 	/**
 	 * @brief   Hardware accelerated circles.
 	 * @details If set to @p FALSE software emulation is used.
 	 */
-	#define GDISP_HARDWARE_CIRCLES		FALSE
+	#define GDISP_HARDWARE_CIRCLES			FALSE
 
 	/**
 	 * @brief   Hardware accelerated filled circles.
 	 * @details If set to @p FALSE software emulation is used.
 	 */
-	#define GDISP_HARDWARE_CIRCLEFILLS	FALSE
+	#define GDISP_HARDWARE_CIRCLEFILLS		FALSE
 
 	/**
 	 * @brief   Hardware accelerated ellipses.
 	 * @details If set to @p FALSE software emulation is used.
 	 */
-	#define GDISP_HARDWARE_ELLIPSES		FALSE
+	#define GDISP_HARDWARE_ELLIPSES			FALSE
 
 	/**
 	 * @brief   Hardware accelerated filled ellipses.
 	 * @details If set to @p FALSE software emulation is used.
 	 */
-	#define GDISP_HARDWARE_ELLIPSEFILLS	FALSE
+	#define GDISP_HARDWARE_ELLIPSEFILLS		FALSE
 
 	/**
 	 * @brief   Hardware accelerated text drawing.
 	 * @details If set to @p FALSE software emulation is used.
 	 */
-	#define GDISP_HARDWARE_TEXT			FALSE
+	#define GDISP_HARDWARE_TEXT				FALSE
 
 	/**
 	 * @brief   Hardware accelerated text drawing with a filled background.
 	 * @details If set to @p FALSE software emulation is used.
 	 */
-	#define GDISP_HARDWARE_TEXTFILLS	FALSE
+	#define GDISP_HARDWARE_TEXTFILLS		FALSE
 
 	/**
 	 * @brief   Hardware accelerated scrolling.
 	 * @details If set to @p FALSE there is no support for scrolling.
 	 */
-	#define GDISP_HARDWARE_SCROLL		FALSE
+	#define GDISP_HARDWARE_SCROLL			FALSE
 
 	/**
 	 * @brief   Reading back of pixel values.
 	 * @details If set to @p FALSE there is no support for pixel read-back.
 	 */
-	#define GDISP_HARDWARE_PIXELREAD	FALSE
+	#define GDISP_HARDWARE_PIXELREAD		FALSE
 /** @} */
 
 /**
@@ -148,7 +144,7 @@
 	 * @details If set to @p TRUE background fill and then text draw is used.
 	 * @note    This is ignored if hardware accelerated text is supported.
 	 */
-	#define GDISP_SOFTWARE_TEXTFILLDRAW	FALSE
+	#define GDISP_SOFTWARE_TEXTFILLDRAW		FALSE
 	/**
 	 * @brief   For filled text drawing, when using a bitmap blit
 	 *			use a column by column buffer rather than a full character
@@ -210,113 +206,7 @@
 	#define GDISP_PACKED_LINES			FALSE
 /** @} */
 
-/*===========================================================================*/
-/* Derived constants and error checks.                                       */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* Driver data structures and types.                                         */
-/*===========================================================================*/
-
-/**
- * @brief   Structure representing a GDISP driver.
- * @note    Implementations may extend this structure to contain more,
- *          architecture dependent, fields.
- */
-struct GDISPDriver {
-	/**
-	 * @brief   Width of the screen.
-	 * @note    Read-only.
-	 */
-	coord_t				Width;
-	/**
-	 * @brief   Height of the screen.
-	 * @note    Read-only.
-	 */
-	coord_t				Height;
-	/**
-	 * @brief   Current orientation of the screen.
-	 * @note    Read-only.
-	 */
-	gdisp_orientation_t	Orientation;
-	/**
-	 * @brief   Current power mode of the screen.
-	 * @note    Read-only.
-	 */
-	gdisp_powermode_t	Powermode;
-	
-	#if defined(GDISP_DRIVER_EXT_FIELDS)
-	GDISP_DRIVER_EXT_FIELDS
-	#endif
-	
-	/* End of mandatory fields */
-};
-
-/*===========================================================================*/
-/* Driver macros.                                                            */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* External declarations.                                                    */
-/*===========================================================================*/
-
-#if !defined(__DOXYGEN__)
-	extern GDISPDriver GDISP1;
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-	/* Core functions */
-	void gdisp_lld_init(void);
-	void gdisp_lld_setpowermode(gdisp_powermode_t powerMode);
-	void gdisp_lld_setorientation(gdisp_orientation_t newOrientation);
-
-	/* Some of these functions will be implemented in software by the high level driver
-	   depending on the GDISP_HARDWARE_XXX macros defined above.
-	 */
-
-	/* Drawing functions */
-	void gdisp_lld_clear(color_t color);
-	void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color);
-	void gdisp_lld_drawline(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color);
-	void gdisp_lld_drawbox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
-	void gdisp_lld_fillarea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
-	void gdisp_lld_blitarea(coord_t x, coord_t y, coord_t cx, coord_t cy, pixel_t *buffer);
-
-	/* Circular Drawing Functions */
-	#if GDISP_NEED_CIRCLE
-	void gdisp_lld_drawcircle(coord_t x, coord_t y, coord_t radius, color_t color);
-	void gdisp_lld_fillcircle(coord_t x, coord_t y, coord_t radius, color_t color);
-	#endif
-
-	#if GDISP_NEED_ELLIPSE
-	void gdisp_lld_drawellipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
-	void gdisp_lld_fillellipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
-	#endif
-
-	/* Text Rendering Functions */
-	#if GDISP_NEED_TEXT
-	void gdisp_lld_drawchar(coord_t x, coord_t y, char c, font_t font, color_t color);
-	void gdisp_lld_fillchar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor);
-	#endif
-
-	/* Pixel readback */
-	#if GDISP_NEED_PIXELREAD
-	color_t gdisp_lld_getpixelcolor(coord_t x, coord_t y);
-	#endif
-
-	/* Scrolling Function - clears the area scrolled out */
-	#if GDISP_NEED_SCROLL
-	void gdisp_lld_verticalscroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor);
-	#endif
-
-#ifdef __cplusplus
-}
-#endif
-
 #endif	/* HAL_USE_GDISP */
 
-#endif	/* _GDISP_LLD_H */
+#endif	/* _GDISP_LLD_CONFIG_H */
 /** @} */

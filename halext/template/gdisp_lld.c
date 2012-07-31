@@ -44,12 +44,22 @@
 
 #include "ch.h"
 #include "hal.h"
+#include "gdisp.h"
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
+
+#ifdef UNUSED
+#elif defined(__GNUC__)
+# define UNUSED(x) UNUSED_ ## x __attribute__((unused))
+#elif defined(__LCLINT__)
+# define UNUSED(x) /*@unused@*/ x
+#else
+# define UNUSED(x) x
+#endif
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */

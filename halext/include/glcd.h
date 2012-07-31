@@ -61,7 +61,10 @@ enum powermode {powerOff, powerOn, sleepOn, sleepOff};
 #define sleepOn		powerSleep
 #define sleepOff	powerOn
 
-#define lcdGetFontHeight(font)		gdispGetFontMetric(font, fontHeight)
+#define font_Small					(&fontSmall)
+#define font_Larger					(&fontLarger)
+#define font_MediumBold				(&fontUI1)
+#define font_LargeNumbers			(&fontLargeNumbers)
 
 #define GLCDDriver	GDISPDriver
 #define GLCDD1		GDISP1
@@ -96,6 +99,7 @@ typedef enum glcd_result glcd_result_t;
 /* Character measuring functions */
 #define lcdMeasureChar(h,f)						(gdispGetCharWidth((h),(f))+(f)->charPadding)
 #define lcdMeasureString(s,f)					(gdispGetStringWidth((s),(f))+(f)->charPadding)
+#define lcdGetFontHeight(font)					gdispGetFontMetric(font, fontHeight)
 
 /* Size and orientation related */
 #define lcdGetHeight()							(GDISP1.Height)

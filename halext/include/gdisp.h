@@ -151,8 +151,8 @@
 #endif
 /** @} */
 
-/* Include the low level driver information */
-#include "gdisp_lld.h"
+/* Include the low level driver configuration information */
+#include "gdisp_lld_config.h"
 
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
@@ -297,6 +297,9 @@ typedef enum fontmetric {fontHeight, fontDescendersHeight, fontLineSpacing, font
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
+
+/* Include the low level driver information */
+#include "gdisp_lld.h"
 
 #if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 /**
