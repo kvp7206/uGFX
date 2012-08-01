@@ -13,4 +13,4 @@ To use this driver:
 
 2. To your makefile add the following lines:
 	include $(CHIBIOS)/os/halext/halext.mk
-	include $(CHIBIOS)/os/halext/drivers/gdispSsd1289/gdisp_lld.mk
+	include $(CHIBIOS)/os/halext/drivers/gdispS6d1121/gdisp_lld.mk

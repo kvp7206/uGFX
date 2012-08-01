@@ -35,7 +35,7 @@
 */
 
 /*
-	Emulation routines included into gdisp.c
+	Emulation routines included into gdisp_lld.c
 */
 
 /*
@@ -57,7 +57,7 @@
 
 #if !GDISP_HARDWARE_CLEARS 
 	void gdisp_lld_clear(color_t color) {
-		gdisp_lld_fillarea(0, 0, GDISP1.Width, GDISP1.Height, color);
+		gdisp_lld_fillarea(0, 0, GDISP.Width, GDISP.Height, color);
 	}
 #endif
 

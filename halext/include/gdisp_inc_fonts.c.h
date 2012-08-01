@@ -34,6 +34,8 @@
 		Dongxu Li aka dxli			-> lcdDrawEllipse() filled option
 */
 
+#include "gdisp_fonts.h"
+
 /*
 	Font tables included into gdisp.c
 */

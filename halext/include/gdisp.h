@@ -256,7 +256,10 @@
 	#define gdispPackPixels(buf,cx,x,y,c)	{ ((color_t *)(buf))[(y)*(cx)+(x)] = (c); }
 #elif !GDISP_HARDWARE_BITFILLS
 	#error "GDISP: packed pixel formats are only supported for hardware accelerated drivers."
-#elif !defined(GDISP_PIXELFORMAT_RGB888) && !defined(GDISP_PIXELFORMAT_RGB444) && !defined(GDISP_PIXELFORMAT_RGB666) && !defined(GDISP_PIXELFORMAT_CUSTOM)
+#elif !defined(GDISP_PIXELFORMAT_RGB888) \
+		&& !defined(GDISP_PIXELFORMAT_RGB444) \
+		&& !defined(GDISP_PIXELFORMAT_RGB666) \
+		&& !defined(GDISP_PIXELFORMAT_CUSTOM)
 	#error "GDISP: A packed pixel format has been specified for an unsupported pixel format."
 #endif
 
@@ -382,20 +385,20 @@ extern "C" {
 
 #endif
 
-	/* Extra Text Functions */
-	#if GDISP_NEED_TEXT
+/* Extra Text Functions */
+#if GDISP_NEED_TEXT
 	void gdispDrawString(coord_t x, coord_t y, const char *str, font_t font, color_t color);
 	void gdispFillString(coord_t x, coord_t y, const char *str, font_t font, color_t color, color_t bgcolor);
 	void gdispFillStringBox(coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, color_t bgColor, justify_t justify);
 	coord_t gdispGetFontMetric(font_t font, fontmetric_t metric);
 	coord_t gdispGetCharWidth(char c, font_t font);
 	coord_t gdispGetStringWidth(const char* str, font_t font);
-	#endif
+#endif
 
-	/* Support routine for packed pixel formats */
-	#ifndef gdispPackPixels
+/* Support routine for packed pixel formats */
+#ifndef gdispPackPixels
 	void gdispPackPixels(pixel_t *buf, coord_t cx, coord_t x, coord_t y, color_t color);
-	#endif
+#endif
 
 #ifdef __cplusplus
 }

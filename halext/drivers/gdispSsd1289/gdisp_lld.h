@@ -35,8 +35,8 @@
 */
 
 /**
- * @file    gdispSsd1289/gdisp_lld.h
- * @brief   GDISP Graphic Driver subsystem low level driver header for the Ssd1289 display.
+ * @file    templates/gdisp_lld.h
+ * @brief   GDISP Graphic Driver subsystem low level driver header template.
  *
  * @addtogroup GDISP
  * @{
@@ -93,7 +93,6 @@ struct GDISPDriver {
 	#if defined(GDISP_DRIVER_EXT_FIELDS)
 	GDISP_DRIVER_EXT_FIELDS
 	#endif
-	
 	/* End of mandatory fields */
 };
 
@@ -106,7 +105,7 @@ struct GDISPDriver {
 /*===========================================================================*/
 
 #if !defined(__DOXYGEN__)
-	extern GDISPDriver GDISP1;
+	extern GDISPDriver GDISP;
 #endif
 
 #ifdef __cplusplus
@@ -119,7 +118,7 @@ extern "C" {
 	void gdisp_lld_setorientation(gdisp_orientation_t newOrientation);
 
 	/* Some of these functions will be implemented in software by the high level driver
-	   depending on the GDISP_HARDWARE_XXX macros defined above.
+	   depending on the GDISP_HARDWARE_XXX macros defined in gdisp_lld_config.h.
 	 */
 
 	/* Drawing functions */
