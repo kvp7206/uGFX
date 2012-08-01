@@ -35,8 +35,8 @@
 */
 
 /**
- * @file    gdispSsd1289/gdisp_lld.c
- * @brief   GDISP Graphics Driver subsystem low level driver source for the Ssd1289 display.
+ * @file    gdispS6d1121/gdisp_lld.c
+ * @brief   GDISP Graphics Driver subsystem low level driver source for the S6d1121 display.
  *
  * @addtogroup GDISP
  * @{
@@ -78,7 +78,7 @@
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
-#include "ssd1289_lld.c.h"
+#include "s6d1121_lld.c.h"
 
 /*===========================================================================*/
 /* Driver interrupt handlers.                                                */
@@ -103,72 +103,127 @@
  * @notapi
  */
 void gdisp_lld_init(void) {
-	uint16_t	deviceCode;
+	palSetPadMode(LCD_RST_GPIO, LCD_RST_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+	// A Good idea to reset the module before using
+	LCD_RST_LOW;
+	s6d1121_delay(2);
+	LCD_RST_HIGH;         // Hardware Reset
+	s6d1121_delay(2);
 
-	#ifdef LCD_USE_FSMC
-		/* FSMC setup. TODO: this only works for STM32F1 */
-		rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
+	#ifdef LCD_USE_GPIO
+		// IO Default Configurations
+		palSetPadMode(LCD_CS_GPIO, LCD_CS_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+		palSetPadMode(LCD_WR_GPIO, LCD_WR_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+		palSetPadMode(LCD_RD_GPIO, LCD_RD_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+		palSetPadMode(LCD_RS_GPIO, LCD_RS_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+		palSetPadMode(LCD_BL_GPIO, LCD_BL_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+
+		palSetGroupMode(LCD_D0_GPIO, 0x0000000F, 0, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+		palSetGroupMode(LCD_D4_GPIO, 0x0000FFF0, 0, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+
+		LCD_CS_HIGH;
+		LCD_RD_HIGH;
+		LCD_WR_HIGH;
+		LCD_BL_LOW;
+
+	#elif defined(LCD_USE_FSMC)
+		#if defined(STM32F1XX)
+			/* FSMC setup. TODO: this only works for STM32F1 */
+			rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
+
+			/* TODO: pin setup */
+		#elif defined(STM32F4XX)
+			/* STM32F4 FSMC init */
+			rccEnableAHB3(RCC_AHB3ENR_FSMCEN, 0);
+
+			/* set pins to FSMC mode */
+			IOBus busD = {GPIOD, (1 << 0) | (1 << 1) | (1 << 4) | (1 << 5) | (1 << 7) | (1 << 8) |
+									(1 << 9) | (1 << 10) | (1 << 11) | (1 << 14) | (1 << 15), 0};
+
+			IOBus busE = {GPIOE, (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10) | (1 << 11) | (1 << 12) |
+								(1 << 13) | (1 << 14) | (1 << 15), 0};
+
+			palSetBusMode(&busD, PAL_MODE_ALTERNATE(12));
+			palSetBusMode(&busE, PAL_MODE_ALTERNATE(12));
+		#else
+			#error "FSMC not implemented for this device"
+		#endif
+
 		int FSMC_Bank = 0;
-		/* timing structure */
-		/* from datasheet:
-			address setup: 0ns
-			address hold: 0ns
-			Data setup: 5ns
-			Data hold: 5ns
-			Data access: 250ns
-			output hold: 100ns
-		 */
-		FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_1 | FSMC_BTR1_DATAST_1;
+		/* FSMC timing */
+		FSMC_Bank1->BTCR[FSMC_Bank+1] = (10) | (10 << 8) | (10 << 16);
 
 		/* Bank1 NOR/SRAM control register configuration */
 		FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
 	#endif
 
-	deviceCode = lld_lcdReadReg(0x0000);
+	lld_lcdWriteReg(0x11,0x2004);
+	lld_lcdWriteReg(0x13,0xCC00);
+	lld_lcdWriteReg(0x15,0x2600);
+	lld_lcdWriteReg(0x14,0x252A);
+	lld_lcdWriteReg(0x12,0x0033);
+	lld_lcdWriteReg(0x13,0xCC04);
 
-	lld_lcdWriteReg(0x0000,0x0001);		lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0003,0xA8A4);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x000C,0x0000);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x000D,0x080C);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x000E,0x2B00);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x001E,0x00B0);    	lld_lcdDelay(5);
-	lld_lcdWriteReg(0x0001,0x2B3F);		lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0002,0x0600);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0010,0x0000);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0011,0x6070);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0005,0x0000);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0006,0x0000);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0016,0xEF1C);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0017,0x0003);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0007,0x0133);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x000B,0x0000);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x000F,0x0000);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0041,0x0000);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0042,0x0000);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0048,0x0000);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0049,0x013F);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x004A,0x0000);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x004B,0x0000);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0044,0xEF00);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0045,0x0000);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0046,0x013F);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0030,0x0707);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0031,0x0204);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0032,0x0204);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0033,0x0502);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0034,0x0507);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0035,0x0204);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0036,0x0204);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0037,0x0502);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x003A,0x0302);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x003B,0x0302);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0023,0x0000);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0024,0x0000);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x0025,0x8000);    	lld_lcdDelay(5);
-    lld_lcdWriteReg(0x004f,0x0000);		lld_lcdDelay(5);
-    lld_lcdWriteReg(0x004e,0x0000);		lld_lcdDelay(5);
+	s6d1121_delay(1);
 
-    /* Initialise the GDISP structure */
+	lld_lcdWriteReg(0x13,0xCC06);
+
+	s6d1121_delay(1);
+
+	lld_lcdWriteReg(0x13,0xCC4F);
+
+	s6d1121_delay(1);
+
+	lld_lcdWriteReg(0x13,0x674F);
+	lld_lcdWriteReg(0x11,0x2003);
+
+	s6d1121_delay(1);
+
+	// Gamma Setting
+	lld_lcdWriteReg(0x30,0x2609);
+	lld_lcdWriteReg(0x31,0x242C);
+	lld_lcdWriteReg(0x32,0x1F23);
+	lld_lcdWriteReg(0x33,0x2425);
+	lld_lcdWriteReg(0x34,0x2226);
+	lld_lcdWriteReg(0x35,0x2523);
+	lld_lcdWriteReg(0x36,0x1C1A);
+	lld_lcdWriteReg(0x37,0x131D);
+	lld_lcdWriteReg(0x38,0x0B11);
+	lld_lcdWriteReg(0x39,0x1210);
+	lld_lcdWriteReg(0x3A,0x1315);
+	lld_lcdWriteReg(0x3B,0x3619);
+	lld_lcdWriteReg(0x3C,0x0D00);
+	lld_lcdWriteReg(0x3D,0x000D);
+
+	lld_lcdWriteReg(0x16,0x0007);
+	lld_lcdWriteReg(0x02,0x0013);
+	lld_lcdWriteReg(0x03,0x0003);
+	lld_lcdWriteReg(0x01,0x0127);
+
+	s6d1121_delay(1);
+
+	lld_lcdWriteReg(0x08,0x0303);
+	lld_lcdWriteReg(0x0A,0x000B);
+	lld_lcdWriteReg(0x0B,0x0003);
+	lld_lcdWriteReg(0x0C,0x0000);
+	lld_lcdWriteReg(0x41,0x0000);
+	lld_lcdWriteReg(0x50,0x0000);
+	lld_lcdWriteReg(0x60,0x0005);
+	lld_lcdWriteReg(0x70,0x000B);
+	lld_lcdWriteReg(0x71,0x0000);
+	lld_lcdWriteReg(0x78,0x0000);
+	lld_lcdWriteReg(0x7A,0x0000);
+	lld_lcdWriteReg(0x79,0x0007);
+	lld_lcdWriteReg(0x07,0x0051);
+
+	s6d1121_delay(1);
+
+	lld_lcdWriteReg(0x07,0x0053);
+	lld_lcdWriteReg(0x79,0x0000);
+
+	lld_lcdResetViewPort();
+
+	/* Now initialise the GDISP structure */
 	GDISP.Width = SCREEN_WIDTH;
 	GDISP.Height = SCREEN_HEIGHT;
 	GDISP.Orientation = portrait;
@@ -210,33 +265,32 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 */
 
 #if GDISP_HARDWARE_POWERCONTROL || defined(__DOXYGEN__)
-	/**
-	 * @brief   Sets the power mode for the graphic device.
-	 * @note    The power modes are powerOn, powerSleep and powerOff.
-	 *          If powerSleep is not supported it is equivelent to powerOn.
-	 *
-	 * @param[in] powerMode    The new power mode
-	 *
-	 * @notapi
-	 */
+/**
+ * @brief   Sets the power mode for the graphic device.
+ * @note    The power modes are powerOn, powerSleep and powerOff.
+ *          If powerSleep is not supported it is equivalent to powerOn.
+ *
+ * @param[in] powerMode    The new power mode
+ *
+ * @notapi
+ */
 	void gdisp_lld_setpowermode(gdisp_powermode_t powerMode) {
 		if (GDISP.Powermode == powerMode)
 			return;
 
 		switch(powerMode) {
 			case powerOff:
-				lld_lcdWriteReg(0x0010, 0x0000);	// leave sleep mode
-				lld_lcdWriteReg(0x0007, 0x0000);	// halt operation
-				lld_lcdWriteReg(0x0000, 0x0000);	// turn off oszillator
-				lld_lcdWriteReg(0x0010, 0x0001);	// enter sleepmode
+				/* 	Code here */
 				break;
 			case powerOn:
-				lld_lcdWriteReg(0x0010, 0x0000);	// leave sleep mode
-				if (GDISP.Powermode != powerSleep)
-					gdisp_lld_init();
+				/* 	Code here */
+				/* You may need this ---
+					if (GDISP.Powermode != powerSleep)
+						gdisp_lld_init();
+				*/
 				break;
 			case powerSleep:
-				lld_lcdWriteReg(0x0010, 0x0001);	// enter sleep mode
+				/* 	Code here */
 				break;
 			default:
 				return;
@@ -261,30 +315,26 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 
 		switch(newOrientation) {
 			case portrait:
-				lld_lcdWriteReg(0x0001, 0x2B3F);
-				/* ID = 11 AM = 0 */
-				lld_lcdWriteReg(0x0011, 0x6070);
+				lld_lcdWriteReg(0x0001,0x0127);
+				lld_lcdWriteReg(0x03, 0b0011);
 				GDISP.Height = SCREEN_HEIGHT;
 				GDISP.Width = SCREEN_WIDTH;
 				break;
 			case landscape:
-				lld_lcdWriteReg(0x0001, 0x293F);
-				/* ID = 11 AM = 1 */
-				lld_lcdWriteReg(0x0011, 0x6078);
+				lld_lcdWriteReg(0x0001,0x0027);
+				lld_lcdWriteReg(0x0003, 0b1011);
 				GDISP.Height = SCREEN_WIDTH;
 				GDISP.Width = SCREEN_HEIGHT;
 				break;
 			case portraitInv:
-				lld_lcdWriteReg(0x0001, 0x2B3F);
-				/* ID = 01 AM = 0 */
-				lld_lcdWriteReg(0x0011, 0x6040);
+				lld_lcdWriteReg(0x0001,0x0127);
+				lld_lcdWriteReg(0x0003, 0b0000);
 				GDISP.Height = SCREEN_HEIGHT;
 				GDISP.Width = SCREEN_WIDTH;
 				break;
 			case landscapeInv:
-				lld_lcdWriteReg(0x0001, 0x293F);
-				/* ID = 01 AM = 1 */
-				lld_lcdWriteReg(0x0011, 0x6048);
+				lld_lcdWriteReg(0x0001,0x0027);
+				lld_lcdWriteReg(0x0003, 0b1000);
 				GDISP.Height = SCREEN_WIDTH;
 				GDISP.Width = SCREEN_HEIGHT;
 				break;
@@ -329,7 +379,10 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void gdisp_lld_drawline(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
-		/* NOT IMPLEMENTED */
+		#if GDISP_NEED_VALIDATION
+			/* Need to clip to screen */
+		#endif
+		/* Code here */
 	}
 #endif
 
@@ -346,7 +399,10 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void gdisp_lld_drawbox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
-		/* NOT IMPLEMENTED */
+		#if GDISP_NEED_VALIDATION
+			/* Need to clip to screen */
+		#endif
+		/* Code here */
 	}
 #endif
 
@@ -425,7 +481,10 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void gdisp_lld_drawcircle(coord_t x, coord_t y, coord_t radius, color_t color) {
-		/* NOT IMPLEMENTED */
+		#if GDISP_NEED_VALIDATION
+			/* Code here */
+		#endif
+		/* Code here */
 	}
 #endif
 
@@ -443,7 +502,10 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void gdisp_lld_fillcircle(coord_t x, coord_t y, coord_t radius, color_t color) {
-		/* NOT IMPLEMENTED */
+		#if GDISP_NEED_VALIDATION
+			/* Code here */
+		#endif
+		/* Code here */
 	}
 #endif
 
@@ -461,7 +523,10 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void gdisp_lld_drawellipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
-		/* NOT IMPLEMENTED */
+		#if GDISP_NEED_VALIDATION
+			/* Code here */
+		#endif
+		/* Code here */
 	}
 #endif
 
@@ -479,7 +544,10 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void gdisp_lld_fillellipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
-		/* NOT IMPLEMENTED */
+		#if GDISP_NEED_VALIDATION
+			/* Code here */
+		#endif
+		/* Code here */
 	}
 #endif
 
@@ -495,7 +563,10 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void gdisp_lld_drawchar(coord_t x, coord_t y, char c, font_t font, color_t color) {
-		/* NOT IMPLEMENTED */
+		#if GDISP_NEED_VALIDATION
+			/* Code here */
+		#endif
+		/* Code here */
 	}
 #endif
 
@@ -512,7 +583,10 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void gdisp_lld_fillchar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
-		/* NOT IMPLEMENTED */
+		#if GDISP_NEED_VALIDATION
+			/* Code here */
+		#endif
+		/* Code here */
 	}
 #endif
 
@@ -527,6 +601,10 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	color_t gdisp_lld_getpixelcolor(coord_t x, coord_t y) {
+		/* This routine is marked "DO NOT USE" in the original
+		 *  GLCD driver. We just keep our GDISP_HARDWARE_READPIXEL
+		 *  turned off for now.
+		 */
 		color_t color;
 
 		#if GDISP_NEED_VALIDATION
@@ -560,6 +638,9 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void gdisp_lld_verticalscroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
+		/* This is marked as "TODO: Test this" in the original GLCD driver.
+		 * For now we just leave the GDISP_HARDWARE_SCROLL off.
+		 */
 		static color_t buf[((SCREEN_HEIGHT > SCREEN_WIDTH ) ? SCREEN_HEIGHT : SCREEN_WIDTH)];
 		coord_t row0, row1;
 		unsigned i, gap, abslines;

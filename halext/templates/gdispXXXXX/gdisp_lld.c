@@ -45,6 +45,7 @@
 #include "ch.h"
 #include "hal.h"
 #include "gdisp.h"
+#include "gdisp_fonts.h"
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
@@ -66,7 +67,7 @@
 /*===========================================================================*/
 
 #if !defined(__DOXYGEN__)
-	GDISPDriver GDISP1;
+	GDISPDriver GDISP;
 #endif
 
 /*===========================================================================*/
@@ -85,6 +86,9 @@
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
+/* Include the software emulation routines */
+#include "gdisp_lld_inc_emulation.c.h"
+
 /* ---- Required Routines ---- */
 /*
 	The following 2 routines are required.
@@ -97,14 +101,13 @@
  * @notapi
  */
 void gdisp_lld_init(void) {
-	/* Initialise the GDISP structure with the defaults for your display */
-	GDISP1.Width = 128;
-	GDISP1.Height = 128;
-	GDISP1.Orientation = portrait;
-	GDISP1.Powermode = powerOff;
-	
-	/* Now initialise your display to match */
-	/* Code here */
+	/* Initialise your display */
+
+	/* Initialise the GDISP structure to match */
+	GDISP.Width = SCREEN_WIDTH;
+	GDISP.Height = SCREEN_HEIGHT;
+	GDISP.Orientation = portrait;
+	GDISP.Powermode = powerOn;
 }
 
 /**
@@ -118,7 +121,7 @@ void gdisp_lld_init(void) {
  */
 void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	#if GDISP_NEED_VALIDATION
-		if (x >= GDISP1.Width || y >= GDISP1.Height) return;
+		if (x >= GDISP.Width || y >= GDISP.Height) return;
 	#endif
 	/* Code here */
 }
@@ -141,38 +144,80 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 */
 
 #if GDISP_HARDWARE_POWERCONTROL || defined(__DOXYGEN__)
-/**
- * @brief   Sets the power mode for the graphic device.
- * @note    The power modes are powerOn, powerSleep and powerOff.
- *          If powerSleep is not supported it is equivelent to powerOn.
- *
- * @param[in] powerMode    The new power mode
- *
- * @notapi
- */
-void gdisp_lld_setpowermode(gdisp_powermode_t powerMode) {
-	/* Code here */
-	/* if successful
-		GDISP1.Powermode = powerMode;
-	*/
-}
+	/**
+	 * @brief   Sets the power mode for the graphic device.
+	 * @note    The power modes are powerOn, powerSleep and powerOff.
+	 *          If powerSleep is not supported it is equivalent to powerOn.
+	 *
+	 * @param[in] powerMode    The new power mode
+	 *
+	 * @notapi
+	 */
+	void gdisp_lld_setpowermode(gdisp_powermode_t powerMode) {
+		if (GDISP.Powermode == powerMode)
+			return;
+
+		switch(powerMode) {
+			case powerOff:
+				/* 	Code here */
+				break;
+			case powerOn:
+				/* 	Code here */
+				/* You may need this ---
+					if (GDISP.Powermode != powerSleep)
+						gdisp_lld_init();
+				*/
+				break;
+			case powerSleep:
+				/* 	Code here */
+				break;
+			default:
+				return;
+		}
+
+		GDISP.Powermode = powerMode;
+	}
 #endif
 
 #if GDISP_HARDWARE_ORIENTATION || defined(__DOXYGEN__)
-/**
- * @brief   Sets the orientation of the display.
- * @note    This may be ignored if not supported by the device.
- *
- * @param[in] newOrientation    The new orientation
- *
- * @notapi
- */
-void gdisp_lld_setorientation(gdisp_orientation_t newOrientation) {
-	/* Code here */
-	/* if successful
-		GDISP1.Orientation = newOrientation;
-	*/
-}
+	/**
+	 * @brief   Sets the orientation of the display.
+	 * @note    This may be ignored if not supported by the device.
+	 *
+	 * @param[in] newOrientation    The new orientation
+	 *
+	 * @notapi
+	 */
+	void gdisp_lld_setorientation(gdisp_orientation_t newOrientation) {
+		if (GDISP.Orientation == newOrientation)
+			return;
+
+		switch(newOrientation) {
+			case portrait:
+				/* 	Code here */
+				GDISP.Height = SCREEN_HEIGHT;
+				GDISP.Width = SCREEN_WIDTH;
+				break;
+			case landscape:
+				/* 	Code here */
+				GDISP.Height = SCREEN_WIDTH;
+				GDISP.Width = SCREEN_HEIGHT;
+				break;
+			case portraitInv:
+				/* 	Code here */
+				GDISP.Height = SCREEN_HEIGHT;
+				GDISP.Width = SCREEN_WIDTH;
+				break;
+			case landscapeInv:
+				/* 	Code here */
+				GDISP.Height = SCREEN_WIDTH;
+				GDISP.Width = SCREEN_HEIGHT;
+				break;
+			default:
+				return;
+		}
+		GDISP.Orientation = newOrientation;
+	}
 #endif
 
 #if GDISP_HARDWARE_CLEARS || defined(__DOXYGEN__)
@@ -241,9 +286,9 @@ void gdisp_lld_setorientation(gdisp_orientation_t newOrientation) {
 	 */
 	void gdisp_lld_fillarea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		#if GDISP_NEED_VALIDATION
-			if (cx < 1 || cy < 1 || x >= GDISP1.Width || y >= GDISP1.Height) return;
-			if (x+cx > GDISP1.Width)	cx = GDISP1.Width - x;
-			if (y+cy > GDISP1.Height)	cy = GDISP1.Height - y;
+			if (cx < 1 || cy < 1 || x >= GDISP.Width || y >= GDISP.Height) return;
+			if (x+cx > GDISP.Width)	cx = GDISP.Width - x;
+			if (y+cy > GDISP.Height)	cy = GDISP.Height - y;
 		#endif
 		/* Code here */
 	}
@@ -262,8 +307,9 @@ void gdisp_lld_setorientation(gdisp_orientation_t newOrientation) {
 	 */
 	void gdisp_lld_blitarea(coord_t x, coord_t y, coord_t cx, coord_t cy, pixel_t *buffer) {
 		#if GDISP_NEED_VALIDATION
-			if (cx < 1 || cy < 1 || x >= GDISP1.Width || y >= GDISP1.Height) return;
-			if (x+cx > GDISP1.Width || y+cy > GDISP1.Height) return;
+			if (cx < 1 || cy < 1 || x >= GDISP.Width || y >= GDISP.Height) return;
+			if (x+cx > GDISP.Width) return;
+			if (y+cy > GDISP.Height)	cy = GDISP.Height - y;
 		#endif
 		/* Code here */
 	}
@@ -405,7 +451,7 @@ void gdisp_lld_setorientation(gdisp_orientation_t newOrientation) {
 	 */
 	color_t gdisp_lld_getpixelcolor(coord_t x, coord_t y) {
 		#if GDISP_NEED_VALIDATION
-			if (x >= GDISP1.Width || y >= GDISP1.Height) return 0;
+			if (x >= GDISP.Width || y >= GDISP.Height) return 0;
 		#endif
 		/* Code here */
 	}
@@ -427,9 +473,9 @@ void gdisp_lld_setorientation(gdisp_orientation_t newOrientation) {
 	 */
 	void gdisp_lld_verticalscroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
 		#if GDISP_NEED_VALIDATION
-			if (cx < 1 || cy < 1 || x >= GDISP1.Width || y >= GDISP1.Height) return;
-			if (x+cx > GDISP1.Width)	cx = GDISP1.Width - x;
-			if (y+cy > GDISP1.Height)	cy = GDISP1.Height - y;
+			if (cx < 1 || cy < 1 || x >= GDISP.Width || y >= GDISP.Height) return;
+			if (x+cx > GDISP.Width)	cx = GDISP.Width - x;
+			if (y+cy > GDISP.Height)	cy = GDISP.Height - y;
 		#endif
 		/* Code here */
 	}

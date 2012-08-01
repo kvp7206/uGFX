@@ -50,6 +50,7 @@
 
 #if GDISP_NEED_MULTITHREAD
 	#warning "GDISP: Multithread support not complete"
+	#define MUTEX_INIT		/* Not defined yet */
 	#define MUTEX_ENTER		/* Not defined yet */
 	#define MUTEX_EXIT		/* Not defined yet */
 #endif
@@ -67,51 +68,12 @@
 # define UNUSED(x) x
 #endif
 
-#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
-	/**
-	 * @brief   The size of a font column.
-	 * @note	If you font heights > 16 you would need to redefine this
-	 *			as a uint32_t instead of a uint16_t. Fonts would then take
-	 *			twice the internal program memory.
-	 */
-	typedef uint16_t	fontcolumn_t;
-
-	/**
-	 * @brief   Internal font structure.
-	 * @note	This structure is followed by:
-	 *			An array of column data offsets (relative to the font structure)
-	 *			An array of character widths (uint8_t)
-	 *			Each characters array of column data (fontcolumn_t)
-	 */
-	struct font {
-		uint8_t		height;
-		uint8_t		charPadding;
-		uint8_t		lineSpacing;
-		uint8_t		descenderHeight;
-		uint8_t		minWidth;
-		uint8_t		maxWidth;
-		char		minChar;
-		char		maxChar;
-		uint16_t	offsetTableOffset;
-		uint16_t	unused1;			/* ensure next field is padded to 8 byte boundary */
-		uint8_t		widthTable[];
-		};
-
-	/**
-	 * @brief   Macro's to get to the complex parts of the font structure.
-	 */
-	#define _getFontPart(f,o,t)		((t)(&((const uint8_t *)(f))[(o)]))
-	#define _getCharWidth(f,c)		(((c) < (f)->minChar || (c) > (f)->maxChar) ? 0 : (f)->widthTable[c - (f)->minChar])
-	#define _getCharOffset(f,c)		(_getFontPart((f), (f)->offsetTableOffset, const uint16_t *)[c - (f)->minChar])
-	#define _getCharData(f,c)		_getFontPart((f), _getCharOffset((f),(c)), const fontcolumn_t *)
-#endif
-
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
 
 #if GDISP_NEED_TEXT || defined(__DOXYGEN__)
-	#include "gdisp_inc_fonts.c"
+	#include "gdisp_inc_fonts.c.h"
 #endif
 
 /*===========================================================================*/
@@ -126,9 +88,6 @@
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
-/* Include the software emulation routines */
-#include "gdisp_inc_emulation.c"
-
 #if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
 	/**
 	 * @brief   GDISP Driver initialization.
@@ -138,10 +97,13 @@
 	 * @init
 	 */
 	void gdispInit(GDISPDriver * UNUSED(gdisp)) {
-		/* No mutex required as nothing should happen until the init is complete */
+		/* Initialise Mutex */
+		MUTEX_INIT
+
+		/* Initialise driver */
+		MUTEX_ENTER
 		gdisp_lld_init();
-		
-		/* ToDo - Initialise Mutex */
+		MUTEX_EXIT
 	}
 #endif
 
