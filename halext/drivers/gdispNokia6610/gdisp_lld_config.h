@@ -35,8 +35,8 @@
 */
 
 /**
- * @file    gdispNokia6100/gdisp_lld_config.h
- * @brief   GDISP Graphic Driver subsystem low level driver header for the Nokia6100 display.
+ * @file    gdispNokia6610/gdisp_lld_config.h
+ * @brief   GDISP Graphic Driver subsystem low level driver header for the Nokia6610 display.
  *
  * @addtogroup GDISP
  * @{
@@ -89,13 +89,13 @@
 	 * @brief   Hardware accelerated rectangular fills.
 	 * @details If set to @p FALSE software emulation is used.
 	 */
-	#define GDISP_HARDWARE_FILLS			FALSE
+	#define GDISP_HARDWARE_FILLS			TRUE
 
 	/**
 	 * @brief   Hardware accelerated fills from an image.
 	 * @details If set to @p FALSE software emulation is used.
 	 */
-	#define GDISP_HARDWARE_BITFILLS			FALSE
+	#define GDISP_HARDWARE_BITFILLS			TRUE
 
 	/**
 	 * @brief   Hardware accelerated circles.
@@ -185,7 +185,7 @@
 	 *              RED_OF(c), GREEN_OF(c), BLUE_OF(c),
 	 *              COLOR(c) and MASKCOLOR.
 	 */
-	#define GDISP_PIXELFORMAT_RGB565
+	#define GDISP_PIXELFORMAT_RGB444
 
 	/**
 	 * @brief   Do pixels require packing for a blit
