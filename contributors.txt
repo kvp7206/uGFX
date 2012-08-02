@@ -10,5 +10,5 @@ Date			NickName		RealName				Contribution
 -				dxli			Dongxu Li				lcdDrawEllipse() filled option
 -				benwilliam		-						fastMath & lcdDrawEllipse()
 -				Badger			Thomas Saunders			console implementation
--				Abhishek		Abhishek				font rendering
+-				Abhishek		Abhishek Kakkar			font rendering
 
