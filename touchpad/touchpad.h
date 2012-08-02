@@ -4,6 +4,7 @@
 #include "ch.h"
 #include "hal.h"
 #include "glcd.h"
+#include "glcdconf.h"
 #include "ads7843_lld.h"
 #include "xpt2046_lld.h"
 
