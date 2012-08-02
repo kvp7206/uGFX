@@ -209,7 +209,7 @@
 
 #elif defined(GDISP_PIXELFORMAT_RGB888)
 	typedef uint32_t color_t;
-	#define COLOR(c)			((color_t)(((c) & 0xFFFFFF))
+	#define COLOR(c)			((color_t)(((c) & 0xFFFFFF)))
 	#define MASKCOLOR			TRUE
 	#define RGB2COLOR(r,g,b)	((color_t)((((r) & 0xFF)<<16) | (((g) & 0xFF) << 8) | ((b) & 0xFF)))
 	#define HTML2COLOR(h)		((color_t)(h))
@@ -219,10 +219,10 @@
 
 #elif defined(GDISP_PIXELFORMAT_RGB444)
 	typedef uint16_t color_t;
-	#define COLOR(c)			((color_t)(((c) & 0x0FFF))
+	#define COLOR(c)			((color_t)(((c) & 0x0FFF)))
 	#define MASKCOLOR			TRUE
-	#define RGB2COLOR(r,g,b)	((color_t)((((r) & 0xF0)<<4) | ((g) & 0xF0) | (((b) & 0xF0)>>4))
-	#define HTML2COLOR(h)		((color_t)((((h) & 0xF00000)>>12) | (((h) & 0x00F000)>>8) | (((h) & 0x0000F0)>>4))
+	#define RGB2COLOR(r,g,b)	((color_t)((((r) & 0xF0)<<4) | ((g) & 0xF0) | (((b) & 0xF0)>>4)))
+	#define HTML2COLOR(h)		((color_t)((((h) & 0xF00000)>>12) | (((h) & 0x00F000)>>8) | (((h) & 0x0000F0)>>4)))
 	#define RED_OF(c)			(((c) & 0x0F00)>>4)
 	#define GREEN_OF(c)			((c)&0x00F0)
 	#define BLUE_OF(c)			(((c)&0x000F)<<4)
@@ -231,15 +231,15 @@
 	typedef uint8_t color_t;
 	#define COLOR(c)			((color_t)(c))
 	#define MASKCOLOR			FALSE
-	#define RGB2COLOR(r,g,b)	((color_t)(((r) & 0xE0) | (((g) & 0xE0)>>3) | (((b) & 0xC0)>>6))
-	#define HTML2COLOR(h)		((color_t)((((h) & 0xE00000)>>16) | (((h) & 0x00E000)>>11) | (((h) & 0x0000C0)>>6))
+	#define RGB2COLOR(r,g,b)	((color_t)(((r) & 0xE0) | (((g) & 0xE0)>>3) | (((b) & 0xC0)>>6)))
+	#define HTML2COLOR(h)		((color_t)((((h) & 0xE00000)>>16) | (((h) & 0x00E000)>>11) | (((h) & 0x0000C0)>>6)))
 	#define RED_OF(c)			((c) & 0xE0)
 	#define GREEN_OF(c)			(((c)&0x1C)<<3)
 	#define BLUE_OF(c)			(((c)&0x03)<<6)
 
 #elif defined(GDISP_PIXELFORMAT_RGB666)
 	typedef uint32_t color_t;
-	#define COLOR(c)			((color_t)(((c) & 0x03FFFF))
+	#define COLOR(c)			((color_t)(((c) & 0x03FFFF)))
 	#define MASKCOLOR			TRUE
 	#define RGB2COLOR(r,g,b)	((color_t)((((r) & 0xFC)<<10) | (((g) & 0xFC)<<4) | (((b) & 0xFC)>>2)))
 	#define HTML2COLOR(h)		((color_t)((((h) & 0xFC0000)>>6) | (((h) & 0x00FC00)>>4) | (((h) & 0x0000FC)>>2)))

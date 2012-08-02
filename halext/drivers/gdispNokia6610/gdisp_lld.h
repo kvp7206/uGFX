@@ -35,8 +35,8 @@
 */
 
 /**
- * @file    templates/gdisp_lld.h
- * @brief   GDISP Graphic Driver subsystem low level driver header template.
+ * @file    gdispNokia6610/gdisp_lld.h
+ * @brief   GDISP Graphic Driver subsystem low level driver header for the Nokia6610 display.
  *
  * @addtogroup GDISP
  * @{
