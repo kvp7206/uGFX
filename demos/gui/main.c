@@ -1,29 +1,28 @@
+/*
+    ChibiOS/RT - Copyright (C) 2012
+                 Joel Bodenmann aka Tectu <joel@unormal.org>
+
+    This file is part of ChibiOS-LCD-Driver.
+
+    ChibiOS-LCD-Driver is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    ChibiOS-LCD-Driver is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "ch.h"
 #include "hal.h"
 #include "gui.h"
 #include "glcd.h"
 #include "touchpad.h"
-
-__inline void lld_lcdWriteGPIO(uint16_t data) {
-	palWritePort(LCD_DATA_PORT, data);
-}
-
-__inline uint16_t lld_lcdReadGPIO(void) {
-	uint16_t value;
-
-    // change pin mode to digital input
-    LCD_DATA_PORT->CRH = 0x44444444;
-    LCD_DATA_PORT->CRL = 0x44444444;
-
-    value = palReadPort(LCD_DATA_PORT); // dummy
-    value = palReadPort(LCD_DATA_PORT);
-
-    // change pin mode back to digital output
-    LCD_DATA_PORT->CRH = 0x33333333;
-    LCD_DATA_PORT->CRL = 0x33333333;
-
-	return value;
-}
 
 // GLCD driver object
 static GLCDDriver GLCDD1;
@@ -77,3 +76,4 @@ int main(void) {
 
 	return 0;
 }
+

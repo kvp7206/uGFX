@@ -5,3 +5,4 @@ LCD_DRIVERS_SRC	=	$(LCDLIB)/drivers/lcd/ssd1289_lld.c \
 
 LCD_DRIVERS_INC =	$(LCDLIB)/drivers/lcd \
 					$(LCDLIB)/drivers/touchpad \
+
