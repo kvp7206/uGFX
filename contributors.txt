@@ -9,6 +9,6 @@ Date			NickName		RealName				Contribution
 30.07.2012		inmarket		Andrew Hannam			halext implementation
 -				dxli			Dongxu Li				lcdDrawEllipse() filled option
 -				benwilliam		-						fastMath & lcdDrawEllipse()
--				Badger			Thomas Saunders			console implementation
--				Abhishek		Abhishek Kakkar			font rendering
+-				Badger			Thomas Saunders			console implementation, FSMC
+-				Abhishek		Abhishek Kakkar			font rendering, S6D1121 GPIO
 
