@@ -25,6 +25,8 @@
  * @addtogroup GDISP
  * @{
  */
+#ifndef _GDISP_C
+#define _GDISP_C
 
 #include "ch.h"
 #include "hal.h"
@@ -714,4 +716,5 @@
 #endif
 
 #endif /* HAL_USE_GDISP */
+#endif /* GDISP_C */
 /** @} */

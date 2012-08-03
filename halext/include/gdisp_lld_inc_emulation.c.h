@@ -28,6 +28,10 @@
 	we call a real low level driver routine and if validation is
 	required - it will do it.
 */
+#ifndef _GDISP_LLD_EMULATION_C_H
+#define _GDISP_LLD_EMULATION_C_H
+
+#if HAL_USE_GDISP || defined(__DOXYGEN__)
 
 #if !GDISP_HARDWARE_POWERCONTROL
 	void gdisp_lld_setpowermode(gdisp_powermode_t UNUSED(powerMode)) {
@@ -414,3 +418,6 @@
 		#endif
 	}
 #endif
+
+#endif  /* HAL_USE_GDISP */
+#endif	/* _GDISP_LLD_EMULATION_C_H */

@@ -29,7 +29,6 @@
 #include "ch.h"
 #include "hal.h"
 #include "gdisp.h"
-#include "gdisp_fonts.h"
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
@@ -61,6 +60,18 @@
 /*===========================================================================*/
 /* Driver local functions.                                                   */
 /*===========================================================================*/
+
+#include "gdisp_fonts.h"
+
+/* All the board specific code should go in these include file so the driver
+ * can be ported to another board just by creating a suitable file.
+ */
+#if defined(BOARD_YOURBOARDNAME)
+	#include "gdisp_lld_board_yourboardname.h"
+#else
+	/* Include the user supplied board definitions */
+	#include "gdisp_lld_board.h"
+#endif
 
 /*===========================================================================*/
 /* Driver interrupt handlers.                                                */

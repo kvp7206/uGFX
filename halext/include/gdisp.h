@@ -17,6 +17,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#ifndef _GDISP_H
+#define _GDISP_H
+
+#if HAL_USE_GDISP || defined(__DOXYGEN__)
 
 /**
  * @brief   Some basic colors
@@ -299,7 +303,7 @@ extern "C" {
 	void gdispDrawLine(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color);
 	void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 	void gdispFillArea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
-	void gdispBlitArea(coord_t x, coord_t y, coord_t cx, coord_t cy, pixel_t *buffer);
+	void gdispBlitArea(coord_t x, coord_t y, coord_t cx, coord_t cy, const pixel_t *buffer);
 
 	/* Circle Functions */
 	#if GDISP_NEED_CIRCLE
@@ -364,7 +368,7 @@ extern "C" {
 
 /* Support routine for packed pixel formats */
 #ifndef gdispPackPixels
-	void gdispPackPixels(pixel_t *buf, coord_t cx, coord_t x, coord_t y, color_t color);
+	void gdispPackPixels(const pixel_t *buf, coord_t cx, coord_t x, coord_t y, color_t color);
 #endif
 
 #ifdef __cplusplus
