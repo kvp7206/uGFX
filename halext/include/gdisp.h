@@ -19,6 +19,23 @@
 */
 
 /**
+* @file gdisp.h
+* @brief GDISP Graphic Driver macros and structures.
+*
+* @addtogroup GDISP
+* @{
+*/
+
+#ifndef _GDISP_H
+#define _GDISP_H
+
+#if HAL_USE_GDISP || defined(__DOXYGEN__)
+
+/*===========================================================================*/
+/* Driver constants. */
+/*===========================================================================*/
+
+/**
  * @brief   Some basic colors
  */
 #define White			HTML2COLOR(0xFFFFFF)
