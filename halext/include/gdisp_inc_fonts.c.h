@@ -30,7 +30,16 @@
 
 /* fontSmall - for side buttons */
 #if 1
-	const struct font fontSmall = { 11, 0, 14, 2, 2, 12, ' ', '~', SF+96, 0};
+    /* Forward Declarations of internal arrays*/
+    static const uint8_t        fontSmall_Widths[];
+    static const uint16_t       fontSmall_Offsets[];
+    static const fontcolumn_t   fontSmall_Data[];
+
+	const struct font fontSmall = { 11, 0, 14, 2, 2, 12, ' ', '~',
+	                                fontSmall_Widths,
+	                                fontSmall_Offsets,
+	                                fontSmall_Data};
+
 	static const uint8_t fontSmall_Widths[] = {
 		2, 3, 6, 8, 7, 9, 7, 3, 4, 4, 5, 7, 4, 4, 3, 6,
 		7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 4, 6, 7, 6, 7,
@@ -40,18 +49,18 @@
 		7, 7, 4, 6, 4, 7, 7, 9, 6, 6, 6, 5, 3, 5, 8, 0
 	};
 	static const uint16_t fontSmall_Offsets[] = {
-		SF+288+0*SC, SF+288+2*SC, SF+288+5*SC, SF+288+11*SC, SF+288+19*SC, SF+288+26*SC, SF+288+35*SC, SF+288+42*SC,
-		SF+288+45*SC, SF+288+49*SC, SF+288+53*SC, SF+288+58*SC, SF+288+65*SC, SF+288+69*SC, SF+288+73*SC, SF+288+76*SC,
-		SF+288+82*SC, SF+288+89*SC, SF+288+96*SC, SF+288+103*SC, SF+288+110*SC, SF+288+117*SC, SF+288+124*SC, SF+288+131*SC,
-		SF+288+138*SC, SF+288+145*SC, SF+288+152*SC, SF+288+155*SC, SF+288+159*SC, SF+288+165*SC, SF+288+172*SC, SF+288+178*SC,
-		SF+288+185*SC, SF+288+197*SC, SF+288+205*SC, SF+288+212*SC, SF+288+220*SC, SF+288+228*SC, SF+288+235*SC, SF+288+242*SC,
-		SF+288+250*SC, SF+288+258*SC, SF+288+261*SC, SF+288+266*SC, SF+288+274*SC, SF+288+281*SC, SF+288+290*SC, SF+288+298*SC,
-		SF+288+306*SC, SF+288+314*SC, SF+288+322*SC, SF+288+330*SC, SF+288+337*SC, SF+288+344*SC, SF+288+352*SC, SF+288+360*SC,
-		SF+288+372*SC, SF+288+380*SC, SF+288+388*SC, SF+288+396*SC, SF+288+400*SC, SF+288+406*SC, SF+288+410*SC, SF+288+417*SC,
-		SF+288+424*SC, SF+288+428*SC, SF+288+435*SC, SF+288+442*SC, SF+288+449*SC, SF+288+456*SC, SF+288+463*SC, SF+288+467*SC,
-		SF+288+474*SC, SF+288+481*SC, SF+288+484*SC, SF+288+487*SC, SF+288+494*SC, SF+288+497*SC, SF+288+506*SC, SF+288+513*SC,
-		SF+288+520*SC, SF+288+527*SC, SF+288+534*SC, SF+288+538*SC, SF+288+544*SC, SF+288+548*SC, SF+288+555*SC, SF+288+562*SC,
-		SF+288+571*SC, SF+288+577*SC, SF+288+583*SC, SF+288+589*SC, SF+288+594*SC, SF+288+597*SC, SF+288+602*SC, 0
+		0, 2, 5, 11, 19, 26, 35, 42,
+		45, 49, 53, 58, 65, 69, 73, 76,
+		82, 89, 96, 103, 110, 117, 124, 131,
+		138, 145, 152, 155, 159, 165, 172, 178,
+		185, 197, 205, 212, 220, 228, 235, 242,
+		250, 258, 261, 266, 274, 281, 290, 298,
+		306, 314, 322, 330, 337, 344, 352, 360,
+		372, 380, 388, 396, 400, 406, 410, 417,
+		424, 428, 435, 442, 449, 456, 463, 467,
+		474, 481, 484, 487, 494, 497, 506, 513,
+		520, 527, 534, 538, 544, 548, 555, 562,
+		571, 577, 583, 589, 594, 597, 602, 0
 	};
 	static const fontcolumn_t fontSmall_Data[] = {
 		/*   */	0x0000, 0x0000,
@@ -154,7 +163,16 @@
 
 /* fontLarger - Tahoma, 11, Bold */
 #if 1
-	const struct font fontLarger = { 12, 1, 13, 2, 2, 13, ' ', '~', SF+96, 0};
+    /* Forward Declarations of internal arrays*/
+    static const uint8_t        fontLarger_Widths[];
+    static const uint16_t       fontLarger_Offsets[];
+    static const fontcolumn_t   fontLarger_Data[];
+
+	const struct font fontLarger = { 12, 1, 13, 2, 2, 13, ' ', '~',
+	                                 fontLarger_Widths,
+	                                 fontLarger_Offsets,
+	                                 fontLarger_Data};
+
 	static const uint8_t fontLarger_Widths[] = {
 		2, 3, 5, 8, 7, 13, 8, 2, 4, 4, 7, 8, 3, 4, 3, 5,
 		7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 3, 9, 8, 9, 6,
@@ -164,18 +182,18 @@
 		7, 7, 4, 5, 5, 7, 6, 10, 6, 6, 5, 6, 4, 6, 9, 0
 	};
 	static const uint16_t fontLarger_Offsets[] = {
-		SF+288+0*SC, SF+288+2*SC, SF+288+5*SC, SF+288+10*SC, SF+288+18*SC, SF+288+25*SC, SF+288+38*SC, SF+288+46*SC,
-		SF+288+48*SC, SF+288+52*SC, SF+288+56*SC, SF+288+63*SC, SF+288+71*SC, SF+288+74*SC, SF+288+78*SC, SF+288+81*SC,
-		SF+288+86*SC, SF+288+93*SC, SF+288+100*SC, SF+288+107*SC, SF+288+114*SC, SF+288+121*SC, SF+288+128*SC, SF+288+135*SC,
-		SF+288+142*SC, SF+288+149*SC, SF+288+156*SC, SF+288+159*SC, SF+288+162*SC, SF+288+171*SC, SF+288+179*SC, SF+288+188*SC,
-		SF+288+194*SC, SF+288+203*SC, SF+288+211*SC, SF+288+218*SC, SF+288+225*SC, SF+288+233*SC, SF+288+239*SC, SF+288+244*SC,
-		SF+288+251*SC, SF+288+259*SC, SF+288+263*SC, SF+288+268*SC, SF+288+275*SC, SF+288+281*SC, SF+288+291*SC, SF+288+298*SC,
-		SF+288+306*SC, SF+288+313*SC, SF+288+321*SC, SF+288+329*SC, SF+288+336*SC, SF+288+342*SC, SF+288+349*SC, SF+288+356*SC,
-		SF+288+367*SC, SF+288+374*SC, SF+288+380*SC, SF+288+386*SC, SF+288+390*SC, SF+288+395*SC, SF+288+399*SC, SF+288+408*SC,
-		SF+288+416*SC, SF+288+421*SC, SF+288+427*SC, SF+288+434*SC, SF+288+439*SC, SF+288+446*SC, SF+288+452*SC, SF+288+457*SC,
-		SF+288+464*SC, SF+288+471*SC, SF+288+473*SC, SF+288+476*SC, SF+288+482*SC, SF+288+484*SC, SF+288+494*SC, SF+288+501*SC,
-		SF+288+508*SC, SF+288+515*SC, SF+288+522*SC, SF+288+526*SC, SF+288+531*SC, SF+288+536*SC, SF+288+543*SC, SF+288+549*SC,
-		SF+288+559*SC, SF+288+565*SC, SF+288+571*SC, SF+288+576*SC, SF+288+582*SC, SF+288+586*SC, SF+288+592*SC, 0
+		0, 2, 5, 10, 18, 25, 38, 46,
+		48, 52, 56, 63, 71, 74, 78, 81,
+		86, 93, 100, 107, 114, 121, 128, 135,
+		142, 149, 156, 159, 162, 171, 179, 188,
+		194, 203, 211, 218, 225, 233, 239, 244,
+		251, 259, 263, 268, 275, 281, 291, 298,
+		306, 313, 321, 329, 336, 342, 349, 356,
+		367, 374, 380, 386, 390, 395, 399, 408,
+		416, 421, 427, 434, 439, 446, 452, 457,
+		464, 471, 473, 476, 482, 484, 494, 501,
+		508, 515, 522, 526, 531, 536, 543, 549,
+		559, 565, 571, 576, 582, 586, 592, 0
 	};
 	static const fontcolumn_t fontLarger_Data[] = {
 		/*   */	0x0000, 0x0000,
@@ -279,7 +297,16 @@
 
 /* fontUI1 - UI Font 1 Medium Bold */
 #if 1
-	const struct font fontUI1 = { 13, 0, 15, 2, 3, 13, ' ', '~', SF+96, 0};
+	/* Forward Declarations of internal arrays*/
+    static const uint8_t        fontUI1_Widths[];
+    static const uint16_t       fontUI1_Offsets[];
+    static const fontcolumn_t   fontUI1_Data[];
+
+	const struct font fontUI1 = { 13, 0, 15, 2, 3, 13, ' ', '~',
+	                              fontUI1_Widths,
+	                              fontUI1_Offsets,
+	                              fontUI1_Data};
+
 	static const uint8_t fontUI1_Widths[] = {
 		3, 3, 6, 8, 7, 13, 9, 3, 5, 5, 6, 8, 3, 5, 3, 7,
 		7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 3, 8, 8, 8, 6,
@@ -289,18 +316,18 @@
 		7, 7, 6, 6, 5, 7, 7, 9, 7, 7, 6, 7, 4, 7, 8, 0
 	};
 	static const uint16_t fontUI1_Offsets[] = {
-		SF+288+0*SC, SF+288+3*SC, SF+288+6*SC, SF+288+12*SC, SF+288+20*SC, SF+288+27*SC, SF+288+40*SC, SF+288+49*SC,
-		SF+288+52*SC, SF+288+57*SC, SF+288+62*SC, SF+288+68*SC, SF+288+76*SC, SF+288+79*SC, SF+288+84*SC, SF+288+87*SC,
-		SF+288+94*SC, SF+288+101*SC, SF+288+108*SC, SF+288+115*SC, SF+288+122*SC, SF+288+129*SC, SF+288+136*SC, SF+288+143*SC,
-		SF+288+150*SC, SF+288+157*SC, SF+288+164*SC, SF+288+167*SC, SF+288+170*SC, SF+288+178*SC, SF+288+186*SC, SF+288+194*SC,
-		SF+288+200*SC, SF+288+210*SC, SF+288+218*SC, SF+288+225*SC, SF+288+232*SC, SF+288+240*SC, SF+288+247*SC, SF+288+254*SC,
-		SF+288+262*SC, SF+288+270*SC, SF+288+275*SC, SF+288+280*SC, SF+288+287*SC, SF+288+294*SC, SF+288+303*SC, SF+288+311*SC,
-		SF+288+319*SC, SF+288+326*SC, SF+288+334*SC, SF+288+342*SC, SF+288+349*SC, SF+288+357*SC, SF+288+365*SC, SF+288+372*SC,
-		SF+288+383*SC, SF+288+390*SC, SF+288+397*SC, SF+288+404*SC, SF+288+409*SC, SF+288+416*SC, SF+288+421*SC, SF+288+430*SC,
-		SF+288+438*SC, SF+288+443*SC, SF+288+450*SC, SF+288+457*SC, SF+288+463*SC, SF+288+470*SC, SF+288+477*SC, SF+288+482*SC,
-		SF+288+489*SC, SF+288+496*SC, SF+288+499*SC, SF+288+503*SC, SF+288+510*SC, SF+288+513*SC, SF+288+524*SC, SF+288+531*SC,
-		SF+288+538*SC, SF+288+545*SC, SF+288+552*SC, SF+288+558*SC, SF+288+564*SC, SF+288+569*SC, SF+288+576*SC, SF+288+583*SC,
-		SF+288+592*SC, SF+288+599*SC, SF+288+606*SC, SF+288+612*SC, SF+288+619*SC, SF+288+623*SC, SF+288+630*SC, 0
+		0, 3, 6, 12, 20, 27, 40, 49,
+		52, 57, 62, 68, 76, 79, 84, 87,
+		94, 101, 108, 115, 122, 129, 136, 143,
+		150, 157, 164, 167, 170, 178, 186, 194,
+		200, 210, 218, 225, 232, 240, 247, 254,
+		262, 270, 275, 280, 287, 294, 303, 311,
+		319, 326, 334, 342, 349, 357, 365, 372,
+		383, 390, 397, 404, 409, 416, 421, 430,
+		438, 443, 450, 457, 463, 470, 477, 482,
+		489, 496, 499, 503, 510, 513, 524, 531,
+		538, 545, 552, 558, 564, 569, 576, 583,
+		592, 599, 606, 612, 619, 623, 630, 0
 	};
 	static const fontcolumn_t fontUI1_Data[] = {
 		/*   */	0x0000, 0x0000, 0x0000,
@@ -404,7 +431,16 @@
 
 /* fontUI1 - UI Font 2 Medium Bold */
 #if 1
-	const struct font fontUI2 = { 11, 1, 13, 2, 2, 12, ' ', '~', SF+96, 0};
+	/* Forward Declarations of internal arrays*/
+	static const uint8_t        fontUI2_Widths[];
+	static const uint16_t       fontUI2_Offsets[];
+	static const fontcolumn_t   fontUI2_Data[];
+
+	const struct font fontUI2 = { 11, 1, 13, 2, 2, 12, ' ', '~',
+	                              fontUI2_Widths,
+	                              fontUI2_Offsets,
+	                              fontUI2_Data};
+
 	static const uint8_t fontUI2_Widths[] = {
 		2, 2, 5, 8, 6, 12, 8, 2, 4, 4, 6, 8, 2, 4, 2, 5,
 		6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 8, 8, 8, 5,
@@ -414,18 +450,18 @@
 		6, 6, 4, 5, 4, 6, 6, 8, 6, 6, 5, 6, 4, 6, 8, 0
 	};
 	static const uint16_t fontUI2_Offsets[] = {
-		SF+288+0*SC, SF+288+2*SC, SF+288+4*SC, SF+288+9*SC, SF+288+17*SC, SF+288+23*SC, SF+288+35*SC, SF+288+43*SC,
-		SF+288+45*SC, SF+288+49*SC, SF+288+53*SC, SF+288+59*SC, SF+288+67*SC, SF+288+69*SC, SF+288+73*SC, SF+288+75*SC,
-		SF+288+80*SC, SF+288+86*SC, SF+288+92*SC, SF+288+98*SC, SF+288+104*SC, SF+288+110*SC, SF+288+116*SC, SF+288+122*SC,
-		SF+288+128*SC, SF+288+134*SC, SF+288+140*SC, SF+288+142*SC, SF+288+144*SC, SF+288+152*SC, SF+288+160*SC, SF+288+168*SC,
-		SF+288+173*SC, SF+288+182*SC, SF+288+189*SC, SF+288+195*SC, SF+288+201*SC, SF+288+208*SC, SF+288+213*SC, SF+288+218*SC,
-		SF+288+225*SC, SF+288+232*SC, SF+288+236*SC, SF+288+241*SC, SF+288+247*SC, SF+288+252*SC, SF+288+261*SC, SF+288+267*SC,
-		SF+288+274*SC, SF+288+280*SC, SF+288+287*SC, SF+288+294*SC, SF+288+300*SC, SF+288+306*SC, SF+288+313*SC, SF+288+319*SC,
-		SF+288+329*SC, SF+288+335*SC, SF+288+341*SC, SF+288+347*SC, SF+288+351*SC, SF+288+356*SC, SF+288+360*SC, SF+288+367*SC,
-		SF+288+374*SC, SF+288+378*SC, SF+288+384*SC, SF+288+390*SC, SF+288+395*SC, SF+288+401*SC, SF+288+407*SC, SF+288+411*SC,
-		SF+288+417*SC, SF+288+423*SC, SF+288+425*SC, SF+288+428*SC, SF+288+434*SC, SF+288+436*SC, SF+288+446*SC, SF+288+452*SC,
-		SF+288+458*SC, SF+288+464*SC, SF+288+470*SC, SF+288+474*SC, SF+288+479*SC, SF+288+483*SC, SF+288+489*SC, SF+288+495*SC,
-		SF+288+503*SC, SF+288+509*SC, SF+288+515*SC, SF+288+520*SC, SF+288+526*SC, SF+288+530*SC, SF+288+536*SC, 0
+		0, 2, 4, 9, 17, 23, 35, 43,
+		45, 49, 53, 59, 67, 69, 73, 75,
+		80, 86, 92, 98, 104, 110, 116, 122,
+		128, 134, 140, 142, 144, 152, 160, 168,
+		173, 182, 189, 195, 201, 208, 213, 218,
+		225, 232, 236, 241, 247, 252, 261, 267,
+		274, 280, 287, 294, 300, 306, 313, 319,
+		329, 335, 341, 347, 351, 356, 360, 367,
+		374, 378, 384, 390, 395, 401, 407, 411,
+		417, 423, 425, 428, 434, 436, 446, 452,
+		458, 464, 470, 474, 479, 483, 489, 495,
+		503, 509, 515, 520, 526, 530, 536, 0
 	};
 	static const fontcolumn_t fontUI2_Data[] = {
 		/*   */	0x0000, 0x0000,
@@ -532,15 +568,24 @@
 		Characters include:  0 - 9, -, +, ., %, :, Space, Comma
 */
 #if 1
-	const struct font fontLargeNumbers = { 16, 2, 21, 1, 3, 15, '%', ':', SF+24, 0};
+	/* Forward Declarations of internal arrays*/
+    static const uint8_t        fontLargeNumbers_Widths[];
+    static const uint16_t       fontLargeNumbers_Offsets[];
+    static const fontcolumn_t   fontLargeNumbers_Data[];
+
+	const struct font fontLargeNumbers = { 16, 2, 21, 1, 3, 15, '%', ':',
+	                                       fontLargeNumbers_Widths,
+	                                       fontLargeNumbers_Offsets,
+	                                       fontLargeNumbers_Data};
+
 	static const uint8_t fontLargeNumbers_Widths[] = {
 		15, 0, 0, 0, 0, 0, 11, 3, 6, 3, 0, 10, 10, 10, 10, 10,
 		10, 10, 10, 10, 10, 4, 0, 0
 	};
 	static const uint16_t fontLargeNumbers_Offsets[] = {
-		SF+72+0*SC, 0, 0, 0, 0, 0, SF+72+15*SC, SF+72+26*SC,
-		SF+72+29*SC, SF+72+35*SC, 0, SF+72+38*SC, SF+72+48*SC, SF+72+58*SC, SF+72+68*SC, SF+72+78*SC,
-		SF+72+88*SC, SF+72+98*SC, SF+72+108*SC, SF+72+118*SC, SF+72+128*SC, SF+72+138*SC, 0, 0
+		0, 0, 0, 0, 0, 0, 15, 26,
+		29, 35, 0, 38, 48, 58, 68, 78,
+		88, 98, 108, 118, 128, 138, 0, 0
 	};
 	static const fontcolumn_t fontLargeNumbers_Data[] = {
 		/* % */	0x007E, 0x00FF, 0x00C3, 0x80C3, 0xE0FF, 0x7C7E, 0x1F00, 0x07C0, 0x00F0, 0x7E3E, 0xFF0F, 0xC303,
