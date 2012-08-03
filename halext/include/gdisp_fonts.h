@@ -54,6 +54,8 @@
 	#error "GDISP: GDISP_MAX_FONT_HEIGHT must be either 16 or 32"
 #endif
 
+typedef const fontcolumn_t * const pfontcolumn_t;
+
 /**
  * @brief   Internal font structure.
  * @note	This structure is followed by:
@@ -72,8 +74,8 @@ struct font {
 	uint8_t				maxWidth;
 	char				minChar;
 	char				maxChar;
-	const fontcolumn_t	*(* const offsetTable);
 	const uint8_t		* const widthTable;
+	const fontcolumn_t * const (* const offsetTable);
 	};
 
 /**

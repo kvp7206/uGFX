@@ -140,7 +140,7 @@
 	 * @details If set to @p TRUE background fill and then text draw is used.
 	 * @note    This is ignored if hardware accelerated text is supported.
 	 */
-	#define GDISP_SOFTWARE_TEXTFILLDRAW		FALSE
+	#define GDISP_SOFTWARE_TEXTFILLDRAW		TRUE
 	/**
 	 * @brief   For filled text drawing, when using a bitmap blit
 	 *			use a column by column buffer rather than a full character

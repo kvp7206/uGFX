@@ -25,14 +25,15 @@
  * @addtogroup GDISP
  * @{
  */
-#ifndef _GDISP_C
-#define _GDISP_C
-
 #include "ch.h"
 #include "hal.h"
 #include "gdisp.h"
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
+
+#ifdef GDISP_NEED_TEXT
+#include "gdisp_fonts.h"
+#endif
 
 #if GDISP_NEED_MULTITHREAD
 	#warning "GDISP: Multithread support not complete"
@@ -57,10 +58,6 @@
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
-
-#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
-	#include "gdisp_inc_fonts.c.h"
-#endif
 
 /*===========================================================================*/
 /* Driver local variables.                                                   */
@@ -716,5 +713,4 @@
 #endif
 
 #endif /* HAL_USE_GDISP */
-#endif /* GDISP_C */
 /** @} */

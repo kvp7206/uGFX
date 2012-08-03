@@ -29,7 +29,6 @@
 #include "ch.h"
 #include "hal.h"
 #include "gdisp.h"
-#include "gdisp_fonts.h"
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
@@ -69,9 +68,6 @@
 /*===========================================================================*/
 /* Driver exported functions.                                                */
 /*===========================================================================*/
-
-/* Include the software emulation routines */
-#include "gdisp_lld_inc_emulation.c.h"
 
 /* ---- Required Routines ---- */
 /*

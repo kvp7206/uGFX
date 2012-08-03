@@ -29,7 +29,6 @@
 #include "ch.h"
 #include "hal.h"
 #include "gdisp.h"
-#include "gdisp_fonts.h"
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
@@ -71,9 +70,6 @@
 /*===========================================================================*/
 /* Driver exported functions.                                                */
 /*===========================================================================*/
-
-/* Include the software emulation routines */
-#include "gdisp_lld_inc_emulation.c.h"
 
 /* ---- Required Routines ---- */
 /*
@@ -533,6 +529,10 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 		#endif
 		/* Code here */
 	}
+#endif
+
+#if (GDISP_NEED_TEXT && GDISP_HARDWARE_TEXT) || defined(__DOXYGEN__)
+	#include "gdisp_fonts.h"
 #endif
 
 #if (GDISP_NEED_TEXT && GDISP_HARDWARE_TEXT) || defined(__DOXYGEN__)
