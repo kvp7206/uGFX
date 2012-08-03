@@ -71,34 +71,32 @@
 
 /**
  * @brief   Internal font structure.
- * @note	This structure is followed by:
+ * @note	This structure the basic information required for the font
+ *          It also contains a reference to these 3 tables:
  *				1. An array of character widths (uint8_t)
  *				2. An array of column data offsets (relative to the font structure)
  *				3. Each characters array of column data (fontcolumn_t)
- *			Each sub-structure must be padded to a multiple of 8 bytes
- *			to allow the tables to work accross many different compilers.
  */
 struct font {
-	uint8_t		height;
-	uint8_t		charPadding;
-	uint8_t		lineSpacing;
-	uint8_t		descenderHeight;
-	uint8_t		minWidth;
-	uint8_t		maxWidth;
-	char		minChar;
-	char		maxChar;
-	uint16_t	offsetTableOffset;
-	uint16_t	unused1;			/* ensure next field is padded to 8 byte boundary */
-	uint8_t		widthTable[];
+	uint8_t		        height;
+	uint8_t		        charPadding;
+	uint8_t		        lineSpacing;
+	uint8_t		        descenderHeight;
+	uint8_t		        minWidth;
+	uint8_t		        maxWidth;
+	char		        minChar;
+	char		        maxChar;
+	const uint8_t       *widthTable;
+	const uint16_t      *offsetTable;
+	const fontcolumn_t  *dataTable;
 	};
 
 /**
  * @brief   Macro's to get to the complex parts of the font structure.
  */
-#define _getFontPart(f,o,t)		((t)(&((const uint8_t *)(f))[(o)]))
 #define _getCharWidth(f,c)		(((c) < (f)->minChar || (c) > (f)->maxChar) ? 0 : (f)->widthTable[c - (f)->minChar])
-#define _getCharOffset(f,c)		(_getFontPart((f), (f)->offsetTableOffset, const uint16_t *)[c - (f)->minChar])
-#define _getCharData(f,c)		_getFontPart((f), _getCharOffset((f),(c)), const fontcolumn_t *)
+#define _getCharOffset(f,c)		(f->offsetTable[c - (f)->minChar])
+#define _getCharData(f,c)		&(f->dataTable[_getCharOffset(f, c)])
 
 #endif /* _GDISP_FONTS_H */
 /** @} */
