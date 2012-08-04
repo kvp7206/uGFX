@@ -94,7 +94,7 @@
 		return value;
 	}
 	static __inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
-	    uint16_t value;
+	    uint16_t lcdRAM;
 
 	    LCD_CS_LOW; LCD_RS_LOW;
 	    lld_lcdwrite(lcdReg);

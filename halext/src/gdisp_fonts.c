@@ -33,6 +33,38 @@
 
 /* fontSmall - for side buttons */
 #if 1
+    /* Forward Declarations of internal arrays */
+    static const uint8_t        fontSmall_Widths[];
+    static const uint16_t       fontSmall_Offsets[];
+    static const fontcolumn_t   fontSmall_Data[];
+
+	const struct font fontSmall = { 11, 0, 14, 2, 2, 12, ' ', '~',
+	                                fontSmall_Widths,
+	                                fontSmall_Offsets,
+	                                fontSmall_Data};
+
+	static const uint8_t fontSmall_Widths[] = {
+		2, 3, 6, 8, 7, 9, 7, 3, 4, 4, 5, 7, 4, 4, 3, 6,
+		7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 4, 6, 7, 6, 7,
+		12, 8, 7, 8, 8, 7, 7, 8, 8, 3, 5, 8, 7, 9, 8, 8,
+		8, 8, 8, 7, 7, 8, 8, 12, 8, 8, 8, 4, 6, 4, 7, 7,
+		4, 7, 7, 7, 7, 7, 4, 7, 7, 3, 3, 7, 3, 9, 7, 7,
+		7, 7, 4, 6, 4, 7, 7, 9, 6, 6, 6, 5, 3, 5, 8, 0
+	};
+	static const uint16_t fontSmall_Offsets[] = {
+		0, 2, 5, 11, 19, 26, 35, 42,
+		45, 49, 53, 58, 65, 69, 73, 76,
+		82, 89, 96, 103, 110, 117, 124, 131,
+		138, 145, 152, 155, 159, 165, 172, 178,
+		185, 197, 205, 212, 220, 228, 235, 242,
+		250, 258, 261, 266, 274, 281, 290, 298,
+		306, 314, 322, 330, 337, 344, 352, 360,
+		372, 380, 388, 396, 400, 406, 410, 417,
+		424, 428, 435, 442, 449, 456, 463, 467,
+		474, 481, 484, 487, 494, 497, 506, 513,
+		520, 527, 534, 538, 544, 548, 555, 562,
+		571, 577, 583, 589, 594, 597, 602, 0
+	};
 	static const fontcolumn_t fontSmall_Data[] = {
 		/*   */	0x0000, 0x0000,
 		/* ! */	0x0000, 0x017F, 0x017F,
@@ -130,45 +162,42 @@
 		/* } */	0x0000, 0x0200, 0x03EF, 0x01FF, 0x0010,
 		/* ~ */	0x0000, 0x0004, 0x0006, 0x0002, 0x0006, 0x0004, 0x0006, 0x0002
 	};
-	static const fontcolumn_t const *fontSmall_Offsets[] = {
-		fontSmall_Data+  0, fontSmall_Data+  2, fontSmall_Data+  5, fontSmall_Data+ 11,
-		fontSmall_Data+ 19, fontSmall_Data+ 26, fontSmall_Data+ 35, fontSmall_Data+ 42,
-		fontSmall_Data+ 45, fontSmall_Data+ 49, fontSmall_Data+ 53, fontSmall_Data+ 58,
-		fontSmall_Data+ 65, fontSmall_Data+ 69, fontSmall_Data+ 73, fontSmall_Data+ 76,
-		fontSmall_Data+ 82, fontSmall_Data+ 89, fontSmall_Data+ 96, fontSmall_Data+103,
-		fontSmall_Data+110, fontSmall_Data+117, fontSmall_Data+124, fontSmall_Data+131,
-		fontSmall_Data+138, fontSmall_Data+145, fontSmall_Data+152, fontSmall_Data+155,
-		fontSmall_Data+159, fontSmall_Data+165, fontSmall_Data+172, fontSmall_Data+178,
-		fontSmall_Data+185, fontSmall_Data+197, fontSmall_Data+205, fontSmall_Data+212,
-		fontSmall_Data+220, fontSmall_Data+228, fontSmall_Data+235, fontSmall_Data+242,
-		fontSmall_Data+250, fontSmall_Data+258, fontSmall_Data+261, fontSmall_Data+266,
-		fontSmall_Data+274, fontSmall_Data+281, fontSmall_Data+290, fontSmall_Data+298,
-		fontSmall_Data+306, fontSmall_Data+314, fontSmall_Data+322, fontSmall_Data+330,
-		fontSmall_Data+337, fontSmall_Data+344, fontSmall_Data+352, fontSmall_Data+360,
-		fontSmall_Data+372, fontSmall_Data+380, fontSmall_Data+388, fontSmall_Data+396,
-		fontSmall_Data+400, fontSmall_Data+406, fontSmall_Data+410, fontSmall_Data+417,
-		fontSmall_Data+424, fontSmall_Data+428, fontSmall_Data+435, fontSmall_Data+442,
-		fontSmall_Data+449, fontSmall_Data+456, fontSmall_Data+463, fontSmall_Data+467,
-		fontSmall_Data+474, fontSmall_Data+481, fontSmall_Data+484, fontSmall_Data+487,
-		fontSmall_Data+494, fontSmall_Data+497, fontSmall_Data+506, fontSmall_Data+513,
-		fontSmall_Data+520, fontSmall_Data+527, fontSmall_Data+534, fontSmall_Data+538,
-		fontSmall_Data+544, fontSmall_Data+548, fontSmall_Data+555, fontSmall_Data+562,
-		fontSmall_Data+571, fontSmall_Data+577, fontSmall_Data+583, fontSmall_Data+589,
-		fontSmall_Data+594, fontSmall_Data+597, fontSmall_Data+602
-	};
-	static const uint8_t fontSmall_Widths[] = {
-		2, 3, 6, 8, 7, 9, 7, 3, 4, 4, 5, 7, 4, 4, 3, 6,
-		7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 4, 6, 7, 6, 7,
-		12, 8, 7, 8, 8, 7, 7, 8, 8, 3, 5, 8, 7, 9, 8, 8,
-		8, 8, 8, 7, 7, 8, 8, 12, 8, 8, 8, 4, 6, 4, 7, 7,
-		4, 7, 7, 7, 7, 7, 4, 7, 7, 3, 3, 7, 3, 9, 7, 7,
-		7, 7, 4, 6, 4, 7, 7, 9, 6, 6, 6, 5, 3, 5, 8
-	};
-	const struct font fontSmall = { 11, 0, 14, 2, 2, 12, ' ', '~', fontSmall_Widths, fontSmall_Offsets};
 #endif
 
 /* fontLarger - Tahoma, 11, Bold */
 #if 1
+    /* Forward Declarations of internal arrays */
+    static const uint8_t        fontLarger_Widths[];
+    static const uint16_t       fontLarger_Offsets[];
+    static const fontcolumn_t   fontLarger_Data[];
+
+	const struct font fontLarger = { 12, 1, 13, 2, 2, 13, ' ', '~',
+	                                 fontLarger_Widths,
+	                                 fontLarger_Offsets,
+	                                 fontLarger_Data};
+
+	static const uint8_t fontLarger_Widths[] = {
+		2, 3, 5, 8, 7, 13, 8, 2, 4, 4, 7, 8, 3, 4, 3, 5,
+		7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 3, 9, 8, 9, 6,
+		9, 8, 7, 7, 8, 6, 5, 7, 8, 4, 5, 7, 6, 10, 7, 8,
+		7, 8, 8, 7, 6, 7, 7, 11, 7, 6, 6, 4, 5, 4, 9, 8,
+		5, 6, 7, 5, 7, 6, 5, 7, 7, 2, 3, 6, 2, 10, 7, 7,
+		7, 7, 4, 5, 5, 7, 6, 10, 6, 6, 5, 6, 4, 6, 9, 0
+	};
+	static const uint16_t fontLarger_Offsets[] = {
+		0, 2, 5, 10, 18, 25, 38, 46,
+		48, 52, 56, 63, 71, 74, 78, 81,
+		86, 93, 100, 107, 114, 121, 128, 135,
+		142, 149, 156, 159, 162, 171, 179, 188,
+		194, 203, 211, 218, 225, 233, 239, 244,
+		251, 259, 263, 268, 275, 281, 291, 298,
+		306, 313, 321, 329, 336, 342, 349, 356,
+		367, 374, 380, 386, 390, 395, 399, 408,
+		416, 421, 427, 434, 439, 446, 452, 457,
+		464, 471, 473, 476, 482, 484, 494, 501,
+		508, 515, 522, 526, 531, 536, 543, 549,
+		559, 565, 571, 576, 582, 586, 592, 0
+	};
 	static const fontcolumn_t fontLarger_Data[] = {
 		/*   */	0x0000, 0x0000,
 		/* ! */	0x0000, 0x037E, 0x037E,
@@ -267,45 +296,42 @@
 		/* } */	0x0801, 0x0801, 0x0FDF, 0x07FE, 0x0020, 0x0020,
 		/* ~ */	0x00E0, 0x0030, 0x0030, 0x0030, 0x0060, 0x00C0, 0x00C0, 0x00C0, 0x0070
 	};
-	static const fontcolumn_t const *fontLarger_Offsets[] = {
-		fontLarger_Data+  0, fontLarger_Data+  2, fontLarger_Data+  5, fontLarger_Data+ 10,
-		fontLarger_Data+ 18, fontLarger_Data+ 25, fontLarger_Data+ 38, fontLarger_Data+ 46,
-		fontLarger_Data+ 48, fontLarger_Data+ 52, fontLarger_Data+ 56, fontLarger_Data+ 63,
-		fontLarger_Data+ 71, fontLarger_Data+ 74, fontLarger_Data+ 78, fontLarger_Data+ 81,
-		fontLarger_Data+ 86, fontLarger_Data+ 93, fontLarger_Data+100, fontLarger_Data+107,
-		fontLarger_Data+114, fontLarger_Data+121, fontLarger_Data+128, fontLarger_Data+135,
-		fontLarger_Data+142, fontLarger_Data+149, fontLarger_Data+156, fontLarger_Data+159,
-		fontLarger_Data+162, fontLarger_Data+171, fontLarger_Data+179, fontLarger_Data+188,
-		fontLarger_Data+194, fontLarger_Data+203, fontLarger_Data+211, fontLarger_Data+218,
-		fontLarger_Data+225, fontLarger_Data+233, fontLarger_Data+239, fontLarger_Data+244,
-		fontLarger_Data+251, fontLarger_Data+259, fontLarger_Data+263, fontLarger_Data+268,
-		fontLarger_Data+275, fontLarger_Data+281, fontLarger_Data+291, fontLarger_Data+298,
-		fontLarger_Data+306, fontLarger_Data+313, fontLarger_Data+321, fontLarger_Data+329,
-		fontLarger_Data+336, fontLarger_Data+342, fontLarger_Data+349, fontLarger_Data+356,
-		fontLarger_Data+367, fontLarger_Data+374, fontLarger_Data+380, fontLarger_Data+386,
-		fontLarger_Data+390, fontLarger_Data+395, fontLarger_Data+399, fontLarger_Data+408,
-		fontLarger_Data+416, fontLarger_Data+421, fontLarger_Data+427, fontLarger_Data+434,
-		fontLarger_Data+439, fontLarger_Data+446, fontLarger_Data+452, fontLarger_Data+457,
-		fontLarger_Data+464, fontLarger_Data+471, fontLarger_Data+473, fontLarger_Data+476,
-		fontLarger_Data+482, fontLarger_Data+484, fontLarger_Data+494, fontLarger_Data+501,
-		fontLarger_Data+508, fontLarger_Data+515, fontLarger_Data+522, fontLarger_Data+526,
-		fontLarger_Data+531, fontLarger_Data+536, fontLarger_Data+543, fontLarger_Data+549,
-		fontLarger_Data+559, fontLarger_Data+565, fontLarger_Data+571, fontLarger_Data+576,
-		fontLarger_Data+582, fontLarger_Data+586, fontLarger_Data+592
-	};
-	static const uint8_t fontLarger_Widths[] = {
-		2, 3, 5, 8, 7, 13, 8, 2, 4, 4, 7, 8, 3, 4, 3, 5,
-		7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 3, 9, 8, 9, 6,
-		9, 8, 7, 7, 8, 6, 5, 7, 8, 4, 5, 7, 6, 10, 7, 8,
-		7, 8, 8, 7, 6, 7, 7, 11, 7, 6, 6, 4, 5, 4, 9, 8,
-		5, 6, 7, 5, 7, 6, 5, 7, 7, 2, 3, 6, 2, 10, 7, 7,
-		7, 7, 4, 5, 5, 7, 6, 10, 6, 6, 5, 6, 4, 6, 9
-	};
-	const struct font fontLarger = { 12, 1, 13, 2, 2, 13, ' ', '~', fontLarger_Widths, fontLarger_Offsets};
 #endif
 
 /* fontUI1 - UI Font 1 Medium Bold */
 #if 1
+	/* Forward Declarations of internal arrays */
+    static const uint8_t        fontUI1_Widths[];
+    static const uint16_t       fontUI1_Offsets[];
+    static const fontcolumn_t   fontUI1_Data[];
+
+	const struct font fontUI1 = { 13, 0, 15, 2, 3, 13, ' ', '~',
+	                              fontUI1_Widths,
+	                              fontUI1_Offsets,
+	                              fontUI1_Data};
+
+	static const uint8_t fontUI1_Widths[] = {
+		3, 3, 6, 8, 7, 13, 9, 3, 5, 5, 6, 8, 3, 5, 3, 7,
+		7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 3, 8, 8, 8, 6,
+		10, 8, 7, 7, 8, 7, 7, 8, 8, 5, 5, 7, 7, 9, 8, 8,
+		7, 8, 8, 7, 8, 8, 7, 11, 7, 7, 7, 5, 7, 5, 9, 8,
+		5, 7, 7, 6, 7, 7, 5, 7, 7, 3, 4, 7, 3, 11, 7, 7,
+		7, 7, 6, 6, 5, 7, 7, 9, 7, 7, 6, 7, 4, 7, 8, 0
+	};
+	static const uint16_t fontUI1_Offsets[] = {
+		0, 3, 6, 12, 20, 27, 40, 49,
+		52, 57, 62, 68, 76, 79, 84, 87,
+		94, 101, 108, 115, 122, 129, 136, 143,
+		150, 157, 164, 167, 170, 178, 186, 194,
+		200, 210, 218, 225, 232, 240, 247, 254,
+		262, 270, 275, 280, 287, 294, 303, 311,
+		319, 326, 334, 342, 349, 357, 365, 372,
+		383, 390, 397, 404, 409, 416, 421, 430,
+		438, 443, 450, 457, 463, 470, 477, 482,
+		489, 496, 499, 503, 510, 513, 524, 531,
+		538, 545, 552, 558, 564, 569, 576, 583,
+		592, 599, 606, 612, 619, 623, 630, 0
+	};
 	static const fontcolumn_t fontUI1_Data[] = {
 		/*   */	0x0000, 0x0000, 0x0000,
 		/* ! */	0x0000, 0x02FC, 0x02FC,
@@ -404,45 +430,42 @@
 		/* } */	0x0000, 0x0802, 0x0802, 0x0FBE, 0x07FC, 0x0040, 0x0040,
 		/* ~ */	0x0000, 0x01C0, 0x0020, 0x0020, 0x00C0, 0x0100, 0x0100, 0x00E0
 	};
-	static const fontcolumn_t const *fontUI1_Offsets[] = {
-		fontUI1_Data+  0, fontUI1_Data+  3, fontUI1_Data+  6, fontUI1_Data+ 12,
-		fontUI1_Data+ 20, fontUI1_Data+ 27, fontUI1_Data+ 40, fontUI1_Data+ 49,
-		fontUI1_Data+ 52, fontUI1_Data+ 57, fontUI1_Data+ 62, fontUI1_Data+ 68,
-		fontUI1_Data+ 76, fontUI1_Data+ 79, fontUI1_Data+ 84, fontUI1_Data+ 87,
-		fontUI1_Data+ 94, fontUI1_Data+101, fontUI1_Data+108, fontUI1_Data+115,
-		fontUI1_Data+122, fontUI1_Data+129, fontUI1_Data+136, fontUI1_Data+143,
-		fontUI1_Data+150, fontUI1_Data+157, fontUI1_Data+164, fontUI1_Data+167,
-		fontUI1_Data+170, fontUI1_Data+178, fontUI1_Data+186, fontUI1_Data+194,
-		fontUI1_Data+200, fontUI1_Data+210, fontUI1_Data+218, fontUI1_Data+225,
-		fontUI1_Data+232, fontUI1_Data+240, fontUI1_Data+247, fontUI1_Data+254,
-		fontUI1_Data+262, fontUI1_Data+270, fontUI1_Data+275, fontUI1_Data+280,
-		fontUI1_Data+287, fontUI1_Data+294, fontUI1_Data+303, fontUI1_Data+311,
-		fontUI1_Data+319, fontUI1_Data+326, fontUI1_Data+334, fontUI1_Data+342,
-		fontUI1_Data+349, fontUI1_Data+357, fontUI1_Data+365, fontUI1_Data+372,
-		fontUI1_Data+383, fontUI1_Data+390, fontUI1_Data+397, fontUI1_Data+404,
-		fontUI1_Data+409, fontUI1_Data+416, fontUI1_Data+421, fontUI1_Data+430,
-		fontUI1_Data+438, fontUI1_Data+443, fontUI1_Data+450, fontUI1_Data+457,
-		fontUI1_Data+463, fontUI1_Data+470, fontUI1_Data+477, fontUI1_Data+482,
-		fontUI1_Data+489, fontUI1_Data+496, fontUI1_Data+499, fontUI1_Data+503,
-		fontUI1_Data+510, fontUI1_Data+513, fontUI1_Data+524, fontUI1_Data+531,
-		fontUI1_Data+538, fontUI1_Data+545, fontUI1_Data+552, fontUI1_Data+558,
-		fontUI1_Data+564, fontUI1_Data+569, fontUI1_Data+576, fontUI1_Data+583,
-		fontUI1_Data+592, fontUI1_Data+599, fontUI1_Data+606, fontUI1_Data+612,
-		fontUI1_Data+619, fontUI1_Data+623, fontUI1_Data+630
-	};
-	static const uint8_t fontUI1_Widths[] = {
-		3, 3, 6, 8, 7, 13, 9, 3, 5, 5, 6, 8, 3, 5, 3, 7,
-		7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 3, 8, 8, 8, 6,
-		10, 8, 7, 7, 8, 7, 7, 8, 8, 5, 5, 7, 7, 9, 8, 8,
-		7, 8, 8, 7, 8, 8, 7, 11, 7, 7, 7, 5, 7, 5, 9, 8,
-		5, 7, 7, 6, 7, 7, 5, 7, 7, 3, 4, 7, 3, 11, 7, 7,
-		7, 7, 6, 6, 5, 7, 7, 9, 7, 7, 6, 7, 4, 7, 8
-	};
-	const struct font fontUI1 = { 13, 0, 15, 2, 3, 13, ' ', '~', fontUI1_Widths, fontUI1_Offsets};
 #endif
 
 /* fontUI1 - UI Font 2 Medium Bold */
 #if 1
+	/* Forward Declarations of internal arrays */
+	static const uint8_t        fontUI2_Widths[];
+	static const uint16_t       fontUI2_Offsets[];
+	static const fontcolumn_t   fontUI2_Data[];
+
+	const struct font fontUI2 = { 11, 1, 13, 2, 2, 12, ' ', '~',
+	                              fontUI2_Widths,
+	                              fontUI2_Offsets,
+	                              fontUI2_Data};
+
+	static const uint8_t fontUI2_Widths[] = {
+		2, 2, 5, 8, 6, 12, 8, 2, 4, 4, 6, 8, 2, 4, 2, 5,
+		6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 8, 8, 8, 5,
+		9, 7, 6, 6, 7, 5, 5, 7, 7, 4, 5, 6, 5, 9, 6, 7,
+		6, 7, 7, 6, 6, 7, 6, 10, 6, 6, 6, 4, 5, 4, 7, 7,
+		4, 6, 6, 5, 6, 6, 4, 6, 6, 2, 3, 6, 2, 10, 6, 6,
+		6, 6, 4, 5, 4, 6, 6, 8, 6, 6, 5, 6, 4, 6, 8, 0
+	};
+	static const uint16_t fontUI2_Offsets[] = {
+		0, 2, 4, 9, 17, 23, 35, 43,
+		45, 49, 53, 59, 67, 69, 73, 75,
+		80, 86, 92, 98, 104, 110, 116, 122,
+		128, 134, 140, 142, 144, 152, 160, 168,
+		173, 182, 189, 195, 201, 208, 213, 218,
+		225, 232, 236, 241, 247, 252, 261, 267,
+		274, 280, 287, 294, 300, 306, 313, 319,
+		329, 335, 341, 347, 351, 356, 360, 367,
+		374, 378, 384, 390, 395, 401, 407, 411,
+		417, 423, 425, 428, 434, 436, 446, 452,
+		458, 464, 470, 474, 479, 483, 489, 495,
+		503, 509, 515, 520, 526, 530, 536, 0
+	};
 	static const fontcolumn_t fontUI2_Data[] = {
 		/*   */	0x0000, 0x0000,
 		/* ! */	0x017E, 0x017E,
@@ -540,41 +563,6 @@
 		/* } */	0x0401, 0x0401, 0x07DF, 0x03FE, 0x0020, 0x0020,
 		/* ~ */	0x0060, 0x0010, 0x0010, 0x0030, 0x0060, 0x0040, 0x0040, 0x0030
 	};
-	static const fontcolumn_t const *fontUI2_Offsets[] = {
-		fontUI2_Data+  0, fontUI2_Data+  2, fontUI2_Data+  4, fontUI2_Data+  9,
-		fontUI2_Data+ 17, fontUI2_Data+ 23, fontUI2_Data+ 35, fontUI2_Data+ 43,
-		fontUI2_Data+ 45, fontUI2_Data+ 49, fontUI2_Data+ 53, fontUI2_Data+ 59,
-		fontUI2_Data+ 67, fontUI2_Data+ 69, fontUI2_Data+ 73, fontUI2_Data+ 75,
-		fontUI2_Data+ 80, fontUI2_Data+ 86, fontUI2_Data+ 92, fontUI2_Data+ 98,
-		fontUI2_Data+104, fontUI2_Data+110, fontUI2_Data+116, fontUI2_Data+122,
-		fontUI2_Data+128, fontUI2_Data+134, fontUI2_Data+140, fontUI2_Data+142,
-		fontUI2_Data+144, fontUI2_Data+152, fontUI2_Data+160, fontUI2_Data+168,
-		fontUI2_Data+173, fontUI2_Data+182, fontUI2_Data+189, fontUI2_Data+195,
-		fontUI2_Data+201, fontUI2_Data+208, fontUI2_Data+213, fontUI2_Data+218,
-		fontUI2_Data+225, fontUI2_Data+232, fontUI2_Data+236, fontUI2_Data+241,
-		fontUI2_Data+247, fontUI2_Data+252, fontUI2_Data+261, fontUI2_Data+267,
-		fontUI2_Data+274, fontUI2_Data+280, fontUI2_Data+287, fontUI2_Data+294,
-		fontUI2_Data+300, fontUI2_Data+306, fontUI2_Data+313, fontUI2_Data+319,
-		fontUI2_Data+329, fontUI2_Data+335, fontUI2_Data+341, fontUI2_Data+347,
-		fontUI2_Data+351, fontUI2_Data+356, fontUI2_Data+360, fontUI2_Data+367,
-		fontUI2_Data+374, fontUI2_Data+378, fontUI2_Data+384, fontUI2_Data+390,
-		fontUI2_Data+395, fontUI2_Data+401, fontUI2_Data+407, fontUI2_Data+411,
-		fontUI2_Data+417, fontUI2_Data+423, fontUI2_Data+425, fontUI2_Data+428,
-		fontUI2_Data+434, fontUI2_Data+436, fontUI2_Data+446, fontUI2_Data+452,
-		fontUI2_Data+458, fontUI2_Data+464, fontUI2_Data+470, fontUI2_Data+474,
-		fontUI2_Data+479, fontUI2_Data+483, fontUI2_Data+489, fontUI2_Data+495,
-		fontUI2_Data+503, fontUI2_Data+509, fontUI2_Data+515, fontUI2_Data+520,
-		fontUI2_Data+526, fontUI2_Data+530, fontUI2_Data+536
-	};
-	static const uint8_t fontUI2_Widths[] = {
-		2, 2, 5, 8, 6, 12, 8, 2, 4, 4, 6, 8, 2, 4, 2, 5,
-		6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 8, 8, 8, 5,
-		9, 7, 6, 6, 7, 5, 5, 7, 7, 4, 5, 6, 5, 9, 6, 7,
-		6, 7, 7, 6, 6, 7, 6, 10, 6, 6, 6, 4, 5, 4, 7, 7,
-		4, 6, 6, 5, 6, 6, 4, 6, 6, 2, 3, 6, 2, 10, 6, 6,
-		6, 6, 4, 5, 4, 6, 6, 8, 6, 6, 5, 6, 4, 6, 8
-	};
-	const struct font fontUI2 = { 11, 1, 13, 2, 2, 12, ' ', '~', fontUI2_Widths, fontUI2_Offsets};
 #endif
 
 /*
@@ -583,6 +571,25 @@
 		Characters include:  0 - 9, -, +, ., %, :, Space, Comma
 */
 #if 1
+	/* Forward Declarations of internal arrays */
+    static const uint8_t        fontLargeNumbers_Widths[];
+    static const uint16_t       fontLargeNumbers_Offsets[];
+    static const fontcolumn_t   fontLargeNumbers_Data[];
+
+	const struct font fontLargeNumbers = { 16, 2, 21, 1, 3, 15, '%', ':',
+	                                       fontLargeNumbers_Widths,
+	                                       fontLargeNumbers_Offsets,
+	                                       fontLargeNumbers_Data};
+
+	static const uint8_t fontLargeNumbers_Widths[] = {
+		15, 0, 0, 0, 0, 0, 11, 3, 6, 3, 0, 10, 10, 10, 10, 10,
+		10, 10, 10, 10, 10, 4, 0, 0
+	};
+	static const uint16_t fontLargeNumbers_Offsets[] = {
+		0, 0, 0, 0, 0, 0, 15, 26,
+		29, 35, 0, 38, 48, 58, 68, 78,
+		88, 98, 108, 118, 128, 138, 0, 0
+	};
 	static const fontcolumn_t fontLargeNumbers_Data[] = {
 		/* % */	0x007E, 0x00FF, 0x00C3, 0x80C3, 0xE0FF, 0x7C7E, 0x1F00, 0x07C0, 0x00F0, 0x7E3E, 0xFF0F, 0xC303,
 				0xC300, 0xFF00, 0x7E00,
@@ -602,18 +609,6 @@
 		/* 9 */	0x1078, 0x39FE, 0x7BFE, 0x7387, 0x6303, 0x6303, 0x7187, 0x3FFE, 0x3FFE, 0x0FF8,
 		/* : */	0x0000, 0x0E38, 0x0E38, 0x0E38
 	};
-	static const fontcolumn_t const *fontLargeNumbers_Offsets[] = {
-		fontLargeNumbers_Data+0, 0, 0, 0, 0, 0, fontLargeNumbers_Data+15, fontLargeNumbers_Data+26,
-		fontLargeNumbers_Data+29, fontLargeNumbers_Data+35, 0, fontLargeNumbers_Data+38,
-		fontLargeNumbers_Data+48, fontLargeNumbers_Data+58, fontLargeNumbers_Data+68, fontLargeNumbers_Data+78,
-		fontLargeNumbers_Data+88, fontLargeNumbers_Data+98, fontLargeNumbers_Data+108, fontLargeNumbers_Data+118,
-		fontLargeNumbers_Data+128, fontLargeNumbers_Data+138
-	};
-	static const uint8_t fontLargeNumbers_Widths[] = {
-		15, 0, 0, 0, 0, 0, 11, 3, 6, 3, 0, 10, 10, 10, 10, 10,
-		10, 10, 10, 10, 10, 4
-	};
-	const struct font fontLargeNumbers = { 16, 2, 21, 1, 3, 15, '%', ':', fontLargeNumbers_Widths, fontLargeNumbers_Offsets};
 #endif
 
 #endif /* GDISP_NEED_TEXT */

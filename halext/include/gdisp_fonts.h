@@ -54,8 +54,6 @@
 	#error "GDISP: GDISP_MAX_FONT_HEIGHT must be either 16 or 32"
 #endif
 
-typedef const fontcolumn_t * const pfontcolumn_t;
-
 /**
  * @brief   Internal font structure.
  * @note	This structure is followed by:
@@ -74,15 +72,17 @@ struct font {
 	uint8_t				maxWidth;
 	char				minChar;
 	char				maxChar;
-	const uint8_t		* const widthTable;
-	const fontcolumn_t * const (* const offsetTable);
+	const uint8_t		*widthTable;
+	const uint16_t      *offsetTable;
+	const fontcolumn_t  *dataTable;
 	};
 
 /**
  * @brief   Macro's to get to the complex parts of the font structure.
  */
-#define _getCharWidth(f,c)		(((c) < (f)->minChar || (c) > (f)->maxChar) ? 0 : (f)->widthTable[c - (f)->minChar])
-#define _getCharData(f,c)		(f)->offsetTable[c - (f)->minChar]
+#define _getCharWidth(f,c)		(((c) < (f)->minChar || (c) > (f)->maxChar) ? 0 : (f)->widthTable[(c) - (f)->minChar])
+#define _getCharOffset(f,c)		((f)->offsetTable[(c) - (f)->minChar])
+#define _getCharData(f,c)		(&(f)->dataTable[_getCharOffset(f, c)])
 
 #endif /* _GDISP_FONTS_H */
 /** @} */

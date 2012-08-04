@@ -440,7 +440,7 @@
 	 *
 	 * @api
 	 */
-	void gdispDrawStringBox(coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, color_t bgcolor, justify_t justify) {
+	void gdispFillStringBox(coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, color_t bgcolor, justify_t justify) {
 		/* No mutex required as we only call high level functions which have their own mutex */
 		coord_t		w, ypos, xpos;
 		char		c;
