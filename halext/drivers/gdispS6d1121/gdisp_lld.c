@@ -29,7 +29,6 @@
 #include "ch.h"
 #include "hal.h"
 #include "gdisp.h"
-#include "gdisp_fonts.h"
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
@@ -71,9 +70,6 @@
 /*===========================================================================*/
 /* Driver exported functions.                                                */
 /*===========================================================================*/
-
-/* Include the software emulation routines */
-#include "gdisp_lld_inc_emulation.c.h"
 
 /* ---- Required Routines ---- */
 /*
@@ -248,87 +244,6 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 		gdisp_lld_fillarea() and gdisp_lld_blitarea().
 */
 
-#if GDISP_HARDWARE_POWERCONTROL || defined(__DOXYGEN__)
-/**
- * @brief   Sets the power mode for the graphic device.
- * @note    The power modes are powerOn, powerSleep and powerOff.
- *          If powerSleep is not supported it is equivalent to powerOn.
- *
- * @param[in] powerMode    The new power mode
- *
- * @notapi
- */
-	void gdisp_lld_setpowermode(gdisp_powermode_t powerMode) {
-		if (GDISP.Powermode == powerMode)
-			return;
-
-		switch(powerMode) {
-			case powerOff:
-				/* 	Code here */
-				break;
-			case powerOn:
-				/* 	Code here */
-				/* You may need this ---
-					if (GDISP.Powermode != powerSleep)
-						gdisp_lld_init();
-				*/
-				break;
-			case powerSleep:
-				/* 	Code here */
-				break;
-			default:
-				return;
-		}
-
-		GDISP.Powermode = powerMode;
-	}
-#endif
-
-#if GDISP_HARDWARE_ORIENTATION || defined(__DOXYGEN__)
-	/**
-	 * @brief   Sets the orientation of the display.
-	 * @note    This may be ignored if not supported by the device.
-	 *
-	 * @param[in] newOrientation    The new orientation
-	 *
-	 * @notapi
-	 */
-	void gdisp_lld_setorientation(gdisp_orientation_t newOrientation) {
-		if (GDISP.Orientation == newOrientation)
-			return;
-
-		switch(newOrientation) {
-			case portrait:
-				lld_lcdWriteReg(0x0001,0x0127);
-				lld_lcdWriteReg(0x03, 0b0011);
-				GDISP.Height = SCREEN_HEIGHT;
-				GDISP.Width = SCREEN_WIDTH;
-				break;
-			case landscape:
-				lld_lcdWriteReg(0x0001,0x0027);
-				lld_lcdWriteReg(0x0003, 0b1011);
-				GDISP.Height = SCREEN_WIDTH;
-				GDISP.Width = SCREEN_HEIGHT;
-				break;
-			case portraitInv:
-				lld_lcdWriteReg(0x0001,0x0127);
-				lld_lcdWriteReg(0x0003, 0b0000);
-				GDISP.Height = SCREEN_HEIGHT;
-				GDISP.Width = SCREEN_WIDTH;
-				break;
-			case landscapeInv:
-				lld_lcdWriteReg(0x0001,0x0027);
-				lld_lcdWriteReg(0x0003, 0b1000);
-				GDISP.Height = SCREEN_WIDTH;
-				GDISP.Width = SCREEN_HEIGHT;
-				break;
-			default:
-				return;
-		}
-		GDISP.Orientation = newOrientation;
-	}
-#endif
-
 #if GDISP_HARDWARE_CLEARS || defined(__DOXYGEN__)
 	/**
 	 * @brief   Clear the display.
@@ -363,26 +278,6 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void gdisp_lld_drawline(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
-		#if GDISP_NEED_VALIDATION
-			/* Need to clip to screen */
-		#endif
-		/* Code here */
-	}
-#endif
-
-#if GDISP_HARDWARE_BOX || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw a box.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
-	 *
-	 * @param[in] x0,y0   The start position
-	 * @param[in] cx,cy   The size of the box (outside dimensions)
-	 * @param[in] color   The color to use
-	 * @param[in] filled  Should the box should be filled
-	 *
-	 * @notapi
-	 */
-	void gdisp_lld_drawbox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		#if GDISP_NEED_VALIDATION
 			/* Need to clip to screen */
 		#endif
@@ -536,6 +431,10 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 #endif
 
 #if (GDISP_NEED_TEXT && GDISP_HARDWARE_TEXT) || defined(__DOXYGEN__)
+	#include "gdisp_fonts.h"
+#endif
+
+#if (GDISP_NEED_TEXT && GDISP_HARDWARE_TEXT) || defined(__DOXYGEN__)
 	/**
 	 * @brief   Draw a character using a transparent background.
 	 * @note    Optional - The high level driver can emulate using software.
@@ -672,6 +571,91 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 		for(i = 0; i < gap; i++) lld_lcdWriteData(color);
 		lld_lcdWriteStreamStop();
 		lld_lcdResetViewPort();
+	}
+#endif
+
+#if GDISP_HARDWARE_CONTROL || defined(__DOXYGEN__)
+	/**
+	 * @brief   Driver Control
+	 * @detail	Unsupported control codes are ignored.
+	 * @note	The value parameter should always be typecast to (void *).
+	 * @note	There are some predefined and some specific to the low level driver.
+	 * @note	GDISP_CONTROL_POWER			- Takes a gdisp_powermode_t
+	 * 			GDISP_CONTROL_ORIENTATION	- Takes a gdisp_orientation_t
+	 * 			GDISP_CONTROL_BACKLIGHT -	 Takes an int from 0 to 100. For a driver
+	 * 											that only supports off/on anything other
+	 * 											than zero is on.
+	 * 			GDISP_CONTROL_CONTRAST		- Takes an int from 0 to 100.
+	 * 			GDISP_CONTROL_LLD			- Low level driver control constants start at
+	 * 											this value.
+	 *
+	 * @param[in] what		What to do.
+	 * @param[in] value		The value to use (always cast to a void *).
+	 *
+	 * @notapi
+	 */
+	void gdisp_lld_control(int what, void *value) {
+		switch(what) {
+		case GDISP_CONTROL_POWER:
+			if (GDISP.Powermode == (gdisp_powermode_t)value)
+				return;
+			switch((gdisp_powermode_t)value) {
+				case powerOff:
+					/* 	Code here */
+					/* break; */
+				case powerOn:
+					/* 	Code here */
+					/* You may need this ---
+						if (GDISP.Powermode != powerSleep)
+							gdisp_lld_init();
+					*/
+					/* break; */
+				case powerSleep:
+					/* 	Code here */
+					/* break; */
+				default:
+					return;
+			}
+			GDISP.Powermode = (gdisp_powermode_t)value;
+			return;
+		case GDISP_CONTROL_ORIENTATION:
+			if (GDISP.Orientation == (gdisp_orientation_t)value)
+				return;
+			switch((gdisp_orientation_t)value) {
+			case portrait:
+				lld_lcdWriteReg(0x0001,0x0127);
+				lld_lcdWriteReg(0x03, 0b0011);
+				GDISP.Height = SCREEN_HEIGHT;
+				GDISP.Width = SCREEN_WIDTH;
+				break;
+			case landscape:
+				lld_lcdWriteReg(0x0001,0x0027);
+				lld_lcdWriteReg(0x0003, 0b1011);
+				GDISP.Height = SCREEN_WIDTH;
+				GDISP.Width = SCREEN_HEIGHT;
+				break;
+			case portraitInv:
+				lld_lcdWriteReg(0x0001,0x0127);
+				lld_lcdWriteReg(0x0003, 0b0000);
+				GDISP.Height = SCREEN_HEIGHT;
+				GDISP.Width = SCREEN_WIDTH;
+				break;
+			case landscapeInv:
+				lld_lcdWriteReg(0x0001,0x0027);
+				lld_lcdWriteReg(0x0003, 0b1000);
+				GDISP.Height = SCREEN_WIDTH;
+				GDISP.Width = SCREEN_HEIGHT;
+				break;
+			default:
+				return;
+			}
+			GDISP.Orientation = (gdisp_orientation_t)value;
+			return;
+/*
+		case GDISP_CONTROL_BACKLIGHT:
+		case GDISP_CONTROL_CONTRAST:
+*/
+		}
 	}
 #endif
 

@@ -29,7 +29,6 @@
 #include "ch.h"
 #include "hal.h"
 #include "gdisp.h"
-#include "gdisp_fonts.h"
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
@@ -69,9 +68,6 @@
 /*===========================================================================*/
 /* Driver exported functions.                                                */
 /*===========================================================================*/
-
-/* Include the software emulation routines */
-#include "gdisp_lld_inc_emulation.c.h"
 
 /* ---- Required Routines ---- */
 /*
@@ -121,33 +117,6 @@ void gdisp_lld_drawpixel(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(co
 		gdisp_lld_fillarea() and gdisp_lld_blitarea().
 */
 
-#if GDISP_HARDWARE_POWERCONTROL || defined(__DOXYGEN__)
-/**
- * @brief   Sets the power mode for the graphic device.
- * @note    The power modes are powerOn, powerSleep and powerOff.
- *          If powerSleep is not supported it is equivelent to powerOn.
- *
- * @param[in] powerMode    The new power mode
- *
- * @notapi
- */
-void gdisp_lld_setpowermode(gdisp_powermode_t UNUSED(powerMode)) {
-}
-#endif
-
-#if GDISP_HARDWARE_ORIENTATION || defined(__DOXYGEN__)
-/**
- * @brief   Sets the orientation of the display.
- * @note    This may be ignored if not supported by the device.
- *
- * @param[in] newOrientation    The new orientation
- *
- * @notapi
- */
-void gdisp_lld_setorientation(gdisp_orientation_t UNUSED(newOrientation)) {
-}
-#endif
-
 #if GDISP_HARDWARE_CLEARS || defined(__DOXYGEN__)
 	/**
 	 * @brief   Clear the display.
@@ -173,22 +142,6 @@ void gdisp_lld_setorientation(gdisp_orientation_t UNUSED(newOrientation)) {
 	 * @notapi
 	 */
 	void gdisp_lld_drawline(coord_t UNUSED(x0), coord_t UNUSED(y0), coord_t UNUSED(x1), coord_t UNUSED(y1), color_t UNUSED(color)) {
-	}
-#endif
-
-#if GDISP_HARDWARE_BOX || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw a box.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
-	 *
-	 * @param[in] x0,y0   The start position
-	 * @param[in] cx,cy   The size of the box (outside dimensions)
-	 * @param[in] color   The color to use
-	 * @param[in] filled  Should the box should be filled
-	 *
-	 * @notapi
-	 */
-	void gdisp_lld_drawbox(coord_t UNUSED(x), coord_t UNUSED(y), coord_t UNUSED(cx), coord_t UNUSED(cy), color_t UNUSED(color)) {
 	}
 #endif
 
@@ -352,6 +305,30 @@ void gdisp_lld_setorientation(gdisp_orientation_t UNUSED(newOrientation)) {
 	 * @notapi
 	 */
 	void gdisp_lld_verticalscroll(coord_t UNUSED(x), coord_t UNUSED(y), coord_t UNUSED(cx), coord_t UNUSED(cy), int UNUSED(lines), color_t UNUSED(bgcolor)) {
+	}
+#endif
+
+#if GDISP_HARDWARE_CONTROL || defined(__DOXYGEN__)
+	/**
+	 * @brief   Driver Control
+	 * @detail	Unsupported control codes are ignored.
+	 * @note	The value parameter should always be typecast to (void *).
+	 * @note	There are some predefined and some specific to the low level driver.
+	 * @note	GDISP_CONTROL_POWER			- Takes a gdisp_powermode_t
+	 * 			GDISP_CONTROL_ORIENTATION	- Takes a gdisp_orientation_t
+	 * 			GDISP_CONTROL_BACKLIGHT -	 Takes an int from 0 to 100. For a driver
+	 * 											that only supports off/on anything other
+	 * 											than zero is on.
+	 * 			GDISP_CONTROL_CONTRAST		- Takes an int from 0 to 100.
+	 * 			GDISP_CONTROL_LLD			- Low level driver control constants start at
+	 * 											this value.
+	 *
+	 * @param[in] what		What to do.
+	 * @param[in] value		The value to use (always cast to a void *).
+	 *
+	 * @notapi
+	 */
+	void gdisp_lld_control(int UNUSED(what), void *UNUSED(value)) {
 	}
 #endif
 
