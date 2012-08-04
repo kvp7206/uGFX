@@ -1,39 +1,22 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2012
+                 Joel Bodenmann aka Tectu <joel@unormal.org>
 
-    This file is part of ChibiOS/RT.
+    This file is part of ChibiOS-LCD-Driver.
 
-    ChibiOS/RT is free software; you can redistribute it and/or modify
+    ChibiOS-LCD-Driver is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 3 of the License, or
     (at your option) any later version.
 
-    ChibiOS/RT is distributed in the hope that it will be useful,
+    ChibiOS-LCD-Driver is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-                                      ---
-
-    A special exception to the GPL can be applied should you wish to distribute
-    a combined work that includes ChibiOS/RT, without being obliged to provide
-    the source code for any proprietary components. See the file exception.txt
-    for full details of how and when the exception can be applied.
 */
-/*
-   Concepts and parts of this file have been contributed by:
-		Joel Bodenmann aka Tectu	-> Maintainer
-		Andrew Hannam aka inmarket	-> Framework
-		Badger						-> console implementation and FSMC
-		Abhishek 					-> font rendering
-		Ben William					-> fastMath and lcdDrawEllipse()
-		Dongxu Li aka dxli			-> lcdDrawEllipse() filled option
-*/
-
 /**
  * @file    gdisp_fonts.h
  * @brief   GDISP internal font definitions.
@@ -46,6 +29,8 @@
 
 #ifndef _GDISP_FONTS_H
 #define _GDISP_FONTS_H
+
+/* Don't test against HAL_USE_GDISP as we may want to use this in other non-GDISP utilities. */
 
 /**
  * @brief   The maximum height of a font.
@@ -71,22 +56,25 @@
 
 /**
  * @brief   Internal font structure.
- * @note	This structure the basic information required for the font
- *          It also contains a reference to these 3 tables:
+ * @note	This structure is followed by:
  *				1. An array of character widths (uint8_t)
  *				2. An array of column data offsets (relative to the font structure)
  *				3. Each characters array of column data (fontcolumn_t)
+ *			Each sub-structure must be padded to a multiple of 8 bytes
+ *			to allow the tables to work across many different compilers.
  */
 struct font {
-	uint8_t		        height;
-	uint8_t		        charPadding;
-	uint8_t		        lineSpacing;
-	uint8_t		        descenderHeight;
-	uint8_t		        minWidth;
-	uint8_t		        maxWidth;
-	char		        minChar;
-	char		        maxChar;
-	const uint8_t       *widthTable;
+	uint8_t				height;
+	uint8_t				charPadding;
+	uint8_t				lineSpacing;
+	uint8_t				descenderHeight;
+	uint8_t				minWidth;
+	uint8_t				maxWidth;
+	char				minChar;
+	char				maxChar;
+	uint8_t				xscale;
+	uint8_t				yscale;
+	const uint8_t		*widthTable;
 	const uint16_t      *offsetTable;
 	const fontcolumn_t  *dataTable;
 	};
@@ -94,9 +82,9 @@ struct font {
 /**
  * @brief   Macro's to get to the complex parts of the font structure.
  */
-#define _getCharWidth(f,c)		(((c) < (f)->minChar || (c) > (f)->maxChar) ? 0 : (f)->widthTable[c - (f)->minChar])
-#define _getCharOffset(f,c)		(f->offsetTable[c - (f)->minChar])
-#define _getCharData(f,c)		&(f->dataTable[_getCharOffset(f, c)])
+#define _getCharWidth(f,c)		(((c) < (f)->minChar || (c) > (f)->maxChar) ? 0 : (f)->widthTable[(c) - (f)->minChar])
+#define _getCharOffset(f,c)		((f)->offsetTable[(c) - (f)->minChar])
+#define _getCharData(f,c)		(&(f)->dataTable[_getCharOffset(f, c)])
 
 #endif /* _GDISP_FONTS_H */
 /** @} */
