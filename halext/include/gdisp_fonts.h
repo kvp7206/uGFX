@@ -72,6 +72,8 @@ struct font {
 	uint8_t				maxWidth;
 	char				minChar;
 	char				maxChar;
+	uint8_t				xscale;
+	uint8_t				yscale;
 	const uint8_t		*widthTable;
 	const uint16_t      *offsetTable;
 	const fontcolumn_t  *dataTable;

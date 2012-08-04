@@ -134,33 +134,6 @@
 	}
 #endif
 
-#if !GDISP_HARDWARE_BOX
-	void gdisp_lld_drawbox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
-		coord_t	x1, y1;
-		
-		x1 = x+cx-1;
-		y1 = y+cy-1;
-
-		if (cx > 2) {
-			if (cy >= 1) {
-				gdisp_lld_drawline(x, y, x1, y, color);
-				if (cy >= 2) {
-					gdisp_lld_drawline(x, y1, x1, y1, color);
-					if (cy > 2) {
-						gdisp_lld_drawline(x, y+1, x, y1-1, color);
-						gdisp_lld_drawline(x1, y+1, x1, y1-1, color);
-					}
-				}
-			}
-		} else if (cx == 2) {
-			gdisp_lld_drawline(x, y, x, y1, color);
-			gdisp_lld_drawline(x1, y, x1, y1, color);
-		} else if (cx == 1) {
-			gdisp_lld_drawline(x, y, x, y1, color);
-		}
-	}
-#endif
-
 #if !GDISP_HARDWARE_FILLS
 	void gdisp_lld_fillarea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		#if GDISP_HARDWARE_SCROLL
@@ -310,23 +283,32 @@
 	void gdisp_lld_drawchar(coord_t x, coord_t y, char c, font_t font, color_t color) {
 		const fontcolumn_t	*ptr;
 		fontcolumn_t		column;
-		coord_t				width, i, j;
+		coord_t				width, height, xscale, yscale;
+		coord_t				i, j, xs, ys;
 
 		/* Check we actually have something to print */
 		width = _getCharWidth(font, c);
 		if (!width) return;
 		
+		xscale = font->xscale;
+		yscale = font->yscale;
+		height = font->height * yscale;
+		width *= xscale;
+
 		ptr = _getCharData(font, c);
 
 		/* Loop through the data and display. The font data is LSBit first, down the column */
-		for(i = 0; i < width; i++) {
+		for(i=0; i < width; i+=xscale) {
 			/* Get the font bitmap data for the column */
 			column = *ptr++;
 			
 			/* Draw each pixel */
-			for(j = 0; j < font->height; j++, column >>= 1) {
-				if (column & 0x01)
-					gdisp_lld_drawpixel(x+i, y+j, color);
+			for(j=0; j < height; j+=yscale, column >>= 1) {
+				if (column & 0x01) {
+					for(xs=0; xs < xscale; xs++)
+						for(ys=0; ys < yscale; ys++)
+							gdisp_lld_drawpixel(x+i+xs, y+j+ys, color);
+				}
 			}
 		}
 	}
@@ -334,17 +316,23 @@
 
 #if GDISP_NEED_TEXT && !GDISP_HARDWARE_TEXTFILLS
 	void gdisp_lld_fillchar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
-		coord_t			width;
+		coord_t			width, height;
+		coord_t			xscale, yscale;
 		
 		/* Check we actually have something to print */
 		width = _getCharWidth(font, c);
 		if (!width) return;
 
+		xscale = font->xscale;
+		yscale = font->yscale;
+		height = font->height * yscale;
+		width *= xscale;
+
 		/* Method 1: Use background fill and then draw the text */
 		#if GDISP_HARDWARE_TEXT || GDISP_SOFTWARE_TEXTFILLDRAW
 			
 			/* Fill the area */
-			gdisp_lld_fillarea(x, y, width, font->height, bgcolor);
+			gdisp_lld_fillarea(x, y, width, height, bgcolor);
 			
 			/* Draw the text */
 			gdisp_lld_drawchar(x, y, c, font, color);
@@ -354,24 +342,39 @@
 		{
 			const fontcolumn_t	*ptr;
 			fontcolumn_t		column;
-			coord_t				i, j;
-			
-			/* Working buffer for fast non-transparent text rendering [patch by Badger] */
-			static pixel_t		buf[sizeof(fontcolumn_t)*8];
+			coord_t				i, j, xs, ys;
+
+			/* Working buffer for fast non-transparent text rendering [patch by Badger]
+				This needs to be larger than the largest character we can print.
+				Assume the max is double sized by one column.
+			*/
+			static pixel_t		buf[sizeof(fontcolumn_t)*8*2];
+
+			#if GDISP_NEED_VALIDATION
+				/* Check our buffer is big enough */
+				if (height > sizeof(buf)/sizeof(buf[0]))	return;
+			#endif
 
 			ptr = _getCharData(font, c);
 
 			/* Loop through the data and display. The font data is LSBit first, down the column */
-			for(i = 0; i < width; i++) {
+			for(i = 0; i < width; i+=xscale) {
 				/* Get the font bitmap data for the column */
 				column = *ptr++;
 				
 				/* Draw each pixel */
-				for(j = 0; j < font->height; j++, column >>= 1) {
-					gdispPackPixels(buf, 1, j, 0, (column & 0x01) ? color : bgcolor);
+				for(j = 0; j < height; j+=yscale, column >>= 1) {
+					if (column & 0x01) {
+						for(ys=0; ys < yscale; ys++)
+							gdispPackPixels(buf, 1, j+ys, 0, color);
+					} else {
+						for(ys=0; ys < yscale; ys++)
+							gdispPackPixels(buf, 1, j+ys, 0, bgcolor);
+					}
 				}
 
-				gdisp_lld_blitarea(x+i, y, 1, font->height, buf);
+				for(xs=0; xs < xscale; xs++)
+					gdisp_lld_blitarea(x+i+xs, y, 1, height, buf);
 			}
 		}
 
@@ -380,33 +383,42 @@
 		{
 			const fontcolumn_t	*ptr;
 			fontcolumn_t		column;
-			coord_t				i, j;
+			coord_t				i, j, xs, ys;
 			
 			/* Working buffer for fast non-transparent text rendering [patch by Badger]
 				This needs to be larger than the largest character we can print.
+				Assume the max is double sized.
 			*/
-			static pixel_t		buf[20*(sizeof(fontcolumn_t)*8)];
+			static pixel_t		buf[20*(sizeof(fontcolumn_t)*8)*2];
 
 			#if GDISP_NEED_VALIDATION
 				/* Check our buffer is big enough */
-				if (width * font->height > sizeof(buf)/sizeof(buf[0]))	return;
+				if (width * height > sizeof(buf)/sizeof(buf[0]))	return;
 			#endif
 
 			ptr = _getCharData(font, c);
 
 			/* Loop through the data and display. The font data is LSBit first, down the column */
-			for(i = 0; i < width; i++) {
+			for(i = 0; i < width; i+=xscale) {
 				/* Get the font bitmap data for the column */
 				column = *ptr++;
 				
 				/* Draw each pixel */
-				for(j = 0; j < font->height; j++, column >>= 1) {
-					gdispPackPixels(buf, width, i, j, (column & 0x01) ? color : bgcolor);
+				for(j = 0; j < height; j+=yscale, column >>= 1) {
+					if (column & 0x01) {
+						for(xs=0; xs < xscale; xs++)
+							for(ys=0; ys < yscale; ys++)
+								gdispPackPixels(buf, width, i+xs, j+ys, color);
+					} else {
+						for(xs=0; xs < xscale; xs++)
+							for(ys=0; ys < yscale; ys++)
+								gdispPackPixels(buf, width, i+xs, j+ys, bgcolor);
+					}
 				}
 			}
 
 			/* [Patch by Badger] Write all in one stroke */
-			gdisp_lld_blitarea(x, y, width, font->height, buf);
+			gdisp_lld_blitarea(x, y, width, height, buf);
 		}
 
 		/* Method 4: Draw pixel by pixel */
@@ -414,22 +426,37 @@
 		{
 			const fontcolumn_t	*ptr;
 			fontcolumn_t		column;
-			coord_t				i, j;
-			
+			coord_t				i, j, xs, ys;
+
 			ptr = _getCharData(font, c);
 
 			/* Loop through the data and display. The font data is LSBit first, down the column */
-			for(i = 0; i < width; i++) {
+			for(i = 0; i < width; i+=xscale) {
 				/* Get the font bitmap data for the column */
 				column = *ptr++;
 				
 				/* Draw each pixel */
-				for(j = 0; j < font->height; j++, column >>= 1) {
-					gdisp_lld_drawpixel(x+i, y+j, (column & 0x01) ? color : bgcolor);
+				for(j = 0; j < height; j+=yscale, column >>= 1) {
+					if (column & 0x01) {
+						for(xs=0; xs < xscale; xs++)
+							for(ys=0; ys < yscale; ys++)
+								gdisp_lld_drawpixel(x+i, y+j, color);
+					} else {
+						for(xs=0; xs < xscale; xs++)
+							for(ys=0; ys < yscale; ys++)
+								gdisp_lld_drawpixel(x+i, y+j, bgcolor);
+					}
 				}
 			}
 		}
 		#endif
+	}
+#endif
+
+
+#if GDISP_NEED_CONTROL && !GDISP_HARDWARE_CONTROL
+	void gdisp_lld_control(int UNUSED(what), void *UNUSED(value)) {
+		/* Ignore everything */
 	}
 #endif
 

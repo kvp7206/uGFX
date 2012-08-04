@@ -54,40 +54,6 @@
 	#error "gdispNokia6610: Either LCD_USE_GE8 or LCD_USE_GE12 must be defined depending on your controller"
 #endif
 
-// mask definitions
-#define BIT0 0x00000001
-#define BIT1 0x00000002
-#define BIT2 0x00000004
-#define BIT3 0x00000008
-#define BIT4 0x00000010
-#define BIT5 0x00000020
-#define BIT6 0x00000040
-#define BIT7 0x00000080
-#define BIT8 0x00000100
-#define BIT9 0x00000200
-#define BIT10 0x00000400
-#define BIT11 0x00000800
-#define BIT12 0x00001000
-#define BIT13 0x00002000
-#define BIT14 0x00004000
-#define BIT15 0x00008000
-#define BIT16 0x00010000
-#define BIT17 0x00020000
-#define BIT18 0x00040000
-#define BIT19 0x00080000
-#define BIT20 0x00100000
-#define BIT21 0x00200000
-#define BIT22 0x00400000
-#define BIT23 0x00800000
-#define BIT24 0x01000000
-#define BIT25 0x02000000
-#define BIT26 0x04000000
-#define BIT27 0x08000000
-#define BIT28 0x10000000
-#define BIT29 0x20000000
-#define BIT30 0x40000000
-#define BIT31 0x80000000
-
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
@@ -347,87 +313,6 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 		gdisp_lld_fillarea() and gdisp_lld_blitarea().
 */
 
-#if GDISP_HARDWARE_POWERCONTROL || defined(__DOXYGEN__)
-	/**
-	 * @brief   Sets the power mode for the graphic device.
-	 * @note    The power modes are powerOn, powerSleep and powerOff.
-	 *          If powerSleep is not supported it is equivalent to powerOn.
-	 *
-	 * @param[in] powerMode    The new power mode
-	 *
-	 * @notapi
-	 */
-	void gdisp_lld_setpowermode(gdisp_powermode_t powerMode) {
-		/* NOT IMPLEMENTED YET */
-		if (GDISP.Powermode == powerMode)
-			return;
-
-		switch(powerMode) {
-			case powerOff:
-				/* 	Code here */
-				break;
-			case powerOn:
-				/* 	Code here */
-				/* You may need this ---
-					if (GDISP.Powermode != powerSleep)
-						gdisp_lld_init();
-				*/
-				break;
-			case powerSleep:
-				/* 	Code here */
-				break;
-			default:
-				return;
-		}
-
-		GDISP.Powermode = powerMode;
-	}
-#endif
-
-#if GDISP_HARDWARE_ORIENTATION || defined(__DOXYGEN__)
-	/**
-	 * @brief   Sets the orientation of the display.
-	 * @note    This may be ignored if not supported by the device.
-	 *
-	 * @param[in] newOrientation    The new orientation
-	 *
-	 * @notapi
-	 */
-	void gdisp_lld_setorientation(gdisp_orientation_t newOrientation) {
-		/* NOT IMPLEMENTED YET */
-		if (GDISP.Orientation == newOrientation)
-			return;
-
-//		WriteSpiData(0x48); // no mirror Y (temporary to satisfy Olimex bmptoarray utility)
-//		WriteSpiData(0xC8); // restore to (mirror x and y, reverse rgb)
-		switch(newOrientation) {
-			case portrait:
-				/* 	Code here */
-				GDISP.Height = SCREEN_HEIGHT;
-				GDISP.Width = SCREEN_WIDTH;
-				break;
-			case landscape:
-				/* 	Code here */
-				GDISP.Height = SCREEN_WIDTH;
-				GDISP.Width = SCREEN_HEIGHT;
-				break;
-			case portraitInv:
-				/* 	Code here */
-				GDISP.Height = SCREEN_HEIGHT;
-				GDISP.Width = SCREEN_WIDTH;
-				break;
-			case landscapeInv:
-				/* 	Code here */
-				GDISP.Height = SCREEN_WIDTH;
-				GDISP.Width = SCREEN_HEIGHT;
-				break;
-			default:
-				return;
-		}
-		GDISP.Orientation = newOrientation;
-	}
-#endif
-
 #if GDISP_HARDWARE_CLEARS || defined(__DOXYGEN__)
 	/**
 	 * @brief   Clear the display.
@@ -457,23 +342,6 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void gdisp_lld_drawline(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
-		/* NOT IMPLEMENTED */
-	}
-#endif
-
-#if GDISP_HARDWARE_BOX || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw a box.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
-	 *
-	 * @param[in] x0,y0   The start position
-	 * @param[in] cx,cy   The size of the box (outside dimensions)
-	 * @param[in] color   The color to use
-	 * @param[in] filled  Should the box should be filled
-	 *
-	 * @notapi
-	 */
-	void gdisp_lld_drawbox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		/* NOT IMPLEMENTED */
 	}
 #endif
@@ -710,6 +578,90 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 */
 	void gdisp_lld_verticalscroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
 		/* NOT IMPLEMENTED */
+	}
+#endif
+
+#if GDISP_HARDWARE_CONTROL || defined(__DOXYGEN__)
+	/**
+	 * @brief   Driver Control
+	 * @detail	Unsupported control codes are ignored.
+	 * @note	The value parameter should always be typecast to (void *).
+	 * @note	There are some predefined and some specific to the low level driver.
+	 * @note	GDISP_CONTROL_POWER			- Takes a gdisp_powermode_t
+	 * 			GDISP_CONTROL_ORIENTATION	- Takes a gdisp_orientation_t
+	 * 			GDISP_CONTROL_BACKLIGHT -	 Takes an int from 0 to 100. For a driver
+	 * 											that only supports off/on anything other
+	 * 											than zero is on.
+	 * 			GDISP_CONTROL_CONTRAST		- Takes an int from 0 to 100.
+	 * 			GDISP_CONTROL_LLD			- Low level driver control constants start at
+	 * 											this value.
+	 *
+	 * @param[in] what		What to do.
+	 * @param[in] value		The value to use (always cast to a void *).
+	 *
+	 * @notapi
+	 */
+	void gdisp_lld_control(int what, void *value) {
+		/* NOT IMPLEMENTED YET */
+		switch(what) {
+		case GDISP_CONTROL_POWER:
+			if (GDISP.Powermode == (gdisp_powermode_t)value)
+				return;
+			switch((gdisp_powermode_t)value) {
+				case powerOff:
+					/* 	Code here */
+					break;
+				case powerOn:
+					/* 	Code here */
+					/* You may need this ---
+						if (GDISP.Powermode != powerSleep)
+							gdisp_lld_init();
+					*/
+					break;
+				case powerSleep:
+					/* 	Code here */
+					break;
+				default:
+					return;
+			}
+			GDISP.Powermode = (gdisp_powermode_t)value;
+			return;
+		case GDISP_CONTROL_ORIENTATION:
+			if (GDISP.Orientation == (gdisp_orientation_t)value)
+				return;
+	//		WriteSpiData(0x48); // no mirror Y (temporary to satisfy Olimex bmptoarray utility)
+	//		WriteSpiData(0xC8); // restore to (mirror x and y, reverse rgb)
+			switch((gdisp_orientation_t)value) {
+				case portrait:
+					/* 	Code here */
+					GDISP.Height = SCREEN_HEIGHT;
+					GDISP.Width = SCREEN_WIDTH;
+					break;
+				case landscape:
+					/* 	Code here */
+					GDISP.Height = SCREEN_WIDTH;
+					GDISP.Width = SCREEN_HEIGHT;
+					break;
+				case portraitInv:
+					/* 	Code here */
+					GDISP.Height = SCREEN_HEIGHT;
+					GDISP.Width = SCREEN_WIDTH;
+					break;
+				case landscapeInv:
+					/* 	Code here */
+					GDISP.Height = SCREEN_WIDTH;
+					GDISP.Width = SCREEN_HEIGHT;
+					break;
+				default:
+					return;
+			}
+			GDISP.Orientation = (gdisp_orientation_t)value;
+			return;
+/*
+		case GDISP_CONTROL_BACKLIGHT:
+		case GDISP_CONTROL_CONTRAST:
+*/
+		}
 	}
 #endif
 

@@ -38,7 +38,15 @@
     static const uint16_t       fontSmall_Offsets[];
     static const fontcolumn_t   fontSmall_Data[];
 
-	const struct font fontSmall = { 11, 0, 14, 2, 2, 12, ' ', '~',
+	const struct font fontSmall = { 11, 0, 14, 2, 2, 12, ' ', '~', 1, 1,
+	                                fontSmall_Widths,
+	                                fontSmall_Offsets,
+	                                fontSmall_Data};
+	const struct font fontSmallDouble = { 11, 0, 14, 2, 2, 12, ' ', '~', 2, 2,
+	                                fontSmall_Widths,
+	                                fontSmall_Offsets,
+	                                fontSmall_Data};
+	const struct font fontSmallNarrow = { 11, 0, 14, 2, 2, 12, ' ', '~', 1, 2,
 	                                fontSmall_Widths,
 	                                fontSmall_Offsets,
 	                                fontSmall_Data};
@@ -171,11 +179,18 @@
     static const uint16_t       fontLarger_Offsets[];
     static const fontcolumn_t   fontLarger_Data[];
 
-	const struct font fontLarger = { 12, 1, 13, 2, 2, 13, ' ', '~',
+	const struct font fontLarger = { 12, 1, 13, 2, 2, 13, ' ', '~', 1, 1,
 	                                 fontLarger_Widths,
 	                                 fontLarger_Offsets,
 	                                 fontLarger_Data};
-
+	const struct font fontLargerDouble = { 12, 1, 13, 2, 2, 13, ' ', '~', 2, 2,
+									 fontLarger_Widths,
+	                                 fontLarger_Offsets,
+	                                 fontLarger_Data};
+	const struct font fontLargerNarrow = { 12, 1, 13, 2, 2, 13, ' ', '~', 1, 2,
+	                                 fontLarger_Widths,
+	                                 fontLarger_Offsets,
+	                                 fontLarger_Data};
 	static const uint8_t fontLarger_Widths[] = {
 		2, 3, 5, 8, 7, 13, 8, 2, 4, 4, 7, 8, 3, 4, 3, 5,
 		7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 3, 9, 8, 9, 6,
@@ -305,7 +320,15 @@
     static const uint16_t       fontUI1_Offsets[];
     static const fontcolumn_t   fontUI1_Data[];
 
-	const struct font fontUI1 = { 13, 0, 15, 2, 3, 13, ' ', '~',
+	const struct font fontUI1 = { 13, 0, 15, 2, 3, 13, ' ', '~', 1, 1,
+	                              fontUI1_Widths,
+	                              fontUI1_Offsets,
+	                              fontUI1_Data};
+	const struct font fontUI1Double = { 13, 0, 15, 2, 3, 13, ' ', '~', 2, 2,
+	                              fontUI1_Widths,
+	                              fontUI1_Offsets,
+	                              fontUI1_Data};
+	const struct font fontUI1Narrow = { 13, 0, 15, 2, 3, 13, ' ', '~', 1, 2,
 	                              fontUI1_Widths,
 	                              fontUI1_Offsets,
 	                              fontUI1_Data};
@@ -439,7 +462,15 @@
 	static const uint16_t       fontUI2_Offsets[];
 	static const fontcolumn_t   fontUI2_Data[];
 
-	const struct font fontUI2 = { 11, 1, 13, 2, 2, 12, ' ', '~',
+	const struct font fontUI2 = { 11, 1, 13, 2, 2, 12, ' ', '~', 1, 1,
+	                              fontUI2_Widths,
+	                              fontUI2_Offsets,
+	                              fontUI2_Data};
+	const struct font fontUI2Double = { 11, 1, 13, 2, 2, 12, ' ', '~', 2, 2,
+	                              fontUI2_Widths,
+	                              fontUI2_Offsets,
+	                              fontUI2_Data};
+	const struct font fontUI2Narrow = { 11, 1, 13, 2, 2, 12, ' ', '~', 1, 2,
 	                              fontUI2_Widths,
 	                              fontUI2_Offsets,
 	                              fontUI2_Data};
@@ -576,7 +607,15 @@
     static const uint16_t       fontLargeNumbers_Offsets[];
     static const fontcolumn_t   fontLargeNumbers_Data[];
 
-	const struct font fontLargeNumbers = { 16, 2, 21, 1, 3, 15, '%', ':',
+	const struct font fontLargeNumbers = { 16, 2, 21, 1, 3, 15, '%', ':', 1, 1,
+	                                       fontLargeNumbers_Widths,
+	                                       fontLargeNumbers_Offsets,
+	                                       fontLargeNumbers_Data};
+	const struct font fontLargeNumbersDouble = { 16, 2, 21, 1, 3, 15, '%', ':', 2, 2,
+	                                       fontLargeNumbers_Widths,
+	                                       fontLargeNumbers_Offsets,
+	                                       fontLargeNumbers_Data};
+	const struct font fontLargeNumbersNarrow = { 16, 2, 21, 1, 3, 15, '%', ':', 1, 2,
 	                                       fontLargeNumbers_Widths,
 	                                       fontLargeNumbers_Offsets,
 	                                       fontLargeNumbers_Data};

@@ -32,7 +32,7 @@
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
 #ifdef GDISP_NEED_TEXT
-#include "gdisp_fonts.h"
+	#include "gdisp_fonts.h"
 #endif
 
 #if GDISP_NEED_MULTITHREAD
@@ -86,25 +86,6 @@
 		/* Initialise driver */
 		MUTEX_ENTER
 		gdisp_lld_init();
-		MUTEX_EXIT
-	}
-#endif
-
-#if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
-	/**
-	 * @brief   Set the power mode for the display.
-	 * @pre     The GDISP unit must have been initialised using @p gdispInit().
-	 * @note    Depending on the hardware implementation this function may not
-	 *          support powerSleep. If not powerSleep is treated the same as powerOn.
-	 *          (sleep allows drawing to the display without the display updating).
-	 *
-	 * @param[in] powerMode The power mode to use
-	 *
-	 * @api
-	 */
-	void gdispSetPowerMode(gdisp_powermode_t powerMode) {
-		MUTEX_ENTER
-		gdisp_lld_setpowermode(powerMode);
 		MUTEX_EXIT
 	}
 #endif
@@ -178,25 +159,6 @@
 	}
 #endif
 	
-#if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw a rectangular box.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
-	 *
-	 * @param[in] x0,y0   The start position
-	 * @param[in] cx,cy   The size of the box (outside dimensions)
-	 * @param[in] color   The color to use
-	 * @param[in] filled  Should the box should be filled
-	 *
-	 * @api
-	 */
-	void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
-		MUTEX_ENTER
-		gdisp_lld_drawbox(x, y, cx, cy, color);
-		MUTEX_EXIT
-	}
-#endif
-
 #if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
 	/**
 	 * @brief   Fill an area with a color.
@@ -327,6 +289,46 @@
 	}
 #endif
 	
+#if (GDISP_NEED_PIXELREAD && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Get the color of a pixel.
+	 * @return  The color of the pixel.
+	 *
+	 * @param[in] x,y     The position of the pixel
+	 *
+	 * @api
+	 */
+	color_t gdispGetPixelColor(coord_t x, coord_t y) {
+		color_t		c;
+
+		MUTEX_ENTER
+		c = gdisp_lld_getpixelcolor(x, y);
+		MUTEX_EXIT
+
+		return c;
+	}
+#endif
+
+#if (GDISP_NEED_SCROLL && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Scroll vertically a section of the screen.
+	 * @note    Optional.
+	 * @note    If lines is >= cy, it is equivelent to a area fill with bgcolor.
+	 *
+	 * @param[in] x, y     The start of the area to be scrolled
+	 * @param[in] cx, cy   The size of the area to be scrolled
+	 * @param[in] lines    The number of lines to scroll (Can be positive or negative)
+	 * @param[in] bgcolor  The color to fill the newly exposed area.
+	 *
+	 * @api
+	 */
+	void gdispVerticalScroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
+		MUTEX_ENTER
+		gdisp_lld_verticalscroll(x, y, cx, cy, lines, bgcolor);
+		MUTEX_EXIT
+	}
+#endif
+
 #if (GDISP_NEED_TEXT && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
 	/**
 	 * @brief   Draw a text character with a filled background.
@@ -346,6 +348,68 @@
 	}
 #endif
 	
+#if (GDISP_NEED_CONTROL && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Set the power mode for the display.
+	 * @pre     The GDISP unit must have been initialised using @p gdispInit().
+	 * @note    Depending on the hardware implementation this function may not
+	 *          support powerSleep. If not powerSleep is treated the same as powerOn.
+	 *          (sleep allows drawing to the display without the display updating).
+	 *
+	 * @param[in] powerMode The power mode to use
+	 *
+	 * @api
+	 */
+	void gdispControl(int what, void *value) {
+		MUTEX_ENTER
+		gdisp_lld_control(what, value);
+		MUTEX_EXIT
+	}
+#endif
+
+/*===========================================================================*/
+/* High Level Driver Routines.                                               */
+/*===========================================================================*/
+
+#if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
+	/**
+	 * @brief   Draw a rectangular box.
+	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
+	 *
+	 * @param[in] x0,y0   The start position
+	 * @param[in] cx,cy   The size of the box (outside dimensions)
+	 * @param[in] color   The color to use
+	 * @param[in] filled  Should the box should be filled
+	 *
+	 * @api
+	 */
+	void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+		/* No mutex required as we only call high level functions which have their own mutex */
+		coord_t	x1, y1;
+
+		x1 = x+cx-1;
+		y1 = y+cy-1;
+
+		if (cx > 2) {
+			if (cy >= 1) {
+				gdisp_lld_drawline(x, y, x1, y, color);
+				if (cy >= 2) {
+					gdisp_lld_drawline(x, y1, x1, y1, color);
+					if (cy > 2) {
+						gdisp_lld_drawline(x, y+1, x, y1-1, color);
+						gdisp_lld_drawline(x1, y+1, x1, y1-1, color);
+					}
+				}
+			}
+		} else if (cx == 2) {
+			gdisp_lld_drawline(x, y, x, y1, color);
+			gdisp_lld_drawline(x1, y, x1, y1, color);
+		} else if (cx == 1) {
+			gdisp_lld_drawline(x, y, x, y1, color);
+		}
+	}
+#endif
+
 #if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 	/**
 	 * @brief   Draw a text string.
@@ -359,21 +423,22 @@
 	 */
 	void gdispDrawString(coord_t x, coord_t y, const char *str, font_t font, color_t color) {
 		/* No mutex required as we only call high level functions which have their own mutex */
-		coord_t		w;
+		coord_t		w, p;
 		char		c;
 		int			first;
 		
 		first = 1;
+		p = font->charPadding * font->xscale;
 		while(*str) {
 			/* Get the next printable character */
 			c = *str++;
-			w = _getCharWidth(font, c);
+			w = _getCharWidth(font, c) * font->xscale;
 			if (!w) continue;
 			
 			/* Handle inter-character padding */
-			if (font->charPadding) {
+			if (p) {
 				if (!first)
-					x += font->charPadding;
+					x += p;
 				else
 					first = 0;
 			}
@@ -399,22 +464,24 @@
 	 */
 	void gdispFillString(coord_t x, coord_t y, const char *str, font_t font, color_t color, color_t bgcolor) {
 		/* No mutex required as we only call high level functions which have their own mutex */
-		coord_t		w;
+		coord_t		w, h, p;
 		char		c;
 		int			first;
 		
 		first = 1;
+		h = font->height * font->yscale;
+		p = font->charPadding * font->xscale;
 		while(*str) {
 			/* Get the next printable character */
 			c = *str++;
-			w = _getCharWidth(font, c);
+			w = _getCharWidth(font, c) * font->xscale;
 			if (!w) continue;
 			
 			/* Handle inter-character padding */
-			if (font->charPadding) {
+			if (p) {
 				if (!first) {
-					gdispFillArea(x, y, font->charPadding, font->height, bgcolor);
-					x += font->charPadding;
+					gdispFillArea(x, y, p, h, bgcolor);
+					x += p;
 				} else
 					first = 0;
 			}
@@ -442,16 +509,19 @@
 	 */
 	void gdispFillStringBox(coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, color_t bgcolor, justify_t justify) {
 		/* No mutex required as we only call high level functions which have their own mutex */
-		coord_t		w, ypos, xpos;
+		coord_t		w, h, p, ypos, xpos;
 		char		c;
 		int			first;
 		const char *rstr;
 		
+		h = font->height * font->yscale;
+		p = font->charPadding * font->xscale;
+
 		/* Oops - font too large for the area */
-		if (font->height > cy) return;
+		if (h > cy) return;
 
 		/* See if we need to fill above the font */
-		ypos = (cy - font->height)/2;
+		ypos = (cy - h + 1)/2;
 		if (ypos > 0) {
 			gdispFillArea(x, y, cx, ypos, bgcolor);
 			y += ypos;
@@ -459,7 +529,7 @@
 		}
 		
 		/* See if we need to fill below the font */
-		ypos = cy - font->height;
+		ypos = cy - h;
 		if (ypos > 0) {
 			gdispFillArea(x, y+cy-ypos, cx, ypos, bgcolor);
 			cy -= ypos;
@@ -480,13 +550,13 @@
 				while(*str) {
 					/* Get the next printable character */
 					c = *str++;
-					w = _getCharWidth(font, c);
+					w = _getCharWidth(font, c) * font->xscale;
 					if (!w) continue;
 					
 					/* Handle inter-character padding */
-					if (font->charPadding) {
+					if (p) {
 						if (!first) {
-							xpos += font->charPadding;
+							xpos += p;
 							if (xpos > ypos) break;
 						} else
 							first = 0;
@@ -507,14 +577,14 @@
 			for(str--; str >= rstr; str--) {
 				/* Get the next printable character */
 				c = *str;
-				w = _getCharWidth(font, c);
+				w = _getCharWidth(font, c) * font->xscale;
 				if (!w) continue;
 				
 				/* Handle inter-character padding */
-				if (font->charPadding) {
+				if (p) {
 					if (!first) {
-						if (xpos - font->charPadding < x) break;
-						xpos -= font->charPadding;
+						if (xpos - p < x) break;
+						xpos -= p;
 					} else
 						first = 0;
 				}
@@ -541,15 +611,15 @@
 		while(*str) {
 			/* Get the next printable character */
 			c = *str++;
-			w = _getCharWidth(font, c);
+			w = _getCharWidth(font, c) * font->xscale;
 			if (!w) continue;
 			
 			/* Handle inter-character padding */
-			if (font->charPadding) {
+			if (p) {
 				if (!first) {
-					if (xpos + font->charPadding > x+cx) break;
-					gdispFillArea(xpos, y, font->charPadding, cy, bgcolor);
-					xpos += font->charPadding;
+					if (xpos + p > x+cx) break;
+					gdispFillArea(xpos, y, p, cy, bgcolor);
+					xpos += p;
 				} else
 					first = 0;
 			}
@@ -579,12 +649,12 @@
 	coord_t gdispGetFontMetric(font_t font, fontmetric_t metric) {
 		/* No mutex required as we only read static data */
 		switch(metric) {
-		case fontHeight:			return font->height;
-		case fontDescendersHeight:	return font->descenderHeight;
-		case fontLineSpacing:		return font->lineSpacing;
-		case fontCharPadding:		return font->charPadding;
-		case fontMinWidth:			return font->minWidth;
-		case fontMaxWidth:			return font->maxWidth;
+		case fontHeight:			return font->height * font->yscale;
+		case fontDescendersHeight:	return font->descenderHeight * font->yscale;
+		case fontLineSpacing:		return font->lineSpacing * font->yscale;
+		case fontCharPadding:		return font->charPadding * font->xscale;
+		case fontMinWidth:			return font->minWidth * font->xscale;
+		case fontMaxWidth:			return font->maxWidth * font->xscale;
 		}
 		return 0;
 	}
@@ -602,7 +672,7 @@
 	 */
 	coord_t gdispGetCharWidth(char c, font_t font) {
 		/* No mutex required as we only read static data */
-		return _getCharWidth(font, c);
+		return _getCharWidth(font, c) * font->xscale;
 	}
 #endif
 	
@@ -618,22 +688,24 @@
 	 */
 	coord_t gdispGetStringWidth(const char* str, font_t font) {
 		/* No mutex required as we only read static data */
-		coord_t		w, x;
+		coord_t		w, h, p, x;
 		char		c;
 		int			first;
 		
 		first = 1;
 		x = 0;
+		h = font->height * font->yscale;
+		p = font->charPadding * font->xscale;
 		while(*str) {
 			/* Get the next printable character */
 			c = *str++;
-			w = _getCharWidth(font, c);
+			w = _getCharWidth(font, c)  * font->xscale;
 			if (!w) continue;
 			
 			/* Handle inter-character padding */
-			if (font->charPadding) {
+			if (p) {
 				if (!first)
-					x += font->charPadding;
+					x += p;
 				else
 					first = 0;
 			}
@@ -669,46 +741,6 @@
 		#elif
 			#error "GDISP: Unsupported packed pixel format"
 		#endif
-	}
-#endif
-
-#if (GDISP_NEED_PIXELREAD && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Get the color of a pixel.
-	 * @return  The color of the pixel.
-	 *
-	 * @param[in] x,y     The position of the pixel
-	 *
-	 * @api
-	 */
-	color_t gdispGetPixelColor(coord_t x, coord_t y) {
-		color_t		c;
-		
-		MUTEX_ENTER
-		c = gdisp_lld_getpixelcolor(x, y);
-		MUTEX_EXIT
-		
-		return c;
-	}
-#endif
-
-#if (GDISP_NEED_SCROLL && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Scroll vertically a section of the screen.
-	 * @note    Optional.
-	 * @note    If lines is >= cy, it is equivelent to a area fill with bgcolor.
-	 *
-	 * @param[in] x, y     The start of the area to be scrolled
-	 * @param[in] cx, cy   The size of the area to be scrolled
-	 * @param[in] lines    The number of lines to scroll (Can be positive or negative)
-	 * @param[in] bgcolor  The color to fill the newly exposed area.
-	 *
-	 * @api
-	 */
-	void gdispVerticalScroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
-		MUTEX_ENTER
-		gdisp_lld_verticalscroll(x, y, cx, cy, lines, bgcolor);
-		MUTEX_EXIT
 	}
 #endif
 
