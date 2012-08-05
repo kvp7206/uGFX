@@ -20,7 +20,6 @@
 
 #include "ch.h"
 
-#include "fonts.h"
 #include "glcd.h"
 #include "console.h"
 
@@ -80,7 +79,7 @@ static size_t readt(void *ip, uint8_t *bp, size_t n, systime_t time) {
 	return 0;
 }
 
-static chnflags_t getflags(void *ip) {
+static uint16_t getflags(void *ip) {
 	_chn_get_and_clear_flags_impl(ip);
 }
 
@@ -98,7 +97,7 @@ msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t wi
 
 	console->vmt = &vmt;
 	/* read font, get height */
-	console->fy = font[FONT_TABLE_HEIGHT_IDX];
+	console->fy = lcdGetFontHeight(font);
 
 	/* calculate the size of the console as an integer multiple of characters height*/
 	console->sx = width;
@@ -115,6 +114,7 @@ msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t wi
 	console->font = font;
 
 	lcdFillArea(x0, y0, x0+width, y0+height, console->bkcolor);
+	return RDY_OK;
 }
 
 msg_t lcdConsolePut(GLCDConsole *console, char c) {
@@ -157,7 +157,7 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 		/* update cursor */
 		console->cx += width;
 	}
-
+	return RDY_OK;
 }
 
 msg_t lcdConsoleWrite(GLCDConsole *console, uint8_t *bp, size_t n) {

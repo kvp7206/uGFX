@@ -27,17 +27,16 @@
 
 enum glcd_action {	GLCD_SET_POWERMODE,
 					GLCD_SET_ORIENTATION,
-					GLCD_SET_WINDOW,
 					GLCD_FILL_AREA,
 					GLCD_WRITE_AREA,
 					GLCD_CLEAR,
 					GLCD_GET_PIXEL_COLOR,
 					GLCD_DRAW_PIXEL,
-					GLCD_WRITE_STREAM_START,
-					GLCD_WRITE_STREAM_STOP,
-					GLCD_WRITE_STREAM,
 					GLCD_VERTICAL_SCROLL,
 					GLCD_DRAW_CHAR,
+					GLCD_DRAW_LINE,
+					GLCD_DRAW_CIRCLE,
+					GLCD_DRAW_ELLIPSE,
 				};
 
 #define _glcd_msg_base			\
@@ -111,21 +110,6 @@ struct glcd_msg_draw_pixel {
 	uint16_t color;
 };
 
-struct glcd_msg_write_stream_start {
-	_glcd_msg_base
-};
-
-struct glcd_msg_write_stream_stop {
-	_glcd_msg_base
-};
-
-struct glcd_msg_write_stream {
-	_glcd_msg_base
-
-	uint16_t *buffer;
-	uint16_t size;
-};
-
 struct glcd_msg_vertical_scroll {
 	_glcd_msg_base
 
@@ -134,6 +118,39 @@ struct glcd_msg_vertical_scroll {
 	uint16_t x1;
 	uint16_t y1;
 	int16_t lines;
+};
+
+struct glcd_msg_draw_line {
+	_glcd_msg_base
+
+	uint16_t x0;
+	uint16_t y0;
+	uint16_t x1;
+	uint16_t y1;
+	int16_t color;
+};
+
+struct glcd_msg_draw_circle {
+	_glcd_msg_base
+
+	uint16_t x;
+	uint16_t y;
+	uint16_t radius;
+	uint16_t y1;
+	uint8_t filled;
+	int16_t color;
+};
+
+struct glcd_msg_draw_ellipse {
+	_glcd_msg_base
+
+	uint16_t x;
+	uint16_t y;
+	uint16_t a;
+	uint16_t b;
+	uint16_t y1;
+	uint8_t filled;
+	int16_t color;
 };
 
 struct glcd_msg_draw_char {
