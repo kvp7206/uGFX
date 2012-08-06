@@ -308,7 +308,7 @@ void gdisp_lld_drawpixel(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(co
 	}
 #endif
 
-#if GDISP_HARDWARE_CONTROL || defined(__DOXYGEN__)
+#if (GDISP_NEED_CONTROL && GDISP_HARDWARE_CONTROL) || defined(__DOXYGEN__)
 	/**
 	 * @brief   Driver Control
 	 * @detail	Unsupported control codes are ignored.

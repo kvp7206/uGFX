@@ -45,13 +45,21 @@ enum powermode {powerOff, powerOn, sleepOn, sleepOff};
 #define sleepOn		powerSleep
 #define sleepOff	powerOn
 
-#define font_Small					(&fontSmall)
-#define font_Larger					(&fontLarger)
-#define font_MediumBold				(&fontUI1)
-#define font_LargeNumbers			(&fontLargeNumbers)
+#define font_Small						(&fontSmall)
+#define font_SmallDouble				(&fontSmallDouble)
+#define font_SmallNarrow				(&fontSmall)
+#define font_Larger						(&fontLarger)
+#define font_LargerDouble				(&fontLargerDouble)
+#define font_LargerNarrow				(&fontLargerNarrow)
+#define font_MediumBold					(&fontUI1)
+#define font_MediumBoldDouble			(&fontUI1Double)
+#define font_MediumBoldNarrow			(&fontUI1Narrow)
+#define font_LargeNumbers				(&fontLargeNumbers)
+#define font_LargeNumbersDouble			(&fontLargeNumbersDouble)
+#define font_LargeNumbersNarrow			(&fontLargeNumbersNarrow)
 
 #define GLCDDriver	GDISPDriver
-#define GLCDD1		GDISP1
+#define GLCDD		GDISP
 
 enum glcd_result {	GLCD_DONE,
 					GLCD_FAILED,
@@ -63,10 +71,10 @@ typedef enum glcd_result glcd_result_t;
 /* Core functions */
 #define lcdInit(dvr)							gdispInit(dvr)
 #define lcdClear(color)							(gdispClear(color), GLCD_DONE)
-#define lcdSetOrientation(newO)					(gdispSetOrientation(newO), (GDISP1.Orientation == (newO) ? GLCD_DONE : GLCD_FAILED))
+#define lcdSetOrientation(newO)					(gdispControl(GDISP_CONTROL_ORIENTATION, (void *)(int)newO), (GDISP1.Orientation == (newO) ? GLCD_DONE : GLCD_FAILED))
 #define lcdFillArea(x0,y0,x1,y1,c)				(gdispFillArea((x0),(y0),(x1)-(x0)+1,(y1)-(y0)+1,(c)), GLCD_DONE)
 #define lcdWriteArea(x0,y0,x1,y1,b,n)			(gdispBlitArea((x0),(y0),(x1)-(x0)+1,(y1)-(y0)+1,(b)), GLCD_DONE)
-#define lcdSetPowerMode(pm)						(gdispSetPowerMode(pm), (GDISP1.Powermode == (pm) ? GLCD_DONE : GLCD_FAILED))
+#define lcdSetPowerMode(pm)						(gdispControl(GDISP_CONTROL_POWER, (void *)(int)pm), (GDISP1.Powermode == (pm) ? GLCD_DONE : GLCD_FAILED))
 
 /* Drawing functions */
 #define lcdDrawPixel(x,y,c)						(gdispDrawPixel((x),(y),(c)), GLCD_DONE)
@@ -83,12 +91,12 @@ typedef enum glcd_result glcd_result_t;
 /* Character measuring functions */
 #define lcdMeasureChar(h,f)						(gdispGetCharWidth((h),(f))+(f)->charPadding)
 #define lcdMeasureString(s,f)					(gdispGetStringWidth((s),(f))+(f)->charPadding)
-#define lcdGetFontHeight(font)					gdispGetFontMetric(font, fontHeight)
+#define lcdGetFontHeight(f)						gdispGetFontMetric((f), fontHeight)
 
 /* Size and orientation related */
-#define lcdGetHeight()							(GDISP1.Height)
-#define lcdGetWidth()							(GDISP1.Width)
-#define lcdGetOrientation()						(GDISP1.Orientation)
+#define lcdGetHeight()							(GDISP.Height)
+#define lcdGetWidth()							(GDISP.Width)
+#define lcdGetOrientation()						(GDISP.Orientation)
 
 /* BGR->RGB and pixel readback */
 #define lcdBGR2RGB(c)							RGB2COLOR(BLUE_OF(c),GREEN_OF(c),RED_OF(c))
