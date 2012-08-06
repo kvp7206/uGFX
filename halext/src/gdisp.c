@@ -92,24 +92,6 @@
 
 #if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
 	/**
-	 * @brief   Set the orientation of the display.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
-	 * @note    Depending on the hardware implementation this function may clear
-	 *			the display when changing its orientation.
-	 *
-	 * @param[in] newOrientation The new orientation to use
-	 *
-	 * @api
-	 */
-	void gdispSetOrientation(gdisp_orientation_t newOrientation) {
-		MUTEX_ENTER
-		gdisp_lld_setorientation(newOrientation);
-		MUTEX_EXIT
-	}
-#endif
-
-#if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
-	/**
 	 * @brief   Clear the display to the specified color.
 	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
@@ -688,13 +670,12 @@
 	 */
 	coord_t gdispGetStringWidth(const char* str, font_t font) {
 		/* No mutex required as we only read static data */
-		coord_t		w, h, p, x;
+		coord_t		w, p, x;
 		char		c;
 		int			first;
 		
 		first = 1;
 		x = 0;
-		h = font->height * font->yscale;
 		p = font->charPadding * font->xscale;
 		while(*str) {
 			/* Get the next printable character */

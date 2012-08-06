@@ -200,7 +200,7 @@ extern "C" {
 	void gdispDrawPixel(coord_t x, coord_t y, color_t color);
 	void gdispDrawLine(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color);
 	void gdispFillArea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
-	void gdispBlitArea(coord_t x, coord_t y, coord_t cx, coord_t cy, const pixel_t *buffer);
+	void gdispBlitArea(coord_t x, coord_t y, coord_t cx, coord_t cy, pixel_t *buffer);
 
 	/* Circle Functions */
 	#if GDISP_NEED_CIRCLE
