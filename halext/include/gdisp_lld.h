@@ -37,6 +37,30 @@
 #include "gdisp_lld_config.h"
 
 /*===========================================================================*/
+/* Constants.                                                                */
+/*===========================================================================*/
+
+/**
+ * @brief   Driver Control Constants
+ * @detail	Unsupported control codes are ignored.
+ * @note	The value parameter should always be typecast to (void *).
+ * @note	There are some predefined and some specific to the low level driver.
+ * @note	GDISP_CONTROL_POWER			- Takes a gdisp_powermode_t
+ * 			GDISP_CONTROL_ORIENTATION	- Takes a gdisp_orientation_t
+ * 			GDISP_CONTROL_BACKLIGHT -	 Takes an int from 0 to 100. For a driver
+ * 											that only supports off/on anything other
+ * 											than zero is on.
+ * 			GDISP_CONTROL_CONTRAST		- Takes an int from 0 to 100.
+ * 			GDISP_CONTROL_LLD			- Low level driver control constants start at
+ * 											this value.
+ */
+#define GDISP_CONTROL_POWER			0
+#define GDISP_CONTROL_ORIENTATION	1
+#define GDISP_CONTROL_BACKLIGHT		2
+#define GDISP_CONTROL_CONTRAST		3
+#define GDISP_CONTROL_LLD			1000
+
+/*===========================================================================*/
 /* Error checks.                                                             */
 /*===========================================================================*/
 

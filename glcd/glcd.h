@@ -23,19 +23,42 @@
 
 #include "ch.h"
 #include "hal.h"
-#include "fonts.h"
-
-#if !defined(LCD_USE_FSMC) && !defined(LCD_USE_GPIO) && !defined(LCD_USE_SPI)
-#include "glcdconf.h"
-#endif
-
-#include "ssd1289_lld.h"
-#include "s6d1121_lld.h"
 
 #define PORTRAIT	(lcdGetOrientation() == portrait || lcdGetOrientation() == portraitInv)
 #define LANDSCAPE	(lcdGetOrientation() == landscape || lcdGetOrientation() == landscapeInv)
 
-/* LCD color */
+/* New fonts */
+extern const struct font fontSmall;
+extern const struct font fontSmallDouble;
+extern const struct font fontSmallNarrow;
+extern const struct font fontLarger;
+extern const struct font fontLargerDouble;
+extern const struct font fontLargerNarrow;
+extern const struct font fontUI1;
+extern const struct font fontUI1Double;
+extern const struct font fontUI1Narrow;
+extern const struct font fontUI2;
+extern const struct font fontUI2Double;
+extern const struct font fontUI2Narrow;
+extern const struct font fontLargeNumbers;
+extern const struct font fontLargeNumbersDouble;
+extern const struct font fontLargeNumbersNarrow;
+
+/* Old font names */
+#define font_Small						(&fontSmall)
+#define font_SmallDouble				(&fontSmallDouble)
+#define font_SmallNarrow				(&fontSmall)
+#define font_Larger						(&fontLarger)
+#define font_LargerDouble				(&fontLargerDouble)
+#define font_LargerNarrow				(&fontLargerNarrow)
+#define font_MediumBold					(&fontUI1)
+#define font_MediumBoldDouble			(&fontUI1Double)
+#define font_MediumBoldNarrow			(&fontUI1Narrow)
+#define font_LargeNumbers				(&fontLargeNumbers)
+#define font_LargeNumbersDouble			(&fontLargeNumbersDouble)
+#define font_LargeNumbersNarrow			(&fontLargeNumbersNarrow)
+
+/* LCD color - Note that GLCD only supports 16 bit color in the API */
 #define White          0xFFFF
 #define Black          0x0000
 #define Grey           0xF7DE
@@ -50,15 +73,17 @@
 #define RGB565CONVERT(red, green, blue) \
 (uint16_t)( (( red   >> 3 ) << 11 ) | (( green >> 2 ) << 5  ) | ( blue  >> 3 ))
 
-enum orientation {portrait, landscape, portraitInv, landscapeInv};
+#ifndef _GDISP_LLD_H
+	/* Don't double define these at the low level driver */
+	typedef const struct font *font_t;
+	enum orientation {portrait, landscape, portraitInv, landscapeInv};
+	enum powermode {powerOff, powerSleep, powerOn};
+	#define sleepOn	powerSleep
+	#define sleepOff powerOn
+#endif
+
 enum filled {frame, filled};
 enum transparency {solid, transparent};
-enum powermode {powerOff, powerOn, sleepOn, sleepOff};
-
-typedef const uint8_t* font_t;
-
-// A few macros
-#define lcdGetFontHeight(font)		(font[FONT_TABLE_HEIGHT_IDX])
 
 /**
  * @brief   Structure representing a GLCD driver.
@@ -83,7 +108,6 @@ extern "C" {
 void lcdInit(GLCDDriver *GLCDD1);
 glcd_result_t lcdClear(uint16_t color);
 glcd_result_t lcdSetOrientation(uint8_t newOrientation);
-glcd_result_t lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 glcd_result_t lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
 glcd_result_t lcdWriteArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t *buffer, size_t n);
 glcd_result_t lcdSetPowerMode(uint8_t powerMode);
@@ -103,6 +127,7 @@ void lcdDrawString(uint16_t x, uint16_t y, const char *str, font_t font, uint16_
 /* Character measuring functions */
 uint16_t lcdMeasureChar(char c, font_t font);
 uint16_t lcdMeasureString(const char* str, font_t font);
+uint16_t lcdGetFontHeight(font_t font);
 
 /* Size and orientation related */
 uint16_t lcdGetHeight(void);

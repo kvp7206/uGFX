@@ -18,19 +18,62 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "glcd.h" 
+#include "ch.h"
+#include "hal.h"
+
+#ifdef UNUSED
+#elif defined(__GNUC__)
+# define UNUSED(x) UNUSED_ ## x __attribute__((unused))
+#elif defined(__LCLINT__)
+# define UNUSED(x) /*@unused@*/ x
+#else
+# define UNUSED(x) x
+#endif
+
+/* Hack 1: Manually load the low level driver capabilities first so we can
+ * 			control what we implement with hardware scrolling and pixel read.
+ */
+#include "gdisp_lld_config.h"
+
+/* Hack 2: Force on the bits of functionality that glcd needs. */
+#define HAL_USE_GDISP			TRUE
+#define GDISP_NEED_VALIDATION	FALSE		/* The original glcd didn't so we don't here either */
+#define GDISP_NEED_CIRCLE		TRUE
+#define GDISP_NEED_ELLIPSE		TRUE
+#define GDISP_NEED_TEXT			TRUE
+#define GDISP_NEED_SCROLL		GDISP_HARDWARE_SCROLL
+#define GDISP_NEED_PIXELREAD	GDISP_HARDWARE_PIXELREAD
+#define GDISP_NEED_CONTROL		TRUE
+#define GDISP_NEED_MULTITHREAD	FALSE		/* We implement multi-thread here */
+
+/* Now load the low level driver and font structure definitions */
+#include "gdisp_lld.h"
+#include "gdisp_fonts.h"
+
+/* Hack 3: GLCD only supports RGB565. Anything else would require significant API changes. */
+#ifndef GDISP_PIXELFORMAT_RGB565
+#error "GLCD only support drivers with RGB565 pixel format"
+#endif
+
+/* Now load the glcd headers */
+#include "glcd.h"
 #include "glcdWorker.h"
 
-#define EMSG(a)	const struct a *emsg = (const struct a*)msg
+/* Hack 4: Include the emulation code and font tables.
+ * 			We have to include it here rather than compiling
+ * 			the files as we need to pass our control defines
+ * 			as they are not being defined by the application.
+ * 			We need to turn off the inclusion of gdisp.h due
+ * 			to conflicting type defines etc.
+ */
+#define _GDISP_H						// Prevent gdisp.h from being included
+#include "gdisp_emulation.c"
+#include "gdisp_fonts.c"
 
-uint16_t lcd_width, lcd_height;
+#define EMSG(a)	struct a *emsg = (struct a*)msg
+
 static Thread *workerThread = NULL;
 
-/* internal functions; don't include in header */
-inline glcd_result_t _lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
-inline glcd_result_t _lcdWriteArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t *buffer, size_t n);
-glcd_result_t _lcdDrawChar(struct glcd_msg_draw_char *m);
- 
 static WORKING_AREA(waGLCDWorkerThread, GLCD_WORKER_SIZE);
 static msg_t ThreadGLCDWorker(void *arg) {
 	(void)arg;
@@ -48,88 +91,88 @@ static msg_t ThreadGLCDWorker(void *arg) {
 		switch(msg->action) {
 			case GLCD_SET_POWERMODE: {
 				EMSG(glcd_msg_powermode);
-				lld_lcdSetPowerMode(emsg->powermode);
+				gdisp_lld_control(GDISP_CONTROL_POWER, (void *)(int)emsg->powermode);
 				result = GLCD_DONE;
 				break;
 			}
 
 			case GLCD_SET_ORIENTATION: {
 				EMSG(glcd_msg_orientation);
-				lld_lcdSetOrientation(emsg->newOrientation);
+				gdisp_lld_control(GDISP_CONTROL_ORIENTATION, (void *)(int)emsg->newOrientation);
 				result = GLCD_DONE;
 				break;
 			}
-
-			case GLCD_SET_WINDOW: {
-				EMSG(glcd_msg_set_window);
-				lld_lcdSetWindow(emsg->x0, emsg->y0, emsg->x1, emsg->y1);
-				result = GLCD_DONE;
-				break;
-			}
-
 			case GLCD_FILL_AREA: {
 				EMSG(glcd_msg_fill_area);
-				result = _lcdFillArea(emsg->x0, emsg->y0, emsg->x1, emsg->y1, emsg->color);
+				gdisp_lld_fillarea(emsg->x0, emsg->y0, emsg->x1-emsg->x0+1,emsg->y1-emsg->y0+1,emsg->color);
+				result = GLCD_DONE;
 				break;
 			}
 
 			case GLCD_WRITE_AREA: {
 				EMSG(glcd_msg_write_area);
-				result = _lcdWriteArea(emsg->x0, emsg->y0, emsg->x1, emsg->y1,  emsg->buffer, emsg->size);
+				gdisp_lld_blitarea(emsg->x0, emsg->y0, emsg->x1-emsg->x0+1, emsg->y1-emsg->y0+1, emsg->buffer);
+				result = GLCD_DONE;
 				break;
 			}
 
 			case GLCD_CLEAR: {
 				EMSG(glcd_msg_clear);
-				lld_lcdClear(emsg->color);
+				gdisp_lld_clear(emsg->color);
 				result = GLCD_DONE;
 				break;
 			}
 
 			case GLCD_GET_PIXEL_COLOR: {
-				EMSG(glcd_msg_get_pixel_color);
+				/* Hack 5: This may now fail if the low level driver doesn't
+				 * 			support it. Previously this support was required
+				 * 			in the driver by GLCD
+				 */
+#if GDISP_HARDWARE_READPIXEL
 				((struct glcd_msg_get_pixel_color *)emsg)->color =
-						lld_lcdGetPixelColor(emsg->x, emsg->y);
+						gdisp_lld_getpixelcolor(emsg->x, emsg->y);
 				result = GLCD_DONE;
+#else
+				EMSG(glcd_msg_get_pixel_color);
+				((struct glcd_msg_get_pixel_color *)emsg)->color = 0;
+				result = GLCD_FAILED;
+#endif
 				break;				
 			}
 
 			case GLCD_DRAW_PIXEL: {
 				EMSG(glcd_msg_draw_pixel);
-				lld_lcdDrawPixel(emsg->x, emsg->y, emsg->color);
-				result = GLCD_DONE;
-				break;
-			}
-
-			case GLCD_WRITE_STREAM_START: {
-				lld_lcdWriteStreamStart();
-				result = GLCD_DONE;
-				break;
-			}
-
-			case GLCD_WRITE_STREAM_STOP: {
-				lld_lcdWriteStreamStop();
-				result = GLCD_DONE;
-				break;
-			}
-
-			case GLCD_WRITE_STREAM: {
-				EMSG(glcd_msg_write_stream);
-				lld_lcdWriteStream(emsg->buffer, emsg->size);
+				gdisp_lld_drawpixel(emsg->x, emsg->y, emsg->color);
 				result = GLCD_DONE;
 				break;
 			}
 
 			case GLCD_VERTICAL_SCROLL: {
+				/* Hack 6: This may now fail if the low level driver doesn't
+				 * 			support it. Previously this support was required
+				 * 			in the driver by GLCD
+				 */
+#if GDISP_HARDWARE_SCROLL
 				EMSG(glcd_msg_vertical_scroll);
-				lld_lcdVerticalScroll(emsg->x0, emsg->y0, emsg->x1, emsg->y1, emsg->lines);
+				gdisp_lld_verticalscroll(emsg->x0, emsg->y0, emsg->x1-emsg->x0+1, emsg->y1-emsg->y0+1, emsg->lines, 0);
 				result = GLCD_DONE;
+#else
+				result = GLCD_FAILED;
+#endif
 				break;
 			}
 
 			case GLCD_DRAW_CHAR: {
 				EMSG(glcd_msg_draw_char);
-				result = _lcdDrawChar(emsg);
+				if (emsg->tpText)
+					gdisp_lld_drawchar(emsg->cx, emsg->cy, emsg->c, emsg->font, emsg->color);
+				else
+					gdisp_lld_fillchar(emsg->cx, emsg->cy, emsg->c, emsg->font, emsg->color, emsg->bkcolor);
+				/* We can't normally access a high level function here but in this case it is safe
+				 * because the routine only accesses const data members (multi-thread safe).
+				 */
+				emsg->ret_width = lcdMeasureChar(emsg->c, emsg->font);
+				result = GLCD_DONE;
 				break;
 			}
 
@@ -147,27 +190,22 @@ static msg_t ThreadGLCDWorker(void *arg) {
 	return 0;
 }
 
-void lcdInit(GLCDDriver *glcdp) {
+void lcdInit(GLCDDriver *UNUSED(glcdp)) {
 	workerThread = chThdCreateStatic(waGLCDWorkerThread, sizeof(waGLCDWorkerThread), NORMALPRIO, ThreadGLCDWorker, NULL);
 
-	lld_lcdInit();
-	lcd_width = lcdGetWidth();
-	lcd_height = lcdGetHeight();
-
-	lcdSetPowerMode(powerOn);
-	lcdSetOrientation(portrait);
+	gdisp_lld_init();
 }
 
 uint16_t lcdGetHeight(void) {
-	return lld_lcdGetHeight();
+	return GDISP.Height;
 }
 
 uint16_t lcdGetWidth(void) {
-	return lld_lcdGetWidth();
+	return GDISP.Width;
 }
 
 uint16_t lcdGetOrientation(void) {
-	return lld_lcdGetOrientation();
+	return GDISP.Orientation;
 }
 
 glcd_result_t lcdSetPowerMode(uint8_t powerMode) {
@@ -188,18 +226,6 @@ glcd_result_t lcdSetOrientation(uint8_t newOrientation) {
 	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
 }
 
-glcd_result_t lcdSetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
-	struct glcd_msg_set_window msg;
-
-	msg.action = GLCD_SET_WINDOW;
-	msg.x0 = x0;
-	msg.y0 = y0;
-	msg.x1 = x1;
-	msg.y1 = y1;
-
-	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
-}
-
 glcd_result_t lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
 	struct glcd_msg_fill_area msg;
 
@@ -211,12 +237,6 @@ glcd_result_t lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, ui
 	msg.color = color;
 
 	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
-}
-
-inline glcd_result_t _lcdFillArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
-	lld_lcdFillArea(x0, y0, x1, y1, color);
-
-	return GLCD_DONE;
 }
 
 glcd_result_t lcdWriteArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t *buffer, size_t n) {
@@ -231,15 +251,6 @@ glcd_result_t lcdWriteArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, u
 	msg.size = n;
 
 	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
-}
-
-inline glcd_result_t _lcdWriteArea(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t *buffer, size_t n) {
-	lld_lcdSetWindow(x0, y0, x1, y1);
-	lld_lcdWriteStreamStart();
-	lld_lcdWriteStream(buffer, n);
-	lld_lcdWriteStreamStop();
-
-	return GLCD_DONE;
 }
 
 glcd_result_t lcdClear(uint16_t color) {
@@ -274,32 +285,6 @@ glcd_result_t lcdDrawPixel(uint16_t x, uint16_t y, uint16_t color) {
 	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
 }
 
-glcd_result_t lcdWriteStreamStart(void) {
-	struct glcd_msg_write_stream_start msg;
-
-	msg.action = GLCD_WRITE_STREAM_START;
-
-	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
-}
-
-glcd_result_t lcdWriteStreamStop(void) {
-	struct glcd_msg_write_stream_stop msg;
-
-	msg.action = GLCD_WRITE_STREAM_STOP;
-
-	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
-}
-
-glcd_result_t lcdWriteStream(uint16_t *buffer, uint16_t size) {
-	struct glcd_msg_write_stream msg;
-
-	msg.action = GLCD_WRITE_STREAM;
-	msg.buffer = buffer;
-	msg.size = size;
-
-	return (glcd_result_t)chMsgSend(workerThread, (msg_t)&msg);
-}
-
 glcd_result_t lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, int16_t lines) {
 	struct glcd_msg_vertical_scroll msg;
 
@@ -314,60 +299,16 @@ glcd_result_t lcdVerticalScroll(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t 
 }
 
 void lcdDrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color) {
-	// speed improvement if vertical or horizontal
-	if(x0 == x1) {
-		lcdFillArea(x0, y0, x0+1, y1, color);
-	} else if (y0 == y1) {
-		lcdFillArea(x0, y0, x1, y0+1, color);
+	struct glcd_msg_draw_line msg;
 
-	} else {
-		int16_t dy, dx;
-		int16_t addx = 1, addy = 1;
-		int16_t P, diff;
+	msg.action = GLCD_DRAW_LINE;
+	msg.x0 = x0;
+	msg.y0 = y0;
+	msg.x1 = x1;
+	msg.y1 = y1;
+	msg.color = color;
 
-		int16_t i = 0;
-		dx = abs((int16_t)(x1 - x0));
-		dy = abs((int16_t)(y1 - y0));
-
-		if(x0 > x1)
-			addx = -1;
-		if(y0 > y1)
-			addy = -1;
-
-		if(dx >= dy) {
-			dy *= 2;
-			P = dy - dx;
-			diff = P - dx;
-
-			for(; i<=dx; ++i) {
-				lcdDrawPixel(x0, y0, color);
-				if(P < 0) {
-					P  += dy;
-					x0 += addx;
-				} else {
-					P  += diff;
-					x0 += addx;
-					y0 += addy;
-				}
-			}
-		} else {
-			dx *= 2;
-			P = dx - dy;
-			diff = P - dy;
-
-			for(; i<=dy; ++i) {
-				lcdDrawPixel(x0, y0, color);
-				if(P < 0) {
-					P  += dx;
-					y0 += addy;
-				} else {
-					P  += diff;
-					x0 += addx;
-					y0 += addy;
-				}
-			}
-		}
-	}
+	chMsgSend(workerThread, (msg_t)&msg);
 }
 
 uint16_t lcdDrawChar(uint16_t cx, uint16_t cy, char c, font_t font, uint16_t color, uint16_t bkcolor, bool_t tpText) {
@@ -388,77 +329,31 @@ uint16_t lcdDrawChar(uint16_t cx, uint16_t cy, char c, font_t font, uint16_t col
 	return msg.ret_width;
 }
 
-glcd_result_t _lcdDrawChar(struct glcd_msg_draw_char *m) {
-	/* Working pointer */
-	const uint8_t* ptr;
-	uint8_t x, y;
-	
-	/* Variables to store character details */
-	uint8_t charWidth;
-	uint8_t charHeight = lcdGetFontHeight(m->font);
-	uint8_t padAfterChar = m->font[FONT_TABLE_PAD_AFTER_CHAR_IDX];
-	
-	/* Local var to hold offset in font table */
-	uint16_t charStartOffset;
+void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint16_t color) {
+	struct glcd_msg_draw_circle msg;
 
-	/* Working buffer for fast non-transparent text rendering [patch by Badger] */
-	static uint16_t buf[20*16];
+	msg.action = GLCD_DRAW_CIRCLE;
+	msg.x = x;
+	msg.y = y;
+	msg.radius = radius;
+	msg.filled = filled;
+	msg.color = color;
 
-	/* No support for nongraphic characters, so just ignore them */
-	if(m->c < 0x20 || m->c > 0x7F) {
-		return GLCD_DONE;
-	}
+	chMsgSend(workerThread, (msg_t)&msg);
+}
 
-	/* Read the offset of the character data in the font table from the lookup table */
-	charStartOffset = *(uint16_t*)(&m->font[FONT_TABLE_CHAR_LOOKUP_IDX + (m->c - 0x20) * 2]);
+void lcdDrawEllipse(uint16_t x, uint16_t y, uint16_t a, uint16_t b, uint8_t filled, uint16_t color) {
+	struct glcd_msg_draw_ellipse msg;
 
-	/* After we're done, position the pointer at the offset.
-	 * The first byte that is immediately read will be the font width 
-	 * After that, actual 16-bit font data follows, first column down */
-	ptr = m->font + charStartOffset;
-	charWidth = *(ptr++);
+	msg.action = GLCD_DRAW_ELLIPSE;
+	msg.x = x;
+	msg.y = y;
+	msg.a = a;
+	msg.b = b;
+	msg.filled = filled;
+	msg.color = color;
 
-	/* Loop through the data and display. The font data is LSB first, down the column */
-	for(x = 0; x < charWidth; x++) {
-		/* Get the font bitmap data for the column */
-		uint16_t charData = *(uint16_t*)ptr;
-		
-		for(y = 0; y < charHeight; y++) {
-			/* Draw the LSB on the screen accordingly. */
-			if(!m->tpText) {
-				/* Store data into working buffer (patch by Badger),
-				 * Then write it all onto the LCD in one stroke */
-				buf[y*charWidth + x] = (charData & 0x01) ? m->color : m->bkcolor;
-			} else {
-				/* Just draw the needed pixels onto the LCD */
-				if (charData & 0x01)
-					lcdDrawPixel(m->cx+x, m->cy+y, m->color);
-			}
-			
-			/* Shift the data down by one bit */	
-			charData >>= 1;
-		}
-		
-		/* Increment pointer by 2 bytes to the next column */
-		ptr += 2;
-	}
-
-	if(!m->tpText) {
-		/* [Patch by Badger] Write all in one stroke */
-		_lcdWriteArea(m->cx, m->cy, m->cx+charWidth, m->cy+charHeight, buf, charWidth*charHeight);
-		
-		/* Do padding after character, if needed for solid text rendering
-		 * TODO: To be optimised */
-		if (padAfterChar != 0) {
-			_lcdFillArea(m->cx+charWidth, m->cy+charHeight, m->cx+charWidth+padAfterChar, m->cy+charHeight, m->bkcolor);
-		}
-	}
-
-	/* Return the width of the character, we need it so that lcdDrawString may work
-	 * We don't have a static address counter */
-	m->ret_width = charWidth + padAfterChar;
-
-	return GLCD_DONE;
+	chMsgSend(workerThread, (msg_t)&msg);
 }
 
 /* WARNING: No boundary checks! Unpredictable behaviour if text exceeds boundary */
@@ -471,25 +366,7 @@ void lcdDrawString(uint16_t x, uint16_t y, const char *str, font_t font, uint16_
 }
 
 uint16_t lcdMeasureChar(char c, font_t font) {
-	/* Variables to store character details */
-	uint8_t charWidth;
-	uint8_t padAfterChar = font[FONT_TABLE_PAD_AFTER_CHAR_IDX];
-	
-	/* Local var to hold offset in font table */
-	uint16_t charStartOffset;
-
-	/* No support for nongraphic characters, so just ignore them */
-	if(c < 0x20 || c > 0x7F) {
-		return 0;
-	}
-
-	/* Read the offset of the character data in the font table from the lookup table */
-	charStartOffset = *(uint16_t*)(&font[FONT_TABLE_CHAR_LOOKUP_IDX + (c - 0x20) * 2]);
-
-	/* Retrurn the byte at the offset, that's our charWidth */
-	charWidth = *(font + charStartOffset);
-	
-	return charWidth+padAfterChar;
+	return (_getCharWidth(font, c)+font->charPadding) * font->xscale;
 }
 
 uint16_t lcdMeasureString(const char *str, font_t font) {
@@ -500,6 +377,10 @@ uint16_t lcdMeasureString(const char *str, font_t font) {
 		result += lcdMeasureChar(*str++, font);
 
 	return result;
+}
+
+uint16_t lcdGetFontHeight(font_t font) {
+	return font->height;
 }
 
 uint16_t lcdBGR2RGB(uint16_t color) {
@@ -515,8 +396,8 @@ uint16_t lcdBGR2RGB(uint16_t color) {
 }
 
 void lcdDrawRect(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint8_t filled, uint16_t color) {
-	uint16_t i, TempX;
-	uint16_t j, TempY;
+	uint16_t TempX;
+	uint16_t TempY;
 
 	if (x0 > x1) {
 		TempX = x1;
@@ -548,67 +429,3 @@ void lcdDrawRectString(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, const
 	/* Abhishek: default to solid text for this? */
 	lcdDrawString(x0+off_left, y0+off_up, str, font, fontColor, bkColor, solid);
 }
-
-void lcdDrawCircle(uint16_t x, uint16_t y, uint16_t radius, uint8_t filled, uint16_t color) {
-	int16_t a, b, P;
-	a = 0;
-	b = radius;
-	P = 1 - radius;
-
-	do {
-		if(filled) {
-			lcdDrawLine(x-a, y+b, x+a, y+b, color);
-			lcdDrawLine(x-a, y-b, x+a, y-b, color);
-			lcdDrawLine(x-b, y+a, x+b, y+a, color);
-			lcdDrawLine(x-b, y-a, x+b, y-a, color);
-		} else {
-			lcdDrawPixel(a+x, b+y, color);
-			lcdDrawPixel(b+x, a+y, color);
-			lcdDrawPixel(x-a, b+y, color);
-			lcdDrawPixel(x-b, a+y, color);
-			lcdDrawPixel(b+x, y-a, color);
-			lcdDrawPixel(a+x, y-b, color);
-			lcdDrawPixel(x-a, y-b, color);
-			lcdDrawPixel(x-b, y-a, color);
-		}
-
-		if(P < 0)
-			P += 3 + 2*a++;
-		else
-			P += 5 + 2*(a++ - b--);
-		} while(a <= b);
-}
-
-void lcdDrawEllipse(uint16_t x, uint16_t y, uint16_t a, uint16_t b, uint8_t filled, uint16_t color) {
-	int dx = 0, dy = b; /* im I. Quadranten von links oben nach rechts unten */
-	long a2 = a*a, b2 = b*b;
-	long err = b2-(2*b-1)*a2, e2; /* Fehler im 1. Schritt */
-
-	do {
-        if(filled){
-            lcdDrawLine(x-dx,y+dy,x+dx,y+dy, color);
-            lcdDrawLine(x-dx,y-dy,x+dx,y-dy, color);
-        }else{
-            lcdDrawPixel(x+dx, y+dy, color); /* I. Quadrant */
-            lcdDrawPixel(x-dx, y+dy, color); /* II. Quadrant */
-            lcdDrawPixel(x-dx, y-dy, color); /* III. Quadrant */
-            lcdDrawPixel(x+dx, y-dy, color); /* IV. Quadrant */
-        }
-
-		e2 = 2*err;
-		if(e2 <  (2*dx+1)*b2) {
-			dx++;
-			err += (2*dx+1)*b2;
-		}
-		if(e2 > -(2*dy-1)*a2) {
-			dy--;
-			err -= (2*dy-1)*a2;
-		}
-	} while(dy >= 0); 
-
-	while(dx++ < a) { /* fehlerhafter Abbruch bei flachen Ellipsen (b=1) */
-		lcdDrawPixel(x+dx, y, color); /* -> Spitze der Ellipse vollenden */
-		lcdDrawPixel(x-dx, y, color);
-   }   
-}
-
