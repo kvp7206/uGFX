@@ -218,6 +218,7 @@ extern "C" {
 	#if GDISP_NEED_TEXT
 	void gdispDrawChar(coord_t x, coord_t y, char c, font_t font, color_t color);
 	void gdispFillChar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor);
+	void gdispDrawString(coord_t x, coord_t y, const char *str, font_t font, color_t color);
 	#endif
 	
 	/* Read a pixel Function */
@@ -232,7 +233,7 @@ extern "C" {
 
 	/* Set driver specific control */
 	#if GDISP_NEED_CONTROL
-	void gdispControl(unsigned what, void *value);
+	void gdispControl(int what, void *value);
 	#endif
 
 #else

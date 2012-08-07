@@ -80,7 +80,7 @@ struct font {
 	};
 
 /**
- * @brief   Macro's to get to the complex parts of the font structure.
+ * @brief   Macros to get to the complex parts of the font structure.
  */
 #define _getCharWidth(f,c)		(((c) < (f)->minChar || (c) > (f)->maxChar) ? 0 : (f)->widthTable[(c) - (f)->minChar])
 #define _getCharOffset(f,c)		((f)->offsetTable[(c) - (f)->minChar])
