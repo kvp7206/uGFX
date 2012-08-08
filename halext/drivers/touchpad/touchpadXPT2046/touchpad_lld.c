@@ -50,7 +50,7 @@
 /*===========================================================================*/
 
 #if !defined(__DOXYGEN__)
-	TOUCHPADDriver TOUCHPAD;
+	TOUCHPADDriver Touchpad;
 #endif
 
 /*===========================================================================*/
@@ -72,12 +72,15 @@
 /* ---- Required Routines ---- */
 
 /**
- * @brief   Low level GDISP driver initialization.
+ * @brief   Low level Touchpad driver initialization.
  *
  * @notapi
  */
-void touchpad_lld_init(void) {
+void tp_lld_init(TOUCHPADDriver *tp) {
 	/* Initialise the TOUCHPAD structure */
+
+	/* ToDo */
+	(void)tp;
 }
 
 /**
@@ -85,7 +88,7 @@ void touchpad_lld_init(void) {
  *
  * @notapi
  */
-uint16_t touchpad_lld_read_x(void) {
+uint16_t tp_lld_read_x(void) {
 	/* ToDo */
 	return 0;
 }
@@ -95,7 +98,7 @@ uint16_t touchpad_lld_read_x(void) {
  *
  * @notapi
  */
-uint16_t touchpad_lld_read_y(void) {
+uint16_t tp_lld_read_y(void) {
 	/* ToDo */
 	return 0;
 }
@@ -107,7 +110,7 @@ uint16_t touchpad_lld_read_y(void) {
 	 *
 	 * @notapi
 	 */
-	uint16_t toucpad_lld_read_y(void) {
+	uint16_t tp_lld_read_y(void) {
 		/* ToDo */
 		return 0;
 	}
