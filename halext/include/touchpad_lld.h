@@ -35,7 +35,7 @@
 /* Include the low level driver configuration information                    */
 /*===========================================================================*/
 
-#include "gdisp_lld_config.h"
+#include "touchpad_lld_config.h"
 
 /*===========================================================================*/
 /* Error checks.                                                             */
@@ -48,6 +48,8 @@
 /*===========================================================================*/
 /* Driver types.                                                             */
 /*===========================================================================*/
+
+typedef struct TOUCHPADDriver TOUCHPADDriver;
 
 /**
  * @brief	Structure representing a Touchpad driver.

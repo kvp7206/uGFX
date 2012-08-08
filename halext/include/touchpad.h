@@ -59,21 +59,26 @@ extern "C" {
 	uint16_t tpReadX(void);
 	uint16_t tpReadY(void);
 
+	#if TOUCHPAD_PRESSURE
+
+		uint16_t tpReadZ(void);
+
+	#endif
+
 #else
 
 	#define tpInit(tp)		tp_lld_init(tp)
 	#define	tpReadX()		tp_lld_read_x()
 	#define tpReadY()		tp_lld_read_y()
 
-#endif
+	#if TOUCHPAD_PRESSURE
 
+		#define tpReadZ()	tp_lld_read_z()
 
-
-#if TOUCHPAD_PRESSURE
-
-	uint16_t tpReadZ(void);
+	#endif
 
 #endif
+
 
 #ifdef __cplusplus
 }

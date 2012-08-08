@@ -32,7 +32,7 @@
 #if HAL_USE_TOUCHPAD || defined(__DOXYGEN__)
 
 #if GDISP_NEED_MULTITHREAD
-    #warning "GDISP: Multithread support not complete"
+    #warning "TOUCHPAD: Multithread support not complete"
     #define MUTEX_INIT      /* Not defined yet */
     #define MUTEX_ENTER     /* Not defined yet */
     #define MUTEX_EXIT      /* Not defined yet */
