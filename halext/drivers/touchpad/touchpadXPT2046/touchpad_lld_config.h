@@ -35,9 +35,7 @@
 /* Driver hardware support.                                                  */
 /*===========================================================================*/
 
-#define TOUCHPAD_X_DIRECTION			TRUE
-#define TOUCHPAD_Y_DIRECTION			TRUE
-#define TOUCHPAD_Z_DIRECTION			TRUE	/* pressure measurement */
+#define TOUCHPAD_PRESSURE_DIRECTION			TRUE
 
 #endif	/* HAL_USE_TOUCHPAD */
 
