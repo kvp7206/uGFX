@@ -77,12 +77,12 @@
      */
     void tpInit(TOUCHPADDriver * UNUSED(tp)) {
         /* Initialise Mutex */
-        MUTEX_INIT
+        //MUTEX_INIT
 
         /* Initialise driver */
-        MUTEX_ENTER
-        tp_lld_init(tp);
-        MUTEX_EXIT
+        //MUTEX_ENTER
+        tp_lld_init();
+        //MUTEX_EXIT
     }
 #endif
 
