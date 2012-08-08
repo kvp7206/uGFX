@@ -67,7 +67,7 @@ extern "C" {
 
 #else
 
-	#define tpInit(tp)		tp_lld_init(tp)
+	#define tpInit(tp)		tp_lld_init()
 	#define	tpReadX()		tp_lld_read_x()
 	#define tpReadY()		tp_lld_read_y()
 

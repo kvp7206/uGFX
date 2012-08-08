@@ -19,10 +19,10 @@
 */
 
 /**
- * @file    gdispTestStub/gdisp_lld.c
- * @brief   GDISP Graphics Driver subsystem low level driver source (stub).
+ * @file    touchpadXPT2046/touchpad_lld.c
+ * @brief   Touchpad Driver subsystem low level driver source.
  *
- * @addtogroup GDISP
+ * @addtogroup TOUCHPAD
  * @{
  */
 
@@ -78,7 +78,7 @@
  *
  * @notapi
  */
-void tp_lld_init(TOUCHPADDriver *tp) {
+void tp_lld_init(void) {
 	/* Initialise the TOUCHPAD structure */
 
 	/* ToDo */
@@ -92,7 +92,7 @@ void tp_lld_init(TOUCHPADDriver *tp) {
  */
 uint16_t tp_lld_read_x(void) {
 	/* ToDo */
-	return 0;
+	return 42;
 }
 
 /*
@@ -102,7 +102,7 @@ uint16_t tp_lld_read_x(void) {
  */
 uint16_t tp_lld_read_y(void) {
 	/* ToDo */
-	return 0;
+	return 42;
 }
 
 /* ---- Optional Routines ---- */
@@ -114,7 +114,7 @@ uint16_t tp_lld_read_y(void) {
 	 */
 	uint16_t tp_lld_read_y(void) {
 		/* ToDo */
-		return 0;
+		return 42;
 	}
 #endif
 
