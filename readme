@@ -6,12 +6,7 @@ http://chibios.org/dokuwiki/doku.php?id=chibios:community
 
 
 ## Maintainer & Contributors
-Contributors:
-				- Badger 		-> console implementation and FSMC
-				- Abhishek 		-> font rendering
-				- Ben William		-> fastMath and lcdDrawEllipse()
-				- dxli (Dongxu Li)	-> lcdDrawEllipse() filled option
-				- inmarket			-> ChibiOS'ify and retructure
+please read the contributors.txt file which contains a full history of each contribution
 
 Maintainer:
 				- Joel Bodenmann aka Tectu <joel@unormal.org>

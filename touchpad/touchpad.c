@@ -27,7 +27,7 @@ volatile static struct cal cal = {
 
 static const SPIConfig spicfg = {
 	NULL,
-	GPIOC,
+	TP_CS_PORT,
 	TP_CS,
 	SPI_CR1_SPE | SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0,
 };
