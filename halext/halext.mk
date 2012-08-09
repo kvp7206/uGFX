@@ -3,7 +3,8 @@
 
 HALSRC +=	$(LCDLIB)/halext/src/gdisp.c \
 			$(LCDLIB)/halext/src/gdisp_fonts.c \
-			$(LCDLIB)/halext/src/gdisp_emulation.c
+			$(LCDLIB)/halext/src/gdisp_emulation.c \
+			$(LCDLIB)/halext/src/touchpad.c
 
 # Required include directories
 HALINC +=	$(LCDLIB)/halext/include
