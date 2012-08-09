@@ -36,6 +36,9 @@
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
 
+#define TP_CS_HIGH      palSetPad(TP_CS_PORT, TP_CS)
+#define TP_CS_LOW       palClearPad(TP_CS_PORT, TP_CS)
+
 #ifdef UNUSED
 #elif defined(__GNUC__)
 # define UNUSED(x) UNUSED_ ## x __attribute__((unused))
@@ -67,8 +70,6 @@ static const SPIConfig spicfg = {
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
-#include "xpt2046_lld.c.h"
-
 /*===========================================================================*/
 /* Driver interrupt handlers.                                                */
 /*===========================================================================*/
@@ -94,8 +95,20 @@ void tp_lld_init(TOUCHPADDriver *tp) {
  * @notapi
  */
 uint16_t tp_lld_read_x(void) {
-	/* ToDo */
-	return 42;
+    uint8_t txbuf[1];
+    uint8_t rxbuf[2];
+    uint16_t y;
+
+    txbuf[0] = 0x90;
+    TP_CS_LOW;
+    spiSend(&SPID1, 1, txbuf);
+    spiReceive(&SPID1, 2, rxbuf);
+    TP_CS_HIGH;
+
+    y = rxbuf[0] << 4;
+    y |= rxbuf[1] >> 4;
+
+    return y;
 }
 
 /*
@@ -104,8 +117,20 @@ uint16_t tp_lld_read_x(void) {
  * @notapi
  */
 uint16_t tp_lld_read_y(void) {
-	/* ToDo */
-	return 42;
+    uint8_t txbuf[1];
+    uint8_t rxbuf[2];
+    uint16_t y;
+
+    txbuf[0] = 0x90;
+    TP_CS_LOW;
+    spiSend(&SPID1, 1, txbuf);
+    spiReceive(&SPID1, 2, rxbuf);
+    TP_CS_HIGH;
+
+    y = rxbuf[0] << 4;
+    y |= rxbuf[1] >> 4;
+
+    return y;
 }
 
 /* ---- Optional Routines ---- */
