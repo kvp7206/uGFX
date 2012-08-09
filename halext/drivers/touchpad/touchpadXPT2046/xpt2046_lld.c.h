@@ -62,6 +62,8 @@ __inline uint16_t lld_tpReadY(void) {
 }
 
 __inline uint16_t lld_tpReadZ(void) {
+	/* ToDo */
+
     return 0;
 }
 

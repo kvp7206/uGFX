@@ -27,16 +27,10 @@
  */
 #include "ch.h"
 #include "hal.h"
+#include "gdisp.h"
 #include "touchpad.h"
 
 #if HAL_USE_TOUCHPAD || defined(__DOXYGEN__)
-
-#if GDISP_NEED_MULTITHREAD
-    #warning "TOUCHPAD: Multithread support not complete"
-    #define MUTEX_INIT      /* Not defined yet */
-    #define MUTEX_ENTER     /* Not defined yet */
-    #define MUTEX_EXIT      /* Not defined yet */
-#endif
 
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
@@ -58,6 +52,9 @@
 /*===========================================================================*/
 /* Driver local variables.                                                   */
 /*===========================================================================*/
+volatile static struct cal cal = {
+    1, 1, 0, 0
+};
 
 /*===========================================================================*/
 /* Driver local functions.                                                   */
@@ -67,52 +64,62 @@
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
-#if TOUCHPAD_NEED_MULTITHREAD || defined(__DOXYGEN__)
-    /**
-     * @brief	Touchpad Driver initialization.
-     * @note    This function is NOT currently implicitly invoked by @p halInit().
-     *          It must be called manually.
-     *
-     * @init
-     */
-    void tpInit(TOUCHPADDriver * UNUSED(tp)) {
-        /* Initialise Mutex */
-        //MUTEX_INIT
+/**
+ * @brief	Touchpad Driver initialization.
+ * @note    This function is NOT currently implicitly invoked by @p halInit().
+ *          It must be called manually.
+ *
+ * @init
+ */
+void tpInit(TOUCHPADDriver *tp) {
+	/* Initialise Mutex */
+	//MUTEX_INIT
 
-        /* Initialise driver */
-        //MUTEX_ENTER
-        tp_lld_init();
-        //MUTEX_EXIT
-    }
-#endif
+	/* Initialise driver */
+	//MUTEX_ENTER
+	tp_lld_init(tp);
+	//MUTEX_EXIT
+}
 
-#if TOUCHPAD_NEED_MULTITHREAD || defined(__DOXYGEN__)
-	/**
-	 * @brief	Get the X-Coordinate, relative to screen zero point.
-	 *
-	 * @return	The X position in pixels.
-	 *
-	 * @api
-	 */
-	uint16_t tpReadX(void) {
-		return (tp_lld_read_x());
-	}
-#endif
+/**
+ * @brief	Get the X-Coordinate, relative to screen zero point.
+ *
+ * @return	The X position in pixels.
+ *
+ * @api
+ */
+uint16_t tpReadX(void) {
+	uint16_t x, y;
 
-#if TOUCHPAD_NEED_MULTITHREAD || defined(__DOXYGEN__)
-	/**
-	 * @brief	Get the X-Coordinate, relative to screen zero point.
-	 *
-	 * @return	The Y position in pixels.
-	 *
-	 * @api
-	 */
-	uint16_t tpReadY(void) {
-		return (tp_lld_read_y());
-	}
-#endif
+	x = cal.xm * _tpReadRealX() + cal.xn;
+	y = cal.ym * _tpReadRealY() + cal.yn;
 
-#if TOUCHPAD_NEED_MULTITHREAD || defined(__DOXYGEN__)
+	//switch(gdispGetOrientation()) {
+	switch(portrait) { // implement gdispGetOrientation()  
+		case portrait:
+			return x;
+		case landscape:
+			return SCREEN_HEIGHT - y;
+		case portraitInv:
+			return SCREEN_WIDTH - x;
+		case landscapeInv:
+			return y;
+	}   
+		return x;
+}
+	
+/**
+ * @brief	Get the X-Coordinate, relative to screen zero point.
+ *
+ * @return	The Y position in pixels.
+ *
+ * @api
+ */
+uint16_t tpReadY(void) {
+	return (tp_lld_read_y());
+}
+
+#if TOUCHPAD_PRESSURE || defined(__DOXYGEN__)
 	/**
 	 * @brief	Get the pressure.
 	 *
