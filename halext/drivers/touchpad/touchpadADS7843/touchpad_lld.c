@@ -59,12 +59,6 @@
 /*===========================================================================*/
 /* Driver local variables.                                                   */
 /*===========================================================================*/
-static const SPIConfig spicfg = {
-	NULL,
-	TP_CS_PORT,
-	TP_CS,
-	SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0,
-};
 
 /*===========================================================================*/
 /* Driver local functions.                                                   */
@@ -86,7 +80,7 @@ static const SPIConfig spicfg = {
  * @notapi
  */
 void tp_lld_init(TOUCHPADDriver *tp) {
-	spiStart(tp->spid, &spicfg);
+	spiStart(tp->spid, tp->spicfg);
 }
 
 /**

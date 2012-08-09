@@ -61,9 +61,13 @@ typedef struct TOUCHPADDriver TOUCHPADDriver;
 struct TOUCHPADDriver {
 	/*
 	 * @brief	Pointer to SPI driver.
-	 * @note	SPI driver must be enabled in mcu- and halconf.h
 	 */
 	SPIDriver *spid;
+
+	/*
+	 * @brief	SPI configuration.
+	 */
+	SPIConfig *spicfg;	
 };
 
 /*===========================================================================*/
