@@ -511,10 +511,6 @@ typedef color_t		pixel_t;
  */
 typedef const struct font *font_t;
 /**
- * @brief   Type of a structure representing a GDISP driver.
- */
-typedef struct GDISPDriver GDISPDriver;
-/**
  * @brief   Type for the screen orientation.
  */
 typedef enum orientation {portrait, landscape, portraitInv, landscapeInv} gdisp_orientation_t;

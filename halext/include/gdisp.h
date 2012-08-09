@@ -155,7 +155,7 @@ extern "C" {
 #if GDISP_NEED_MULTITHREAD || GDISP_NEED_ASYNC
 
 	/* Base Functions */
-	bool_t gdispInit(GDISPDriver *gdisp);
+	bool_t gdispInit(void);
 	bool_t gdispIsBusy(void);
 
 	/* Drawing Functions */
@@ -243,9 +243,18 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 	void gdispPackPixels(const pixel_t *buf, coord_t cx, coord_t x, coord_t y, color_t color);
 #endif
 
-/* Deprecated Routines (already!) */
-#define gdispSetPowerMode(powerMode)			gdispControl(GDISP_CONTROL_POWER, (void *)(powerMode))
-#define gdispSetOrientation(newOrientation)		gdispControl(GDISP_CONTROL_ORITENTATION, (void *)(newOrientation))
+/* Macro definitions for common gets and sets */
+#define gdispSetPowerMode(powerMode)			gdispControl(GDISP_CONTROL_POWER, (void *)(unsigned)(powerMode))
+#define gdispSetOrientation(newOrientation)		gdispControl(GDISP_CONTROL_ORITENTATION, (void *)(unsigned)(newOrientation))
+#define gdispSetBacklight(percent)				gdispControl(GDISP_CONTROL_BACKLIGHT, (void *)(unsigned)(percent))
+#define gdispSetContrast(percent)				gdispControl(GDISP_CONTROL_CONTRAST, (void *)(unsigned)(percent))
+
+#define gdispGetWidth()							((coord_t)(unsigned)gdispQuery(GDISP_QUERY_WIDTH))
+#define gdispGetHeight()						((coord_t)(unsigned)gdispQuery(GDISP_QUERY_HEIGHT))
+#define gdispGetPowerMode()						((gdisp_powermode_t)(unsigned)gdispQuery(GDISP_QUERY_POWER))
+#define gdispGetOrientation()					((gdisp_orientation_t)(unsigned)gdispQuery(GDISP_QUERY_ORIENTATION))
+#define gdispGetBacklight()						((coord_t)(unsigned)gdispQuery(GDISP_QUERY_BACKLIGHT))
+#define gdispGetContrast()						((coord_t)(unsigned)gdispQuery(GDISP_QUERY_CONTRAST))
 
 #ifdef __cplusplus
 }
