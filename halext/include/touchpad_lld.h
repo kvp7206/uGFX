@@ -53,17 +53,36 @@
 /* Driver types.                                                             */
 /*===========================================================================*/
 
-typedef struct TOUCHPADDriver TOUCHPADDriver;
+typedef struct _TOUCHPADDriver TOUCHPADDriver;
 
 /**
  * @brief	Structure representing a Touchpad driver.
  */
-struct TOUCHPADDriver {
+struct _TOUCHPADDriver {
 	/*
 	 * @brief	Pointer to SPI driver.
-	 * @note	SPI driver must be enabled in mcu- and halconf.h
+	 * @note	SPI driver must be enabled in mcuconf.h and halconf.h
 	 */
-	SPIDriver *spid;
+	SPIDriver       *spip;
+
+	/*
+     * @brief   Pointer to the SPI configuration structure.
+     * @note    The lowest possible speed ~ 1-2MHz is to be used, otherwise
+     *          will result in a lot of noise
+     */
+	SPIConfig       *spicfg;
+
+	/*
+     * @brief   Touchscreen controller TPIRQ pin GPIO port
+     */
+	ioportid_t      tpIRQPort;
+
+	/*
+     * @brief   Touchscreen controller TPIRQ GPIO pin
+     * @note    The lowest possible speed ~ 1-2MHz is to be used, otherwise
+     *          will result in a lot of noise
+     */
+	ioportmask_t    tpIRQPin;
 };
 
 /*===========================================================================*/
