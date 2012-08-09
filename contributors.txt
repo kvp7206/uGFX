@@ -6,6 +6,7 @@ At this point we want to thank all of these people for their work.
 Date			NickName		RealName				Contribution
 ====			========		========				============
 
+09.08.2012		inmarket		Andrew Hannam			GDISP VMT, ASYNC and MULTITHREAD implementation
 30.07.2012		inmarket		Andrew Hannam			halext implementation
 -				dxli			Dongxu Li				lcdDrawEllipse() filled option
 -				benwilliam		-						fastMath & lcdDrawEllipse()
