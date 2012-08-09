@@ -32,18 +32,12 @@
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
+/* Include the emulation code for things we don't support */
+#include "gdisp_emulation.c"
+
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
-
-#ifdef UNUSED
-#elif defined(__GNUC__)
-# define UNUSED(x) UNUSED_ ## x __attribute__((unused))
-#elif defined(__LCLINT__)
-# define UNUSED(x) /*@unused@*/ x
-#else
-# define UNUSED(x) x
-#endif
 
 /* Controller definitions */
 #if defined(LCD_USE_GE8)
@@ -57,10 +51,6 @@
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
-
-#if !defined(__DOXYGEN__)
-	GDISPDriver GDISP;
-#endif
 
 /*===========================================================================*/
 /* Driver local variables.                                                   */
@@ -79,8 +69,8 @@
 	#include "gdisp_lld_board.h"
 #endif
 
-#define gdisp_lld_write_command(cmd)		gdisp_lld_write_spi((cmd) & ~0x0100)
-#define gdisp_lld_write_data(data)			gdisp_lld_write_spi((data) | 0x0100)
+#define gdisp_lld_write_command(cmd)		GDISP_LLD(write_spi)((cmd) & ~0x0100)
+#define gdisp_lld_write_data(data)			GDISP_LLD(write_spi)((data) | 0x0100)
 
 static __inline void gdisp_lld_setviewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
 	gdisp_lld_write_command(CASET);			// Column address set
@@ -89,12 +79,6 @@ static __inline void gdisp_lld_setviewport(coord_t x, coord_t y, coord_t cx, coo
 	gdisp_lld_write_command(PASET);			// Page address set
 	gdisp_lld_write_data(y);
 	gdisp_lld_write_data(y+cy-1);
-}
-
-void Delay (unsigned long a) {
-	chThdSleepMilliseconds(a/100);
-//	volatile unsigned long d;
-//	for(d=a; d; d--);
 }
 
 /*===========================================================================*/
@@ -116,15 +100,15 @@ void Delay (unsigned long a) {
  *
  * @notapi
  */
-void gdisp_lld_init(void) {
+bool_t GDISP_LLD(init)(void) {
 	/* Initialise your display */
-	gdisp_lld_init_board();
+	GDISP_LLD(init_board)();
 
 	// Hardware reset
-	gdisp_lld_setpin_reset(TRUE);
-	Delay(20000);
-	gdisp_lld_setpin_reset(FALSE);
-	Delay(20000);
+	GDISP_LLD(setpin_reset)(TRUE);
+	chThdSleepMilliseconds(20);
+	GDISP_LLD(setpin_reset)(FALSE);
+	chThdSleepMilliseconds(20);
 
 	#if defined(LCD_USE_GE8)
 		#if 1
@@ -147,7 +131,7 @@ void gdisp_lld_init(void) {
 			gdisp_lld_write_command(VOLCTR);		// Voltage control (contrast setting)
 			gdisp_lld_write_data(32);					// P1 = 32 volume value (experiment with this value to get the best contrast)
 			gdisp_lld_write_data(3);					// P2 = 3 resistance ratio (only value that works)
-			Delay(100000);							// allow power supply to stabilize
+			chThdSleepMilliseconds(100);			// allow power supply to stabilize
 			gdisp_lld_write_command(DISON);			// Turn on the display
 		#else
 			// Alternative
@@ -158,7 +142,7 @@ void gdisp_lld_init(void) {
 			gdisp_lld_write_command(COMSCN);		// COM scan
 			gdisp_lld_write_data(0x00);					// Scan 1-80
 			gdisp_lld_write_command(OSCON);			// Internal oscilator ON
-			Delay(10000);							// wait aproximetly 100ms
+			chThdSleepMilliseconds(100);			// wait aproximetly 100ms
 			gdisp_lld_write_command(SLPOUT);		// Sleep out
 			gdisp_lld_write_command(VOLCTR);		// Voltage control
 			gdisp_lld_write_data(0x1F);					// middle value of V1
@@ -200,15 +184,15 @@ void gdisp_lld_init(void) {
 			gdisp_lld_write_data(0xC8);				// 0xC0 = mirror x and y, reverse rgb
 			gdisp_lld_write_command(SETCON);		// Write contrast
 			gdisp_lld_write_data(0x30);				// contrast - experiental value
-			Delay(2000);
+			chThdSleepMilliseconds(20);
 			gdisp_lld_write_command(DISPON);		// Display On
 		#else
 			// Alternative
 			// Hardware reset commented out
 			gdisp_lld_write_command(SOFTRST);		// Software Reset
-			Delay(2000);
+			chThdSleepMilliseconds(20);
 			gdisp_lld_write_command(INITESC);		// Initial escape
-			Delay(2000);
+			chThdSleepMilliseconds(20);
 			gdisp_lld_write_command(REFSET);		// Refresh set
 			gdisp_lld_write_data(0);
 			gdisp_lld_write_command(DISPCTRL);		// Set Display control
@@ -258,7 +242,7 @@ void gdisp_lld_init(void) {
 			//gdisp_lld_write_data(0x03);					//  must be "1"
 			gdisp_lld_write_command(CONTRAST);			// Write contrast
 			gdisp_lld_write_data(0x3b);						// contrast
-			Delay(2000);
+			chThdSleepMilliseconds(20);
 			gdisp_lld_write_command(TEMPGRADIENT);		// Temperature gradient
 			for(i=0; i<14; i++) gdisp_lld_write_data(0);
 			gdisp_lld_write_command(BOOSTVON);			// Booster voltage ON
@@ -267,13 +251,16 @@ void gdisp_lld_init(void) {
 	#endif
 
 	/* Turn on the back-light */
-	gdisp_lld_setpin_backlight(TRUE);
+	GDISP_LLD(setpin_backlight)(TRUE);
 
 	/* Initialise the GDISP structure to match */
 	GDISP.Width = 132;
 	GDISP.Height = 132;
 	GDISP.Orientation = portrait;
 	GDISP.Powermode = powerOn;
+	GDISP.Backlight = 100;
+	GDISP.Contrast = 50;
+	return TRUE;
 }
 
 /**
@@ -285,7 +272,7 @@ void gdisp_lld_init(void) {
  *
  * @notapi
  */
-void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
+void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	#if GDISP_NEED_VALIDATION
 		if (x >= GDISP.Width || y >= GDISP.Height) return;
 	#endif
@@ -306,11 +293,11 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	Don't bother coding for obvious similar routines if
 	there is no performance penalty as the emulation software
 	makes a good job of using similar routines.
-		eg. If gdisp_lld_fillarea() is defined there is little
-			point in defining gdisp_lld_clear() unless the
+		eg. If fillarea() is defined there is little
+			point in defining clear() unless the
 			performance bonus is significant.
 	For good performance it is suggested to implement
-		gdisp_lld_fillarea() and gdisp_lld_blitarea().
+		fillarea() and blitarea().
 */
 
 #if GDISP_HARDWARE_CLEARS || defined(__DOXYGEN__)
@@ -322,7 +309,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_clear(color_t color) {
+	void GDISP_LLD(clear(color_t color) {
 		/* NOT IMPLEMENTED */
 		/* Nothing to be gained by implementing this
 		 * as fillarea is just as fast.
@@ -341,7 +328,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_drawline(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
+	void GDISP_LLD(drawline)(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
 		/* NOT IMPLEMENTED */
 	}
 #endif
@@ -357,7 +344,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_fillarea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+	void GDISP_LLD(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		unsigned i, tuples;
 
 		#if GDISP_NEED_VALIDATION
@@ -390,7 +377,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_blitarea(coord_t x, coord_t y, coord_t cx, coord_t cy, pixel_t *buffer) {
+	void GDISP_LLD(blitarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, const pixel_t *buffer) {
 		unsigned i, area, tuples;
 		#ifndef GDISP_PACKED_PIXELS
 			color_t	c1, c2;
@@ -451,7 +438,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_drawcircle(coord_t x, coord_t y, coord_t radius, color_t color) {
+	void GDISP_LLD(drawcircle)(coord_t x, coord_t y, coord_t radius, color_t color) {
 		/* NOT IMPLEMENTED */
 	}
 #endif
@@ -469,7 +456,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_fillcircle(coord_t x, coord_t y, coord_t radius, color_t color) {
+	void GDISP_LLD(fillcircle)(coord_t x, coord_t y, coord_t radius, color_t color) {
 		/* NOT IMPLEMENTED */
 	}
 #endif
@@ -487,7 +474,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_drawellipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
+	void GDISP_LLD(drawellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
 		/* NOT IMPLEMENTED */
 	}
 #endif
@@ -505,7 +492,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_fillellipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
+	void GDISP_LLD(fillellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
 		/* NOT IMPLEMENTED */
 	}
 #endif
@@ -525,7 +512,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_drawchar(coord_t x, coord_t y, char c, font_t font, color_t color) {
+	void GDISP_LLD(drawchar)(coord_t x, coord_t y, char c, font_t font, color_t color) {
 		/* NOT IMPLEMENTED */
 	}
 #endif
@@ -542,7 +529,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_fillchar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
+	void GDISP_LLD(fillchar)(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
 		/* NOT IMPLEMENTED */
 	}
 #endif
@@ -557,7 +544,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	color_t gdisp_lld_getpixelcolor(coord_t x, coord_t y) {
+	color_t GDISP_LLD(getpixelcolor)(coord_t x, coord_t y) {
 		/* NOT IMPLEMENTED */
 	}
 #endif
@@ -576,7 +563,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_verticalscroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
+	void GDISP_LLD(verticalscroll)(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
 		/* NOT IMPLEMENTED */
 	}
 #endif
@@ -601,7 +588,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_control(int what, void *value) {
+	void GDISP_LLD(control)(int what, void *value) {
 		/* NOT IMPLEMENTED YET */
 		switch(what) {
 		case GDISP_CONTROL_POWER:
@@ -615,7 +602,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 					/* 	Code here */
 					/* You may need this ---
 						if (GDISP.Powermode != powerSleep)
-							gdisp_lld_init();
+							GDISP_LLD(init();
 					*/
 					break;
 				case powerSleep:
@@ -663,6 +650,38 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 */
 		}
 	}
+#endif
+
+#if (GDISP_NEED_QUERY && GDISP_HARDWARE_QUERY) || defined(__DOXYGEN__)
+/**
+ * @brief   Query a driver value.
+ * @detail	Typecase the result to the type you want.
+ * @note	GDISP_QUERY_WIDTH			- (coord_t)	Gets the width of the screen
+ * 			GDISP_QUERY_HEIGHT			- (coord_t)	Gets the height of the screen
+ * 			GDISP_QUERY_POWER			- (gdisp_powermode_t) Get the current powermode
+ * 			GDISP_QUERY_ORIENTATION		- (gdisp_orientation_t) Get the current screen orientation
+ * 			GDISP_QUERY_BACKLIGHT		- (coord_t) Get the backlight state (0 to 100)
+ * 			GDISP_QUERY_CONTRAST		- (coord_t) Get the contrast (0 to 100).
+ * 			GDISP_QUERY_LLD				- Low level driver control constants start at
+ * 											this value.
+ *
+ * @param[in] what     What to Query
+ *
+ * @notapi
+ */
+void *GDISP_LLD(query)(unsigned what) {
+	switch(what) {
+	case GDISP_QUERY_WIDTH:			return (void *)(unsigned)GDISP.Width;
+	case GDISP_QUERY_HEIGHT:		return (void *)(unsigned)GDISP.Height;
+	case GDISP_QUERY_POWER:			return (void *)(unsigned)GDISP.Powermode;
+	case GDISP_QUERY_ORIENTATION:	return (void *)(unsigned)GDISP.Orientation;
+	case GDISP_QUERY_BACKLIGHT:		return (void *)(unsigned)GDISP.Backlight;
+	case GDISP_QUERY_CONTRAST:		return (void *)(unsigned)GDISP.Contrast;
+	case GDISP_QUERY_LLD+0:
+		/* Code here */
+	default:						return (void *)-1;
+	}
+}
 #endif
 
 #endif /* HAL_USE_GDISP */

@@ -31,6 +31,94 @@
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
 /*===========================================================================*/
+/* Low level driver configuration needs					                     */
+/*===========================================================================*/
+
+/**
+ * @name    GDISP low level driver more complex functionality to be compiled
+ * @{
+ */
+	/**
+	 * @brief   Should all operations be clipped to the screen and colors validated.
+	 * @details	Defaults to TRUE.
+	 * @note    If this is FALSE, any operations that extend beyond the
+	 *          edge of the screen will have undefined results. Any
+	 *			out-of-range colors will produce undefined results.
+	 * @note	If defined then all low level and high level driver routines
+	 *			must check the validity of inputs and do something sensible
+	 *			if they are out of range. It doesn't have to be efficient,
+	 *			just valid.
+	 */
+	#ifndef GDISP_NEED_VALIDATION
+		#define GDISP_NEED_VALIDATION	TRUE
+	#endif
+
+	/**
+	 * @brief   Are circle functions needed.
+	 * @details	Defaults to TRUE
+	 */
+	#ifndef GDISP_NEED_CIRCLE
+		#define GDISP_NEED_CIRCLE		TRUE
+	#endif
+
+	/**
+	 * @brief   Are ellipse functions needed.
+	 * @details	Defaults to TRUE
+	 */
+	#ifndef GDISP_NEED_ELLIPSE
+		#define GDISP_NEED_ELLIPSE		TRUE
+	#endif
+
+	/**
+	 * @brief   Are text functions needed.
+	 * @details	Defaults to TRUE
+	 */
+	#ifndef GDISP_NEED_TEXT
+		#define GDISP_NEED_TEXT			TRUE
+	#endif
+
+	/**
+	 * @brief   Is scrolling needed.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GDISP_NEED_SCROLL
+		#define GDISP_NEED_SCROLL		FALSE
+	#endif
+
+	/**
+	 * @brief   Is the capability to read pixels back needed.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GDISP_NEED_PIXELREAD
+		#define GDISP_NEED_PIXELREAD	FALSE
+	#endif
+
+	/**
+	 * @brief   Control some aspect of the drivers operation.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GDISP_NEED_CONTROL
+		#define GDISP_NEED_CONTROL		FALSE
+	#endif
+
+	/**
+	 * @brief   Query some aspect of the drivers operation.
+	 * @details	Defaults to TRUE
+	 */
+	#ifndef GDISP_NEED_QUERY
+		#define GDISP_NEED_QUERY		TRUE
+	#endif
+
+	/**
+	 * @brief   Is the messaging api interface required.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GDISP_NEED_MSGAPI
+		#define GDISP_NEED_MSGAPI	FALSE
+	#endif
+/** @} */
+
+/*===========================================================================*/
 /* Include the low level driver configuration information                    */
 /*===========================================================================*/
 
@@ -59,6 +147,39 @@
 #define GDISP_CONTROL_BACKLIGHT		2
 #define GDISP_CONTROL_CONTRAST		3
 #define GDISP_CONTROL_LLD			1000
+
+/**
+ * @brief   Driver Query Constants
+ * @detail	Unsupported query codes return (void *)-1.
+ * @note	There are some predefined and some specific to the low level driver.
+ * @note	The result should be typecast the required type.
+ * @note	GDISP_QUERY_WIDTH			- Gets the width of the screen
+ * 			GDISP_QUERY_HEIGHT			- Gets the height of the screen
+ * 			GDISP_QUERY_POWER			- Get the current powermode
+ * 			GDISP_QUERY_ORIENTATION		- Get the current orientation
+ * 			GDISP_QUERY_BACKLIGHT		- Get the backlight state (0 to 100)
+ * 			GDISP_QUERY_CONTRAST		- Get the contrast.
+ * 			GDISP_QUERY_LLD				- Low level driver control constants start at
+ * 											this value.
+ */
+#define GDISP_QUERY_WIDTH			0
+#define GDISP_QUERY_HEIGHT			1
+#define GDISP_QUERY_POWER			2
+#define GDISP_QUERY_ORIENTATION		3
+#define GDISP_QUERY_BACKLIGHT		4
+#define GDISP_QUERY_CONTRAST		5
+#define GDISP_QUERY_LLD				1000
+
+/**
+ * @brief   Driver Pixel Format Constants
+ */
+#define GDISP_PIXELFORMAT_RGB565	565
+#define GDISP_PIXELFORMAT_RGB888	888
+#define GDISP_PIXELFORMAT_RGB444	444
+#define GDISP_PIXELFORMAT_RGB332	332
+#define GDISP_PIXELFORMAT_RGB666	666
+#define GDISP_PIXELFORMAT_CUSTOM	99999
+#define GDISP_PIXELFORMAT_ERROR		88888
 
 /*===========================================================================*/
 /* Error checks.                                                             */
@@ -171,6 +292,14 @@
 	#ifndef GDISP_HARDWARE_CONTROL
 		#define GDISP_HARDWARE_CONTROL			FALSE
 	#endif
+
+	/**
+	 * @brief   The driver supports a non-standard query.
+	 * @details If set to @p FALSE there is no support for non-standard queries.
+	 */
+	#ifndef GDISP_HARDWARE_QUERY
+		#define GDISP_HARDWARE_QUERY			FALSE
+	#endif
 /** @} */
 
 /**
@@ -205,19 +334,21 @@
  */
 	/**
 	 * @brief   The native pixel format for this device
-	 * @note	One of the following should be defined:
+	 * @note	Should be set to one of the following:
 	 *				GDISP_PIXELFORMAT_RGB565
 	 *				GDISP_PIXELFORMAT_RGB888
 	 *				GDISP_PIXELFORMAT_RGB444
 	 *				GDISP_PIXELFORMAT_RGB332
 	 *				GDISP_PIXELFORMAT_RGB666
 	 *				GDISP_PIXELFORMAT_CUSTOM
-	 * @note	If you define GDISP_PIXELFORMAT_CUSTOM you need to also define
+	 * @note	If you set GDISP_PIXELFORMAT_CUSTOM you need to also define
 	 *				color_t, RGB2COLOR(r,g,b), HTML2COLOR(h),
 	 *              RED_OF(c), GREEN_OF(c), BLUE_OF(c),
 	 *              COLOR(c) and MASKCOLOR.
 	 */
-	#define GDISP_PIXELFORMAT_XXXXXX
+	#ifndef GDISP_PIXELFORMAT
+		#define GDISP_PIXELFORMAT	GDISP_PIXELFORMAT_ERROR
+	#endif
 
 	/**
 	 * @brief   Do pixels require packing for a blit
@@ -287,7 +418,7 @@
 	 */
 	#define BLUE_OF(c)			(((c)&0x001F)<<3)
 
-#elif defined(GDISP_PIXELFORMAT_RGB565)
+#elif GDISP_PIXELFORMAT == GDISP_PIXELFORMAT_RGB565
 	typedef uint16_t color_t;
 	#define COLOR(c)			((color_t)(c))
 	#define MASKCOLOR			FALSE
@@ -299,7 +430,7 @@
 	#define RGB565CONVERT(red, green, blue) (uint16_t)( (( red   >> 3 ) << 11 ) | (( green >> 2 ) << 5  ) | ( blue  >> 3 ))
 
 
-#elif defined(GDISP_PIXELFORMAT_RGB888)
+#elif GDISP_PIXELFORMAT == GDISP_PIXELFORMAT_RGB888
 	typedef uint32_t color_t;
 	#define COLOR(c)			((color_t)(((c) & 0xFFFFFF)))
 	#define MASKCOLOR			TRUE
@@ -309,7 +440,7 @@
 	#define GREEN_OF(c)			(((c)&0x00FF00)>>8)
 	#define BLUE_OF(c)			((c)&0x0000FF)
 
-#elif defined(GDISP_PIXELFORMAT_RGB444)
+#elif GDISP_PIXELFORMAT == GDISP_PIXELFORMAT_RGB444
 	typedef uint16_t color_t;
 	#define COLOR(c)			((color_t)(((c) & 0x0FFF)))
 	#define MASKCOLOR			TRUE
@@ -319,7 +450,7 @@
 	#define GREEN_OF(c)			((c)&0x00F0)
 	#define BLUE_OF(c)			(((c)&0x000F)<<4)
 
-#elif defined(GDISP_PIXELFORMAT_RGB332)
+#elif GDISP_PIXELFORMAT == GDISP_PIXELFORMAT_RGB332
 	typedef uint8_t color_t;
 	#define COLOR(c)			((color_t)(c))
 	#define MASKCOLOR			FALSE
@@ -329,7 +460,7 @@
 	#define GREEN_OF(c)			(((c)&0x1C)<<3)
 	#define BLUE_OF(c)			(((c)&0x03)<<6)
 
-#elif defined(GDISP_PIXELFORMAT_RGB666)
+#elif GDISP_PIXELFORMAT == GDISP_PIXELFORMAT_RGB666
 	typedef uint32_t color_t;
 	#define COLOR(c)			((color_t)(((c) & 0x03FFFF)))
 	#define MASKCOLOR			TRUE
@@ -339,7 +470,7 @@
 	#define GREEN_OF(c)			(((c)&0x00FC00)>>8)
 	#define BLUE_OF(c)			(((c)&0x00003F)<<2)
 
-#elif !defined(GDISP_PIXELFORMAT_CUSTOM)
+#elif GDISP_PIXELFORMAT != GDISP_PIXELFORMAT_CUSTOM
 	#error "GDISP: No supported pixel format has been specified."
 #endif
 
@@ -348,10 +479,10 @@
 	#define gdispPackPixels(buf,cx,x,y,c)	{ ((color_t *)(buf))[(y)*(cx)+(x)] = (c); }
 #elif !GDISP_HARDWARE_BITFILLS
 	#error "GDISP: packed pixel formats are only supported for hardware accelerated drivers."
-#elif !defined(GDISP_PIXELFORMAT_RGB888) \
-		&& !defined(GDISP_PIXELFORMAT_RGB444) \
-		&& !defined(GDISP_PIXELFORMAT_RGB666) \
-		&& !defined(GDISP_PIXELFORMAT_CUSTOM)
+#elif GDISP_PIXELFORMAT != GDISP_PIXELFORMAT_RGB888 \
+		&& GDISP_PIXELFORMAT != GDISP_PIXELFORMAT_RGB444 \
+		&& GDISP_PIXELFORMAT != GDISP_PIXELFORMAT_RGB666 \
+		&& GDISP_PIXELFORMAT != GDISP_PIXELFORMAT_CUSTOM
 	#error "GDISP: A packed pixel format has been specified for an unsupported pixel format."
 #endif
 
@@ -392,44 +523,13 @@ typedef enum orientation {portrait, landscape, portraitInv, landscapeInv} gdisp_
  */
 typedef enum powermode {powerOff, powerSleep, powerOn} gdisp_powermode_t;
 
-/**
- * @brief   Structure representing a GDISP driver.
- * @note    Implementations may extend this structure to contain more,
- *          architecture dependent, fields by defining GDISP_DRIVER_EXT_FIELDS
- */
-struct GDISPDriver {
-	/**
-	 * @brief   Width of the screen.
-	 * @note    Read-only.
-	 */
-	coord_t				Width;
-	/**
-	 * @brief   Height of the screen.
-	 * @note    Read-only.
-	 */
-	coord_t				Height;
-	/**
-	 * @brief   Current orientation of the screen.
-	 * @note    Read-only.
-	 */
-	gdisp_orientation_t	Orientation;
-	/**
-	 * @brief   Current power mode of the screen.
-	 * @note    Read-only.
-	 */
-	gdisp_powermode_t	Powermode;
-
-	#if defined(GDISP_DRIVER_EXT_FIELDS)
-	GDISP_DRIVER_EXT_FIELDS
-	#endif
-};
-
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
 
-#if !defined(__DOXYGEN__)
-	extern GDISPDriver GDISP;
+#ifndef GDISP_LLD_VMT
+	/* Special magic stuff for the VMT driver */
+	#define GDISP_LLD_VMT(x) GDISP_LLD(x)
 #endif
 
 #ifdef __cplusplus
@@ -437,49 +537,60 @@ extern "C" {
 #endif
 
 	/* Core functions */
-	void gdisp_lld_init(void);
+	extern bool_t GDISP_LLD(init)(void);
 
 	/* Some of these functions will be implemented in software by the high level driver
 	   depending on the GDISP_HARDWARE_XXX macros defined in gdisp_lld_config.h.
 	 */
 
 	/* Drawing functions */
-	void gdisp_lld_clear(color_t color);
-	void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color);
-	void gdisp_lld_fillarea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
-	void gdisp_lld_blitarea(coord_t x, coord_t y, coord_t cx, coord_t cy, pixel_t *buffer);
-	void gdisp_lld_drawline(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color);
+	extern void GDISP_LLD_VMT(clear)(color_t color);
+	extern void GDISP_LLD_VMT(drawpixel)(coord_t x, coord_t y, color_t color);
+	extern void GDISP_LLD_VMT(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
+	extern void GDISP_LLD_VMT(blitarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, const pixel_t *buffer);
+	extern void GDISP_LLD_VMT(drawline)(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color);
 
 	/* Circular Drawing Functions */
 	#if GDISP_NEED_CIRCLE
-	void gdisp_lld_drawcircle(coord_t x, coord_t y, coord_t radius, color_t color);
-	void gdisp_lld_fillcircle(coord_t x, coord_t y, coord_t radius, color_t color);
+	extern void GDISP_LLD_VMT(drawcircle)(coord_t x, coord_t y, coord_t radius, color_t color);
+	extern void GDISP_LLD_VMT(fillcircle)(coord_t x, coord_t y, coord_t radius, color_t color);
 	#endif
 
 	#if GDISP_NEED_ELLIPSE
-	void gdisp_lld_drawellipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
-	void gdisp_lld_fillellipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
+	extern void GDISP_LLD_VMT(drawellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
+	extern void GDISP_LLD_VMT(fillellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
 	#endif
 
 	/* Text Rendering Functions */
 	#if GDISP_NEED_TEXT
-	void gdisp_lld_drawchar(coord_t x, coord_t y, char c, font_t font, color_t color);
-	void gdisp_lld_fillchar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor);
+	extern void GDISP_LLD_VMT(drawchar)(coord_t x, coord_t y, char c, font_t font, color_t color);
+	extern void GDISP_LLD_VMT(fillchar)(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor);
 	#endif
 
 	/* Pixel readback */
 	#if GDISP_NEED_PIXELREAD
-	color_t gdisp_lld_getpixelcolor(coord_t x, coord_t y);
+	extern color_t GDISP_LLD_VMT(getpixelcolor)(coord_t x, coord_t y);
 	#endif
 
 	/* Scrolling Function - clears the area scrolled out */
 	#if GDISP_NEED_SCROLL
-	void gdisp_lld_verticalscroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor);
+	extern void GDISP_LLD_VMT(verticalscroll)(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor);
 	#endif
 
 	/* Set driver specific control */
 	#if GDISP_NEED_CONTROL
-	void gdisp_lld_control(int what, void *value);
+	extern void GDISP_LLD_VMT(control)(unsigned what, void *value);
+	#endif
+
+	/* Query driver specific data */
+	#if GDISP_NEED_QUERY
+	extern void *GDISP_LLD_VMT(query)(unsigned what);
+	#endif
+
+	/* Messaging API */
+	#if GDISP_NEED_MSGAPI
+	#include "gdisp_lld_msgs.h"
+	extern void GDISP_LLD(msgdispatch)(gdisp_lld_msg_t *msg);
 	#endif
 
 #ifdef __cplusplus

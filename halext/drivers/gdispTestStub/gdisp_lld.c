@@ -32,26 +32,16 @@
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
+/* Include the emulation code for things we don't support */
+#include "gdisp_emulation.c"
+
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
 
-#ifdef UNUSED
-#elif defined(__GNUC__)
-# define UNUSED(x) UNUSED_ ## x __attribute__((unused))
-#elif defined(__LCLINT__)
-# define UNUSED(x) /*@unused@*/ x
-#else
-# define UNUSED(x) x
-#endif
-
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
-
-#if !defined(__DOXYGEN__)
-	GDISPDriver GDISP;
-#endif
 
 /*===========================================================================*/
 /* Driver local variables.                                                   */
@@ -80,12 +70,15 @@
  *
  * @notapi
  */
-void gdisp_lld_init(void) {
+bool_t GDISP_LLD(init)(void) {
 	/* Initialise the GDISP structure */
 	GDISP.Width = 128;
 	GDISP.Height = 128;
 	GDISP.Orientation = portrait;
 	GDISP.Powermode = powerOff;
+	GDISP.Backlight = 100;
+	GDISP.Contrast = 50;
+	return TRUE;
 }
 
 /**
@@ -97,7 +90,7 @@ void gdisp_lld_init(void) {
  *
  * @notapi
  */
-void gdisp_lld_drawpixel(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(color)) {
+void GDISP_LLD(drawpixel)(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(color)) {
 }
 
 /* ---- Optional Routines ---- */
@@ -110,11 +103,11 @@ void gdisp_lld_drawpixel(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(co
 	Don't bother coding for obvious similar routines if
 	there is no performance penalty as the emulation software
 	makes a good job of using similar routines.
-		eg. If gdisp_lld_fillarea() is defined there is little
-			point in defining gdisp_lld_clear() unless the
+		eg. If fillarea() is defined there is little
+			point in defining clear() unless the
 			performance bonus is significant.
 	For good performance it is suggested to implement
-		gdisp_lld_fillarea() and gdisp_lld_blitarea().
+		fillarea() and blitarea().
 */
 
 #if GDISP_HARDWARE_CLEARS || defined(__DOXYGEN__)
@@ -126,7 +119,7 @@ void gdisp_lld_drawpixel(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(co
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_clear(color_t UNUSED(color)) {
+	void GDISP_LLD(clear)(color_t UNUSED(color)) {
 	}
 #endif
 
@@ -141,7 +134,7 @@ void gdisp_lld_drawpixel(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(co
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_drawline(coord_t UNUSED(x0), coord_t UNUSED(y0), coord_t UNUSED(x1), coord_t UNUSED(y1), color_t UNUSED(color)) {
+	void GDISP_LLD(drawline)(coord_t UNUSED(x0), coord_t UNUSED(y0), coord_t UNUSED(x1), coord_t UNUSED(y1), color_t UNUSED(color)) {
 	}
 #endif
 
@@ -156,7 +149,7 @@ void gdisp_lld_drawpixel(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(co
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_fillarea(coord_t UNUSED(x), coord_t UNUSED(y), coord_t UNUSED(cx), coord_t UNUSED(cy), color_t UNUSED(color)) {
+	void GDISP_LLD(fillarea)(coord_t UNUSED(x), coord_t UNUSED(y), coord_t UNUSED(cx), coord_t UNUSED(cy), color_t UNUSED(color)) {
 	}
 #endif
 
@@ -171,7 +164,7 @@ void gdisp_lld_drawpixel(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(co
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_blitarea(coord_t UNUSED(x), coord_t UNUSED(y), coord_t UNUSED(cx), coord_t UNUSED(cy), pixel_t *UNUSED(buffer)) {
+	void GDISP_LLD(blitarea)(coord_t UNUSED(x), coord_t UNUSED(y), coord_t UNUSED(cx), coord_t UNUSED(cy), const pixel_t *UNUSED(buffer)) {
 	}
 #endif
 
@@ -189,7 +182,7 @@ void gdisp_lld_drawpixel(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(co
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_drawcircle(coord_t UNUSED(x), coord_t UNUSED(y), coord_t UNUSED(radius), color_t UNUSED(color)) {
+	void GDISP_LLD(drawcircle)(coord_t UNUSED(x), coord_t UNUSED(y), coord_t UNUSED(radius), color_t UNUSED(color)) {
 	}
 #endif
 
@@ -206,7 +199,7 @@ void gdisp_lld_drawpixel(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(co
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_fillcircle(coord_t UNUSED(x), coord_t UNUSED(y), coord_t UNUSED(radius), color_t UNUSED(color)) {
+	void GDISP_LLD(fillcircle)(coord_t UNUSED(x), coord_t UNUSED(y), coord_t UNUSED(radius), color_t UNUSED(color)) {
 	}
 #endif
 
@@ -223,7 +216,7 @@ void gdisp_lld_drawpixel(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(co
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_drawellipse(coord_t UNUSED(x), coord_t UNUSED(y), coord_t UNUSED(a), coord_t UNUSED(b), color_t UNUSED(color)) {
+	void GDISP_LLD(drawellipse)(coord_t UNUSED(x), coord_t UNUSED(y), coord_t UNUSED(a), coord_t UNUSED(b), color_t UNUSED(color)) {
 	}
 #endif
 
@@ -240,7 +233,7 @@ void gdisp_lld_drawpixel(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(co
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_fillellipse(coord_t UNUSED(x), coord_t UNUSED(y), coord_t UNUSED(a), coord_t UNUSED(b), color_t UNUSED(color)) {
+	void GDISP_LLD(fillellipse)(coord_t UNUSED(x), coord_t UNUSED(y), coord_t UNUSED(a), coord_t UNUSED(b), color_t UNUSED(color)) {
 	}
 #endif
 
@@ -255,7 +248,7 @@ void gdisp_lld_drawpixel(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(co
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_drawchar(coord_t UNUSED(x), coord_t UNUSED(y), char UNUSED(c), font_t UNUSED(font), color_t UNUSED(color)) {
+	void GDISP_LLD(drawchar)(coord_t UNUSED(x), coord_t UNUSED(y), char UNUSED(c), font_t UNUSED(font), color_t UNUSED(color)) {
 	}
 #endif
 
@@ -271,7 +264,7 @@ void gdisp_lld_drawpixel(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(co
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_fillchar(coord_t UNUSED(x), coord_t UNUSED(y), char UNUSED(c), font_t UNUSED(font), color_t UNUSED(color), color_t UNUSED(bgcolor)) {
+	void GDISP_LLD(fillchar)(coord_t UNUSED(x), coord_t UNUSED(y), char UNUSED(c), font_t UNUSED(font), color_t UNUSED(color), color_t UNUSED(bgcolor)) {
 	}
 #endif
 
@@ -285,7 +278,7 @@ void gdisp_lld_drawpixel(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(co
 	 *
 	 * @notapi
 	 */
-	color_t gdisp_lld_getpixelcolor(coord_t UNUSED(x), coord_t UNUSED(y)) {
+	color_t GDISP_LLD(getpixelcolor)(coord_t UNUSED(x), coord_t UNUSED(y)) {
 		return 0;
 	}
 #endif
@@ -304,7 +297,7 @@ void gdisp_lld_drawpixel(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(co
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_verticalscroll(coord_t UNUSED(x), coord_t UNUSED(y), coord_t UNUSED(cx), coord_t UNUSED(cy), int UNUSED(lines), color_t UNUSED(bgcolor)) {
+	void GDISP_LLD(verticalscroll)(coord_t UNUSED(x), coord_t UNUSED(y), coord_t UNUSED(cx), coord_t UNUSED(cy), int UNUSED(lines), color_t UNUSED(bgcolor)) {
 	}
 #endif
 
@@ -328,8 +321,40 @@ void gdisp_lld_drawpixel(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(co
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_control(int UNUSED(what), void *UNUSED(value)) {
+	void GDISP_LLD(control)(unsigned UNUSED(what), void *UNUSED(value)) {
 	}
+#endif
+
+#if (GDISP_NEED_QUERY && GDISP_HARDWARE_QUERY) || defined(__DOXYGEN__)
+/**
+ * @brief   Query a driver value.
+ * @detail	Typecase the result to the type you want.
+ * @note	GDISP_QUERY_WIDTH			- (coord_t)	Gets the width of the screen
+ * 			GDISP_QUERY_HEIGHT			- (coord_t)	Gets the height of the screen
+ * 			GDISP_QUERY_POWER			- (gdisp_powermode_t) Get the current powermode
+ * 			GDISP_QUERY_ORIENTATION		- (gdisp_orientation_t) Get the current screen orientation
+ * 			GDISP_QUERY_BACKLIGHT		- (coord_t) Get the backlight state (0 to 100)
+ * 			GDISP_QUERY_CONTRAST		- (coord_t) Get the contrast (0 to 100).
+ * 			GDISP_QUERY_LLD				- Low level driver control constants start at
+ * 											this value.
+ *
+ * @param[in] what     What to Query
+ *
+ * @notapi
+ */
+void *GDISP_LLD(query)(unsigned what) {
+	switch(what) {
+	case GDISP_QUERY_WIDTH:			return (void *)(unsigned)GDISP.Width;
+	case GDISP_QUERY_HEIGHT:		return (void *)(unsigned)GDISP.Height;
+	case GDISP_QUERY_POWER:			return (void *)(unsigned)GDISP.Powermode;
+	case GDISP_QUERY_ORIENTATION:	return (void *)(unsigned)GDISP.Orientation;
+	case GDISP_QUERY_BACKLIGHT:		return (void *)(unsigned)GDISP.Backlight;
+	case GDISP_QUERY_CONTRAST:		return (void *)(unsigned)GDISP.Contrast;
+	case GDISP_QUERY_LLD+0:
+		/* Code here */
+	default:						return (void *)-1;
+	}
+}
 #endif
 
 #endif /* HAL_USE_GDISP */

@@ -32,26 +32,16 @@
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
+/* Include the emulation code for things we don't support */
+#include "gdisp_emulation.c"
+
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
 
-#ifdef UNUSED
-#elif defined(__GNUC__)
-# define UNUSED(x) UNUSED_ ## x __attribute__((unused))
-#elif defined(__LCLINT__)
-# define UNUSED(x) /*@unused@*/ x
-#else
-# define UNUSED(x) x
-#endif
-
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
-
-#if !defined(__DOXYGEN__)
-	GDISPDriver GDISP;
-#endif
 
 /*===========================================================================*/
 /* Driver local variables.                                                   */
@@ -82,7 +72,7 @@
  *
  * @notapi
  */
-void gdisp_lld_init(void) {
+bool_t GDISP_LLD(init)(void) {
 	palSetPadMode(LCD_RST_GPIO, LCD_RST_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
 	// A Good idea to reset the module before using
 	LCD_RST_LOW;
@@ -208,6 +198,9 @@ void gdisp_lld_init(void) {
 	GDISP.Height = SCREEN_HEIGHT;
 	GDISP.Orientation = portrait;
 	GDISP.Powermode = powerOn;
+	GDISP.Backlight = 100;
+	GDISP.Contrast = 50;
+	return TRUE;
 }
 
 /**
@@ -219,7 +212,7 @@ void gdisp_lld_init(void) {
  *
  * @notapi
  */
-void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
+void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	#if GDISP_NEED_VALIDATION
 		if (x >= GDISP.Width || y >= GDISP.Height) return;
 	#endif
@@ -237,11 +230,11 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	Don't bother coding for obvious similar routines if
 	there is no performance penalty as the emulation software
 	makes a good job of using similar routines.
-		eg. If gdisp_lld_fillarea() is defined there is little
-			point in defining gdisp_lld_clear() unless the
+		eg. If fillarea() is defined there is little
+			point in defining clear() unless the
 			performance bonus is significant.
 	For good performance it is suggested to implement
-		gdisp_lld_fillarea() and gdisp_lld_blitarea().
+		fillarea() and blitarea().
 */
 
 #if GDISP_HARDWARE_CLEARS || defined(__DOXYGEN__)
@@ -253,7 +246,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_clear(color_t color) {
+	void GDISP_LLD(clear)(color_t color) {
 	    unsigned i;
 
 	    lld_lcdSetCursor(0, 0);
@@ -277,7 +270,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_drawline(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
+	void GDISP_LLD(drawline)(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
 		#if GDISP_NEED_VALIDATION
 			/* Need to clip to screen */
 		#endif
@@ -296,7 +289,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_fillarea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+	void GDISP_LLD(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		#if GDISP_NEED_VALIDATION
 			if (cx < 1 || cy < 1 || x >= GDISP.Width || y >= GDISP.Height) return;
 			if (x+cx > GDISP.Width)	cx = GDISP.Width - x;
@@ -326,7 +319,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_blitarea(coord_t x, coord_t y, coord_t cx, coord_t cy, pixel_t *buffer) {
+	void GDISP_LLD(blitarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, const pixel_t *buffer) {
 		unsigned i, area;
 
 		#if GDISP_NEED_VALIDATION
@@ -359,7 +352,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_drawcircle(coord_t x, coord_t y, coord_t radius, color_t color) {
+	void GDISP_LLD(drawcircle)(coord_t x, coord_t y, coord_t radius, color_t color) {
 		#if GDISP_NEED_VALIDATION
 			/* Code here */
 		#endif
@@ -380,7 +373,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_fillcircle(coord_t x, coord_t y, coord_t radius, color_t color) {
+	void GDISP_LLD(fillcircle)(coord_t x, coord_t y, coord_t radius, color_t color) {
 		#if GDISP_NEED_VALIDATION
 			/* Code here */
 		#endif
@@ -401,7 +394,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_drawellipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
+	void GDISP_LLD(drawellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
 		#if GDISP_NEED_VALIDATION
 			/* Code here */
 		#endif
@@ -422,7 +415,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_fillellipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
+	void GDISP_LLD(fillellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
 		#if GDISP_NEED_VALIDATION
 			/* Code here */
 		#endif
@@ -445,7 +438,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_drawchar(coord_t x, coord_t y, char c, font_t font, color_t color) {
+	void GDISP_LLD(drawchar)(coord_t x, coord_t y, char c, font_t font, color_t color) {
 		#if GDISP_NEED_VALIDATION
 			/* Code here */
 		#endif
@@ -465,7 +458,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_fillchar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
+	void GDISP_LLD(fillchar)(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
 		#if GDISP_NEED_VALIDATION
 			/* Code here */
 		#endif
@@ -483,7 +476,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	color_t gdisp_lld_getpixelcolor(coord_t x, coord_t y) {
+	color_t GDISP_LLD(getpixelcolor)(coord_t x, coord_t y) {
 		/* This routine is marked "DO NOT USE" in the original
 		 *  GLCD driver. We just keep our GDISP_HARDWARE_READPIXEL
 		 *  turned off for now.
@@ -520,7 +513,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_verticalscroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
+	void GDISP_LLD(verticalscroll)(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
 		/* This is marked as "TODO: Test this" in the original GLCD driver.
 		 * For now we just leave the GDISP_HARDWARE_SCROLL off.
 		 */
@@ -568,7 +561,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 		lld_lcdSetViewPort(x, lines > 0 ? (y+gap) : y, cx, abslines);
 		lld_lcdWriteStreamStart();
 		gap = cx*abslines;
-		for(i = 0; i < gap; i++) lld_lcdWriteData(bgcolor);
+		for(i = 0; i < gap; i++) lld_lcdWriteData(color);
 		lld_lcdWriteStreamStop();
 		lld_lcdResetViewPort();
 	}
@@ -594,7 +587,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void gdisp_lld_control(int what, void *value) {
+	void GDISP_LLD(control)(unsigned what, void *value) {
 		switch(what) {
 		case GDISP_CONTROL_POWER:
 			if (GDISP.Powermode == (gdisp_powermode_t)value)
@@ -607,7 +600,7 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 					/* 	Code here */
 					/* You may need this ---
 						if (GDISP.Powermode != powerSleep)
-							gdisp_lld_init();
+							GDISP_LLD(init();
 					*/
 					/* break; */
 				case powerSleep:
@@ -657,6 +650,38 @@ void gdisp_lld_drawpixel(coord_t x, coord_t y, color_t color) {
 */
 		}
 	}
+#endif
+
+#if (GDISP_NEED_QUERY && GDISP_HARDWARE_QUERY) || defined(__DOXYGEN__)
+/**
+ * @brief   Query a driver value.
+ * @detail	Typecase the result to the type you want.
+ * @note	GDISP_QUERY_WIDTH			- (coord_t)	Gets the width of the screen
+ * 			GDISP_QUERY_HEIGHT			- (coord_t)	Gets the height of the screen
+ * 			GDISP_QUERY_POWER			- (gdisp_powermode_t) Get the current powermode
+ * 			GDISP_QUERY_ORIENTATION		- (gdisp_orientation_t) Get the current screen orientation
+ * 			GDISP_QUERY_BACKLIGHT		- (coord_t) Get the backlight state (0 to 100)
+ * 			GDISP_QUERY_CONTRAST		- (coord_t) Get the contrast (0 to 100).
+ * 			GDISP_QUERY_LLD				- Low level driver control constants start at
+ * 											this value.
+ *
+ * @param[in] what     What to Query
+ *
+ * @notapi
+ */
+void *GDISP_LLD(query)(unsigned what) {
+	switch(what) {
+	case GDISP_QUERY_WIDTH:			return (void *)(unsigned)GDISP.Width;
+	case GDISP_QUERY_HEIGHT:		return (void *)(unsigned)GDISP.Height;
+	case GDISP_QUERY_POWER:			return (void *)(unsigned)GDISP.Powermode;
+	case GDISP_QUERY_ORIENTATION:	return (void *)(unsigned)GDISP.Orientation;
+	case GDISP_QUERY_BACKLIGHT:		return (void *)(unsigned)GDISP.Backlight;
+	case GDISP_QUERY_CONTRAST:		return (void *)(unsigned)GDISP.Contrast;
+	case GDISP_QUERY_LLD+0:
+		/* Code here */
+	default:						return (void *)-1;
+	}
+}
 #endif
 
 #endif /* HAL_USE_GDISP */

@@ -19,8 +19,8 @@
 */
 
 /**
- * @file    gdispSsd1289/gdisp_lld_config.h
- * @brief   GDISP Graphic Driver subsystem low level driver header for the Ssd1289 display.
+ * @file    gdispVMT/gdisp_lld_config.h
+ * @brief   GDISP Graphic Driver subsystem low level driver header template.
  *
  * @addtogroup GDISP
  * @{
@@ -35,23 +35,24 @@
 /* Driver hardware support.                                                  */
 /*===========================================================================*/
 
-#define GDISP_DRIVER_NAME				"SSD1289"
-#define GDISP_LLD(x)					gdisp_lld_##x##_SSD1289
+#define GDISP_DRIVER_NAME				"VMT"
+#define GDISP_LLD(x)					gdisp_lld_##x##_VMT
+#define GDISP_LLD_VMT(x)				(*GDISP_LLD(x))
 
-#define GDISP_HARDWARE_LINES			FALSE
+#define GDISP_HARDWARE_LINES			TRUE
 #define GDISP_HARDWARE_CLEARS			TRUE
 #define GDISP_HARDWARE_FILLS			TRUE
 #define GDISP_HARDWARE_BITFILLS			TRUE
-#define GDISP_HARDWARE_CIRCLES			FALSE
-#define GDISP_HARDWARE_CIRCLEFILLS		FALSE
-#define GDISP_HARDWARE_ELLIPSES			FALSE
-#define GDISP_HARDWARE_ELLIPSEFILLS		FALSE
-#define GDISP_HARDWARE_TEXT				FALSE
-#define GDISP_HARDWARE_TEXTFILLS		FALSE
+#define GDISP_HARDWARE_CIRCLES			TRUE
+#define GDISP_HARDWARE_CIRCLEFILLS		TRUE
+#define GDISP_HARDWARE_ELLIPSES			TRUE
+#define GDISP_HARDWARE_ELLIPSEFILLS		TRUE
+#define GDISP_HARDWARE_TEXT				TRUE
+#define GDISP_HARDWARE_TEXTFILLS		TRUE
 #define GDISP_HARDWARE_SCROLL			TRUE
 #define GDISP_HARDWARE_PIXELREAD		TRUE
 #define GDISP_HARDWARE_CONTROL			TRUE
-#define GDISP_HARDWARE_QUERY			FALSE
+#define GDISP_HARDWARE_QUERY			TRUE
 
 #define GDISP_SOFTWARE_TEXTFILLDRAW		FALSE
 #define GDISP_SOFTWARE_TEXTBLITCOLUMN	FALSE
