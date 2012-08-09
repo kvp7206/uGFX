@@ -41,8 +41,8 @@
 /* Error checks.                                                             */
 /*===========================================================================*/
 
-#ifndef TOUCHPAD_PRESSURE
-	#define TOUCHPAD_PRESSURE	FALSE
+#ifndef TOUCHPAD_HAS_PRESSURE
+	#define TOUCHPAD_HAS_PRESSURE	FALSE
 #endif
 
 /*===========================================================================*/

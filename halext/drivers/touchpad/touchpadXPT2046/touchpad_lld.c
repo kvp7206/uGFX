@@ -134,7 +134,7 @@ uint16_t tp_lld_read_y(void) {
 }
 
 /* ---- Optional Routines ---- */
-#if TOUCHPAD_PRESSURE || defined(__DOXYGEN__)
+#if TOUCHPAD_HAS_PRESSURE || defined(__DOXYGEN__)
 	/*
 	 * @brief	Reads out the Z direction / pressure.
 	 *

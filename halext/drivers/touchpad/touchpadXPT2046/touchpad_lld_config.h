@@ -35,7 +35,7 @@
 /* Driver hardware support.                                                  */
 /*===========================================================================*/
 
-#define TOUCHPAD_PRESSURE			TRUE
+#define TOUCHPAD_HAS_PRESSURE			TRUE
 
 #endif	/* HAL_USE_TOUCHPAD */
 

@@ -73,8 +73,9 @@ extern "C" {
 void tpInit(TOUCHPADDriver *tp);
 uint16_t tpReadX(void);
 uint16_t tpReadY(void);
+void tpCalibrate(void);
 
-#if TOUCHPAD_PRESSURE
+#if TOUCHPAD_HAS_PRESSURE
 	uint16_t tpReadZ(void);
 #endif
 
