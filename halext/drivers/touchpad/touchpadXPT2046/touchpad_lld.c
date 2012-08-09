@@ -99,7 +99,7 @@ uint16_t tp_lld_read_x(void) {
     uint8_t rxbuf[2];
     uint16_t y;
 
-    txbuf[0] = 0x90;
+    txbuf[0] = 0xd0;
     TP_CS_LOW;
     spiSend(&SPID1, 1, txbuf);
     spiReceive(&SPID1, 2, rxbuf);
