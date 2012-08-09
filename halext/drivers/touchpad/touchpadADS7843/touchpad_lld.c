@@ -52,19 +52,11 @@
 /* Driver exported variables.                                                */
 /*===========================================================================*/
 
-#if !defined(__DOXYGEN__)
-	TOUCHPADDriver Touchpad;
-#endif
 
 /*===========================================================================*/
 /* Driver local variables.                                                   */
 /*===========================================================================*/
-static const SPIConfig spicfg = {
-	NULL,
-	TP_CS_PORT,
-	TP_CS,
-	SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0,
-};
+static TOUCHPADDriver*  tpDriver;
 
 /*===========================================================================*/
 /* Driver local functions.                                                   */
@@ -86,7 +78,7 @@ static const SPIConfig spicfg = {
  * @notapi
  */
 void tp_lld_init(TOUCHPADDriver *tp) {
-	spiStart(tp->spid, &spicfg);
+	spiStart(tp->spip, tp->spicfg);
 }
 
 /**
@@ -100,10 +92,10 @@ uint16_t tp_lld_read_x(void) {
     uint16_t y;
 
     txbuf[0] = 0xd0;
-    TP_CS_LOW;
+    palClearPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
     spiSend(&SPID1, 1, txbuf);
     spiReceive(&SPID1, 2, rxbuf);
-    TP_CS_HIGH;
+    palSetPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
 
     y = rxbuf[0] << 4;
     y |= rxbuf[1] >> 4;
@@ -122,10 +114,10 @@ uint16_t tp_lld_read_y(void) {
     uint16_t y;
 
     txbuf[0] = 0x90;
-    TP_CS_LOW;
+    palClearPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
     spiSend(&SPID1, 1, txbuf);
     spiReceive(&SPID1, 2, rxbuf);
-    TP_CS_HIGH;
+    palSetPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
 
     y = rxbuf[0] << 4;
     y |= rxbuf[1] >> 4;
@@ -142,9 +134,9 @@ uint16_t tp_lld_read_y(void) {
 	 *
 	 * @noapi
 	 */
-	 uint8_t tp_lld_irq(void) {
-		return (!palReadPad(TP_IRQ_PORT, TP_IRQ));
-	}
+    uint8_t tp_lld_irq(void) {
+        return (!palReadPad(tpDriver->tpIRQPort, tpDriver->tpIRQPin));
+    }
 #endif
 
 #endif /* HAL_USE_TOUCHPAD */
