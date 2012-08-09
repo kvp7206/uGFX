@@ -58,9 +58,6 @@ enum transparency {solid, transparent};
 #define font_LargeNumbersDouble			(&fontLargeNumbersDouble)
 #define font_LargeNumbersNarrow			(&fontLargeNumbersNarrow)
 
-#define GLCDDriver	GDISPDriver
-#define GLCDD		GDISP
-
 enum glcd_result {	GLCD_DONE,
 					GLCD_FAILED,
 					GLCD_PROGRESS,

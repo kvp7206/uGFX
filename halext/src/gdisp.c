@@ -154,7 +154,7 @@
 	 *
 	 * @init
 	 */
-	bool_t gdispInit(GDISPDriver * UNUSED(gdisp)) {
+	bool_t gdispInit(void) {
 		bool_t	res;
 
 		/* Initialise Mutex */
@@ -168,7 +168,7 @@
 		return res;
 	}
 #elif GDISP_NEED_ASYNC
-	bool_t gdispInit(GDISPDriver * UNUSED(gdisp)) {
+	bool_t gdispInit(void) {
 		bool_t		res;
 		unsigned	i;
 
