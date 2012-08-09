@@ -74,6 +74,7 @@ static uint16_t _tpReadRealX(void) {
         results += tp_lld_read_x();
     }   
 
+	// 12-bit
     x = (((SCREEN_WIDTH-1) * (results/CONVERSIONS)) / 2048);
 
     return x;
@@ -93,6 +94,7 @@ static uint16_t _tpReadRealY(void) {
         results += tp_lld_read_y();
     }   
 
+	// 12-bit
     y = (((SCREEN_HEIGHT-1) * (results/CONVERSIONS)) / 2048);
 
     return y;
