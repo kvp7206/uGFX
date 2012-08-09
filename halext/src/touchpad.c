@@ -107,7 +107,7 @@ static uint16_t _tpReadRealY(void) {
  * @note    This function is NOT currently implicitly invoked by @p halInit().
  *          It must be called manually.
  *
- * @init
+ * @api
  */
 void tpInit(TOUCHPADDriver *tp) {
 	/* Initialise Mutex */
@@ -177,7 +177,20 @@ uint16_t tpReadY(void) {
 	return y;
 }
 
-#if TOUCHPAD_PRESSURE || defined(__DOXYGEN__)
+#if TOUCHPAD_HAS_IRQ || defined(__DOXYGEN__)
+	/**
+	 * @brief	returns if touchpad is pressed or not
+	 *
+	 * @return	1 if pressed, 0 otherwise
+	 *
+	 * @api
+	 */
+	uint8_t tpIRQ(void) {
+		return tp_lld_irq();
+	}
+#endif
+
+#if TOUCHPAD_HAS_PRESSURE || defined(__DOXYGEN__)
 	/**
 	 * @brief	Get the pressure.
 	 *

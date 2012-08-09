@@ -134,6 +134,19 @@ uint16_t tp_lld_read_y(void) {
 }
 
 /* ---- Optional Routines ---- */
+#if TOUCHPAD_HAS_IRQ || defined(__DOXYGEN__)
+	/*
+	 * @brief	for checking if touchpad is pressed or not.
+	 *
+	 * @return	1 if pressed / 0 if not pressed
+	 *
+	 * @noapi
+	 */
+	 uint8_t tp_lld_irq(void) {
+		return (!palReadPad(TP_IRQ_PORT, TP_IRQ));
+	}
+#endif
+
 #if TOUCHPAD_HAS_PRESSURE || defined(__DOXYGEN__)
 	/*
 	 * @brief	Reads out the Z direction / pressure.

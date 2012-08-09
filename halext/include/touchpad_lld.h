@@ -41,6 +41,10 @@
 /* Error checks.                                                             */
 /*===========================================================================*/
 
+#ifndef TOUCHPAD_HAS_IRQ
+	#define TOUCHPAD_HAS_IRQ	FALSE
+#endif
+
 #ifndef TOUCHPAD_HAS_PRESSURE
 	#define TOUCHPAD_HAS_PRESSURE	FALSE
 #endif
@@ -79,7 +83,11 @@ extern "C" {
 	uint16_t tp_lld_read_x(void);
 	uint16_t tp_lld_read_y(void);
 
-	#if TOUCHPAD_PRESSURE
+	#if TOUCHPAD_HAS_IRQ
+	uint8_t tp_lld_irq(void);
+	#endif
+
+	#if TOUCHPAD_HAS_PRESSURE
 	uint16_t tp_lld_read_z(void);
 	#endif
 
