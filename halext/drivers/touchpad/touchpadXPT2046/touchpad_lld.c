@@ -56,6 +56,12 @@
 /*===========================================================================*/
 /* Driver local variables.                                                   */
 /*===========================================================================*/
+static const SPIConfig spicfg = {
+	NULL,
+	TP_CS_PORT,
+	TP_CS,
+	SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0,
+};
 
 /*===========================================================================*/
 /* Driver local functions.                                                   */
@@ -78,11 +84,8 @@
  *
  * @notapi
  */
-void tp_lld_init(void) {
-	/* Initialise the TOUCHPAD structure */
-
-	/* ToDo */
-	(void)tp;
+void tp_lld_init(TOUCHPADDriver *tp) {
+	spiStart(tp->spid, &spicfg);
 }
 
 /**
@@ -112,7 +115,7 @@ uint16_t tp_lld_read_y(void) {
 	 *
 	 * @notapi
 	 */
-	uint16_t tp_lld_read_y(void) {
+	uint16_t tp_lld_read_z(void) {
 		/* ToDo */
 		return 42;
 	}
@@ -120,3 +123,4 @@ uint16_t tp_lld_read_y(void) {
 
 #endif /* HAL_USE_TOUCHPAD */
 /** @} */
+

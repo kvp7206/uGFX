@@ -21,20 +21,50 @@
 #ifndef _XPT2046_H
 #define _XPT2046_H
 
-void tp_lld_init(TOUCHPADDriver *tp) {
+#include "ch.h"
+#include "hal.h"
 
+#define TP_CS_HIGH      palSetPad(TP_CS_PORT, TP_CS)
+#define TP_CS_LOW       palClearPad(TP_CS_PORT, TP_CS)
+
+__inline uint16_t lld_tpReadX(void) {
+    uint8_t txbuf[1];
+    uint8_t rxbuf[2];
+    uint16_t x;
+
+    txbuf[0] = 0xd0;
+    TP_CS_LOW;
+    spiSend(&SPID1, 1, txbuf);
+    spiReceive(&SPID1, 2, rxbuf);
+    TP_CS_HIGH;
+
+    x = rxbuf[0] << 4;
+    x |= rxbuf[1] >> 4;
+    
+    return x;
 }
 
-uint16_t tp_lld_read_x(void) {
-	return 42;
+__inline uint16_t lld_tpReadY(void) {
+    uint8_t txbuf[1];
+    uint8_t rxbuf[2];
+    uint16_t y;
+
+    txbuf[0] = 0x90;
+    TP_CS_LOW;
+    spiSend(&SPID1, 1, txbuf);
+    spiReceive(&SPID1, 2, rxbuf);
+    TP_CS_HIGH;
+
+    y = rxbuf[0] << 4;
+    y |= rxbuf[1] >> 4;
+
+    return y;
 }
 
-uint16_t tp_lld_read_y(void) {
-	return 42;
+__inline uint16_t lld_tpReadZ(void) {
+    return 0;
 }
 
-uint16_t tp_lld_read_z(void) {
-	return 42;
-}
 
 #endif /* _XPT2046_H */
+

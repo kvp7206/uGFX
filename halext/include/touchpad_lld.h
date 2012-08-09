@@ -55,7 +55,11 @@ typedef struct TOUCHPADDriver TOUCHPADDriver;
  * @brief	Structure representing a Touchpad driver.
  */
 struct TOUCHPADDriver {
-	/* ToDo */	
+	/*
+	 * @brief	Pointer to SPI driver.
+	 * @note	SPI driver must be enabled in mcu- and halconf.h
+	 */
+	SPIDriver *spid;
 };
 
 /*===========================================================================*/
@@ -71,7 +75,7 @@ extern "C" {
 #endif
 
 	/* Core functions */
-	void tp_lld_init(void);
+	void tp_lld_init(TOUCHPADDriver *tp);
 	uint16_t tp_lld_read_x(void);
 	uint16_t tp_lld_read_y(void);
 
