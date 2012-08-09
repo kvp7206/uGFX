@@ -210,7 +210,7 @@ void tpCalibrate(void) {
 
     //gdispSetOrientation(portrait);
     gdispClear(Red);
-    gdispDrawString(40, 10, "Calibration", &fontUI1Double, White);
+	gdispFillStringBox(0, 10, gdispGetWidth(), 30, "Calibration", &fontUI2Double,  White, Red, justifyCenter);
 
     for(i = 0; i < 2; i++) {
         _tpDrawCross(cross[i][0], cross[i][1]);
