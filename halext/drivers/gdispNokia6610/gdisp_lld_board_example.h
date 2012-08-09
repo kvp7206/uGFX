@@ -39,7 +39,7 @@
  *
  * @notapi
  */
-static __inline void gdisp_lld_init_board(void) {
+static __inline void GDISP_LLD(init_board)(void) {
 	/* Code here */
 }
 
@@ -50,7 +50,7 @@ static __inline void gdisp_lld_init_board(void) {
  * 
  * @notapi
  */
-static __inline void gdisp_lld_setpin_reset(bool_t state) {
+static __inline void GDISP_LLD(setpin_reset)(bool_t state) {
 	/* Code here */
 }
 
@@ -61,7 +61,7 @@ static __inline void gdisp_lld_setpin_reset(bool_t state) {
  * 
  * @notapi
  */
-static __inline void gdisp_lld_setpin_backlight(bool_t state) {
+static __inline void GDISP_LLD(setpin_backlight)(bool_t state) {
 	/* Code here */
 }
 
@@ -74,7 +74,7 @@ static __inline void gdisp_lld_setpin_backlight(bool_t state) {
  * 
  * @notapi
  */
-static __inline void gdisp_lld_write_spi(uint16_t data) {
+static __inline void GDISP_LLD(write_spi)(uint16_t data) {
 	/* Code here */
 }
 
@@ -88,7 +88,7 @@ static __inline void gdisp_lld_write_spi(uint16_t data) {
  * 
  * @notapi
  */
-static __inline uint16_t gdisp_lld_read_spi(void) {
+static __inline uint16_t GDISP_LLD(read_spi)(void) {
 	/* Code here */
 }
 #endif

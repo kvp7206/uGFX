@@ -29,17 +29,13 @@
 #include "hal.h"
 #include "gdisp.h"
 
+#ifndef _GDISP_C
+#define _GDISP_C
+
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
 #ifdef GDISP_NEED_TEXT
 	#include "gdisp_fonts.h"
-#endif
-
-#if GDISP_NEED_MULTITHREAD
-	#warning "GDISP: Multithread support not complete"
-	#define MUTEX_INIT		/* Not defined yet */
-	#define MUTEX_ENTER		/* Not defined yet */
-	#define MUTEX_EXIT		/* Not defined yet */
 #endif
 
 /*===========================================================================*/
@@ -55,6 +51,18 @@
 # define UNUSED(x) x
 #endif
 
+#if GDISP_NEED_MULTITHREAD
+	#if !CH_USE_MUTEXES
+		#error "GDISP: CH_USE_MUTEXES must be defined in chconf.h because GDISP_NEED_MULTITHREAD is defined"
+	#endif
+#endif
+
+#if GDISP_NEED_ASYNC
+	#if !CH_USE_MAILBOXES || !CH_USE_MUTEXES || !CH_USE_SEMAPHORES
+		#error "GDISP: CH_USE_MAILBOXES, CH_USE_SEMAPHORES and CH_USE_MUTEXES must be defined in chconf.h because GDISP_NEED_ASYNC is defined"
+	#endif
+#endif
+
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
@@ -63,9 +71,76 @@
 /* Driver local variables.                                                   */
 /*===========================================================================*/
 
+#if GDISP_NEED_MULTITHREAD || GDISP_NEED_ASYNC
+	static Mutex			gdispMutex;
+#endif
+
+#if GDISP_NEED_ASYNC
+	#define GDISP_THREAD_STACK_SIZE	512		/* Just a number - not yet a reflection of actual use */
+	#define GDISP_QUEUE_SIZE		8		/* We only allow a short queue */
+
+	static Thread *			lldThread;
+	static Mailbox			gdispMailbox;
+	static msg_t 			gdispMailboxQueue[GDISP_QUEUE_SIZE];
+	static Semaphore		gdispMsgsSem;
+	static Mutex			gdispMsgsMutex;
+	static gdisp_lld_msg_t	gdispMsgs[GDISP_QUEUE_SIZE];
+	static WORKING_AREA(waGDISPThread, GDISP_THREAD_STACK_SIZE);
+#endif
+
 /*===========================================================================*/
 /* Driver local functions.                                                   */
 /*===========================================================================*/
+
+#if GDISP_NEED_ASYNC
+	static msg_t GDISPThreadHandler(void *UNUSED(arg)) {
+		gdisp_lld_msg_t	*pmsg;
+
+		#if CH_USE_REGISTRY
+			chRegSetThreadName("GDISPAsyncAPI");
+		#endif
+
+		while(1) {
+			/* Wait for msg with work to do. */
+			chMBFetch(&gdispMailbox, (msg_t *)&pmsg, TIME_INFINITE);
+
+			/* OK - we need to obtain the mutex in case a synchronous operation is occurring */
+			chMtxLock(&gdispMutex);
+			GDISP_LLD(msgdispatch)(pmsg);
+			chMtxUnlock();
+
+			/* Mark the message as free */
+			pmsg->action = GDISP_LLD_MSG_NOP;
+			chSemSignal(&gdispMsgsSem);
+		}
+		return 0;
+	}
+
+	static gdisp_lld_msg_t *gdispAllocMsg(gdisp_msgaction_t action) {
+		gdisp_lld_msg_t	*p;
+
+		while(1) {		/* To be sure, to be sure */
+
+			/* Wait for a slot */
+			chSemWait(&gdispMsgsSem);
+
+			/* Find the slot */
+			chMtxLock(&gdispMsgsMutex);
+			for(p=gdispMsgs; p < &gdispMsgs[GDISP_QUEUE_SIZE]; p++) {
+				if (p->action == GDISP_LLD_MSG_NOP) {
+					/* Allocate it */
+					p->action = action;
+					chMtxUnlock();
+					return p;
+				}
+			}
+			chMtxUnlock();
+
+			/* Oops - none found, try again */
+			chSemSignal(&gdispMsgsSem);
+		}
+	}
+#endif
 
 /*===========================================================================*/
 /* Driver exported functions.                                                */
@@ -79,14 +154,62 @@
 	 *
 	 * @init
 	 */
-	void gdispInit(GDISPDriver * UNUSED(gdisp)) {
+	bool_t gdispInit(GDISPDriver * UNUSED(gdisp)) {
+		bool_t	res;
+
 		/* Initialise Mutex */
-		MUTEX_INIT
+		chMtxInit(&gdispMutex);
 
 		/* Initialise driver */
-		MUTEX_ENTER
-		gdisp_lld_init();
-		MUTEX_EXIT
+		chMtxLock(&gdispMutex);
+		res = GDISP_LLD(init)();
+		chMtxUnlock();
+
+		return res;
+	}
+#elif GDISP_NEED_ASYNC
+	bool_t gdispInit(GDISPDriver * UNUSED(gdisp)) {
+		bool_t		res;
+		unsigned	i;
+
+		/* Mark all the Messages as free */
+		for(i=0; i < GDISP_QUEUE_SIZE; i++)
+			gdispMsgs[i].action = GDISP_LLD_MSG_NOP;
+
+		/* Initialise our Mailbox, Mutex's and Counting Semaphore.
+		 * 	A Mutex is required as well as the Mailbox and Thread because some calls have to be synchronous.
+		 *	Synchronous calls get handled by the calling thread, asynchronous by our worker thread.
+		 */
+		chMBInit(&gdispMailbox, gdispMailboxQueue, sizeof(gdispMailboxQueue)/sizeof(gdispMailboxQueue[0]));
+		chMtxInit(&gdispMutex);
+		chMtxInit(&gdispMsgsMutex);
+		chSemInit(&gdispMsgsSem, GDISP_QUEUE_SIZE);
+
+		lldThread = chThdCreateStatic(waGDISPThread, sizeof(waGDISPThread), NORMALPRIO, GDISPThreadHandler, NULL);
+
+		/* Initialise driver - synchronous */
+		chMtxLock(&gdispMutex);
+		res = GDISP_LLD(init)();
+		chMtxUnlock();
+
+		return res;
+	}
+#endif
+
+#if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
+	/**
+	 * @brief   Test if the GDISP engine is currently drawing.
+	 * @note    This function will always return FALSE if
+	 * 			 GDISP_NEED_ASYNC is not defined.
+	 *
+	 * @init
+	 */
+	bool_t gdispIsBusy(void) {
+		return FALSE;
+	}
+#elif GDISP_NEED_ASYNC
+	bool_t gdispIsBusy(void) {
+		return chMBGetUsedCountI(&gdispMailbox) != FALSE;
 	}
 #endif
 
@@ -100,9 +223,15 @@
 	 * @api
 	 */
 	void gdispClear(color_t color) {
-		MUTEX_ENTER
-		gdisp_lld_clear(color);
-		MUTEX_EXIT
+		chMtxLock(&gdispMutex);
+		GDISP_LLD(clear)(color);
+		chMtxUnlock();
+	}
+#elif GDISP_NEED_ASYNC
+	void gdispClear(color_t color) {
+		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_CLEAR);
+		p->clear.color = color;
+		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
 	}
 #endif
 
@@ -117,9 +246,17 @@
 	 * @api
 	 */
 	void gdispDrawPixel(coord_t x, coord_t y, color_t color) {
-		MUTEX_ENTER
-		gdisp_lld_drawpixel(x, y, color);
-		MUTEX_EXIT
+		chMtxLock(&gdispMutex);
+		GDISP_LLD(drawpixel)(x, y, color);
+		chMtxUnlock();
+	}
+#elif GDISP_NEED_ASYNC
+	void gdispDrawPixel(coord_t x, coord_t y, color_t color) {
+		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_DRAWPIXEL);
+		p->drawpixel.x = x;
+		p->drawpixel.y = y;
+		p->drawpixel.color = color;
+		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
 	}
 #endif
 	
@@ -135,9 +272,19 @@
 	 * @api
 	 */
 	void gdispDrawLine(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
-		MUTEX_ENTER
-		gdisp_lld_drawline(x0, y0, x1, y1, color);
-		MUTEX_EXIT
+		chMtxLock(&gdispMutex);
+		GDISP_LLD(drawline)(x0, y0, x1, y1, color);
+		chMtxUnlock();
+	}
+#elif GDISP_NEED_ASYNC
+	void gdispDrawLine(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
+		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_DRAWLINE);
+		p->drawline.x0 = x0;
+		p->drawline.y0 = y0;
+		p->drawline.x1 = x1;
+		p->drawline.y1 = y1;
+		p->drawline.color = color;
+		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
 	}
 #endif
 	
@@ -153,9 +300,19 @@
 	 * @api
 	 */
 	void gdispFillArea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
-		MUTEX_ENTER
-		gdisp_lld_fillarea(x, y, cx, cy, color);
-		MUTEX_EXIT
+		chMtxLock(&gdispMutex);
+		GDISP_LLD(fillarea)(x, y, cx, cy, color);
+		chMtxUnlock();
+	}
+#elif GDISP_NEED_ASYNC
+	void gdispFillArea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_FILLAREA);
+		p->fillarea.x = x;
+		p->fillarea.y = y;
+		p->fillarea.cx = cx;
+		p->fillarea.cy = cy;
+		p->fillarea.color = color;
+		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
 	}
 #endif
 	
@@ -167,6 +324,9 @@
 	 * @note	If a packed pixel format is used and the width doesn't
 	 *			match a whole number of bytes, the next line will start on a
 	 *			non-byte boundary (no end-of-line padding).
+	 * @note	If GDISP_NEED_ASYNC is defined then the buffer must be static
+	 * 			or at least retained until this call has finished the blit. You can
+	 * 			tell when all graphics drawing is finished by @p gdispIsBusy() going FALSE.
 	 *
 	 * @param[in] x0,y0   The start position
 	 * @param[in] cx,cy   The size of the filled area
@@ -174,10 +334,20 @@
 	 *
 	 * @api
 	 */
-	void gdispBlitArea(coord_t x, coord_t y, coord_t cx, coord_t cy, pixel_t *buffer) {
-		MUTEX_ENTER
-		gdisp_lld_blitarea(x, y, cx, cy, buffer);
-		MUTEX_EXIT
+	void gdispBlitArea(coord_t x, coord_t y, coord_t cx, coord_t cy, const pixel_t *buffer) {
+		chMtxLock(&gdispMutex);
+		GDISP_LLD(blitarea)(x, y, cx, cy, buffer);
+		chMtxUnlock();
+	}
+#elif GDISP_NEED_ASYNC
+	void gdispBlitArea(coord_t x, coord_t y, coord_t cx, coord_t cy, const pixel_t *buffer) {
+		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_BLITAREA);
+		p->blitarea.x = x;
+		p->blitarea.y = y;
+		p->blitarea.cx = cx;
+		p->blitarea.cy = cy;
+		p->blitarea.buffer = buffer;
+		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
 	}
 #endif
 	
@@ -193,9 +363,18 @@
 	 * @api
 	 */
 	void gdispDrawCircle(coord_t x, coord_t y, coord_t radius, color_t color) {
-		MUTEX_ENTER
-		gdisp_lld_drawcircle(x, y, radius, color);
-		MUTEX_EXIT
+		chMtxLock(&gdispMutex);
+		GDISP_LLD(drawcircle)(x, y, radius, color);
+		chMtxUnlock();
+	}
+#elif GDISP_NEED_CIRCLE && GDISP_NEED_ASYNC
+	void gdispDrawCircle(coord_t x, coord_t y, coord_t radius, color_t color) {
+		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_DRAWCIRCLE);
+		p->drawcircle.x = x;
+		p->drawcircle.y = y;
+		p->drawcircle.radius = radius;
+		p->drawcircle.color = color;
+		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
 	}
 #endif
 	
@@ -211,9 +390,18 @@
 	 * @api
 	 */
 	void gdispFillCircle(coord_t x, coord_t y, coord_t radius, color_t color) {
-		MUTEX_ENTER
-		gdisp_lld_fillcircle(x, y, radius, color);
-		MUTEX_EXIT
+		chMtxLock(&gdispMutex);
+		GDISP_LLD(fillcircle)(x, y, radius, color);
+		chMtxUnlock();
+	}
+#elif GDISP_NEED_CIRCLE && GDISP_NEED_ASYNC
+	void gdispFillCircle(coord_t x, coord_t y, coord_t radius, color_t color) {
+		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_FILLCIRCLE);
+		p->fillcircle.x = x;
+		p->fillcircle.y = y;
+		p->fillcircle.radius = radius;
+		p->fillcircle.color = color;
+		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
 	}
 #endif
 
@@ -229,9 +417,19 @@
 	 * @api
 	 */
 	void gdispDrawEllipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
-		MUTEX_ENTER
-		gdisp_lld_drawellipse(x, y, a, b, color);
-		MUTEX_EXIT
+		chMtxLock(&gdispMutex);
+		GDISP_LLD(drawellipse)(x, y, a, b, color);
+		chMtxUnlock();
+	}
+#elif GDISP_NEED_ELLIPSE && GDISP_NEED_ASYNC
+	void gdispDrawEllipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
+		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_DRAWELLIPSE);
+		p->drawellipse.x = x;
+		p->drawellipse.y = y;
+		p->drawellipse.a = a;
+		p->drawellipse.b = b;
+		p->drawellipse.color = color;
+		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
 	}
 #endif
 	
@@ -247,9 +445,19 @@
 	 * @api
 	 */
 	void gdispFillEllipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
-		MUTEX_ENTER
-		gdisp_lld_fillellipse(x, y, a, b, color);
-		MUTEX_EXIT
+		chMtxLock(&gdispMutex);
+		GDISP_LLD(fillellipse)(x, y, a, b, color);
+		chMtxUnlock();
+	}
+#elif GDISP_NEED_ELLIPSE && GDISP_NEED_ASYNC
+	void gdispFillEllipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
+		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_FILLELLIPSE);
+		p->fillellipse.x = x;
+		p->fillellipse.y = y;
+		p->fillellipse.a = a;
+		p->fillellipse.b = b;
+		p->fillellipse.color = color;
+		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
 	}
 #endif
 
@@ -265,13 +473,53 @@
 	 * @api
 	 */
 	void gdispDrawChar(coord_t x, coord_t y, char c, font_t font, color_t color) {
-		MUTEX_ENTER
-		gdisp_lld_drawchar(x, y, c, font, color);
-		MUTEX_EXIT
+		chMtxLock(&gdispMutex);
+		GDISP_LLD(drawchar)(x, y, c, font, color);
+		chMtxUnlock();
+	}
+#elif GDISP_NEED_TEXT && GDISP_NEED_ASYNC
+	void gdispDrawChar(coord_t x, coord_t y, char c, font_t font, color_t color) {
+		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_DRAWCHAR);
+		p->drawchar.x = x;
+		p->drawchar.y = y;
+		p->drawchar.c = c;
+		p->drawchar.font = font;
+		p->drawchar.color = color;
+		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+	}
+#endif
+
+#if (GDISP_NEED_TEXT && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Draw a text character with a filled background.
+	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
+	 *
+	 * @param[in] x,y     The position for the text
+	 * @param[in] c       The character to draw
+	 * @param[in] color   The color to use
+	 * @param[in] bgcolor The background color to use
+	 *
+	 * @api
+	 */
+	void gdispFillChar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
+		chMtxLock(&gdispMutex);
+		GDISP_LLD(fillchar)(x, y, c, font, color, bgcolor);
+		chMtxUnlock();
+	}
+#elif GDISP_NEED_TEXT && GDISP_NEED_ASYNC
+	void gdispFillChar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
+		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_FILLCHAR);
+		p->fillchar.x = x;
+		p->fillchar.y = y;
+		p->fillchar.c = c;
+		p->fillchar.font = font;
+		p->fillchar.color = color;
+		p->fillchar.bgcolor = bgcolor;
+		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
 	}
 #endif
 	
-#if (GDISP_NEED_PIXELREAD && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+#if (GDISP_NEED_PIXELREAD && (GDISP_NEED_MULTITHREAD || GDISP_NEED_ASYNC)) || defined(__DOXYGEN__)
 	/**
 	 * @brief   Get the color of a pixel.
 	 * @return  The color of the pixel.
@@ -283,9 +531,10 @@
 	color_t gdispGetPixelColor(coord_t x, coord_t y) {
 		color_t		c;
 
-		MUTEX_ENTER
-		c = gdisp_lld_getpixelcolor(x, y);
-		MUTEX_EXIT
+		/* Always synchronous as it must return a value */
+		chMtxLock(&gdispMutex);
+		c = GDISP_LLD(getpixelcolor)(x, y);
+		chMtxUnlock();
 
 		return c;
 	}
@@ -305,47 +554,66 @@
 	 * @api
 	 */
 	void gdispVerticalScroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
-		MUTEX_ENTER
-		gdisp_lld_verticalscroll(x, y, cx, cy, lines, bgcolor);
-		MUTEX_EXIT
+		chMtxLock(&gdispMutex);
+		GDISP_LLD(verticalscroll)(x, y, cx, cy, lines, bgcolor);
+		chMtxUnlock();
+	}
+#elif GDISP_NEED_SCROLL && GDISP_NEED_ASYNC
+	void gdispVerticalScroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
+		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_VERTICALSCROLL);
+		p->verticalscroll.x = x;
+		p->verticalscroll.y = y;
+		p->verticalscroll.cx = cx;
+		p->verticalscroll.cy = cy;
+		p->verticalscroll.lines = lines;
+		p->verticalscroll.bgcolor = bgcolor;
+		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
 	}
 #endif
 
-#if (GDISP_NEED_TEXT && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw a text character with a filled background.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
-	 *
-	 * @param[in] x,y     The position for the text
-	 * @param[in] c       The character to draw
-	 * @param[in] color   The color to use
-	 * @param[in] bgcolor The background color to use
-	 *
-	 * @api
-	 */
-	void gdispFillChar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
-		MUTEX_ENTER
-		gdisp_lld_fillchar(x, y, c, font, color, bgcolor);
-		MUTEX_EXIT
-	}
-#endif
-	
 #if (GDISP_NEED_CONTROL && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
 	/**
 	 * @brief   Set the power mode for the display.
 	 * @pre     The GDISP unit must have been initialised using @p gdispInit().
 	 * @note    Depending on the hardware implementation this function may not
-	 *          support powerSleep. If not powerSleep is treated the same as powerOn.
-	 *          (sleep allows drawing to the display without the display updating).
+	 *          support some codes. They will be ignored.
 	 *
 	 * @param[in] powerMode The power mode to use
 	 *
 	 * @api
 	 */
-	void gdispControl(int what, void *value) {
-		MUTEX_ENTER
-		gdisp_lld_control(what, value);
-		MUTEX_EXIT
+	void gdispControl(unsigned what, void *value) {
+		chMtxLock(&gdispMutex);
+		GDISP_LLD(control)(what, value);
+		chMtxUnlock();
+	}
+#elif GDISP_NEED_CONTROL && GDISP_NEED_ASYNC
+	void gdispControl(unsigned what, void *value) {
+		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_CONTROL);
+		p->control.what = what;
+		p->control.value = value;
+		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+	}
+#endif
+
+#if (GDISP_NEED_QUERY && (GDISP_NEED_MULTITHREAD || GDISP_NEED_ASYNC)) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Query a property of the display.
+	 * @pre     The GDISP unit must have been initialised using @p gdispInit().
+	 * @note    The result must be typecast to the correct type.
+	 * @note    An uunsupported query will return (void *)-1.
+	 *
+	 * @param[in] what		What to query
+	 *
+	 * @api
+	 */
+	void *gdispQuery(unsigned what) {
+		void *res;
+
+		chMtxLock(&gdispMutex);
+		res = GDISP_LLD(query)(what);
+		chMtxUnlock();
+		return res;
 	}
 #endif
 
@@ -353,44 +621,42 @@
 /* High Level Driver Routines.                                               */
 /*===========================================================================*/
 
-#if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw a rectangular box.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
-	 *
-	 * @param[in] x0,y0   The start position
-	 * @param[in] cx,cy   The size of the box (outside dimensions)
-	 * @param[in] color   The color to use
-	 * @param[in] filled  Should the box should be filled
-	 *
-	 * @api
-	 */
-	void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
-		/* No mutex required as we only call high level functions which have their own mutex */
-		coord_t	x1, y1;
+/**
+ * @brief   Draw a rectangular box.
+ * @pre     The GDISP unit must be in powerOn or powerSleep mode.
+ *
+ * @param[in] x0,y0   The start position
+ * @param[in] cx,cy   The size of the box (outside dimensions)
+ * @param[in] color   The color to use
+ * @param[in] filled  Should the box should be filled
+ *
+ * @api
+ */
+void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+	/* No mutex required as we only call high level functions which have their own mutex */
+	coord_t	x1, y1;
 
-		x1 = x+cx-1;
-		y1 = y+cy-1;
+	x1 = x+cx-1;
+	y1 = y+cy-1;
 
-		if (cx > 2) {
-			if (cy >= 1) {
-				gdisp_lld_drawline(x, y, x1, y, color);
-				if (cy >= 2) {
-					gdisp_lld_drawline(x, y1, x1, y1, color);
-					if (cy > 2) {
-						gdisp_lld_drawline(x, y+1, x, y1-1, color);
-						gdisp_lld_drawline(x1, y+1, x1, y1-1, color);
-					}
+	if (cx > 2) {
+		if (cy >= 1) {
+			gdispDrawLine(x, y, x1, y, color);
+			if (cy >= 2) {
+				gdispDrawLine(x, y1, x1, y1, color);
+				if (cy > 2) {
+					gdispDrawLine(x, y+1, x, y1-1, color);
+					gdispDrawLine(x1, y+1, x1, y1-1, color);
 				}
 			}
-		} else if (cx == 2) {
-			gdisp_lld_drawline(x, y, x, y1, color);
-			gdisp_lld_drawline(x1, y, x1, y1, color);
-		} else if (cx == 1) {
-			gdisp_lld_drawline(x, y, x, y1, color);
 		}
+	} else if (cx == 2) {
+		gdispDrawLine(x, y, x, y1, color);
+		gdispDrawLine(x1, y, x1, y1, color);
+	} else if (cx == 1) {
+		gdispDrawLine(x, y, x, y1, color);
 	}
-#endif
+}
 
 #if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 	/**
@@ -726,4 +992,6 @@
 #endif
 
 #endif /* HAL_USE_GDISP */
+
+#endif /* _GDISP_C */
 /** @} */

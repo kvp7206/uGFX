@@ -35,6 +35,9 @@
 /* Driver hardware support.                                                  */
 /*===========================================================================*/
 
+#define GDISP_DRIVER_NAME				"Nokia6610"
+#define GDISP_LLD(x)					gdisp_lld_##x##_Nokia6610
+
 #define GDISP_HARDWARE_LINES			FALSE
 #define GDISP_HARDWARE_CLEARS			FALSE
 #define GDISP_HARDWARE_FILLS			TRUE
@@ -48,21 +51,14 @@
 #define GDISP_HARDWARE_SCROLL			FALSE
 #define GDISP_HARDWARE_PIXELREAD		FALSE
 #define GDISP_HARDWARE_CONTROL			FALSE
+#define GDISP_HARDWARE_QUERY			FALSE
 
 #define GDISP_SOFTWARE_TEXTFILLDRAW		TRUE
 #define GDISP_SOFTWARE_TEXTBLITCOLUMN	FALSE
 
-#define GDISP_PIXELFORMAT_RGB444
+#define GDISP_PIXELFORMAT				GDISP_PIXELFORMAT_RGB444
 #define GDISP_PACKED_PIXELS				FALSE
 #define GDISP_PACKED_LINES				FALSE
-
-/*===========================================================================*/
-/* Extra fields for the GDISPDriver structure                                 */
-/*===========================================================================*/
-
-/*
-#define GDISP_DRIVER_EXT_FIELDS		int abc; int def;
-*/
 
 #endif	/* HAL_USE_GDISP */
 

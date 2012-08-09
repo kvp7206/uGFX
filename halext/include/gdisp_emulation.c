@@ -28,9 +28,8 @@
 	we call a real low level driver routine and if validation is
 	required - it will do it.
 */
-#include "ch.h"
-#include "hal.h"
-#include "gdisp.h"
+#ifndef GDISP_EMULATION_C
+#define GDISP_EMULATION_C
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
@@ -43,24 +42,25 @@
 # define UNUSED(x) x
 #endif
 
-#if !GDISP_HARDWARE_POWERCONTROL
-	void gdisp_lld_setpowermode(gdisp_powermode_t UNUSED(powerMode)) {
-	}
-#endif
-
-#if !GDISP_HARDWARE_ORIENTATION
-	void gdisp_lld_setorientation(gdisp_orientation_t UNUSED(newOrientation)) {
-	}
+#ifndef GDISP_LLD_NO_STRUCT
+	static struct GDISPDriver {
+		coord_t				Width;
+		coord_t				Height;
+		gdisp_orientation_t	Orientation;
+		gdisp_powermode_t	Powermode;
+		coord_t				Backlight;
+		coord_t				Contrast;
+		} GDISP;
 #endif
 
 #if !GDISP_HARDWARE_CLEARS 
-	void gdisp_lld_clear(color_t color) {
-		gdisp_lld_fillarea(0, 0, GDISP.Width, GDISP.Height, color);
+	void GDISP_LLD(clear)(color_t color) {
+		GDISP_LLD(fillarea)(0, 0, GDISP.Width, GDISP.Height, color);
 	}
 #endif
 
 #if !GDISP_HARDWARE_LINES 
-	void gdisp_lld_drawline(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
+	void GDISP_LLD(drawline)(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
 		int16_t dy, dx;
 		int16_t addx, addy;
 		int16_t P, diff, i;
@@ -69,16 +69,16 @@
 		// speed improvement if vertical or horizontal
 		if (x0 == x1) {
 			if (y1 > y0)
-				gdisp_lld_fillarea(x0, y0, 1, y1-y0+1, color);
+				GDISP_LLD(fillarea)(x0, y0, 1, y1-y0+1, color);
 			else
-				gdisp_lld_fillarea(x0, y1, 1, y0-y1+1, color);
+				GDISP_LLD(fillarea)(x0, y1, 1, y0-y1+1, color);
 			return;
 		}
 		if (y0 == y1) {
 			if (x1 > x0)
-				gdisp_lld_fillarea(x0, y0, x1-x0+1, 1, color);
+				GDISP_LLD(fillarea)(x0, y0, x1-x0+1, 1, color);
 			else
-				gdisp_lld_fillarea(x0, y1, x0-x1+1, 1, color);
+				GDISP_LLD(fillarea)(x0, y1, x0-x1+1, 1, color);
 			return;
 		}
 		#endif
@@ -104,7 +104,7 @@
 			diff = P - dx;
 
 			for(i=0; i<=dx; ++i) {
-				gdisp_lld_drawpixel(x0, y0, color);
+				GDISP_LLD(drawpixel)(x0, y0, color);
 				if (P < 0) {
 					P  += dy;
 					x0 += addx;
@@ -120,7 +120,7 @@
 			diff = P - dy;
 
 			for(i=0; i<=dy; ++i) {
-				gdisp_lld_drawpixel(x0, y0, color);
+				GDISP_LLD(drawpixel)(x0, y0, color);
 				if (P < 0) {
 					P  += dx;
 					y0 += addy;
@@ -135,16 +135,16 @@
 #endif
 
 #if !GDISP_HARDWARE_FILLS
-	void gdisp_lld_fillarea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+	void GDISP_LLD(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		#if GDISP_HARDWARE_SCROLL
-			gdisp_lld_verticalscroll(x, y, cx, cy, cy, color);
+			GDISP_LLD(verticalscroll)(x, y, cx, cy, cy, color);
 		#elif GDISP_HARDWARE_LINES
 			coord_t x1, y1;
 			
 			x1 = x + cx - 1;
 			y1 = y + cy;
 			for(; y < y1; y++)
-				gdisp_lld_drawline(x, y, x1, y, color);
+				GDISP_LLD(drawline)(x, y, x1, y, color);
 		#else
 			coord_t x0, x1, y1;
 			
@@ -153,13 +153,13 @@
 			y1 = y + cy;
 			for(; y < y1; y++)
 				for(x = x0; x < x1; x++)
-					gdisp_lld_drawpixel(x, y, color);
+					GDISP_LLD(drawpixel)(x, y, color);
 		#endif
 	}
 #endif
 
 #if !GDISP_HARDWARE_BITFILLS
-	void gdisp_lld_blitarea(coord_t x, coord_t y, coord_t cx, coord_t cy, pixel_t *buffer) {
+	void GDISP_LLD(blitarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, const pixel_t *buffer) {
 			coord_t x0, x1, y1;
 			
 			x0 = x;
@@ -167,12 +167,12 @@
 			y1 = y + cy;
 			for(; y < y1; y++)
 				for(x = x0; x < x1; x++)
-					gdisp_lld_drawpixel(x, y, *buffer++);
+					GDISP_LLD(drawpixel)(x, y, *buffer++);
 	}
 #endif
 
 #if GDISP_NEED_CIRCLE && !GDISP_HARDWARE_CIRCLES
-	void gdisp_lld_drawcircle(coord_t x, coord_t y, coord_t radius, color_t color) {
+	void GDISP_LLD(drawcircle)(coord_t x, coord_t y, coord_t radius, color_t color) {
 		int16_t a, b, P;
 
 		a = 0;
@@ -180,14 +180,14 @@
 		P = 1 - radius;
 
 		do {
-			gdisp_lld_drawpixel(a+x, b+y, color);
-			gdisp_lld_drawpixel(b+x, a+y, color);
-			gdisp_lld_drawpixel(x-a, b+y, color);
-			gdisp_lld_drawpixel(x-b, a+y, color);
-			gdisp_lld_drawpixel(b+x, y-a, color);
-			gdisp_lld_drawpixel(a+x, y-b, color);
-			gdisp_lld_drawpixel(x-a, y-b, color);
-			gdisp_lld_drawpixel(x-b, y-a, color);
+			GDISP_LLD(drawpixel)(a+x, b+y, color);
+			GDISP_LLD(drawpixel)(b+x, a+y, color);
+			GDISP_LLD(drawpixel)(x-a, b+y, color);
+			GDISP_LLD(drawpixel)(x-b, a+y, color);
+			GDISP_LLD(drawpixel)(b+x, y-a, color);
+			GDISP_LLD(drawpixel)(a+x, y-b, color);
+			GDISP_LLD(drawpixel)(x-a, y-b, color);
+			GDISP_LLD(drawpixel)(x-b, y-a, color);
 			if (P < 0)
 				P += 3 + 2*a++;
 			else
@@ -197,7 +197,7 @@
 #endif
 
 #if GDISP_NEED_CIRCLE && !GDISP_HARDWARE_CIRCLEFILLS
-	void gdisp_lld_fillcircle(coord_t x, coord_t y, coord_t radius, color_t color) {
+	void GDISP_LLD(fillcircle)(coord_t x, coord_t y, coord_t radius, color_t color) {
 		int16_t a, b, P;
 		
 		a = 0;
@@ -205,10 +205,10 @@
 		P = 1 - radius;
 
 		do {
-			gdisp_lld_drawline(x-a, y+b, x+a, y+b, color);
-			gdisp_lld_drawline(x-a, y-b, x+a, y-b, color);
-			gdisp_lld_drawline(x-b, y+a, x+b, y+a, color);
-			gdisp_lld_drawline(x-b, y-a, x+b, y-a, color);
+			GDISP_LLD(drawline)(x-a, y+b, x+a, y+b, color);
+			GDISP_LLD(drawline)(x-a, y-b, x+a, y-b, color);
+			GDISP_LLD(drawline)(x-b, y+a, x+b, y+a, color);
+			GDISP_LLD(drawline)(x-b, y-a, x+b, y-a, color);
 			if (P < 0)
 				P += 3 + 2*a++;
 			else
@@ -218,16 +218,16 @@
 #endif
 
 #if GDISP_NEED_ELLIPSE && !GDISP_HARDWARE_ELLIPSES
-	void gdisp_lld_drawellipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
+	void GDISP_LLD(drawellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
 		int  dx = 0, dy = b; /* im I. Quadranten von links oben nach rechts unten */
 		long a2 = a*a, b2 = b*b;
 		long err = b2-(2*b-1)*a2, e2; /* Fehler im 1. Schritt */
 
 		do {
-			gdisp_lld_drawpixel(x+dx, y+dy, color); /* I. Quadrant */
-			gdisp_lld_drawpixel(x-dx, y+dy, color); /* II. Quadrant */
-			gdisp_lld_drawpixel(x-dx, y-dy, color); /* III. Quadrant */
-			gdisp_lld_drawpixel(x+dx, y-dy, color); /* IV. Quadrant */
+			GDISP_LLD(drawpixel)(x+dx, y+dy, color); /* I. Quadrant */
+			GDISP_LLD(drawpixel)(x-dx, y+dy, color); /* II. Quadrant */
+			GDISP_LLD(drawpixel)(x-dx, y-dy, color); /* III. Quadrant */
+			GDISP_LLD(drawpixel)(x+dx, y-dy, color); /* IV. Quadrant */
 
 			e2 = 2*err;
 			if(e2 <  (2*dx+1)*b2) {
@@ -241,21 +241,21 @@
 		} while(dy >= 0); 
 
 		while(dx++ < a) { /* fehlerhafter Abbruch bei flachen Ellipsen (b=1) */
-			gdisp_lld_drawpixel(x+dx, y, color); /* -> Spitze der Ellipse vollenden */
-			gdisp_lld_drawpixel(x-dx, y, color);
+			GDISP_LLD(drawpixel)(x+dx, y, color); /* -> Spitze der Ellipse vollenden */
+			GDISP_LLD(drawpixel)(x-dx, y, color);
 	   }   
 	}
 #endif
 
 #if GDISP_NEED_ELLIPSE && !GDISP_HARDWARE_ELLIPSEFILLS
-	void gdisp_lld_fillellipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
+	void GDISP_LLD(fillellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
 		int  dx = 0, dy = b; /* im I. Quadranten von links oben nach rechts unten */
 		long a2 = a*a, b2 = b*b;
 		long err = b2-(2*b-1)*a2, e2; /* Fehler im 1. Schritt */
 
 		do {
-			gdisp_lld_drawline(x-dx,y+dy,x+dx,y+dy, color);
-			gdisp_lld_drawline(x-dx,y-dy,x+dx,y-dy, color);
+			GDISP_LLD(drawline)(x-dx,y+dy,x+dx,y+dy, color);
+			GDISP_LLD(drawline)(x-dx,y-dy,x+dx,y-dy, color);
 
 			e2 = 2*err;
 			if(e2 <  (2*dx+1)*b2) {
@@ -269,8 +269,8 @@
 		} while(dy >= 0); 
 
 		while(dx++ < a) { /* fehlerhafter Abbruch bei flachen Ellipsen (b=1) */
-			gdisp_lld_drawpixel(x+dx, y, color); /* -> Spitze der Ellipse vollenden */
-			gdisp_lld_drawpixel(x-dx, y, color);
+			GDISP_LLD(drawpixel)(x+dx, y, color); /* -> Spitze der Ellipse vollenden */
+			GDISP_LLD(drawpixel)(x-dx, y, color);
 	   }   
 	}
 #endif
@@ -280,7 +280,7 @@
 #endif
 
 #if GDISP_NEED_TEXT && !GDISP_HARDWARE_TEXT
-	void gdisp_lld_drawchar(coord_t x, coord_t y, char c, font_t font, color_t color) {
+	void GDISP_LLD(drawchar)(coord_t x, coord_t y, char c, font_t font, color_t color) {
 		const fontcolumn_t	*ptr;
 		fontcolumn_t		column;
 		coord_t				width, height, xscale, yscale;
@@ -307,7 +307,7 @@
 				if (column & 0x01) {
 					for(xs=0; xs < xscale; xs++)
 						for(ys=0; ys < yscale; ys++)
-							gdisp_lld_drawpixel(x+i+xs, y+j+ys, color);
+							GDISP_LLD(drawpixel)(x+i+xs, y+j+ys, color);
 				}
 			}
 		}
@@ -315,7 +315,7 @@
 #endif
 
 #if GDISP_NEED_TEXT && !GDISP_HARDWARE_TEXTFILLS
-	void gdisp_lld_fillchar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
+	void GDISP_LLD(fillchar)(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
 		coord_t			width, height;
 		coord_t			xscale, yscale;
 		
@@ -332,10 +332,10 @@
 		#if GDISP_HARDWARE_TEXT || GDISP_SOFTWARE_TEXTFILLDRAW
 			
 			/* Fill the area */
-			gdisp_lld_fillarea(x, y, width, height, bgcolor);
+			GDISP_LLD(fillarea)(x, y, width, height, bgcolor);
 			
 			/* Draw the text */
-			gdisp_lld_drawchar(x, y, c, font, color);
+			GDISP_LLD(drawchar)(x, y, c, font, color);
 
 		/* Method 2: Create a single column bitmap and then blit it */
 		#elif GDISP_HARDWARE_BITFILLS && GDISP_SOFTWARE_TEXTBLITCOLUMN
@@ -374,7 +374,7 @@
 				}
 
 				for(xs=0; xs < xscale; xs++)
-					gdisp_lld_blitarea(x+i+xs, y, 1, height, buf);
+					GDISP_LLD(blitarea)(x+i+xs, y, 1, height, buf);
 			}
 		}
 
@@ -393,7 +393,7 @@
 
 			#if GDISP_NEED_VALIDATION
 				/* Check our buffer is big enough */
-				if (width * height > sizeof(buf)/sizeof(buf[0]))	return;
+				if ((unsigned)(width * height) > sizeof(buf)/sizeof(buf[0]))	return;
 			#endif
 
 			ptr = _getCharData(font, c);
@@ -418,7 +418,7 @@
 			}
 
 			/* [Patch by Badger] Write all in one stroke */
-			gdisp_lld_blitarea(x, y, width, height, buf);
+			GDISP_LLD(blitarea)(x, y, width, height, buf);
 		}
 
 		/* Method 4: Draw pixel by pixel */
@@ -440,11 +440,11 @@
 					if (column & 0x01) {
 						for(xs=0; xs < xscale; xs++)
 							for(ys=0; ys < yscale; ys++)
-								gdisp_lld_drawpixel(x+i, y+j, color);
+								GDISP_LLD(drawpixel)(x+i, y+j, color);
 					} else {
 						for(xs=0; xs < xscale; xs++)
 							for(ys=0; ys < yscale; ys++)
-								gdisp_lld_drawpixel(x+i, y+j, bgcolor);
+								GDISP_LLD(drawpixel)(x+i, y+j, bgcolor);
 					}
 				}
 			}
@@ -455,9 +455,95 @@
 
 
 #if GDISP_NEED_CONTROL && !GDISP_HARDWARE_CONTROL
-	void gdisp_lld_control(int UNUSED(what), void *UNUSED(value)) {
+	void GDISP_LLD(control)(unsigned UNUSED(what), void *UNUSED(value)) {
 		/* Ignore everything */
 	}
 #endif
 
+#if GDISP_NEED_QUERY && !GDISP_HARDWARE_QUERY
+void *GDISP_LLD(query)(unsigned what) {
+	switch(what) {
+	case GDISP_QUERY_WIDTH:			return (void *)(unsigned)GDISP.Width;
+	case GDISP_QUERY_HEIGHT:		return (void *)(unsigned)GDISP.Height;
+	case GDISP_QUERY_POWER:			return (void *)(unsigned)GDISP.Powermode;
+	case GDISP_QUERY_ORIENTATION:	return (void *)(unsigned)GDISP.Orientation;
+	case GDISP_QUERY_BACKLIGHT:		return (void *)(unsigned)GDISP.Backlight;
+	case GDISP_QUERY_CONTRAST:		return (void *)(unsigned)GDISP.Contrast;
+	default:						return (void *)-1;
+	}
+}
+#endif
+
+#if GDISP_NEED_MSGAPI
+	void GDISP_LLD(msgdispatch)(gdisp_lld_msg_t *msg) {
+		switch(msg->action) {
+		case GDISP_LLD_MSG_NOP:
+			break;
+		case GDISP_LLD_MSG_INIT:
+			GDISP_LLD(init)();
+			break;
+		case GDISP_LLD_MSG_CLEAR:
+			GDISP_LLD(clear)(msg->clear.color);
+			break;
+		case GDISP_LLD_MSG_DRAWPIXEL:
+			GDISP_LLD(drawpixel)(msg->drawpixel.x, msg->drawpixel.y, msg->drawpixel.color);
+			break;
+		case GDISP_LLD_MSG_FILLAREA:
+			GDISP_LLD(fillarea)(msg->fillarea.x, msg->fillarea.y, msg->fillarea.cx, msg->fillarea.cy, msg->fillarea.color);
+			break;
+		case GDISP_LLD_MSG_BLITAREA:
+			GDISP_LLD(blitarea)(msg->blitarea.x, msg->blitarea.y, msg->blitarea.cx, msg->blitarea.cy, msg->blitarea.buffer);
+			break;
+		case GDISP_LLD_MSG_DRAWLINE:
+			GDISP_LLD(drawline)(msg->drawline.x0, msg->drawline.y0, msg->drawline.x1, msg->drawline.y1, msg->drawline.color);
+			break;
+		#if GDISP_NEED_CIRCLE
+			case GDISP_LLD_MSG_DRAWCIRCLE:
+				GDISP_LLD(drawcircle)(msg->drawcircle.x, msg->drawcircle.y, msg->drawcircle.radius, msg->drawcircle.color);
+				break;
+			case GDISP_LLD_MSG_FILLCIRCLE:
+				GDISP_LLD(fillcircle)(msg->fillcircle.x, msg->fillcircle.y, msg->fillcircle.radius, msg->fillcircle.color);
+				break;
+		#endif
+		#if GDISP_NEED_ELLIPSE
+			case GDISP_LLD_MSG_DRAWELLIPSE:
+				GDISP_LLD(drawellipse)(msg->drawellipse.x, msg->drawellipse.y, msg->drawellipse.a, msg->drawellipse.b, msg->drawellipse.color);
+				break;
+			case GDISP_LLD_MSG_FILLELLIPSE:
+				GDISP_LLD(fillellipse)(msg->fillellipse.x, msg->fillellipse.y, msg->fillellipse.a, msg->fillellipse.b, msg->fillellipse.color);
+				break;
+		#endif
+		#if GDISP_NEED_TEXT
+			case GDISP_LLD_MSG_DRAWCHAR:
+				GDISP_LLD(drawchar)(msg->drawchar.x, msg->drawchar.y, msg->drawchar.c, msg->drawchar.font, msg->drawchar.color);
+				break;
+			case GDISP_LLD_MSG_FILLCHAR:
+				GDISP_LLD(fillchar)(msg->fillchar.x, msg->fillchar.y, msg->fillchar.c, msg->fillchar.font, msg->fillchar.color, msg->fillchar.bgcolor);
+				break;
+		#endif
+		#if GDISP_NEED_PIXELREAD
+			case GDISP_LLD_MSG_GETPIXELCOLOR:
+				msg->getpixelcolor.result = GDISP_LLD(getpixelcolor)(msg->getpixelcolor.x, msg->getpixelcolor.y);
+				break;
+		#endif
+		#if GDISP_NEED_SCROLL
+			case GDISP_LLD_MSG_VERTICALSCROLL:
+				GDISP_LLD(verticalscroll)(msg->verticalscroll.x, msg->verticalscroll.y, msg->verticalscroll.cx, msg->verticalscroll.cy, msg->verticalscroll.lines, msg->verticalscroll.bgcolor);
+				break;
+		#endif
+		#if GDISP_NEED_CONTROL
+			case GDISP_LLD_MSG_CONTROL:
+				GDISP_LLD(control)(msg->control.what, msg->control.value);
+				break;
+		#endif
+		#if GDISP_NEED_QUERY
+			case GDISP_LLD_MSG_QUERY:
+				msg->query.result = GDISP_LLD(query)(msg->query.what);
+				break;
+		#endif
+		}
+	}
+#endif
+
 #endif  /* HAL_USE_GDISP */
+#endif	/* GDISP_EMULATION_C */

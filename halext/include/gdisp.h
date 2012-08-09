@@ -68,78 +68,40 @@
  * @{
  */
 	/**
-	 * @brief   Should all operations be clipped to the screen and colors validated.
-	 * @details	Defaults to TRUE.
-	 * @note    If this is FALSE, any operations that extend beyond the
-	 *          edge of the screen will have undefined results. Any
-	 *			out-of-range colors will produce undefined results.
-	 * @note	If defined then all low level and high level driver routines
-	 *			must check the validity of inputs and do something sensible
-	 *			if they are out of range. It doesn't have to be efficient,
-	 *			just valid.
-	 */
-	#ifndef GDISP_NEED_VALIDATION
-		#define GDISP_NEED_VALIDATION	TRUE
-	#endif
-
-	/**
-	 * @brief   Are circle functions needed.
-	 * @details	Defaults to TRUE
-	 */
-	#ifndef GDISP_NEED_CIRCLE
-		#define GDISP_NEED_CIRCLE		TRUE
-	#endif
-
-	/**
-	 * @brief   Are ellipse functions needed.
-	 * @details	Defaults to TRUE
-	 */
-	#ifndef GDISP_NEED_ELLIPSE
-		#define GDISP_NEED_ELLIPSE		TRUE
-	#endif
-
-	/**
-	 * @brief   Are text functions needed.
-	 * @details	Defaults to TRUE
-	 */
-	#ifndef GDISP_NEED_TEXT
-		#define GDISP_NEED_TEXT			TRUE
-	#endif
-
-	/**
-	 * @brief   Is scrolling needed.
-	 * @details	Defaults to FALSE
-	 */
-	#ifndef GDISP_NEED_SCROLL
-		#define GDISP_NEED_SCROLL		FALSE
-	#endif
-
-	/**
-	 * @brief   Is the capability to read pixels back needed.
-	 * @details	Defaults to FALSE
-	 */
-	#ifndef GDISP_NEED_PIXELREAD
-		#define GDISP_NEED_PIXELREAD	FALSE
-	#endif
-
-	/**
-	 * @brief   Control some aspect of the drivers operation.
-	 * @details	Defaults to FALSE
-	 */
-	#ifndef GDISP_NEED_CONTROL
-		#define GDISP_NEED_CONTROL		FALSE
-	#endif
-
-	/**
 	 * @brief   Do the drawing functions need to be thread-safe.
 	 * @details	Defaults to FALSE
-	 * @note	Turning this on adds two context switches per transaction
-	 *			so it can significantly slow graphics drawing.
+	 * @note	Both GDISP_NEED_MULTITHREAD and GDISP_NEED_ASYNC make
+	 * 			the gdisp API thread-safe.
+	 * @note	This is more efficient than GDISP_NEED_ASYNC as it only
+	 * 			requires a context switch if something else is already
+	 * 			drawing.
 	 */
 	#ifndef GDISP_NEED_MULTITHREAD
 		#define GDISP_NEED_MULTITHREAD	FALSE
 	#endif
+
+	/**
+	 * @brief   Use asynchronous calls (multi-thread safe).
+	 * @details	Defaults to FALSE
+	 * @note	Both GDISP_NEED_MULTITHREAD and GDISP_NEED_ASYNC make
+	 * 			the gdisp API thread-safe.
+	 * @note	Turning this on adds two context switches per transaction
+	 *			so it can significantly slow graphics drawing.
+	 */
+	#ifndef GDISP_NEED_ASYNC
+		#define GDISP_NEED_ASYNC	FALSE
+	#endif
 /** @} */
+
+#if GDISP_NEED_MULTITHREAD && GDISP_NEED_ASYNC
+	#error "GDISP: Only one of GDISP_NEED_MULTITHREAD and GDISP_NEED_ASYNC should be defined."
+#endif
+
+#if GDISP_NEED_ASYNC
+	/* Messaging API is required for Async Multi-Thread */
+	#undef GDISP_NEED_MSGAPI
+	#define GDISP_NEED_MSGAPI	TRUE
+#endif
 
 /*===========================================================================*/
 /* Low Level Driver details and error checks.                                */
@@ -190,17 +152,18 @@ extern const struct font fontLargeNumbersNarrow;
 extern "C" {
 #endif
 
-#if GDISP_NEED_MULTITHREAD
+#if GDISP_NEED_MULTITHREAD || GDISP_NEED_ASYNC
 
 	/* Base Functions */
-	void gdispInit(GDISPDriver *gdisp);
+	bool_t gdispInit(GDISPDriver *gdisp);
+	bool_t gdispIsBusy(void);
 
 	/* Drawing Functions */
 	void gdispClear(color_t color);
 	void gdispDrawPixel(coord_t x, coord_t y, color_t color);
 	void gdispDrawLine(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color);
 	void gdispFillArea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
-	void gdispBlitArea(coord_t x, coord_t y, coord_t cx, coord_t cy, pixel_t *buffer);
+	void gdispBlitArea(coord_t x, coord_t y, coord_t cx, coord_t cy, const pixel_t *buffer);
 
 	/* Circle Functions */
 	#if GDISP_NEED_CIRCLE
@@ -218,7 +181,6 @@ extern "C" {
 	#if GDISP_NEED_TEXT
 	void gdispDrawChar(coord_t x, coord_t y, char c, font_t font, color_t color);
 	void gdispFillChar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor);
-	void gdispDrawString(coord_t x, coord_t y, const char *str, font_t font, color_t color);
 	#endif
 	
 	/* Read a pixel Function */
@@ -233,27 +195,34 @@ extern "C" {
 
 	/* Set driver specific control */
 	#if GDISP_NEED_CONTROL
-	void gdispControl(int what, void *value);
+	void gdispControl(unsigned what, void *value);
+	#endif
+
+	/* Query driver specific data */
+	#if GDISP_NEED_CONTROL
+	void *gdispQuery(unsigned what);
 	#endif
 
 #else
 
 	/* The same as above but use the low level driver directly if no multi-thread support is needed */
-	#define gdispInit(gdisp)									gdisp_lld_init()
-	#define gdispClear(color)									gdisp_lld_clear(color)
-	#define gdispDrawPixel(x, y, color)							gdisp_lld_drawpixel(x, y, color)
-	#define gdispDrawLine(x0, y0, x1, y1, color)				gdisp_lld_drawline(x0, y0, x1, y1, color)
-	#define gdispFillArea(x, y, cx, cy, color)					gdisp_lld_fillarea(x, y, cx, cy, color)
-	#define gdispBlitArea(x, y, cx, cy, buffer)					gdisp_lld_blitarea(x, y, cx, cy, buffer)
-	#define gdispDrawCircle(x, y, radius, color)				gdisp_lld_drawcircle(x, y, radius, color)
-	#define gdispFillCircle(x, y, radius, color)				gdisp_lld_fillcircle(x, y, radius, color)
-	#define gdispDrawEllipse(x, y, a, b, color)					gdisp_lld_drawellipse(x, y, a, b, color)
-	#define gdispFillEllipse(x, y, a, b, color)					gdisp_lld_fillellipse(x, y, a, b, color)
-	#define gdispDrawChar(x, y, c, font, color)					gdisp_lld_drawchar(x, y, c, font, color)
-	#define gdispFillChar(x, y, c, font, color, bgcolor)		gdisp_lld_fillchar(x, y, c, font, color, bgcolor)
-	#define gdispGetPixelColor(x, y)							gdisp_lld_getpixelcolor(x, y)
-	#define gdispVerticalScroll(x, y, cx, cy, lines, bgcolor)	gdisp_lld_verticalscroll(x, y, cx, cy, lines, bgcolor)
-	#define gdispControl(what, value)							gdisp_lld_control(what, value)
+	#define gdispInit(gdisp)									GDISP_LLD(init)()
+	#define gdispIsBusy()										FALSE
+	#define gdispClear(color)									GDISP_LLD(clear)(color)
+	#define gdispDrawPixel(x, y, color)							GDISP_LLD(drawpixel)(x, y, color)
+	#define gdispDrawLine(x0, y0, x1, y1, color)				GDISP_LLD(drawline)(x0, y0, x1, y1, color)
+	#define gdispFillArea(x, y, cx, cy, color)					GDISP_LLD(fillarea)(x, y, cx, cy, color)
+	#define gdispBlitArea(x, y, cx, cy, buffer)					GDISP_LLD(blitarea)(x, y, cx, cy, buffer)
+	#define gdispDrawCircle(x, y, radius, color)				GDISP_LLD(drawcircle)(x, y, radius, color)
+	#define gdispFillCircle(x, y, radius, color)				GDISP_LLD(fillcircle)(x, y, radius, color)
+	#define gdispDrawEllipse(x, y, a, b, color)					GDISP_LLD(drawellipse)(x, y, a, b, color)
+	#define gdispFillEllipse(x, y, a, b, color)					GDISP_LLD(fillellipse)(x, y, a, b, color)
+	#define gdispDrawChar(x, y, c, font, color)					GDISP_LLD(drawchar)(x, y, c, font, color)
+	#define gdispFillChar(x, y, c, font, color, bgcolor)		GDISP_LLD(fillchar)(x, y, c, font, color, bgcolor)
+	#define gdispGetPixelColor(x, y)							GDISP_LLD(getpixelcolor)(x, y)
+	#define gdispVerticalScroll(x, y, cx, cy, lines, bgcolor)	GDISP_LLD(verticalscroll)(x, y, cx, cy, lines, bgcolor)
+	#define gdispControl(what, value)							GDISP_LLD(control)(what, value)
+	#define gdispQuery(what)									GDISP_LLD(query)(what)
 
 #endif
 

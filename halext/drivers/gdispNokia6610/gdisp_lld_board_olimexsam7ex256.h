@@ -82,7 +82,7 @@ volatile AT91PS_PDC pPDC = AT91C_BASE_PDC_SPI0;
  *
  * @notapi
  */
-static __inline void gdisp_lld_init_board(void) {
+static __inline void GDISP_LLD(init_board)(void) {
 	// *********************************************************************************************
 	// InitSpi( )
 	//
@@ -142,7 +142,7 @@ static __inline void gdisp_lld_init_board(void) {
  * 
  * @notapi
  */
-static __inline void gdisp_lld_setpin_reset(bool_t state) {
+static __inline void GDISP_LLD(setpin_reset)(bool_t state) {
 	if (state)
 		palClearPad(IOPORT1, PIOA_LCD_RESET);
 //		pPIOA->PIO_CODR = PIOA_LCD_RESET_MASK;
@@ -158,7 +158,7 @@ static __inline void gdisp_lld_setpin_reset(bool_t state) {
  * 
  * @notapi
  */
-static __inline void gdisp_lld_setpin_backlight(bool_t state) {
+static __inline void GDISP_LLD(setpin_backlight)(bool_t state) {
 	if (state)
 		palSetPad(IOPORT2, PIOB_LCD_BL);
 //		pPIOB->PIO_SODR = PIOB_LCD_BL_MASK;
@@ -174,7 +174,7 @@ static __inline void gdisp_lld_setpin_backlight(bool_t state) {
  * 
  * @notapi
  */
-static __inline void gdisp_lld_write_spi(uint16_t data) {
+static __inline void GDISP_LLD(write_spi)(uint16_t data) {
 	// wait for the previous transfer to complete
 	while((pSPI->SPI_SR & AT91C_SPI_TXEMPTY) == 0);
 	// send the data
@@ -189,7 +189,7 @@ static __inline void gdisp_lld_write_spi(uint16_t data) {
  * 
  * @notapi
  */
-static __inline uint16_t gdisp_lld_read_spi(void) {
+static __inline uint16_t GDISP_LLD(read_spi)(void) {
 	#error "gdispNokia6610: GDISP_HARDWARE_READPIXEL and GDISP_HARDWARE_SCROLL are not supported on this board"
 	return 0;
 }
