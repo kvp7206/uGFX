@@ -296,6 +296,8 @@
 	#define RED_OF(c)			(((c) & 0xF800)>>8)
 	#define GREEN_OF(c)			(((c)&0x007E)>>3)
 	#define BLUE_OF(c)			(((c)&0x001F)<<3)
+	#define RGB565CONVERT(red, green, blue) (uint16_t)( (( red   >> 3 ) << 11 ) | (( green >> 2 ) << 5  ) | ( blue  >> 3 ))
+
 
 #elif defined(GDISP_PIXELFORMAT_RGB888)
 	typedef uint32_t color_t;
