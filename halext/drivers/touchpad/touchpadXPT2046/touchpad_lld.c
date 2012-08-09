@@ -106,7 +106,7 @@ uint16_t tp_lld_read_x(void) {
 }
 
 /*
- * @brief	Reads out the X direction.
+ * @brief	Reads out the Y direction.
  *
  * @notapi
  */
@@ -134,7 +134,7 @@ uint16_t tp_lld_read_y(void) {
 	 *
 	 * @return	1 if pressed / 0 if not pressed
 	 *
-	 * @noapi
+	 * @notapi
 	 */
 	 uint8_t tp_lld_irq(void) {
 		return (!palReadPad(TP_IRQ_PORT, TP_IRQ));
