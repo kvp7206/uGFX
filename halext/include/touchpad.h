@@ -30,6 +30,13 @@
 
 #if HAL_USE_TOUCHPAD || defined(__DOXYGEN__)
 
+/**
+ * @brief	specifies how many conversions are made for a readout.
+ *
+ * @note	higher is more accurate, but takes more time
+ */
+#define	CONVERSIONS 3
+
 /*===========================================================================*/
 /* Driver constants.                                                         */
 /*===========================================================================*/

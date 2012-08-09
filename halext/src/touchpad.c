@@ -60,6 +60,44 @@ volatile static struct cal cal = {
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
+/**
+ * @brief	returns the uncalibrated readout of the X direction from the controller
+ *
+ * @noapi
+ */
+static uint16_t _tpReadRealX(void) {
+    uint32_t results = 0;
+    uint16_t i, x;
+
+    for(i = 0; i < CONVERSIONS; i++) {
+        tp_lld_read_x(); /* dummy, reduce noise on SPI */
+        results += tp_lld_read_x();
+    }   
+
+    x = (((SCREEN_WIDTH-1) * (results/CONVERSIONS)) / 2048);
+
+    return x;
+}
+
+/**
+ * @brief	return the uncalibrated readout of the Y-direction from the controller
+ *
+ * @noapi
+ */
+static uint16_t _tpReadRealY(void) {
+    uint32_t results = 0;
+    uint16_t i, y;
+
+    for(i = 0; i < CONVERSIONS; i++) {
+        tp_lld_read_y(); /* dummy, reduce noise on SPI */
+        results += tp_lld_read_y();
+    }   
+
+    y = (((SCREEN_HEIGHT-1) * (results/CONVERSIONS)) / 2048);
+
+    return y;
+}
+
 /*===========================================================================*/
 /* Driver exported functions.                                                */
 /*===========================================================================*/
@@ -105,7 +143,8 @@ uint16_t tpReadX(void) {
 		case landscapeInv:
 			return y;
 	}   
-		return x;
+
+	return x;
 }
 	
 /**
@@ -116,7 +155,24 @@ uint16_t tpReadX(void) {
  * @api
  */
 uint16_t tpReadY(void) {
-	return (tp_lld_read_y());
+	uint16_t x, y;
+
+	x = cal.xm * _tpReadRealX() + cal.xn;
+	y = cal.ym * _tpReadRealY() + cal.yn;
+
+	//switch(gdispGetOrientation()) {
+	switch(portrait) { // implement gdispGetOrientation()
+		case portrait:
+			return y;
+		case landscape:
+			return x;
+		case portraitInv:
+			return SCREEN_HEIGHT - y;
+		case landscapeInv:
+			return SCREEN_WIDTH - x;
+	}
+
+	return y;
 }
 
 #if TOUCHPAD_PRESSURE || defined(__DOXYGEN__)
@@ -128,6 +184,7 @@ uint16_t tpReadY(void) {
 	 * @api
 	 */
 	uint16_t tpReadZ(void) {
+		/* ToDo */
 		return (tp_lld_read_z());
 	}
 #endif
