@@ -561,7 +561,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		lld_lcdSetViewPort(x, lines > 0 ? (y+gap) : y, cx, abslines);
 		lld_lcdWriteStreamStart();
 		gap = cx*abslines;
-		for(i = 0; i < gap; i++) lld_lcdWriteData(color);
+		for(i = 0; i < gap; i++) lld_lcdWriteData(bgcolor);
 		lld_lcdWriteStreamStop();
 		lld_lcdResetViewPort();
 	}
