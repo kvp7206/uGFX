@@ -21,7 +21,10 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#include "glcd.h"
+#include "ch.h"
+#include "hal.h"
+
+#include "gdisp.h"
 
 /**
  * @brief   Structure representing a GLCD driver.
@@ -58,13 +61,13 @@ struct GLCDConsole {
 	/* font */
 	font_t font;
 	/* lcd area to use */
-	uint16_t x0,y0;
+	coord_t x0,y0;
 	/* current cursor position, in pixels */
-	uint16_t cx,cy;
+	coord_t cx,cy;
 	/* console size in pixels */
-	uint16_t sx,sy;
+	coord_t sx,sy;
 	/* foreground and background colour */
-	uint16_t bkcolor, color;
+	pixel_t bkcolor, color;
 	/* font size in pixels */
 	uint8_t fy;
 };
@@ -73,9 +76,9 @@ struct GLCDConsole {
 extern "C" {
 #endif
 
-msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t width, uint16_t height, font_t font, uint16_t bkcolor, uint16_t color);
+msg_t lcdConsoleInit(GLCDConsole *console, coord_t x0, coord_t y0, coord_t width, coord_t height, font_t font, pixel_t bkcolor, pixel_t color);
 msg_t lcdConsolePut(GLCDConsole *console, char c);
-msg_t lcdConsoleWrite(GLCDConsole *console, uint8_t *bp, size_t n);
+msg_t lcdConsoleWrite(GLCDConsole *console, char *bp, size_t n);
 
 #ifdef __cplusplus
 }

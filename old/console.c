@@ -19,14 +19,15 @@
 */
 
 #include "ch.h"
+#include "hal.h"
 
-#include "glcd.h"
+#include "gdisp.h"
+#include "gdisp_fonts.h"
 #include "console.h"
 
 /*
  * Interface implementation. The interface is write only
  */
-
 static size_t writes(void *ip, const uint8_t *bp, size_t n) {
 	return lcdConsoleWrite((GLCDConsole *)ip, bp, n);
 }
@@ -90,14 +91,14 @@ static const struct GLCDConsoleVMT vmt = {
 };
 
 
-msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t width, uint16_t height, font_t font, uint16_t bkcolor, uint16_t color) {
+msg_t lcdConsoleInit(GLCDConsole *console, coord_t x0, coord_t y0, coord_t width, coord_t height, font_t font, pixel_t bkcolor, pixel_t color) {
 	const uint8_t* ptr;
 	uint16_t chi;
 	uint16_t x,y;
 
 	console->vmt = &vmt;
 	/* read font, get height */
-	console->fy = lcdGetFontHeight(font);
+	console->fy = font->height;
 
 	/* calculate the size of the console as an integer multiple of characters height*/
 	console->sx = width;
@@ -113,7 +114,7 @@ msg_t lcdConsoleInit(GLCDConsole *console, uint16_t x0, uint16_t y0, uint16_t wi
 
 	console->font = font;
 
-	lcdFillArea(x0, y0, x0+width, y0+height, console->bkcolor);
+	gdispFillArea(x0, y0, x0 + width, y0 + height, console->bkcolor);
 	return RDY_OK;
 }
 
@@ -123,7 +124,7 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 	if(c == '\n') {
 		/* clear the text at the end of the line */
 		if(console->cx < console->sx)
-			lcdFillArea(console->x0 + console->cx, console->y0 + console->cy,
+			gdispFillArea(console->x0 + console->cx, console->y0 + console->cy,
 						console->x0 + console->sx, console->y0 + console->cy + console->fy,
 						console->bkcolor);
 		console->cx = 0;
@@ -132,10 +133,10 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 		/* TODO: work backwards through the buffer to the start of the current line */
 		//console->cx = 0;
 	} else {
-		width = lcdMeasureChar(c, console->font);
+		width = _getCharWidth(console->font, c);
 		if((console->cx + width) >= console->sx) {
 			/* clear the text at the end of the line */
-			lcdFillArea(console->x0 + console->cx, console->y0 + console->cy,
+			gdispFillArea(console->x0 + console->cx, console->y0 + console->cy,
 						console->x0 + console->cx + width, console->y0 + console->cy + console->fy,
 						console->bkcolor);
 			console->cx = 0;
@@ -143,16 +144,16 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 		}
 
 		if((console->cy > console->sy)) {
-
-			lcdVerticalScroll(console->x0, console->y0, console->x0 + console->sx,
-					console->y0 + console->sy + console->fy, console->fy);
+			/* scroll the screen */
+			gdispVerticalScroll(console->x0, console->y0, console->x0 + console->sx,
+					console->y0 + console->sy + console->fy, console->fy, console->bkcolor);
 			/* reset the cursor */
 			console->cx = 0;
 			console->cy = console->sy;
 		}
 
-		lcdDrawChar(console->x0 + console->cx, console->y0 + console->cy, c,
-				console->font, console->color, console->bkcolor, solid);
+		gdispDrawChar(console->x0 + console->cx, console->y0 + console->cy, c,
+				console->font, console->color);
 
 		/* update cursor */
 		console->cx += width;
@@ -160,12 +161,10 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 	return RDY_OK;
 }
 
-msg_t lcdConsoleWrite(GLCDConsole *console, uint8_t *bp, size_t n) {
+msg_t lcdConsoleWrite(GLCDConsole *console, char *bp, size_t n) {
 	size_t i;
 	for(i = 0; i < n; i++)
 		lcdConsolePut(console, bp[i]);
 
 	return RDY_OK;
 }
-
-
