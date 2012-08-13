@@ -10,6 +10,8 @@ Date			NickName		RealName				Contribution
 30.07.2012		inmarket		Andrew Hannam			halext implementation
 -				dxli			Dongxu Li				lcdDrawEllipse() filled option
 -				benwilliam		-						fastMath & lcdDrawEllipse()
--				Badger			Thomas Saunders			console implementation, FSMC
+-				Badger			Thomas Saunders			console implementation
+														FSMC for STM32F1 and F4
+														lld orientation fixes for S6D1121 and SSD1189
 -				Abhishek		Abhishek Kakkar			font rendering, S6D1121 GPIO
 
