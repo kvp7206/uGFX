@@ -1,17 +1,17 @@
 This is a tree of the toplevel directory of the GLCD library.
-The maintainer is supposed to keep it up to date at any time.
+The maintainer is supposed to keep it up to date at any new release.
 
-
-├── console
-│   ├── console.c
-│   └── console.h
 ├── demos
 │   ├── lcd
 │   │   └── main.c
-│   └── readme.txt
+│   ├── readme.txt
+│   └── touchpad
+│       └── main.c
 ├── docs
 │   ├── contributors.txt
+│   ├── files.txt
 │   ├── readme.txt
+│   ├── releases.txt
 │   └── usage.txt
 ├── Doxygenfile
 ├── drivers
@@ -101,4 +101,6 @@ The maintainer is supposed to keep it up to date at any time.
 │       └── touchpad_lld.mk
 └── tools
     └── readme.txt
+
+23 directories, 77 files
 
