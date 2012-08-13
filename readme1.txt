@@ -5,17 +5,20 @@ To include any of these functions/drivers in your project...
 	2/ In your project Makefile (amongst similiar lines but after the hal line) add the line...
 		include $(LCDLIB)/lcd.mk
 
-	3/ In your project Makefile add the makefiles for any specific drivers you want e.g
-		include $(LCDLIB)/halext/drivers/touchpad/touchpadXPT2046/touchpad_lld.mk
-		include $(LCDLIB)/halext/drivers/gdispNokia6610/gdisp_lld.mk
+	3/ Add $(LCDSRC) and $(LCDINC) to your SRCS and INCDIR of your projects Makefile
 
-	4/ In your project halconf.h turn on the support you want eg.
+	4/ In your project Makefile add the makefiles for any specific drivers you want e.g
+		include $(LCDLIB)/halext/drivers/touchpad/touchpadXPT2046/touchpad_lld.mk
+		include $(LCDLIB)/halext/drivers/gdisp/gdispNokia6610/gdisp_lld.mk
+
+	5/ In your project halconf.h turn on the support you want eg.
 		/**
 		 * @brief   Enables the Touchpad subsystem.
 		 */
 		#if !defined(HAL_USE_TOUCHPAD) || defined(__DOXYGEN__)
 			#define HAL_USE_TOUCHPAD           TRUE
 		#endif
+
 		/**
 		 * @brief   Enables the GDISP subsystem.
 		 */
@@ -24,5 +27,6 @@ To include any of these functions/drivers in your project...
 			/* Any driver specific defines required go here. The below line is an example. */
 			#define GDISP_NEED_MULTITHREAD	TRUE
 		#endif
-	5/ Do a make clean.
+	
+	6/ Do a make clean.
 
