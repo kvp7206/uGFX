@@ -25,6 +25,8 @@
 #include "gdisp_fonts.h"
 #include "console.h"
 
+#if defined(GDISP_NEED_SCROLL)
+
 /*
  * Interface implementation. The interface is write only
  */
@@ -168,3 +170,6 @@ msg_t lcdConsoleWrite(GLCDConsole *console, char *bp, size_t n) {
 
 	return RDY_OK;
 }
+
+
+#endif /* GDISP_NEED_SCROLL */
