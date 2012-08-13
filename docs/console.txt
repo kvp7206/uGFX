@@ -1,0 +1,20 @@
+The console module acts as a BaseSequentialStream at a user defined area of the LCD.
+
+Requirements:
+The console code requires a lld that has vertical scroll implemented.
+It is also necessary to enable the scroll code:
+
+	#define GDISP_NEED_SCROLL TRUE
+
+Usage:
+
+	#include "console.h"
+	
+	/* Define a console object */
+	GLCDConsole CON1;
+	
+	/* initialise the console to take up the entire screen */
+	lcdConsoleInit(&CON1, 0, 0, 320, 240, &fontLarger, Black, White);
+	
+	/* print something */
+	chprintf((BaseSequentialStream *)&CON1, "Hello the time is %d\nGoodbye.", chTimeNow());
