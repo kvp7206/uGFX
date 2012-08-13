@@ -1,5 +1,5 @@
 # List the required driver.
-HALSRC += ${CHIBIOS}/os/halext/drivers/gdispYOURDEVICE/gdisp_lld.c
+LCDSRC +=	$(LCDLIB)/drivers/gdisp/gdispYOURDEVICE/gdisp_lld.c
 
 # Required include directories
-HALINC += ${CHIBIOS}/os/halext/drivers/gdispYOURDEVICE
+LCDINC +=	$(LCDLIB)/drivers/gdisp/gdispYOURDEVICE
