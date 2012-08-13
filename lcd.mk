@@ -3,10 +3,9 @@ ifeq ($(LCDLIB),)
 	LCDLIB =	$(CHIBIOS)/ext/lcd
 endif
 
-include $(LCDLIB)/console/console.mk
-
 LCDSRC +=   $(LCDLIB)/src/gdisp.c \
             $(LCDLIB)/src/gdisp_fonts.c \
-            $(LCDLIB)/src/touchpad.c 
+            $(LCDLIB)/src/touchpad.c \
+			$(LCDLIB)/src/console.c
 
 LCDINC +=   $(LCDLIB)/include
