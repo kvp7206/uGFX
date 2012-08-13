@@ -91,7 +91,7 @@ void tp_lld_init(TOUCHPADDriver *tp) {
 uint16_t tp_lld_read_x(void) {
     uint8_t txbuf[1];
     uint8_t rxbuf[2];
-    uint16_t y;
+    uint16_t x;
 
     txbuf[0] = 0xd0;
     TP_CS_LOW;
@@ -99,10 +99,10 @@ uint16_t tp_lld_read_x(void) {
     spiReceive(&SPID1, 2, rxbuf);
     TP_CS_HIGH;
 
-    y = rxbuf[0] << 4;
-    y |= rxbuf[1] >> 4;
+    x = rxbuf[0] << 4;
+    x |= rxbuf[1] >> 4;
 
-    return y;
+    return x;
 }
 
 /*
