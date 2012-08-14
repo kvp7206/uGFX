@@ -9,7 +9,7 @@ To include any of these functions/drivers in your project...
 
 	4/ In your project Makefile add the makefiles for any specific drivers you want e.g
 		include $(LCDLIB)/halext/drivers/touchpad/touchpadXPT2046/touchpad_lld.mk
-		include $(LCDLIB)/halext/drivers/gdisp/gdispNokia6610/gdisp_lld.mk
+		include $(LCDLIB)/halext/drivers/gdisp/Nokia6610/gdisp_lld.mk
 
 	5/ In your project halconf.h turn on the support you want eg.
 		/**
