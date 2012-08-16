@@ -1,0 +1,25 @@
+This file is a complete history of persons who contributed to the GLCD Library.
+
+At this point we want to thank all of these people for their work.
+
+
+NickName		RealName				Contribution
+========		========				============
+
+inmarket		Andrew Hannam			GDISP (restructorizing the entire library)
+										VMT
+										ASYNC and MULTITHREAD implementation
+
+Badger			Thomas Saunders			console implementation
+										FSMC for STM32F1 and F4
+										lld orientation fixed for S6F1121 and SSD1289
+
+Abhishek		Abhishek Kumar			S6D1121 GPIO
+										font rendering
+										touchpad noise filtering & optimizations
+
+benwilliam		-						lcdDrawEllipse()
+										fastMath
+
+dxli			Dongxu Li				lcdDrawEllipse() filled option
+

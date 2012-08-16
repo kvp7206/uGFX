@@ -1,0 +1,32 @@
+To include any of these functions/drivers in your project...
+
+	1/ Specify the path to the LCDLIB. If none defined, default is $(CHIBIOS)/ext/lcd
+
+	2/ In your project Makefile (amongst similiar lines but after the hal line) add the line...
+		include $(LCDLIB)/lcd.mk
+
+	3/ Add $(LCDSRC) and $(LCDINC) to your SRCS and INCDIR of your projects Makefile
+
+	4/ In your project Makefile add the makefiles for any specific drivers you want e.g
+		include $(LCDLIB)/halext/drivers/touchpad/XPT2046/touchpad_lld.mk
+		include $(LCDLIB)/halext/drivers/gdisp/Nokia6610/gdisp_lld.mk
+
+	5/ In your project halconf.h turn on the support you want eg.
+		/**
+		 * @brief   Enables the Touchpad subsystem.
+		 */
+		#if !defined(HAL_USE_TOUCHPAD) || defined(__DOXYGEN__)
+			#define HAL_USE_TOUCHPAD           TRUE
+		#endif
+
+		/**
+		 * @brief   Enables the GDISP subsystem.
+		 */
+		#if !defined(HAL_USE_GDISP) || defined(__DOXYGEN__)
+			#define HAL_USE_GDISP           TRUE
+			/* Any driver specific defines required go here. The below line is an example. */
+			#define GDISP_NEED_MULTITHREAD	TRUE
+		#endif
+	
+	6/ Do a make clean.
+

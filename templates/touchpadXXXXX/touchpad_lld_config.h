@@ -18,30 +18,28 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ch.h"
-#include "hal.h"
-#include "gdisp.h"
-#include "chprintf.h"
-#include "console.h"
+/**
+ * @file   touchpadXPT2046/touchpad_lld_config.h
+ * @brief   Touchppad Driver subsystem low level driver.
+ *
+ * @addtogroup TOUCHPAD
+ * @{
+ */
 
-static GLCDConsole CON1;
+#ifndef _TOUCHPAD_LLD_CONFIG_H
+#define _TOUCHPAD_LLD_CONFIG_H
 
-int main(void) {
-	halInit();
-	chSysInit();
+#if HAL_USE_TOUCHPAD || defined(__DOXYGEN__)
 
-	gdispInit();
-	gdispClear(Lime);
+/*===========================================================================*/
+/* Driver hardware support.                                                  */
+/*===========================================================================*/
 
-	lcdConsoleInit(&CON1, 0, 0, gdispGetWidth(), gdispGetHeight(), &fontLarger, Black, White);
+#define TOUCHPAD_HAS_IRQ				TRUE
+#define TOUCHPAD_HAS_PRESSURE			TRUE
 
-	
-	chprintf((BaseSequentialStream *)&CON1, "Hello the time is %d\nGoodbye.", chTimeNow());
+#endif	/* HAL_USE_TOUCHPAD */
 
-
-	while (TRUE) {
-		
-		chThdSleepMilliseconds(100);
-	}
-}
+#endif	/* _TOUCHPAD_LLD_CONFIG_H */
+/** @} */
 
