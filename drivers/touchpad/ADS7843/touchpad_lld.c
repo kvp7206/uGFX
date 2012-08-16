@@ -36,9 +36,6 @@
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
 
-#define TP_CS_HIGH      palSetPad(TP_CS_PORT, TP_CS)
-#define TP_CS_LOW       palClearPad(TP_CS_PORT, TP_CS)
-
 #ifdef UNUSED
 #elif defined(__GNUC__)
 # define UNUSED(x) UNUSED_ ## x __attribute__((unused))
@@ -52,13 +49,15 @@
 /* Driver exported variables.                                                */
 /*===========================================================================*/
 
-#if !defined(__DOXYGEN__)
-	TOUCHPADDriver Touchpad;
-#endif
-
 /*===========================================================================*/
 /* Driver local variables.                                                   */
 /*===========================================================================*/
+#if !defined(__DOXYGEN__)
+    /* Local copy of the current touchpad driver */
+    static const TOUCHPADDriver *tpDriver;
+
+    static uint16_t sampleBuf[7];
+#endif
 
 /*===========================================================================*/
 /* Driver local functions.                                                   */
@@ -79,66 +78,158 @@
  *
  * @notapi
  */
-void tp_lld_init(TOUCHPADDriver *tp) {
-	spiStart(tp->spid, tp->spicfg);
+void tp_lld_init(const TOUCHPADDriver *tp) {
+  tpDriver=tp;
+
+  if (tpDriver->direct_init)
+    spiStart(tpDriver->spip, tpDriver->spicfg);
+}
+
+
+/**
+ * @brief   Reads a conversion from the touchpad
+ *
+ * @param[in] cmd    The command bits to send to the touchpad
+ *
+ * @return  The read value 12-bit right-justified
+ *
+ * @note    This function only reads data, it is assumed that the pins are
+ *          configured properly and the bus has been acquired beforehand
+ *
+ * @notapi
+ */
+uint16_t tp_lld_read_value(uint8_t cmd) {
+  static uint8_t txbuf[3]={0};
+  static uint8_t rxbuf[3]={0};
+  uint16_t ret;
+
+  txbuf[0]=cmd;
+
+  spiExchange(tpDriver->spip, 3, txbuf, rxbuf);
+
+  ret = (rxbuf[1] << 5) | (rxbuf[2] >> 3);
+
+  return ret;
+}
+
+/**
+ * @brief   7-point median filtering code for touchpad samples
+ *
+ * @note    This is an internally used routine only.
+ *
+ * @notapi
+ */
+static void tp_lld_filter(void) {
+  uint16_t temp;
+  int i,j;
+
+  for (i=0; i<4; i++) {
+    for (j=i; j<7; j++) {
+      if (sampleBuf[i] > sampleBuf[j]) {
+        /* Swap the values */
+        temp=sampleBuf[i];
+        sampleBuf[i]=sampleBuf[j];
+        sampleBuf[j]=temp;
+      }
+    }
+  }
+
 }
 
 /**
  * @brief   Reads out the X direction.
  *
+ * @note    The samples are median filtered for greater noise reduction
+ *
  * @notapi
  */
 uint16_t tp_lld_read_x(void) {
-    uint8_t txbuf[1];
-    uint8_t rxbuf[2];
-    uint16_t x;
+  int i;
 
-    txbuf[0] = 0xd0;
-    TP_CS_LOW;
-    spiSend(&SPID1, 1, txbuf);
-    spiReceive(&SPID1, 2, rxbuf);
-    TP_CS_HIGH;
+#if defined(SPI_USE_MUTUAL_EXCLUSION)
+  spiAcquireBus(tpDriver->spip);
+#endif
 
-    x = rxbuf[0] << 4;
-    x |= rxbuf[1] >> 4;
+  TOUCHPAD_SPI_PROLOGUE();
+  palClearPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
 
-    return x;
+  /* Discard the first conversion - very noisy and keep the ADC on hereafter
+   * till we are done with the sampling. Note that PENIRQ is disabled.
+   */
+  tp_lld_read_value(0xD1);
+
+  for (i=0;i<7;i++) {
+    sampleBuf[i]=tp_lld_read_value(0xD1);
+  }
+
+  /* Switch on PENIRQ once again - perform a dummy read */
+  tp_lld_read_value(0xD0);
+
+  palSetPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
+  TOUCHPAD_SPI_EPILOGUE();
+
+#if defined(SPI_USE_MUTUAL_EXCLUSION)
+  spiReleaseBus(tpDriver->spip);
+#endif
+
+  /* Find the median - use selection sort */
+  tp_lld_filter();
+
+  return sampleBuf[3];
 }
 
 /*
- * @brief	Reads out the Y direction.
+ * @brief   Reads out the Y direction.
  *
  * @notapi
  */
 uint16_t tp_lld_read_y(void) {
-    uint8_t txbuf[1];
-    uint8_t rxbuf[2];
-    uint16_t y;
+  int i;
 
-    txbuf[0] = 0x90;
-    TP_CS_LOW;
-    spiSend(&SPID1, 1, txbuf);
-    spiReceive(&SPID1, 2, rxbuf);
-    TP_CS_HIGH;
+#if defined(SPI_USE_MUTUAL_EXCLUSION)
+  spiAcquireBus(tpDriver->spip);
+#endif
 
-    y = rxbuf[0] << 4;
-    y |= rxbuf[1] >> 4;
+  TOUCHPAD_SPI_PROLOGUE();
+  palClearPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
 
-    return y;
+  /* Discard the first conversion - very noisy and keep the ADC on hereafter
+   * till we are done with the sampling. Note that PENIRQ is disabled.
+   */
+  tp_lld_read_value(0x91);
+
+  for (i=0;i<7;i++) {
+    sampleBuf[i]=tp_lld_read_value(0x91);
+  }
+
+  /* Switch on PENIRQ once again - perform a dummy read */
+  tp_lld_read_value(0x90);
+
+  palSetPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
+  TOUCHPAD_SPI_EPILOGUE();
+
+#ifdef SPI_USE_MUTUAL_EXCLUSION
+  spiReleaseBus(tpDriver->spip);
+#endif
+
+  /* Find the median - use selection sort */
+  tp_lld_filter();
+
+  return sampleBuf[3];
 }
 
 /* ---- Optional Routines ---- */
 #if TOUCHPAD_HAS_IRQ || defined(__DOXYGEN__)
-	/*
-	 * @brief	for checking if touchpad is pressed or not.
-	 *
-	 * @return	1 if pressed / 0 if not pressed
-	 *
-	 * @noapi
-	 */
-	 uint8_t tp_lld_irq(void) {
-		return (!palReadPad(TP_IRQ_PORT, TP_IRQ));
-	}
+    /*
+     * @brief   for checking if touchpad is pressed or not.
+     *
+     * @return  1 if pressed / 0 if not pressed
+     *
+     * @notapi
+     */
+     uint8_t tp_lld_irq(void) {
+        return (!palReadPad(tpDriver->tpIRQPort, tpDriver->tpIRQPin));
+    }
 #endif
 
 #endif /* HAL_USE_TOUCHPAD */

@@ -70,7 +70,7 @@ struct cal {
 extern "C" {
 #endif
 
-void tpInit(TOUCHPADDriver *tp);
+void tpInit(const TOUCHPADDriver *tp);
 uint16_t tpReadX(void);
 uint16_t tpReadY(void);
 

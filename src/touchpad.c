@@ -69,13 +69,13 @@ static uint16_t _tpReadRealX(void) {
     uint32_t results = 0;
     uint16_t i, x;
 
+    /* Median filtering is already done in LLD */
     for(i = 0; i < CONVERSIONS; i++) {
-        tp_lld_read_x(); /* dummy, reduce noise on SPI */
         results += tp_lld_read_x();
-    }   
+    }
 
-	// 12-bit
-    x = (((SCREEN_WIDTH-1) * (results/CONVERSIONS)) / 2048);
+	/* Take the average of the readings */
+    x = results / CONVERSIONS;
 
     return x;
 }
@@ -89,13 +89,13 @@ static uint16_t _tpReadRealY(void) {
     uint32_t results = 0;
     uint16_t i, y;
 
+    /* Median filtering is already done in LLD */
     for(i = 0; i < CONVERSIONS; i++) {
-        tp_lld_read_y(); /* dummy, reduce noise on SPI */
         results += tp_lld_read_y();
-    }   
+    }
 
-	// 12-bit
-    y = (((SCREEN_HEIGHT-1) * (results/CONVERSIONS)) / 2048);
+    /* Take the average of the readings */
+    y = results / CONVERSIONS;
 
     return y;
 }
@@ -135,7 +135,7 @@ static void _tpDrawCross(uint16_t x, uint16_t y) {
  *
  * @api
  */
-void tpInit(TOUCHPADDriver *tp) {
+void tpInit(const TOUCHPADDriver *tp) {
 	/* Initialise Mutex */
 	//MUTEX_INIT
 
