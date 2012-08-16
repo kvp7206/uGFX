@@ -79,10 +79,10 @@
  * @notapi
  */
 void tp_lld_init(const TOUCHPADDriver *tp) {
-  tpDriver=tp;
+	tpDriver = tp;
 
-  if (tpDriver->direct_init)
-    spiStart(tpDriver->spip, tpDriver->spicfg);
+	if(tpDriver->direct_init)
+		spiStart(tpDriver->spip, tpDriver->spicfg);
 }
 
 
@@ -99,17 +99,17 @@ void tp_lld_init(const TOUCHPADDriver *tp) {
  * @notapi
  */
 uint16_t tp_lld_read_value(uint8_t cmd) {
-  static uint8_t txbuf[3]={0};
-  static uint8_t rxbuf[3]={0};
-  uint16_t ret;
+	static uint8_t txbuf[3] = {0};
+	static uint8_t rxbuf[3] = {0};
+	uint16_t ret;
 
-  txbuf[0]=cmd;
+	txbuf[0] = cmd;
 
-  spiExchange(tpDriver->spip, 3, txbuf, rxbuf);
+	spiExchange(tpDriver->spip, 3, txbuf, rxbuf);
 
-  ret = (rxbuf[1] << 5) | (rxbuf[2] >> 3);
+	ret = (rxbuf[1] << 5) | (rxbuf[2] >> 3);
 
-  return ret;
+	return ret;
 }
 
 /**
@@ -120,20 +120,19 @@ uint16_t tp_lld_read_value(uint8_t cmd) {
  * @notapi
  */
 static void tp_lld_filter(void) {
-  uint16_t temp;
-  int i,j;
+	uint16_t temp;
+	int i,j;
 
-  for (i=0; i<4; i++) {
-    for (j=i; j<7; j++) {
-      if (sampleBuf[i] > sampleBuf[j]) {
-        /* Swap the values */
-        temp=sampleBuf[i];
-        sampleBuf[i]=sampleBuf[j];
-        sampleBuf[j]=temp;
-      }
-    }
-  }
-
+	for(i = 0; i < 4; i++) {
+		for(j=i; j < 7; j++) {
+			if(sampleBuf[i] > sampleBuf[j]) {
+				/* Swap the values */
+				temp = sampleBuf[i];
+				sampleBuf[i] = sampleBuf[j];
+				sampleBuf[j] = temp;
+			}
+		}
+	}
 }
 
 /**
@@ -144,38 +143,38 @@ static void tp_lld_filter(void) {
  * @notapi
  */
 uint16_t tp_lld_read_x(void) {
-  int i;
+	int i;
 
 #if defined(SPI_USE_MUTUAL_EXCLUSION)
-  spiAcquireBus(tpDriver->spip);
+	spiAcquireBus(tpDriver->spip);
 #endif
 
-  TOUCHPAD_SPI_PROLOGUE();
-  palClearPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
+	TOUCHPAD_SPI_PROLOGUE();
+	palClearPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
 
-  /* Discard the first conversion - very noisy and keep the ADC on hereafter
-   * till we are done with the sampling. Note that PENIRQ is disabled.
-   */
-  tp_lld_read_value(0xD1);
+	/* Discard the first conversion - very noisy and keep the ADC on hereafter
+	 * till we are done with the sampling. Note that PENIRQ is disabled.
+ 	 */
+	tp_lld_read_value(0xD1);
 
-  for (i=0;i<7;i++) {
-    sampleBuf[i]=tp_lld_read_value(0xD1);
-  }
+	for(i = 0; i < 7; i++) {
+		sampleBuf[i]=tp_lld_read_value(0xD1);
+	}
 
-  /* Switch on PENIRQ once again - perform a dummy read */
-  tp_lld_read_value(0xD0);
+	/* Switch on PENIRQ once again - perform a dummy read */
+	tp_lld_read_value(0xD0);
 
-  palSetPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
-  TOUCHPAD_SPI_EPILOGUE();
+	palSetPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
+	TOUCHPAD_SPI_EPILOGUE();
 
 #if defined(SPI_USE_MUTUAL_EXCLUSION)
-  spiReleaseBus(tpDriver->spip);
+	spiReleaseBus(tpDriver->spip);
 #endif
 
-  /* Find the median - use selection sort */
-  tp_lld_filter();
+	/* Find the median - use selection sort */
+	tp_lld_filter();
 
-  return sampleBuf[3];
+	return sampleBuf[3];
 }
 
 /*
@@ -184,38 +183,38 @@ uint16_t tp_lld_read_x(void) {
  * @notapi
  */
 uint16_t tp_lld_read_y(void) {
-  int i;
+	int i;
 
 #if defined(SPI_USE_MUTUAL_EXCLUSION)
-  spiAcquireBus(tpDriver->spip);
+	spiAcquireBus(tpDriver->spip);
 #endif
 
-  TOUCHPAD_SPI_PROLOGUE();
-  palClearPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
+	TOUCHPAD_SPI_PROLOGUE();
+	palClearPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
 
-  /* Discard the first conversion - very noisy and keep the ADC on hereafter
-   * till we are done with the sampling. Note that PENIRQ is disabled.
-   */
-  tp_lld_read_value(0x91);
+	/* Discard the first conversion - very noisy and keep the ADC on hereafter
+	 * till we are done with the sampling. Note that PENIRQ is disabled.
+	 */
+	tp_lld_read_value(0x91);
 
-  for (i=0;i<7;i++) {
-    sampleBuf[i]=tp_lld_read_value(0x91);
-  }
+	for(i = 0; i < 7; i++) {
+		sampleBuf[i] = tp_lld_read_value(0x91);
+	}
 
-  /* Switch on PENIRQ once again - perform a dummy read */
-  tp_lld_read_value(0x90);
+	/* Switch on PENIRQ once again - perform a dummy read */
+	tp_lld_read_value(0x90);
 
-  palSetPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
-  TOUCHPAD_SPI_EPILOGUE();
+	palSetPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
+	TOUCHPAD_SPI_EPILOGUE();
 
 #ifdef SPI_USE_MUTUAL_EXCLUSION
-  spiReleaseBus(tpDriver->spip);
+	spiReleaseBus(tpDriver->spip);
 #endif
 
-  /* Find the median - use selection sort */
-  tp_lld_filter();
+	/* Find the median - use selection sort */
+	tp_lld_filter();
 
-  return sampleBuf[3];
+	return sampleBuf[3];
 }
 
 /* ---- Optional Routines ---- */
@@ -227,7 +226,7 @@ uint16_t tp_lld_read_y(void) {
 	 *
 	 * @notapi
 	 */
-	 uint8_t tp_lld_irq(void) {
+	uint8_t tp_lld_irq(void) {
 		return (!palReadPad(tpDriver->tpIRQPort, tpDriver->tpIRQPin));
 	}
 #endif
