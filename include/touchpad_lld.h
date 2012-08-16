@@ -49,41 +49,76 @@
 	#define TOUCHPAD_HAS_PRESSURE	FALSE
 #endif
 
+#ifndef TOUCHPAD_SPI_PROLOGUE
+    #define TOUCHPAD_SPI_PROLOGUE()
+#endif
+
+#ifndef TOUCHPAD_SPI_EPILOGUE
+    #define TOUCHPAD_SPI_EPILOGUE()
+#endif
+
 /*===========================================================================*/
 /* Driver types.                                                             */
 /*===========================================================================*/
 
-typedef struct TOUCHPADDriver TOUCHPADDriver;
+typedef struct _TOUCHPADDriver TOUCHPADDriver;
 
 /**
  * @brief	Structure representing a Touchpad driver.
  */
-struct TOUCHPADDriver {
-	/*
-	 * @brief	Pointer to SPI driver.
-	 */
-	SPIDriver *spid;
+struct _TOUCHPADDriver {
+    /*
+     * @brief   Pointer to SPI driver.
+     * @note    SPI driver must be enabled in mcuconf.h and halconf.h
+     */
+    SPIDriver       *spip;
 
-	/*
-	 * @brief	SPI configuration.
-	 */
-	SPIConfig *spicfg;	
+    /*
+     * @brief   Pointer to the SPI configuration structure.
+     * @note    The lowest possible speed ~ 1-2MHz is to be used, otherwise
+     *          will result in a lot of noise
+     */
+    const SPIConfig  *spicfg;
+
+    /*
+     * @brief   Touchscreen controller TPIRQ pin GPIO port
+     */
+    ioportid_t      tpIRQPort;
+
+    /*
+     * @brief   Touchscreen controller TPIRQ GPIO pin
+     * @note    The interface is polled as of now, interrupt support is
+     *          to be implemented in the future.
+     */
+    ioportmask_t    tpIRQPin;
+
+    /*
+     * @brief   Initialize the SPI with the configuration struct given or not
+     *          If TRUE, spiStart is called by the init, otherwise not
+     * @note    This is provided in such a case when SPI port is being shared
+     *          across multiple peripherals, so not to disturb the SPI bus.
+     *          You can use TOUCHPAD_SPI_PROLOGUE() and TOUCHPAD_SPI_EPILOGUE()
+     *          macros to change the SPI configuration or speed before and
+     *          after using the touchpad. An example case would be sharing the
+     *          bus with a fast flash memory chip.
+     */
+    bool_t          direct_init;
 };
+
 
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
 
-#if !defined(__DOXYGEN__)
-    extern TOUCHPADDriver Touchpad;
-#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 	/* Core functions */
-	void tp_lld_init(TOUCHPADDriver *tp);
+	void tp_lld_init(const TOUCHPADDriver *tp);
+
+	uint16_t tp_lld_read_value(uint8_t cmd);
 	uint16_t tp_lld_read_x(void);
 	uint16_t tp_lld_read_y(void);
 
