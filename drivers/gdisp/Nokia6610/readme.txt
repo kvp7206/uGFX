@@ -13,5 +13,4 @@ To use this driver:
 		 	Olimex SAM7-EX256
 
 2. To your makefile add the following lines:
-	include $(CHIBIOS)/os/halext/halext.mk
-	include $(CHIBIOS)/os/halext/drivers/gdispXXXXX/gdisp_lld.mk
+	include $(LCDLIB)/drivers/gdisp/Nokia6610/gdisp_lld.mk
