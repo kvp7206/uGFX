@@ -23,8 +23,19 @@
 #include "gdisp.h"
 #include "touchpad.h"
 
-TOUCHPADDriver TOUCHPADD1 = {
-	&SPID1,
+static const SPIConfig spicfg = { 
+    NULL,			// no callback
+    GPIOC,			// CS PORT
+    6,				// CS PIN
+    SPI_CR1_BR_1 | SPI_CR1_BR_0,
+};
+
+TOUCHPADDriver TOUCHPADD1 = { 
+    &SPID1,			// SPI driver
+    &spicfg,		// SPI config
+    GPIO,			// IRQ PORT
+    4,				// IRQ PIN
+    TRUE			// start SPI
 };
 
 int main(void) {
@@ -32,15 +43,14 @@ int main(void) {
 	chSysInit();
 
 	gdispInit();
-	gdispClear(Lime);
 
 	tpInit(&TOUCHPADD1);
 	tpCalibrate();
 
-	gdispClear(Lime);	
+	gdispClear(Black);	
 
 	while (TRUE) {
-		gdispDrawFillCircle(tpReadX(), tpReadY(), 3, Black);
+		gdispDrawPixel(tpReadX(), tpReadY(), Green);
 	}
 }
 
