@@ -501,7 +501,7 @@
 /**
  * @brief   The type for a coordinate or length on the screen.
  */
-typedef uint16_t	coord_t;
+typedef int16_t	coord_t;
 /**
  * @brief   The type of a pixel.
  */
