@@ -672,7 +672,13 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
  * @api
  */
 void gdispDrawArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
+	uint16_t i;
+	float step = 0.01;
 
+	for(i = 0; i <= (int)((abs(end-start)) / step); i++) {
+		gdispDrawPixel(	((float)x + (float)radius * cosf((float)start * M_PI / 180.0f) + (float)i * step * M_PI / 180.0f), 
+						((float)y + (float)radius * sinf((float)start * M_PI / 180.0f) + (float)i * step * M_PI / 180.0f), color);
+	}
 }
 
 /*
