@@ -227,6 +227,8 @@ extern "C" {
 #endif
 
 void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
+void gdispDrawArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color);
+void gdispFillArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color);
 
 /* Extra Text Functions */
 #if GDISP_NEED_TEXT
