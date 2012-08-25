@@ -73,8 +73,6 @@
  * @notapi
  */
 bool_t GDISP_LLD(init)(void) {
-	uint16_t	deviceCode;
-
 	#ifdef LCD_USE_FSMC
 		/* FSMC setup. TODO: this only works for STM32F1 */
 		rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
@@ -93,8 +91,6 @@ bool_t GDISP_LLD(init)(void) {
 		/* Bank1 NOR/SRAM control register configuration */
 		FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
 	#endif
-
-	deviceCode = lld_lcdReadReg(0x0000);
 
 	lld_lcdWriteReg(0x0000,0x0001);		lld_lcdDelay(5);
     lld_lcdWriteReg(0x0003,0xA8A4);    	lld_lcdDelay(5);
@@ -484,7 +480,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	}
 #endif
 
-#if GDISP_HARDWARE_CONTROL || defined(__DOXYGEN__)
+#if (GDISP_NEED_CONTROL && GDISP_HARDWARE_CONTROL) || defined(__DOXYGEN__)
 	/**
 	 * @brief   Driver Control
 	 * @detail	Unsupported control codes are ignored.

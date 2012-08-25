@@ -22,10 +22,7 @@
 #include "hal.h"
 
 #include "gdisp.h"
-#include "gdisp_fonts.h"
 #include "console.h"
-
-#if defined(GDISP_NEED_SCROLL)
 
 /*
  * Interface implementation. The interface is write only
@@ -100,7 +97,7 @@ msg_t lcdConsoleInit(GLCDConsole *console, coord_t x0, coord_t y0, coord_t width
 
 	console->vmt = &vmt;
 	/* read font, get height */
-	console->fy = font->height;
+	console->fy = gdispGetFontMetric(font, fontHeight);
 
 	/* calculate the size of the console as an integer multiple of characters height*/
 	console->sx = width;
@@ -127,7 +124,7 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 		/* clear the text at the end of the line */
 		if(console->cx < console->sx)
 			gdispFillArea(console->x0 + console->cx, console->y0 + console->cy,
-						console->x0 + console->sx, console->y0 + console->cy + console->fy,
+						console->sx - console->cx, console->fy,
 						console->bkcolor);
 		console->cx = 0;
 		console->cy += console->fy;
@@ -135,23 +132,34 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 		/* TODO: work backwards through the buffer to the start of the current line */
 		//console->cx = 0;
 	} else {
-		width = _getCharWidth(console->font, c);
+		width = gdispGetCharWidth(c, console->font) + gdispGetFontMetric(console->font, fontCharPadding);
 		if((console->cx + width) >= console->sx) {
 			/* clear the text at the end of the line */
-			gdispFillArea(console->x0 + console->cx, console->y0 + console->cy,
-						console->x0 + console->cx + width, console->y0 + console->cy + console->fy,
-						console->bkcolor);
+			if (console->cy <= console->sy)
+				gdispFillArea(console->x0 + console->cx, console->y0 + console->cy,
+							console->sx - (console->cx + width), console->fy,
+							console->bkcolor);
 			console->cx = 0;
 			console->cy += console->fy;
 		}
 
 		if((console->cy > console->sy)) {
-			/* scroll the screen */
-			gdispVerticalScroll(console->x0, console->y0, console->x0 + console->sx,
-					console->y0 + console->sy + console->fy, console->fy, console->bkcolor);
-			/* reset the cursor */
+#if GDISP_NEED_SCROLL
+			/* scroll the console */
+			gdispVerticalScroll(console->x0, console->y0, console->sx,
+					console->sy + console->fy, console->fy, console->bkcolor);
+			/* reset the cursor to the start of the line */
 			console->cx = 0;
 			console->cy = console->sy;
+#else
+			/* clear the console */
+			gdispFillArea(console->x0, console->y0,
+						console->sx, console->sy + console->fy,
+						console->bkcolor);
+			/* reset the cursor to the top of the console */
+			console->cx = 0;
+			console->cy = 0;
+#endif
 		}
 
 		gdispDrawChar(console->x0 + console->cx, console->y0 + console->cy, c,
@@ -170,6 +178,3 @@ msg_t lcdConsoleWrite(GLCDConsole *console, char *bp, size_t n) {
 
 	return RDY_OK;
 }
-
-
-#endif /* GDISP_NEED_SCROLL */

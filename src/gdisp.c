@@ -28,6 +28,7 @@
 #include "ch.h"
 #include "hal.h"
 #include "gdisp.h"
+#include <math.h>
 
 #ifndef _GDISP_C
 #define _GDISP_C
@@ -656,6 +657,44 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	} else if (cx == 1) {
 		gdispDrawLine(x, y, x, y1, color);
 	}
+}
+
+/*
+ * @brief	Draw an arc.
+ * @pre		The GDISP must be in powerOn or powerSleep mode.
+ *
+ * @param[in] x0,y0		The center point
+ * @param[in] radius	The radius of the arc
+ * @param[in] start		The start angle (0 to 360)
+ * @param[in] end		The end angle (0 to 360)
+ * @param[in] color		The color of the arc
+ *
+ * @api
+ */
+void gdispDrawArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
+	uint16_t i;
+	float step = 0.01;
+
+	for(i = 0; i <= (int)((abs(end-start)) / step); i++) {
+		gdispDrawPixel(	((float)x + (float)radius * cosf((float)start * M_PI / 180.0f) + (float)i * step * M_PI / 180.0f), 
+						((float)y + (float)radius * sinf((float)start * M_PI / 180.0f) + (float)i * step * M_PI / 180.0f), color);
+	}
+}
+
+/*
+ * @brief	Draw a filled arc.
+ * @pre		The GDISP must be in powerOn or powerSleep mode.
+ *
+ * @param[in] x0,y0		The center point of the filled arc
+ * @param[in] radius	The radius of the filled arc
+ * @param[in] start		The start angle (0 to 360)
+ * @param[in] end		The end angle (0 to 360)
+ * @param[in] color		The color of the filled arc
+ *
+ * @api
+ */
+void gdispFillArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
+
 }
 
 #if GDISP_NEED_TEXT || defined(__DOXYGEN__)

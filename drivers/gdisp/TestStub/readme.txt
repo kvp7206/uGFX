@@ -13,5 +13,4 @@ To use this driver:
 		you want to compile test eg: GDISP_NEED_MULTITHREAD
 
 2. To your makefile add the following lines:
-	include $(CHIBIOS)/os/halext/halext.mk
-	include $(CHIBIOS)/os/halext/drivers/gdispTestStub/gdisp_lld.mk
+	include $(LCDLIB)/drivers/gdisp/TestStub/gdisp_lld.mk

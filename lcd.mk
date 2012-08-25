@@ -6,6 +6,6 @@ endif
 LCDSRC +=   $(LCDLIB)/src/gdisp.c \
             $(LCDLIB)/src/gdisp_fonts.c \
             $(LCDLIB)/src/touchpad.c \
-			$(LCDLIB)/src/console.c
+			$(LCDLIB)/src/console.c \
 
 LCDINC +=   $(LCDLIB)/include

@@ -227,6 +227,8 @@ extern "C" {
 #endif
 
 void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
+void gdispDrawArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color);
+void gdispFillArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color);
 
 /* Extra Text Functions */
 #if GDISP_NEED_TEXT
@@ -245,7 +247,7 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 
 /* Macro definitions for common gets and sets */
 #define gdispSetPowerMode(powerMode)			gdispControl(GDISP_CONTROL_POWER, (void *)(unsigned)(powerMode))
-#define gdispSetOrientation(newOrientation)		gdispControl(GDISP_CONTROL_ORITENTATION, (void *)(unsigned)(newOrientation))
+#define gdispSetOrientation(newOrientation)		gdispControl(GDISP_CONTROL_ORIENTATION, (void *)(unsigned)(newOrientation))
 #define gdispSetBacklight(percent)				gdispControl(GDISP_CONTROL_BACKLIGHT, (void *)(unsigned)(percent))
 #define gdispSetContrast(percent)				gdispControl(GDISP_CONTROL_CONTRAST, (void *)(unsigned)(percent))
 

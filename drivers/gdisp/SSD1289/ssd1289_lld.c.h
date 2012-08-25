@@ -96,6 +96,8 @@
 
 		dummy = lld_lcdReadData();
 		for(i = 0; i < size; i++) buffer[i] = lld_lcdReadData();
+
+		(void)dummy;
 	}
 
 #elif defined(LCD_USE_FSMC)

@@ -12,5 +12,4 @@ To use this driver:
 		#define SCREEN_HEIGHT	240
 
 2. To your makefile add the following lines:
-	include $(CHIBIOS)/os/halext/halext.mk
-	include $(CHIBIOS)/os/halext/drivers/gdispSsd1289/gdisp_lld.mk
+	include $(LCDLIB)/drivers/gdisp/SSD1289/gdisp_lld.mk
