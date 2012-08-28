@@ -659,7 +659,20 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	}
 }
 
-void _draw_arc(int x, int y, int start, int end, int radius, color_t color) {
+/*
+ * @brief				Internal helper function for gdispDrawArc()
+ *
+ * @note				DO NOT USE DIRECTLY!
+ *
+ * @param[in] x, y		The middle point of the arc
+ * @param[in] start		The start angle of the arc
+ * @param[in] end		The end angle of the arc
+ * @param[in] radius	The radius of the arc
+ * @param[in] color		The color in which the arc will be drawn
+ *
+ * @notapi
+ */
+void _draw_arc(coord_t x, coord_t y, uint16_t start, uint16_t end, uint16_t radius, color_t color) {
     if (start >= 0 && start <= 180) {
         float x_maxI = x + radius*cos(start*M_PI/180);
         float x_minI;
