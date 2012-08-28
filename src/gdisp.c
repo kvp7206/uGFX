@@ -660,8 +660,7 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 }
 
 void _draw_arc(int x, int y, int start, int end, int radius, color_t color) {
-    if (start >= 0 && start <= 180)
-    {
+    if (start >= 0 && start <= 180) {
         float x_maxI = x + radius*cos(start*M_PI/180);
         float x_minI;
 
@@ -674,8 +673,7 @@ void _draw_arc(int x, int y, int start, int end, int radius, color_t color) {
         int b = radius;
         int P = 1 - radius;
 
-        do
-        { 
+        do { 
             if(x-a <= x_maxI && x-a >= x_minI)
                 gdispDrawPixel(x-a, y+b, color);
             if(x+a <= x_maxI && x+a >= x_minI)
@@ -685,21 +683,18 @@ void _draw_arc(int x, int y, int start, int end, int radius, color_t color) {
             if(x+b <= x_maxI && x+b >= x_minI)
                 gdispDrawPixel(x+b, y+a, color);
 
-            if (P < 0)
-            {
+            if (P < 0) {
                 P = P + 3 + 2*a;
                 a = a + 1;
-            }else
-            {
+            } else {
                 P = P + 5 + 2*(a - b);
                 a = a + 1;
                 b = b - 1;
             }
-        }while(a <= b);
+        } while(a <= b);
     }
 
-    if (end > 180 && end <= 360)
-    {
+    if (end > 180 && end <= 360) {
         float x_maxII = x+radius*cos(end*M_PI/180);
         float x_minII;
 
@@ -712,7 +707,7 @@ void _draw_arc(int x, int y, int start, int end, int radius, color_t color) {
         int b = radius;
         int P = 1 - radius;
 
-        do{
+        do {
             if(x-a <= x_maxII && x-a >= x_minII)
                 gdispDrawPixel(x-a, y-b, color);
             if(x+a <= x_maxII && x+a >= x_minII)
@@ -722,18 +717,15 @@ void _draw_arc(int x, int y, int start, int end, int radius, color_t color) {
             if(x+b <= x_maxII && x+b >= x_minII)
                 gdispDrawPixel(x+b, y-a, color);
 
-            if (P < 0)
-            {
+            if (P < 0) {
                 P = P + 3 + 2*a;
                 a = a + 1;
-            }
-            else
-            {
+            } else {
                 P = P + 5 + 2*(a - b);
                 a = a + 1;
                 b = b - 1;
             }
-        }while (a <= b);
+        } while (a <= b);
     }
 }
 
@@ -750,12 +742,12 @@ void _draw_arc(int x, int y, int start, int end, int radius, color_t color) {
  * @api
  */
 void gdispDrawArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
-	if (end < start) {
+	if(end < start) {
         _draw_arc(x, y, start, 360, radius, color);
         _draw_arc(x, y, 0, end, radius, color);
-    }
-    else
+    } else {
         _draw_arc(x, y, start, end, radius, color);
+	}
 }
 
 /*
