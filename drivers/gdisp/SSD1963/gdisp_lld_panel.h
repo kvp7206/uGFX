@@ -18,6 +18,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file    SSD1963/gdisp_lld_panel.h
+ * @brief   TFT LCD panel properties.
+ *
+ * @addtogroup GDISP
+ * @{
+ */
+
 #ifndef _GDISP_LLD_PANEL_H
 #define _GDISP_LLD_PANEL_H
 
@@ -42,3 +50,4 @@
 #define LCD_FPR		((SCREEN_PCLK * 1048576)/100000000)
 
 #endif
+/** @} */

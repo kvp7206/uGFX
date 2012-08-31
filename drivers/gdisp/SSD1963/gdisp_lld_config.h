@@ -19,8 +19,8 @@
 */
 
 /**
- * @file    templates/gdisp_lld_config.h
- * @brief   GDISP Graphic Driver subsystem low level driver header template.
+ * @file    SSD1963/gdisp_lld_config.h
+ * @brief   GDISP Graphic Driver subsystem low level driver header.
  *
  * @addtogroup GDISP
  * @{

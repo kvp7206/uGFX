@@ -18,6 +18,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file    SSD1963/ssd1963.h
+ * @brief   SSD1963 specific data.
+ *
+ * @addtogroup GDISP
+ * @{
+ */
+
 #ifndef SSD1963_H
 #define SSD1963_H
 
@@ -136,3 +144,4 @@
 #define SSD1963_GET_PIXEL_DATA_INTERFACE 0x00F1
 
 #endif
+/** @} */
