@@ -88,15 +88,15 @@ __inline void GDISP_LLD(writereg)(uint16_t lcdReg,uint16_t lcdRegValue) {
 	LCD_RAM = lcdRegValue;
 }
 
-__inline void GDISP_LLD(writedata)(uint8_t data) {
+__inline void GDISP_LLD(writedata)(uint16_t data) {
 	LCD_RAM = data;
 }
 
-__inline void GDISP_LLD(readdata)(uint8_t data) {
+__inline uint16_t GDISP_LLD(readdata)(void) {
 	return (LCD_RAM);
 }
 
-__inline void GDISP_LLD(readreg)(uint8_t lcdReg) {
+__inline uint8_t GDISP_LLD(readreg)(uint8_t lcdReg) {
 	LCD_REG = lcdReg;
 	return (LCD_RAM);
 }
@@ -134,7 +134,7 @@ bool_t GDISP_LLD(init)(void) {
 	/* Initialise the GDISP structure to match */
 	GDISP.Width = SCREEN_WIDTH;
 	GDISP.Height = SCREEN_HEIGHT;
-	GDISP.Orientation = portrait;
+	GDISP.Orientation = landscape;
 	GDISP.Powermode = powerOn;
 	GDISP.Backlight = 100;
 	GDISP.Contrast = 50;
@@ -177,62 +177,62 @@ bool_t GDISP_LLD(init)(void) {
 
 	/* Driver PLL config */
 	GDISP_LLD(writeindex)(SSD1963_SET_PLL_MN);
-	GDISP_LLD(writestreamstart)(35);								 // PLLclk = REFclk (10Mhz) * 36 (360Mhz)
-	GDISP_LLD(writestreamstart)(2);								 // SYSclk = PLLclk / 3  (120MHz)
-	GDISP_LLD(writestreamstart)(4);								 // Apply calculation bit, else it is ignored
+	GDISP_LLD(writedata)(35);								 // PLLclk = REFclk (10Mhz) * 36 (360Mhz)
+	GDISP_LLD(writedata)(2);								 // SYSclk = PLLclk / 3  (120MHz)
+	GDISP_LLD(writedata)(4);								 // Apply calculation bit, else it is ignored
 
 	GDISP_LLD(writeindex)(SSD1963_SET_PLL);					// Enable PLL
-	GDISP_LLD(writestreamstart)(0x01);
-	lld_lcdDelay(200);
+	GDISP_LLD(writedata)(0x01);
+	chThdSleepMicroseconds(200);
 
 	GDISP_LLD(writeindex)(SSD1963_SET_PLL);					// Use PLL
-	GDISP_LLD(writestreamstart)(0x03);
-	lld_lcdDelay(200);
+	GDISP_LLD(writedata)(0x03);
+	chThdSleepMicroseconds(200);
 
 	GDISP_LLD(writeindex)(SSD1963_SOFT_RESET);				chThdSleepMicroseconds(100);
 
 	/* Screen size */
 	GDISP_LLD(writeindex)(SSD1963_SET_LCD_MODE);
-//	GDISP_LLD(writestreamstart)(0x0000);
-	GDISP_LLD(writestreamstart)(0b00011000);
-	GDISP_LLD(writestreamstart)(0x0000);
-	GDISP_LLD(writestreamstart)(mHIGH((SCREEN_WIDTH+1)));
-	GDISP_LLD(writestreamstart)((SCREEN_WIDTH+1));
-	GDISP_LLD(writestreamstart)(mHIGH((SCREEN_HEIGHT+1)));
-	GDISP_LLD(writestreamstart)((SCREEN_HEIGHT+1));
-	GDISP_LLD(writestreamstart)(0x0000);
+//	GDISP_LLD(writedata)(0x0000);
+	GDISP_LLD(writedata)(0b00011000);
+	GDISP_LLD(writedata)(0x0000);
+	GDISP_LLD(writedata)(mHIGH((SCREEN_WIDTH+1)));
+	GDISP_LLD(writedata)((SCREEN_WIDTH+1));
+	GDISP_LLD(writedata)(mHIGH((SCREEN_HEIGHT+1)));
+	GDISP_LLD(writedata)((SCREEN_HEIGHT+1));
+	GDISP_LLD(writedata)(0x0000);
 
 	GDISP_LLD(writeindex)(SSD1963_SET_PIXEL_DATA_INTERFACE);
-	GDISP_LLD(writestreamstart)(SSD1963_PDI_16BIT565);
+	GDISP_LLD(writedata)(SSD1963_PDI_16BIT565);
 
 	/* LCD Clock specs */
 	GDISP_LLD(writeindex)(SSD1963_SET_LSHIFT_FREQ);
-	GDISP_LLD(writestreamstart)((LCD_FPR >> 16) & 0xFF);
-	GDISP_LLD(writestreamstart)((LCD_FPR >> 8) & 0xFF);
-	GDISP_LLD(writestreamstart)(LCD_FPR & 0xFF);
+	GDISP_LLD(writedata)((LCD_FPR >> 16) & 0xFF);
+	GDISP_LLD(writedata)((LCD_FPR >> 8) & 0xFF);
+	GDISP_LLD(writedata)(LCD_FPR & 0xFF);
 
 	GDISP_LLD(writeindex)(SSD1963_SET_HORI_PERIOD);
-	GDISP_LLD(writestreamstart)(mHIGH(SCREEN_HSYNC_PERIOD));
-	GDISP_LLD(writestreamstart)(mLOW(SCREEN_HSYNC_PERIOD));
-	GDISP_LLD(writestreamstart)(mHIGH((SCREEN_HSYNC_PULSE + SCREEN_HSYNC_BACK_PORCH)));
-	GDISP_LLD(writestreamstart)(mLOW((SCREEN_HSYNC_PULSE + SCREEN_HSYNC_BACK_PORCH)));
-	GDISP_LLD(writestreamstart)(SCREEN_HSYNC_PULSE);
-	GDISP_LLD(writestreamstart)(0x00);
-	GDISP_LLD(writestreamstart)(0x00);
-	GDISP_LLD(writestreamstart)(0x00);
+	GDISP_LLD(writedata)(mHIGH(SCREEN_HSYNC_PERIOD));
+	GDISP_LLD(writedata)(mLOW(SCREEN_HSYNC_PERIOD));
+	GDISP_LLD(writedata)(mHIGH((SCREEN_HSYNC_PULSE + SCREEN_HSYNC_BACK_PORCH)));
+	GDISP_LLD(writedata)(mLOW((SCREEN_HSYNC_PULSE + SCREEN_HSYNC_BACK_PORCH)));
+	GDISP_LLD(writedata)(SCREEN_HSYNC_PULSE);
+	GDISP_LLD(writedata)(0x00);
+	GDISP_LLD(writedata)(0x00);
+	GDISP_LLD(writedata)(0x00);
 
 	GDISP_LLD(writeindex)(SSD1963_SET_VERT_PERIOD);
-	GDISP_LLD(writestreamstart)(mHIGH(SCREEN_VSYNC_PERIOD));
-	GDISP_LLD(writestreamstart)(mLOW(SCREEN_VSYNC_PERIOD));
-	GDISP_LLD(writestreamstart)(mHIGH((SCREEN_VSYNC_PULSE + SCREEN_VSYNC_BACK_PORCH)));
-	GDISP_LLD(writestreamstart)(mLOW((SCREEN_VSYNC_PULSE + SCREEN_VSYNC_BACK_PORCH)));
-	GDISP_LLD(writestreamstart)(SCREEN_VSYNC_PULSE);
-	GDISP_LLD(writestreamstart)(0x00);
-	GDISP_LLD(writestreamstart)(0x00);
+	GDISP_LLD(writedata)(mHIGH(SCREEN_VSYNC_PERIOD));
+	GDISP_LLD(writedata)(mLOW(SCREEN_VSYNC_PERIOD));
+	GDISP_LLD(writedata)(mHIGH((SCREEN_VSYNC_PULSE + SCREEN_VSYNC_BACK_PORCH)));
+	GDISP_LLD(writedata)(mLOW((SCREEN_VSYNC_PULSE + SCREEN_VSYNC_BACK_PORCH)));
+	GDISP_LLD(writedata)(SCREEN_VSYNC_PULSE);
+	GDISP_LLD(writedata)(0x00);
+	GDISP_LLD(writedata)(0x00);
 
 	/* Tear effect indicator ON. This is used to tell the host MCU when the driver is not refreshing the panel */
 	GDISP_LLD(writeindex)(SSD1963_SET_TEAR_ON);
-	GDISP_LLD(writestreamstart)(0x0000);
+	GDISP_LLD(writedata)(0x0000);
 
 	/* Turn on */
 	GDISP_LLD(writeindex)(SSD1963_SET_DISPLAY_ON);
@@ -250,16 +250,16 @@ void GDISP_LLD(setwindow)(coord_t x0, coord_t y0, coord_t x1, coord_t y1) {
 		if (x0 >= GDISP.Width || y0 >= GDISP.Height) return;
 		else if (x1 >= GDISP.Width || y1 >= GDISP.Height) return;
 	#endif
-    GDISP_LLD(writeindex)(SSD1963_SET_COLUMN_ADDRESS);
-    GDISP_LLD(writestreamstart)((y0 >> 8) & 0xFF);
-    GDISP_LLD(writestreamstart)((y0 >> 0) & 0xFF);
-    GDISP_LLD(writestreamstart)((y1 >> 8) & 0xFF);
-    GDISP_LLD(writestreamstart)((y1 >> 0) & 0xFF);
     GDISP_LLD(writeindex)(SSD1963_SET_PAGE_ADDRESS);
-    GDISP_LLD(writestreamstart)((x0 >> 8) & 0xFF);
-    GDISP_LLD(writestreamstart)((x0 >> 0) & 0xFF);
-    GDISP_LLD(writestreamstart)((x1 >> 8) & 0xFF);
-    GDISP_LLD(writestreamstart)((x1 >> 0) & 0xFF);
+    GDISP_LLD(writedata)((y0 >> 8) & 0xFF);
+    GDISP_LLD(writedata)((y0 >> 0) & 0xFF);
+    GDISP_LLD(writedata)((y1 >> 8) & 0xFF);
+    GDISP_LLD(writedata)((y1 >> 0) & 0xFF);
+    GDISP_LLD(writeindex)(SSD1963_SET_COLUMN_ADDRESS);
+    GDISP_LLD(writedata)((x0 >> 8) & 0xFF);
+    GDISP_LLD(writedata)((x0 >> 0) & 0xFF);
+    GDISP_LLD(writedata)((x1 >> 8) & 0xFF);
+    GDISP_LLD(writedata)((x1 >> 0) & 0xFF);
 }
 
 /**
@@ -275,8 +275,9 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	#if GDISP_NEED_VALIDATION
 		if (x >= GDISP.Width || y >= GDISP.Height) return;
 	#endif
+	
     GDISP_LLD(setwindow)(x, y, x, y);
-    GDISP_LLD(writestreamstart);
+    GDISP_LLD(writestreamstart)();
     GDISP_LLD(writedata)(color);
 }
 
@@ -307,7 +308,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void GDISP_LLD(clear)(color_t color) {
-		/* Code here */
+		GDISP_LLD(fillarea)(0, 0, GDISP.Width-1, GDISP.Height-1, color);
 	}
 #endif
 
@@ -349,14 +350,13 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		#endif
 		
     uint32_t index = 0, area;
+    area = (cx+1)*(cy+1);
 
-    area = ((x1-x0+1)*(y1-y0+1));
-
-      lld_lcdSetWindow(x0, y0, x1, y1);
-      lld_lcdwritestreamstart();
+      GDISP_LLD(setwindow)(x, y, x+cx, y+cy);
+      GDISP_LLD(writestreamstart)();
 
       for(index = 0; index <= area; index++)
-          GDISP_LLD(writestreamstart)(color);
+          GDISP_LLD(writedata)(color);
 
 	}
 #endif

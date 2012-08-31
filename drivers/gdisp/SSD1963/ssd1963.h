@@ -136,5 +136,3 @@
 #define SSD1963_GET_PIXEL_DATA_INTERFACE 0x00F1
 
 #endif
-
-#endif

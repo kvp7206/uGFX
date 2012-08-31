@@ -35,12 +35,12 @@
 /* Driver hardware support.                                                  */
 /*===========================================================================*/
 
-#define GDISP_DRIVER_NAME				"YourDriverName"
-#define GDISP_LLD(x)					gdisp_lld_##x##_YourDriverName
+#define GDISP_DRIVER_NAME				"SSD1963"
+#define GDISP_LLD(x)					gdisp_lld_##x##_SSD1963
 
 #define GDISP_HARDWARE_LINES			FALSE
-#define GDISP_HARDWARE_CLEARS			FALSE
-#define GDISP_HARDWARE_FILLS			FALSE
+#define GDISP_HARDWARE_CLEARS			TRUE
+#define GDISP_HARDWARE_FILLS			TRUE
 #define GDISP_HARDWARE_BITFILLS			FALSE
 #define GDISP_HARDWARE_CIRCLES			FALSE
 #define GDISP_HARDWARE_CIRCLEFILLS		FALSE
