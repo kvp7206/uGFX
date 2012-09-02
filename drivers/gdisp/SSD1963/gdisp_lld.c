@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2012
+    ChibiOS-LCD-Driver - Copyright (C) 2012
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS-LCD-Driver.

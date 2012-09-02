@@ -1,6 +1,6 @@
 /*
-    ChibiOS/RT - Copyright (C) 2012
-                 Fabien Poussin aka Mobyfab <mobyfab@gmail.com>
+    ChibiOS-LCD-Driver Copyright (C) 2012
+			Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS-LCD-Driver.
 
