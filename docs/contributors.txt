@@ -6,6 +6,8 @@ At this point we want to thank all of these people for their work.
 NickName		RealName				Contribution
 ========		========				============
 
+Mobyfab			Fabien Poussin			SSD1289 driver
+
 inmarket		Andrew Hannam			GDISP (restructorizing the entire library)
 										VMT
 										ASYNC and MULTITHREAD implementation
