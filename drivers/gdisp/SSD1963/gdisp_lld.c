@@ -29,7 +29,6 @@
 #include "ch.h"
 #include "hal.h"
 #include "gdisp.h"
-#include "ssd1963.h"
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
@@ -74,11 +73,10 @@
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
-/* ---- Required Routines ---- */
-/*
-	The following 2 routines are required.
-	All other routines are optional.
-*/
+#include "ssd1963.h"
+
+
+#if defined(LCD_USE_FSMC)
 __inline void GDISP_LLD(writeindex)(uint8_t cmd) {
   LCD_REG = cmd;
 }
@@ -102,11 +100,11 @@ __inline uint8_t GDISP_LLD(readreg)(uint8_t lcdReg) {
 }
 
 __inline void GDISP_LLD(writestreamstart)(void) {
-	LCD_REG = SSD1963_WRITE_MEMORY_START;
+	GDISP_LLD(writeindex)(SSD1963_WRITE_MEMORY_START);
 }
 
 __inline void GDISP_LLD(readstreamstart)(void) {
-	LCD_REG = SSD1963_READ_MEMORY_START;
+	GDISP_LLD(writeindex)(SSD1963_READ_MEMORY_START);
 }
 
 __inline void GDISP_LLD(writestream)(uint16_t *buffer, uint16_t size) {
@@ -122,6 +120,80 @@ __inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
 		buffer[i] = LCD_RAM;
 	}
 }
+
+#elif defined(LCD_USE_GPIO)
+
+__inline void GDISP_LLD(writeindex)(uint8_t cmd) {
+	Set_CS; Set_RS; Set_WR; Clr_RD;
+	palWritePort(LCD_DATA_PORT, cmd);
+	Clr_CS;
+}
+
+__inline void GDISP_LLD(writereg)(uint16_t lcdReg,uint16_t lcdRegValue) {
+	Set_CS; Set_RS; Set_WR; Clr_RD;
+	palWritePort(LCD_DATA_PORT, lcdReg);
+	Clr_RS;
+	palWritePort(LCD_DATA_PORT, lcdRegValue);
+	Clr_CS;
+}
+__inline void GDISP_LLD(writedata)(uint16_t data) {
+	Set_CS; Clr_RS; Set_WR; Clr_RD;
+	palWritePort(LCD_DATA_PORT, data);
+	Clr_CS;
+}
+
+__inline uint16_t GDISP_LLD(readdata)(void) {
+	Set_CS; Clr_RS; Clr_WR; Set_RD;
+	uint16_t data = palReadPort(LCD_DATA_PORT); 
+	Clr_CS;
+	return data;
+}
+
+__inline uint8_t GDISP_LLD(readreg)(uint8_t lcdReg) {
+	Set_CS; Set_RS; Clr_WR; Set_RD;
+	palWritePort(LCD_DATA_PORT, lcdReg);
+	Clr_RS;
+	uint16_t data = palReadPort(LCD_DATA_PORT);
+	Clr_CS;
+	return data;
+}
+
+__inline void GDISP_LLD(writestreamstart)(void) {
+	GDISP_LLD(writeindex)(SSD1963_WRITE_MEMORY_START);
+}
+
+__inline void GDISP_LLD(readstreamstart)(void) {
+	GDISP_LLD(writeindex)(SSD1963_READ_MEMORY_START);
+}
+
+__inline void GDISP_LLD(writestream)(uint16_t *buffer, uint16_t size) {
+	uint16_t i;
+	Set_CS; Clr_RS; Set_WR; Clr_RD;
+	for(i = 0; i < size; i++) {
+		Set_WR;
+		palWritePort(LCD_DATA_PORT, buffer[i]);
+		Clr_WR;
+	}
+	Clr_CS;
+}
+
+__inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
+	uint16_t i;
+	Set_CS; Clr_RS; Clr_WR; Set_RD;
+	for(i = 0; i < size; i++) {
+		Set_RD;
+		buffer[i] = palReadPort(LCD_DATA_PORT);
+		Clr_RD;
+	}
+}
+#endif
+
+/* ---- Required Routines ---- */
+/*
+	The following 2 routines are required.
+	All other routines are optional.
+*/
+
 /**
  * @brief   Low level GDISP driver initialisation.
  * @return	TRUE if successful, FALSE on error.
@@ -139,17 +211,19 @@ bool_t GDISP_LLD(init)(void) {
 	GDISP.Backlight = 100;
 	GDISP.Contrast = 50;
 	
-#ifdef LCD_USE_FSMC
+#if defined(LCD_USE_FSMC)
 
-#if defined(STM32F1XX)
-	/* FSMC setup. TODO: this only works for STM32F1 */
+  #if defined(STM32F1XX) || defined(STM32F3XX)
+	/* FSMC setup for F1/F3 */
 	rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
 
-	/* TODO: pin setup */
-#elif defined(STM32F4XX)
-	/* STM32F4 FSMC init */
+  #elif defined(STM32F4XX) || defined(STM32F2XX)
+	/* STM32F2-F4 FSMC init */
 	rccEnableAHB3(RCC_AHB3ENR_FSMCEN, 0);
-
+  #else
+  #error "FSMC not implemented for this device"
+  #endif
+	
 	/* set pins to FSMC mode */
 	IOBus busD = {GPIOD, (1 << 0) | (1 << 1) | (1 << 4) | (1 << 5) | (1 << 7) | (1 << 8) |
 							(1 << 9) | (1 << 10) | (1 << 11) | (1 << 14) | (1 << 15), 0};
@@ -159,10 +233,8 @@ bool_t GDISP_LLD(init)(void) {
 
 	palSetBusMode(&busD, PAL_MODE_ALTERNATE(12));
 	palSetBusMode(&busE, PAL_MODE_ALTERNATE(12));
-#else
-#error "FSMC not implemented for this device"
-#endif
-	const int FSMC_Bank = 0;
+	
+	const unsigned char FSMC_Bank = 0;
 	/* FSMC timing */
 	FSMC_Bank1->BTCR[FSMC_Bank+1] = (FSMC_BTR1_ADDSET_1 | FSMC_BTR1_ADDSET_3) \
 			| (FSMC_BTR1_DATAST_1 | FSMC_BTR1_DATAST_3) \
@@ -171,9 +243,18 @@ bool_t GDISP_LLD(init)(void) {
 	/* Bank1 NOR/SRAM control register configuration
 	 * This is actually not needed as already set by default after reset */
 	FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
-#endif
-
-	GDISP_LLD(writeindex)(SSD1963_SOFT_RESET);				chThdSleepMicroseconds(100);
+	
+  #elif defined(LCD_USE_GPIO)
+	IOBus busCMD = {LCD_CMD_PORT, (1 << LCD_CS) | (1 << LCD_RS) | (1 << LCD_WR) | (1 << LCD_RD), 0};
+	IOBus busDATA = {LCD_CMD_PORT, 0xFFFFF, 0};
+	palSetBusMode(&busCMD, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetBusMode(&busDATA, PAL_MODE_OUTPUT_PUSHPULL);
+	
+  #else
+  #error "Please define LCD_USE_FSMC or LCD_USE_GPIO"
+#endif	
+	GDISP_LLD(writeindex)(SSD1963_SOFT_RESET);	
+	chThdSleepMicroseconds(100);
 
 	/* Driver PLL config */
 	GDISP_LLD(writeindex)(SSD1963_SET_PLL_MN);
@@ -189,7 +270,8 @@ bool_t GDISP_LLD(init)(void) {
 	GDISP_LLD(writedata)(0x03);
 	chThdSleepMicroseconds(200);
 
-	GDISP_LLD(writeindex)(SSD1963_SOFT_RESET);				chThdSleepMicroseconds(100);
+	GDISP_LLD(writeindex)(SSD1963_SOFT_RESET);	
+	chThdSleepMicroseconds(100);
 
 	/* Screen size */
 	GDISP_LLD(writeindex)(SSD1963_SET_LCD_MODE);
@@ -236,9 +318,9 @@ bool_t GDISP_LLD(init)(void) {
 
 	/* Turn on */
 	GDISP_LLD(writeindex)(SSD1963_SET_DISPLAY_ON);
-#ifdef LCD_USE_FSMC
+#if defined(LCD_USE_FSMC)
 	/* FSMC delay reduced as the controller now runs at full speed */
-	FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_0 | (FSMC_BTR1_DATAST_2 | FSMC_BTR1_DATAST_0) | FSMC_BTR1_BUSTURN_0 ;
+	FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_0 | FSMC_BTR1_DATAST_1 | FSMC_BTR1_BUSTURN_0 ;
 	FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
 #endif
 
