@@ -31,7 +31,7 @@
 
 #include "gdisp_lld_panel.h"
 
-#ifdef LCD_USE_GPIO
+#if defined(LCD_USE_GPIO)
 	#define Set_CS		palSetPad(LCD_CMD_PORT, LCD_CS);
 	#define Clr_CS		palClearPad(LCD_CMD_PORT, LCD_CS);
 	#define Set_RS		palSetPad(LCD_CMD_PORT, LCD_RS);
@@ -42,16 +42,10 @@
 	#define Clr_RD		palClearPad(LCD_CMD_PORT, LCD_RD);
 #endif
 
-#ifdef LCD_USE_SPI
-	/* TODO */
-#endif
-
-#ifdef LCD_USE_FSMC
-
-/* Using FSMC A16 as RS */
-#define LCD_REG              (*((volatile uint16_t *) 0x60000000)) /* RS = 0 */
-#define LCD_RAM              (*((volatile uint16_t *) 0x60020000)) /* RS = 1 */
-
+#if defined(LCD_USE_FSMC)
+	/* Using FSMC A16 as RS */
+	#define LCD_REG              (*((volatile uint16_t *) 0x60000000)) /* RS = 0 */
+	#define LCD_RAM              (*((volatile uint16_t *) 0x60020000)) /* RS = 1 */
 #endif
 
 #define mHIGH(x) (x >> 8)
