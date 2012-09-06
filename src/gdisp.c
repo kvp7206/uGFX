@@ -660,6 +660,89 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 }
 
 /*
+ * @brief				Internal helper function for gdispDrawArc()
+ *
+ * @note				DO NOT USE DIRECTLY!
+ *
+ * @param[in] x, y		The middle point of the arc
+ * @param[in] start		The start angle of the arc
+ * @param[in] end		The end angle of the arc
+ * @param[in] radius	The radius of the arc
+ * @param[in] color		The color in which the arc will be drawn
+ *
+ * @notapi
+ */
+void _draw_arc(coord_t x, coord_t y, uint16_t start, uint16_t end, uint16_t radius, color_t color) {
+    if (start >= 0 && start <= 180) {
+        float x_maxI = x + radius*cos(start*M_PI/180);
+        float x_minI;
+
+        if (end > 180)
+            x_minI = x - radius;
+        else
+            x_minI = x + radius*cos(end*M_PI/180);
+
+        int a = 0;
+        int b = radius;
+        int P = 1 - radius;
+
+        do { 
+            if(x-a <= x_maxI && x-a >= x_minI)
+                gdispDrawPixel(x-a, y+b, color);
+            if(x+a <= x_maxI && x+a >= x_minI)
+                gdispDrawPixel(x+a, y+b, color);
+            if(x-b <= x_maxI && x-b >= x_minI)
+                gdispDrawPixel(x-b, y+a, color);
+            if(x+b <= x_maxI && x+b >= x_minI)
+                gdispDrawPixel(x+b, y+a, color);
+
+            if (P < 0) {
+                P = P + 3 + 2*a;
+                a = a + 1;
+            } else {
+                P = P + 5 + 2*(a - b);
+                a = a + 1;
+                b = b - 1;
+            }
+        } while(a <= b);
+    }
+
+    if (end > 180 && end <= 360) {
+        float x_maxII = x+radius*cos(end*M_PI/180);
+        float x_minII;
+
+        if(start <= 180)
+            x_minII = x - radius;
+        else
+            x_minII = x+radius*cos(start*M_PI/180);
+
+        int a = 0;
+        int b = radius;
+        int P = 1 - radius;
+
+        do {
+            if(x-a <= x_maxII && x-a >= x_minII)
+                gdispDrawPixel(x-a, y-b, color);
+            if(x+a <= x_maxII && x+a >= x_minII)
+                gdispDrawPixel(x+a, y-b, color);
+            if(x-b <= x_maxII && x-b >= x_minII)
+                gdispDrawPixel(x-b, y-a, color);
+            if(x+b <= x_maxII && x+b >= x_minII)
+                gdispDrawPixel(x+b, y-a, color);
+
+            if (P < 0) {
+                P = P + 3 + 2*a;
+                a = a + 1;
+            } else {
+                P = P + 5 + 2*(a - b);
+                a = a + 1;
+                b = b - 1;
+            }
+        } while (a <= b);
+    }
+}
+
+/*
  * @brief	Draw an arc.
  * @pre		The GDISP must be in powerOn or powerSleep mode.
  *
@@ -672,12 +755,11 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
  * @api
  */
 void gdispDrawArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
-	uint16_t i;
-	float step = 0.01;
-
-	for(i = 0; i <= (int)((abs(end-start)) / step); i++) {
-		gdispDrawPixel(	((float)x + (float)radius * cosf((float)start * M_PI / 180.0f) + (float)i * step * M_PI / 180.0f), 
-						((float)y + (float)radius * sinf((float)start * M_PI / 180.0f) + (float)i * step * M_PI / 180.0f), color);
+	if(end < start) {
+        _draw_arc(x, y, start, 360, radius, color);
+        _draw_arc(x, y, 0, end, radius, color);
+    } else {
+        _draw_arc(x, y, start, end, radius, color);
 	}
 }
 
@@ -694,7 +776,13 @@ void gdispDrawArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t
  * @api
  */
 void gdispFillArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
-
+	/* ToDo */
+	(void)x;
+	(void)y;
+	(void)radius;
+	(void)start;
+	(void)end;
+	(void)color;
 }
 
 #if GDISP_NEED_TEXT || defined(__DOXYGEN__)

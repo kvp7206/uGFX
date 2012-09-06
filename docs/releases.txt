@@ -4,4 +4,6 @@
 
 *** 0.1.0 ***
 FIX: removed gdisp and touchpad prefix of driver directories
+UPDATE: added SSD1289 driver (by Mobyfab)
+
 
