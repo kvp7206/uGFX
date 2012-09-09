@@ -196,11 +196,12 @@ uint16_t tpReadY(void) {
 }
 
 void tpCalibrate(void) {
-	uint16_t cross[2][2] = {{40,50}, {200, 280}};
+	const uint16_t h = gdispGetHeight();
+	const uint16_t w = gdispGetWidth();
+	const uint16_t cross[2][2] = {{(w/8), (h/8)}, {(w-(w/8)) , (h-(h/8))}};
 	uint16_t points[2][2];
 	uint8_t i;
 
-    //gdispSetOrientation(portrait);
     gdispClear(Red);
 	gdispFillStringBox(0, 10, gdispGetWidth(), 30, "Calibration", &fontUI2Double,  White, Red, justifyCenter);
 
