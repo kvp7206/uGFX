@@ -31,8 +31,8 @@
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
-#define CONFIGFILE()	<../GDISP_VMT_NAME1(gdisp)/gdisp_lld_config.h>
-#define DRIVERFILE()	<../GDISP_VMT_NAME1(gdisp)/gdisp_lld.c>
+#define CONFIGFILE()	<../GDISP_VMT_NAME1()/gdisp_lld_config.h>
+#define DRIVERFILE()	<../GDISP_VMT_NAME1()/gdisp_lld.c>
 
 /* We don't need these in our VMT referenced driver */
 #undef GDISP_NEED_MSGAPI

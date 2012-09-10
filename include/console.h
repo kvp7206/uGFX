@@ -21,67 +21,33 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#include "ch.h"
-#include "hal.h"
+#ifdef HAL_USE_GDISP
+
+#ifndef GDISP_NEED_CONSOLE
+	#define GDISP_NEED_CONSOLE	FALSE
+#endif
+
+#if GDISP_NEED_CONSOLE
 
 #include "gdisp.h"
 
 /**
- * @brief   Structure representing a GLCD driver.
+ * @brief   Structure representing a GConsole driver.
  */
-typedef struct GLCDConsole GLCDConsole;
-
-/**
- * @brief   @p GLCDConsole specific methods.
- */
-#define _glcd_driver_methods                                              \
-	_base_asynchronous_channel_methods
-
-/**
- * @extends BaseAsynchronousChannelVMT
- *
- * @brief   @p GLCDConsole virtual methods table.
- */
-struct GLCDConsoleVMT {
-	_glcd_driver_methods
-};
-
-/**
- * @extends BaseAsynchronousChannel
- *
- * @brief   GLCD Console class.
- * @details This class extends @p BaseAsynchronousChannel by adding physical
- *          I/O queues.
- */
-struct GLCDConsole {
-	/** @brief Virtual Methods Table.*/
-	const struct GLCDConsoleVMT *vmt;
-	_base_asynchronous_channel_data
-	/* WARNING: Do not add any data to this struct above this comment, only below */
-	/* font */
-	font_t font;
-	/* lcd area to use */
-	coord_t x0,y0;
-	/* current cursor position, in pixels */
-	coord_t cx,cy;
-	/* console size in pixels */
-	coord_t sx,sy;
-	/* foreground and background colour */
-	pixel_t bkcolor, color;
-	/* font size in pixels */
-	uint8_t fy;
-};
+typedef struct GConsole GConsole;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-msg_t lcdConsoleInit(GLCDConsole *console, coord_t x0, coord_t y0, coord_t width, coord_t height, font_t font, pixel_t bkcolor, pixel_t color);
-msg_t lcdConsolePut(GLCDConsole *console, char c);
-msg_t lcdConsoleWrite(GLCDConsole *console, char *bp, size_t n);
+msg_t lcdConsoleInit(GConsole *console, coord_t x0, coord_t y0, coord_t width, coord_t height, font_t font, pixel_t bkcolor, pixel_t color);
+msg_t lcdConsolePut(GConsole *console, char c);
+msg_t lcdConsoleWrite(GConsole *console, const uint8_t *bp, size_t n);
 
 #ifdef __cplusplus
 }
 #endif
 
+#endif /* GDISP_NEED_CONSOLE */
+#endif /* HAL_USE_GDISP */
 #endif /* CONSOLE_H */

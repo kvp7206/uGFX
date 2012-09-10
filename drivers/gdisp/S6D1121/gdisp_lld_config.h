@@ -35,30 +35,17 @@
 /* Driver hardware support.                                                  */
 /*===========================================================================*/
 
-#define GDISP_DRIVER_NAME				"S6d1121"
-#define GDISP_LLD(x)					gdisp_lld_##x##_S6d1121
+#define GDISP_DRIVER_NAME				"S6D1121"
+#define GDISP_LLD(x)					gdisp_lld_##x##_S6D1121
 
-#define GDISP_HARDWARE_LINES			FALSE
 #define GDISP_HARDWARE_CLEARS			TRUE
 #define GDISP_HARDWARE_FILLS			TRUE
 #define GDISP_HARDWARE_BITFILLS			TRUE
-#define GDISP_HARDWARE_CIRCLES			FALSE
-#define GDISP_HARDWARE_CIRCLEFILLS		FALSE
-#define GDISP_HARDWARE_ELLIPSES			FALSE
-#define GDISP_HARDWARE_ELLIPSEFILLS		FALSE
-#define GDISP_HARDWARE_TEXT				FALSE
-#define GDISP_HARDWARE_TEXTFILLS		FALSE
 #define GDISP_HARDWARE_SCROLL			TRUE
 #define GDISP_HARDWARE_PIXELREAD		FALSE
 #define GDISP_HARDWARE_CONTROL			TRUE
-#define GDISP_HARDWARE_QUERY			FALSE
-
-#define GDISP_SOFTWARE_TEXTFILLDRAW		FALSE
-#define GDISP_SOFTWARE_TEXTBLITCOLUMN	FALSE
 
 #define GDISP_PIXELFORMAT				GDISP_PIXELFORMAT_RGB565
-#define GDISP_PACKED_PIXELS				FALSE
-#define GDISP_PACKED_LINES				FALSE
 
 #endif	/* HAL_USE_GDISP */
 

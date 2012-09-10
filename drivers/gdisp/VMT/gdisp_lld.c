@@ -49,8 +49,11 @@ bool_t GDISP_LLD1(init)(void);
 void GDISP_LLD1(clear)(color_t color);
 void GDISP_LLD1(drawpixel)(coord_t x, coord_t y, color_t color);
 void GDISP_LLD1(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
-void GDISP_LLD1(blitarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, const pixel_t *buffer);
+void GDISP_LLD1(blitareaex)(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer);
 void GDISP_LLD1(drawline)(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color);
+#if GDISP_NEED_CLIP
+	void GDISP_LLD1(setclip)(coord_t x, coord_t y, coord_t cx, coord_t cy);
+#endif
 #if GDISP_NEED_CIRCLE
 	void GDISP_LLD1(drawcircle)(coord_t x, coord_t y, coord_t radius, color_t color);
 	void GDISP_LLD1(fillcircle)(coord_t x, coord_t y, coord_t radius, color_t color);
@@ -58,6 +61,10 @@ void GDISP_LLD1(drawline)(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_
 #if GDISP_NEED_ELLIPSE
 	void GDISP_LLD1(drawellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
 	void GDISP_LLD1(fillellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
+#endif
+#if GDISP_NEED_ARC
+	void GDISP_LLD1(drawarc)(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color);
+	void GDISP_LLD1(fillarc)(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color);
 #endif
 #if GDISP_NEED_TEXT
 	void GDISP_LLD1(drawchar)(coord_t x, coord_t y, char c, font_t font, color_t color);
@@ -80,8 +87,11 @@ bool_t GDISP_LLD2(init)(void);
 void GDISP_LLD2(clear)(color_t color);
 void GDISP_LLD2(drawpixel)(coord_t x, coord_t y, color_t color);
 void GDISP_LLD2(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
-void GDISP_LLD2(blitarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, const pixel_t *buffer);
+void GDISP_LLD2(blitareaex)(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer);
 void GDISP_LLD2(drawline)(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color);
+#if GDISP_NEED_CLIP
+	void GDISP_LLD2(setclip)(coord_t x, coord_t y, coord_t cx, coord_t cy);
+#endif
 #if GDISP_NEED_CIRCLE
 	void GDISP_LLD2(drawcircle)(coord_t x, coord_t y, coord_t radius, color_t color);
 	void GDISP_LLD2(fillcircle)(coord_t x, coord_t y, coord_t radius, color_t color);
@@ -89,6 +99,10 @@ void GDISP_LLD2(drawline)(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_
 #if GDISP_NEED_ELLIPSE
 	void GDISP_LLD2(drawellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
 	void GDISP_LLD2(fillellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
+#endif
+#if GDISP_NEED_ARC
+	void GDISP_LLD2(drawarc)(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color);
+	void GDISP_LLD2(fillarc)(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color);
 #endif
 #if GDISP_NEED_TEXT
 	void GDISP_LLD2(drawchar)(coord_t x, coord_t y, char c, font_t font, color_t color);
@@ -115,7 +129,7 @@ void GDISP_LLD2(drawline)(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_
 void GDISP_LLD_VMT(clear)(color_t color);
 void GDISP_LLD_VMT(drawpixel)(coord_t x, coord_t y, color_t color);
 void GDISP_LLD_VMT(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
-void GDISP_LLD_VMT(blitarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, const pixel_t *buffer);
+void GDISP_LLD_VMT(blitareaex)(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer);
 void GDISP_LLD_VMT(drawline)(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color);
 
 #if GDISP_NEED_CIRCLE
@@ -152,6 +166,10 @@ void GDISP_LLD_VMT(control)(unsigned what, void *value);
 #if GDISP_NEED_QUERY
 void *GDISP_LLD_VMT(query)(unsigned what);
 #endif
+/* Clipping Functions */
+#if GDISP_NEED_CLIP
+void GDISP_LLD_VMT(setclip)(coord_t x, coord_t y, coord_t cx, coord_t cy);
+#endif
 
 
 /*===========================================================================*/
@@ -179,7 +197,7 @@ bool_t	gdisp_lld_init_VMT(void) {
 		gdisp_lld_clear_VMT					= GDISP_VMT_NAME1(gdisp_lld_clear_);
 		gdisp_lld_drawpixel_VMT				= GDISP_VMT_NAME1(gdisp_lld_drawpixel_);
 		gdisp_lld_fillarea_VMT				= GDISP_VMT_NAME1(gdisp_lld_fillarea_);
-		gdisp_lld_blitarea_VMT				= GDISP_VMT_NAME1(gdisp_lld_blitarea_);
+		gdisp_lld_blitareaex_VMT			= GDISP_VMT_NAME1(gdisp_lld_blitareaex_);
 		gdisp_lld_drawline_VMT				= GDISP_VMT_NAME1(gdisp_lld_drawline_);
 		#if GDISP_NEED_CIRCLE
 			gdisp_lld_drawcircle_VMT		= GDISP_VMT_NAME1(gdisp_lld_drawcircle_);
@@ -188,6 +206,10 @@ bool_t	gdisp_lld_init_VMT(void) {
 		#if GDISP_NEED_ELLIPSE
 			gdisp_lld_drawellipse_VMT		= GDISP_VMT_NAME1(gdisp_lld_drawellipse_);
 			gdisp_lld_fillellipse_VMT		= GDISP_VMT_NAME1(gdisp_lld_fillellipse_);
+		#endif
+		#if GDISP_NEED_ARC
+			gdisp_lld_drawarc_VMT			= GDISP_VMT_NAME1(gdisp_lld_drawarc_);
+			gdisp_lld_fillarc_VMT			= GDISP_VMT_NAME1(gdisp_lld_fillarc_);
 		#endif
 		#if GDISP_NEED_TEXT
 			gdisp_lld_drawchar_VMT			= GDISP_VMT_NAME1(gdisp_lld_drawchar_);
@@ -205,6 +227,9 @@ bool_t	gdisp_lld_init_VMT(void) {
 		#if GDISP_NEED_QUERY
 			gdisp_lld_query_VMT				= GDISP_VMT_NAME1(gdisp_lld_query_);
 		#endif
+		#if GDISP_NEED_CLIP
+			gdisp_lld_setclip_VMT			= GDISP_VMT_NAME1(gdisp_lld_setclip_);
+		#endif
 
 		return TRUE;
 	}
@@ -213,7 +238,7 @@ bool_t	gdisp_lld_init_VMT(void) {
 		gdisp_lld_clear_VMT					= GDISP_VMT_NAME2(gdisp_lld_clear_);
 		gdisp_lld_drawpixel_VMT				= GDISP_VMT_NAME2(gdisp_lld_drawpixel_);
 		gdisp_lld_fillarea_VMT				= GDISP_VMT_NAME2(gdisp_lld_fillarea_);
-		gdisp_lld_blitarea_VMT				= GDISP_VMT_NAME2(gdisp_lld_blitarea_);
+		gdisp_lld_blitareaex_VMT			= GDISP_VMT_NAME2(gdisp_lld_blitareaex_);
 		gdisp_lld_drawline_VMT				= GDISP_VMT_NAME2(gdisp_lld_drawline_);
 		#if GDISP_NEED_CIRCLE
 			gdisp_lld_drawcircle_VMT		= GDISP_VMT_NAME2(gdisp_lld_drawcircle_);
@@ -222,6 +247,10 @@ bool_t	gdisp_lld_init_VMT(void) {
 		#if GDISP_NEED_ELLIPSE
 			gdisp_lld_drawellipse_VMT		= GDISP_VMT_NAME2(gdisp_lld_drawellipse_);
 			gdisp_lld_fillellipse_VMT		= GDISP_VMT_NAME2(gdisp_lld_fillellipse_);
+		#endif
+		#if GDISP_NEED_ARC
+			gdisp_lld_drawarc_VMT			= GDISP_VMT_NAME2(gdisp_lld_drawarc_);
+			gdisp_lld_fillarc_VMT			= GDISP_VMT_NAME2(gdisp_lld_fillarc_);
 		#endif
 		#if GDISP_NEED_TEXT
 			gdisp_lld_drawchar_VMT			= GDISP_VMT_NAME2(gdisp_lld_drawchar_);
@@ -238,6 +267,9 @@ bool_t	gdisp_lld_init_VMT(void) {
 		#endif
 		#if GDISP_NEED_QUERY
 			gdisp_lld_query_VMT				= GDISP_VMT_NAME2(gdisp_lld_query_);
+		#endif
+		#if GDISP_NEED_CLIP
+			gdisp_lld_setclip_VMT			= GDISP_VMT_NAME2(gdisp_lld_setclip_);
 		#endif
 
 		return TRUE;

@@ -168,17 +168,31 @@ static __inline void GDISP_LLD(setpin_backlight)(bool_t state) {
 }
 
 /**
- * @brief   Send a 9 bit command/data to the lcd.
+ * @brief   Send an 8 bit command to the lcd.
+ *
+ * @param[in] data		The command to send
+ *
+ * @notapi
+ */
+static __inline void GDISP_LLD(write_cmd)(uint16_t data) {
+	// wait for the previous transfer to complete
+	while((pSPI->SPI_SR & AT91C_SPI_TXEMPTY) == 0);
+	// send the command
+	pSPI->SPI_TDR = data & 0xFF;
+}
+
+/**
+ * @brief   Send an 8 bit data to the lcd.
  *
  * @param[in] data		The data to send
  * 
  * @notapi
  */
-static __inline void GDISP_LLD(write_spi)(uint16_t data) {
+static __inline void GDISP_LLD(write_data)(uint16_t data) {
 	// wait for the previous transfer to complete
 	while((pSPI->SPI_SR & AT91C_SPI_TXEMPTY) == 0);
 	// send the data
-	pSPI->SPI_TDR = data;
+	pSPI->SPI_TDR = data | 0x0100;
 }
 
 #if GDISP_HARDWARE_READPIXEL || GDISP_HARDWARE_SCROLL || defined(__DOXYGEN__)
@@ -189,7 +203,7 @@ static __inline void GDISP_LLD(write_spi)(uint16_t data) {
  * 
  * @notapi
  */
-static __inline uint16_t GDISP_LLD(read_spi)(void) {
+static __inline uint16_t GDISP_LLD(read_data)(void) {
 	#error "gdispNokia6610: GDISP_HARDWARE_READPIXEL and GDISP_HARDWARE_SCROLL are not supported on this board"
 	return 0;
 }
