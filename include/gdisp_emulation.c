@@ -572,11 +572,11 @@
 					if (column & 0x01) {
 						for(xs=0; xs < xscale; xs++)
 							for(ys=0; ys < yscale; ys++)
-								GDISP_LLD(drawpixel)(x+i, y+j, color);
+								GDISP_LLD(drawpixel)(x+i+xs, y+j+ys, color);
 					} else {
 						for(xs=0; xs < xscale; xs++)
 							for(ys=0; ys < yscale; ys++)
-								GDISP_LLD(drawpixel)(x+i, y+j, bgcolor);
+								GDISP_LLD(drawpixel)(x+i+xs, y+j+ys, bgcolor);
 					}
 				}
 			}

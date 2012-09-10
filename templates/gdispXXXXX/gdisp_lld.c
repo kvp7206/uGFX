@@ -82,8 +82,8 @@ bool_t GDISP_LLD(init)(void) {
 	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 		GDISP.clipx0 = 0;
 		GDISP.clipy0 = 0;
-		GDISP.clipx1 = GDISP.Width-1;
-		GDISP.clipy1 = GDISP.Height-1;
+		GDISP.clipx1 = GDISP.Width;
+		GDISP.clipy1 = GDISP.Height;
 	#endif
 	return TRUE;
 }
@@ -170,8 +170,8 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; x = GDISP.clipx0; }
 			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; y = GDISP.clipy0; }
 			if (cx <= 0 || cy <= 0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
-			if (x+cx > GDISP.clipx1)	cx -= GDISP.clipx1 - x;
-			if (y+cy > GDISP.clipy1)	cy -= GDISP.clipy1 - y;
+			if (x+cx > GDISP.clipx1)	cx = GDISP.clipx1 - x;
+			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
 		/* Code here */
 	}
@@ -196,8 +196,8 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; srcy += GDISP.clipy0 - y; y = GDISP.clipy0; }
 			if (srcx+cx > srccx)		cx = srccx - srcx;
 			if (cx <= 0 || cy <= 0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
-			if (x+cx > GDISP.clipx1)	cx -= GDISP.clipx1 - x;
-			if (y+cy > GDISP.clipy1)	cy -= GDISP.clipy1 - y;
+			if (x+cx > GDISP.clipx1)	cx = GDISP.clipx1 - x;
+			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
 		/* Code here */
 	}
@@ -410,7 +410,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; x = GDISP.clipx0; }
 			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; y = GDISP.clipy0; }
 			if (!lines || cx <= 0 || cy <= 0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
-			if (x+cx > GDISP.clipx1)	cx -= GDISP.clipx1 - x;
+			if (x+cx > GDISP.clipx1)	cx = GDISP.clipx1 - x;
 			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
 		/* Code here */

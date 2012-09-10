@@ -48,6 +48,10 @@
 	#error "gdispNokia6610: Either LCD_USE_GE8 or LCD_USE_GE12 must be defined depending on your controller"
 #endif
 
+#define SCREEN_HEIGHT		132
+#define SCREEN_WIDTH		132
+#define INITIAL_CONTRAST	38
+
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
@@ -124,7 +128,7 @@ bool_t GDISP_LLD(init)(void) {
 			GDISP_LLD(write_data)(0x00);					// P2: 0x00 = RGB sequence (default value)
 			GDISP_LLD(write_data)(0x02);					// P3: 0x02 = Grayscale -> 16 (selects 12-bit color, type A)
 			GDISP_LLD(write_cmd)(VOLCTR);		// Voltage control (contrast setting)
-			GDISP_LLD(write_data)(32);					// P1 = 32 volume value (experiment with this value to get the best contrast)
+			GDISP_LLD(write_data)(INITIAL_CONTRAST);	// P1 = Contrast
 			GDISP_LLD(write_data)(3);					// P2 = 3 resistance ratio (only value that works)
 			chThdSleepMilliseconds(100);			// allow power supply to stabilize
 			GDISP_LLD(write_cmd)(DISON);			// Turn on the display
@@ -140,7 +144,7 @@ bool_t GDISP_LLD(init)(void) {
 			chThdSleepMilliseconds(100);			// wait aproximetly 100ms
 			GDISP_LLD(write_cmd)(SLPOUT);		// Sleep out
 			GDISP_LLD(write_cmd)(VOLCTR);		// Voltage control
-			GDISP_LLD(write_data)(0x1F);					// middle value of V1
+			GDISP_LLD(write_data)(INITIAL_CONTRAST);		// middle value of V1
 			GDISP_LLD(write_data)(0x03);					// middle value of resistance value
 			GDISP_LLD(write_cmd)(TMPGRD);		// Temperature gradient
 			GDISP_LLD(write_data)(0x00);					// default
@@ -178,7 +182,7 @@ bool_t GDISP_LLD(init)(void) {
 			GDISP_LLD(write_cmd)(MADCTL);		// Memory access controler
 			GDISP_LLD(write_data)(0xC8);				// 0xC0 = mirror x and y, reverse rgb
 			GDISP_LLD(write_cmd)(SETCON);		// Write contrast
-			GDISP_LLD(write_data)(0x30);				// contrast - experiental value
+			GDISP_LLD(write_data)(INITIAL_CONTRAST);	// contrast - experiental value
 			chThdSleepMilliseconds(20);
 			GDISP_LLD(write_cmd)(DISPON);		// Display On
 		#else
@@ -236,7 +240,7 @@ bool_t GDISP_LLD(init)(void) {
 			//GDISP_LLD(write_data)(0x7f);					//  full voltage control
 			//GDISP_LLD(write_data)(0x03);					//  must be "1"
 			GDISP_LLD(write_cmd)(CONTRAST);			// Write contrast
-			GDISP_LLD(write_data)(0x3b);						// contrast
+			GDISP_LLD(write_data)(INITIAL_CONTRAST);						// contrast
 			chThdSleepMilliseconds(20);
 			GDISP_LLD(write_cmd)(TEMPGRADIENT);		// Temperature gradient
 			for(i=0; i<14; i++) GDISP_LLD(write_data)(0);
@@ -249,17 +253,17 @@ bool_t GDISP_LLD(init)(void) {
 	GDISP_LLD(setpin_backlight)(TRUE);
 
 	/* Initialise the GDISP structure to match */
-	GDISP.Width = 132;
-	GDISP.Height = 132;
+	GDISP.Width = SCREEN_WIDTH;
+	GDISP.Height = SCREEN_HEIGHT;
 	GDISP.Orientation = portrait;
 	GDISP.Powermode = powerOn;
 	GDISP.Backlight = 100;
-	GDISP.Contrast = 50;
+	GDISP.Contrast = INITIAL_CONTRAST;
 	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 		GDISP.clipx0 = 0;
 		GDISP.clipy0 = 0;
-		GDISP.clipx1 = GDISP.Width-1;
-		GDISP.clipy1 = GDISP.Height-1;
+		GDISP.clipx1 = GDISP.Width;
+		GDISP.clipy1 = GDISP.Height;
 	#endif
 	return TRUE;
 }
@@ -279,9 +283,9 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	#endif
 	gdisp_lld_setviewport(x, y, 1, 1);
 	GDISP_LLD(write_cmd)(RAMWR);
-	GDISP_LLD(write_data)((color >> 4) & 0xFF);
-	GDISP_LLD(write_data)((color << 4) & 0xF0);
-	GDISP_LLD(write_cmd)(NOP);
+	GDISP_LLD(write_data)(0);
+	GDISP_LLD(write_data)((color>>8) & 0x0F);
+	GDISP_LLD(write_data)(color & 0xFF);
 }
 
 /* ---- Optional Routines ---- */
@@ -299,10 +303,12 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	void GDISP_LLD(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		unsigned i, tuples;
 
-		#if GDISP_NEED_VALIDATION
-			if (cx < 1 || cy < 1 || x >= GDISP.Width || y >= GDISP.Height) return;
-			if (x+cx > GDISP.Width)		cx = GDISP.Width - x;
-			if (y+cy > GDISP.Height)	cy = GDISP.Height - y;
+		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; x = GDISP.clipx0; }
+			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; y = GDISP.clipy0; }
+			if (cx <= 0 || cy <= 0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
+			if (x+cx > GDISP.clipx1)	cx = GDISP.clipx1 - x;
+			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
 
 		tuples = (cx*cy+1)/2;				// With an odd sized area we over-print by one pixel.
@@ -343,8 +349,8 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; srcy += GDISP.clipy0 - y; y = GDISP.clipy0; }
 			if (srcx+cx > srccx)		cx = srccx - srcx;
 			if (cx <= 0 || cy <= 0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
-			if (x+cx > GDISP.clipx1)	cx -= GDISP.clipx1 - x;
-			if (y+cy > GDISP.clipy1)	cy -= GDISP.clipy1 - y;
+			if (x+cx > GDISP.clipx1)	cx = GDISP.clipx1 - x;
+			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
 
 		/* What are our end points */
@@ -366,9 +372,9 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				if (++x >= endx) {
 					if (++y >= endy) {
 						/* Odd pixel at end */
-						GDISP_LLD(write_data)((c1 >> 4) & 0xFF);
-						GDISP_LLD(write_data)((c1 << 4) & 0xF0);
-						GDISP_LLD(write_cmd)(NOP);
+						GDISP_LLD(write_data)(0);
+						GDISP_LLD(write_data)((c1 >> 8) & 0x0F);
+						GDISP_LLD(write_data)(c1 & 0xFF);
 						break;
 					}
 					x = srcx;
@@ -408,9 +414,9 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				if (++x >= endx) {
 					if (++y >= endy) {
 						/* Odd pixel at end */
-						GDISP_LLD(write_data)((c1 >> 4) & 0xFF);
-						GDISP_LLD(write_data)((c1 << 4) & 0xF0);
-						GDISP_LLD(write_cmd)(NOP);
+						GDISP_LLD(write_data)(0);
+						GDISP_LLD(write_data)((c1 >> 8) & 0x0F);
+						GDISP_LLD(write_data)(c1 & 0xFF);
 						break;
 					}
 					x = srcx;
@@ -495,7 +501,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void GDISP_LLD(control)(int what, void *value) {
+	void GDISP_LLD(control)(unsigned what, void *value) {
 		/* NOT IMPLEMENTED YET */
 		/* The hardware is capable of supporting...
 		 * 	GDISP_CONTROL_POWER
@@ -566,8 +572,19 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			return;
 /*
 		case GDISP_CONTROL_BACKLIGHT:
-		case GDISP_CONTROL_CONTRAST:
 */
+		case GDISP_CONTROL_CONTRAST:
+			if ((unsigned)value > 100) value = (void *)100;
+#if defined(LCD_USE_GE8)
+			GDISP_LLD(write_cmd)(VOLCTR);
+			GDISP_LLD(write_data)((unsigned)value);
+			GDISP_LLD(write_data)(3);
+#elif defined(LCD_USE_GE12)
+			GDISP_LLD(write_cmd)(CONTRAST);
+			GDISP_LLD(write_data)((unsigned)value);
+#endif
+			GDISP.Contrast = (unsigned)value;
+			return;
 		}
 	}
 #endif

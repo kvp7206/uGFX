@@ -57,8 +57,8 @@ bool_t GDISP_LLD(init)(void) {
 	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 		GDISP.clipx0 = 0;
 		GDISP.clipy0 = 0;
-		GDISP.clipx1 = GDISP.Width-1;
-		GDISP.clipy1 = GDISP.Height-1;
+		GDISP.clipx1 = GDISP.Width;
+		GDISP.clipy1 = GDISP.Height;
 	#endif
 	return TRUE;
 }
