@@ -73,6 +73,7 @@ extern "C" {
 void tpInit(const TOUCHPADDriver *tp);
 uint16_t tpReadX(void);
 uint16_t tpReadY(void);
+void tpCalibrate(void);
 
 #if TOUCHPAD_HAS_IRQ
 	uint8_t tpIRQ(void);
