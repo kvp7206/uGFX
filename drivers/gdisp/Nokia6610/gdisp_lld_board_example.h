@@ -41,6 +41,7 @@
  */
 static __inline void GDISP_LLD(init_board)(void) {
 	/* Code here */
+#error "gdispNokia6610: You must supply a definition for init_board for your board"
 }
 
 /**
@@ -52,30 +53,31 @@ static __inline void GDISP_LLD(init_board)(void) {
  */
 static __inline void GDISP_LLD(setpin_reset)(bool_t state) {
 	/* Code here */
+#error "gdispNokia6610: You must supply a definition for setpin_reset for your board"
 }
 
 /**
- * @brief   Set or clear the lcd back-light pin.
+ * @brief   Send an 8 bit command to the lcd.
  *
- * @param[in] state		TRUE = lcd back-light on, FALSE = lcd back-light off
- * 
+ * @param[in] data		The command to send
+ *
  * @notapi
  */
-static __inline void GDISP_LLD(setpin_backlight)(bool_t state) {
+static __inline void GDISP_LLD(write_cmd)(uint16_t data) {
 	/* Code here */
+#error "gdispNokia6610: You must supply a definition for write_cmd for your board"
 }
 
 /**
- * @brief   Send a 9 bit command/data to the lcd.
- * @note	The chip select may need to be asserted/de-asserted
- * 			around the actual spi write
+ * @brief   Send an 8 bit data to the lcd.
  *
  * @param[in] data		The data to send
  * 
  * @notapi
  */
-static __inline void GDISP_LLD(write_spi)(uint16_t data) {
+static __inline void GDISP_LLD(write_data)(uint16_t data) {
 	/* Code here */
+#error "gdispNokia6610: You must supply a definition for write_data for your board"
 }
 
 #if GDISP_HARDWARE_READPIXEL || GDISP_HARDWARE_SCROLL || defined(__DOXYGEN__)
@@ -88,8 +90,9 @@ static __inline void GDISP_LLD(write_spi)(uint16_t data) {
  * 
  * @notapi
  */
-static __inline uint16_t GDISP_LLD(read_spi)(void) {
+static __inline uint16_t GDISP_LLD(read_data)(void) {
 	/* Code here */
+#error "gdispNokia6610: You must supply a definition for read_data for your board"
 }
 #endif
 

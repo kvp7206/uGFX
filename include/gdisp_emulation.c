@@ -50,6 +50,10 @@
 		gdisp_powermode_t	Powermode;
 		coord_t				Backlight;
 		coord_t				Contrast;
+		#if GDISP_NEED_CLIP || GDISP_NEED_VALIDATION
+			coord_t				clipx0, clipy0;
+			coord_t				clipx1, clipy1;		/* not inclusive */
+		#endif
 		} GDISP;
 #endif
 
@@ -159,33 +163,52 @@
 #endif
 
 #if !GDISP_HARDWARE_BITFILLS
-	void GDISP_LLD(blitarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, const pixel_t *buffer) {
+	void GDISP_LLD(blitareaex)(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
 			coord_t x0, x1, y1;
 			
 			x0 = x;
 			x1 = x + cx;
 			y1 = y + cy;
-			for(; y < y1; y++)
-				for(x = x0; x < x1; x++)
+			buffer += srcy*srccx+srcx;
+			srccx -= cx;
+			for(; y < y1; y++, buffer += srccx)
+				for(x=x0; x < x1; x++)
 					GDISP_LLD(drawpixel)(x, y, *buffer++);
+	}
+#endif
+
+#if GDISP_NEED_CLIP && !GDISP_HARDWARE_CLIP
+	void GDISP_LLD(setclip)(coord_t x, coord_t y, coord_t cx, coord_t cy) {
+		#if GDISP_NEED_VALIDATION
+			if (x >= GDISP.Width || y >= GDISP.Height || cx < 0 || cy < 0)
+				return;
+			if (x < 0) x = 0;
+			if (y < 0) y = 0;
+			if (x+cx > GDISP.Width) cx = GDISP.Width - x;
+			if (y+cy > GDISP.Height) cy = GDISP.Height - y;
+		#endif
+		GDISP.clipx0 = x;
+		GDISP.clipy0 = y;
+		GDISP.clipx1 = x+cx;
+		GDISP.clipy1 = y+cy;
 	}
 #endif
 
 #if GDISP_NEED_CIRCLE && !GDISP_HARDWARE_CIRCLES
 	void GDISP_LLD(drawcircle)(coord_t x, coord_t y, coord_t radius, color_t color) {
-		int16_t a, b, P;
+		coord_t a, b, P;
 
 		a = 0;
 		b = radius;
 		P = 1 - radius;
 
 		do {
-			GDISP_LLD(drawpixel)(a+x, b+y, color);
-			GDISP_LLD(drawpixel)(b+x, a+y, color);
-			GDISP_LLD(drawpixel)(x-a, b+y, color);
-			GDISP_LLD(drawpixel)(x-b, a+y, color);
-			GDISP_LLD(drawpixel)(b+x, y-a, color);
-			GDISP_LLD(drawpixel)(a+x, y-b, color);
+			GDISP_LLD(drawpixel)(x+a, y+b, color);
+			GDISP_LLD(drawpixel)(x+b, y+a, color);
+			GDISP_LLD(drawpixel)(x-a, y+b, color);
+			GDISP_LLD(drawpixel)(x-b, y+a, color);
+			GDISP_LLD(drawpixel)(x+b, y-a, color);
+			GDISP_LLD(drawpixel)(x+a, y-b, color);
 			GDISP_LLD(drawpixel)(x-a, y-b, color);
 			GDISP_LLD(drawpixel)(x-b, y-a, color);
 			if (P < 0)
@@ -198,7 +221,7 @@
 
 #if GDISP_NEED_CIRCLE && !GDISP_HARDWARE_CIRCLEFILLS
 	void GDISP_LLD(fillcircle)(coord_t x, coord_t y, coord_t radius, color_t color) {
-		int16_t a, b, P;
+		coord_t a, b, P;
 		
 		a = 0;
 		b = radius;
@@ -272,6 +295,115 @@
 			GDISP_LLD(drawpixel)(x+dx, y, color); /* -> Spitze der Ellipse vollenden */
 			GDISP_LLD(drawpixel)(x-dx, y, color);
 	   }   
+	}
+#endif
+
+#if GDISP_NEED_ARC && !GDISP_HARDWARE_ARCS
+
+	#include <maths.h>
+
+	/*
+	 * @brief				Internal helper function for gdispDrawArc()
+	 *
+	 * @note				DO NOT USE DIRECTLY!
+	 *
+	 * @param[in] x, y		The middle point of the arc
+	 * @param[in] start		The start angle of the arc
+	 * @param[in] end		The end angle of the arc
+	 * @param[in] radius	The radius of the arc
+	 * @param[in] color		The color in which the arc will be drawn
+	 *
+	 * @notapi
+	 */
+	static void _draw_arc(coord_t x, coord_t y, uint16_t start, uint16_t end, uint16_t radius, color_t color) {
+	    if (start >= 0 && start <= 180) {
+	        float x_maxI = x + radius*cos(start*M_PI/180);
+	        float x_minI;
+
+	        if (end > 180)
+	            x_minI = x - radius;
+	        else
+	            x_minI = x + radius*cos(end*M_PI/180);
+
+	        int a = 0;
+	        int b = radius;
+	        int P = 1 - radius;
+
+	        do {
+	            if(x-a <= x_maxI && x-a >= x_minI)
+	            	GDISP_LLD(drawpixel)(x-a, y+b, color);
+	            if(x+a <= x_maxI && x+a >= x_minI)
+	            	GDISP_LLD(drawpixel)(x+a, y+b, color);
+	            if(x-b <= x_maxI && x-b >= x_minI)
+	            	GDISP_LLD(drawpixel)(x-b, y+a, color);
+	            if(x+b <= x_maxI && x+b >= x_minI)
+	            	GDISP_LLD(drawpixel)(x+b, y+a, color);
+
+	            if (P < 0) {
+	                P = P + 3 + 2*a;
+	                a = a + 1;
+	            } else {
+	                P = P + 5 + 2*(a - b);
+	                a = a + 1;
+	                b = b - 1;
+	            }
+	        } while(a <= b);
+	    }
+
+	    if (end > 180 && end <= 360) {
+	        float x_maxII = x+radius*cos(end*M_PI/180);
+	        float x_minII;
+
+	        if(start <= 180)
+	            x_minII = x - radius;
+	        else
+	            x_minII = x+radius*cos(start*M_PI/180);
+
+	        int a = 0;
+	        int b = radius;
+	        int P = 1 - radius;
+
+	        do {
+	            if(x-a <= x_maxII && x-a >= x_minII)
+	            	GDISP_LLD(drawpixel)(x-a, y-b, color);
+	            if(x+a <= x_maxII && x+a >= x_minII)
+	            	GDISP_LLD(drawpixel)(x+a, y-b, color);
+	            if(x-b <= x_maxII && x-b >= x_minII)
+	            	GDISP_LLD(drawpixel)(x-b, y-a, color);
+	            if(x+b <= x_maxII && x+b >= x_minII)
+	            	GDISP_LLD(drawpixel)(x+b, y-a, color);
+
+	            if (P < 0) {
+	                P = P + 3 + 2*a;
+	                a = a + 1;
+	            } else {
+	                P = P + 5 + 2*(a - b);
+	                a = a + 1;
+	                b = b - 1;
+	            }
+	        } while (a <= b);
+	    }
+	}
+
+	void GDISP_LLD(drawarc)(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color) {
+		if(endangle < startangle) {
+	        _draw_arc(x, y, startangle, 360, radius, color);
+	        _draw_arc(x, y, 0, endangle, radius, color);
+	    } else {
+	        _draw_arc(x, y, startangle, endangle, radius, color);
+		}
+	}
+#endif
+
+#if GDISP_NEED_ARC && !GDISP_HARDWARE_ARCFILLS
+	void GDISP_LLD(fillarc)(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color) {
+		(void)x;
+		(void)y;
+		(void)radius;
+		(void)startangle;
+		(void)endangle;
+		(void)color;
+#warning "GDISP: FillArc Emulation Not Implemented Yet"
 	}
 #endif
 
@@ -352,7 +484,7 @@
 
 			#if GDISP_NEED_VALIDATION
 				/* Check our buffer is big enough */
-				if (height > sizeof(buf)/sizeof(buf[0]))	return;
+				if ((unsigned)height > sizeof(buf)/sizeof(buf[0]))	return;
 			#endif
 
 			ptr = _getCharData(font, c);
@@ -374,7 +506,7 @@
 				}
 
 				for(xs=0; xs < xscale; xs++)
-					GDISP_LLD(blitarea)(x+i+xs, y, 1, height, buf);
+					GDISP_LLD(blitareaex)(x+i+xs, y, 1, height, 0, 0, 1, buf);
 			}
 		}
 
@@ -418,7 +550,7 @@
 			}
 
 			/* [Patch by Badger] Write all in one stroke */
-			GDISP_LLD(blitarea)(x, y, width, height, buf);
+			GDISP_LLD(blitareaex)(x, y, width, height, 0, 0, width, buf);
 		}
 
 		/* Method 4: Draw pixel by pixel */
@@ -492,11 +624,16 @@ void *GDISP_LLD(query)(unsigned what) {
 			GDISP_LLD(fillarea)(msg->fillarea.x, msg->fillarea.y, msg->fillarea.cx, msg->fillarea.cy, msg->fillarea.color);
 			break;
 		case GDISP_LLD_MSG_BLITAREA:
-			GDISP_LLD(blitarea)(msg->blitarea.x, msg->blitarea.y, msg->blitarea.cx, msg->blitarea.cy, msg->blitarea.buffer);
+			GDISP_LLD(blitareaex)(msg->blitarea.x, msg->blitarea.y, msg->blitarea.cx, msg->blitarea.cy, msg->blitarea.srcx, msg->blitarea.srcy, msg->blitarea.srccx, msg->blitarea.buffer);
 			break;
 		case GDISP_LLD_MSG_DRAWLINE:
 			GDISP_LLD(drawline)(msg->drawline.x0, msg->drawline.y0, msg->drawline.x1, msg->drawline.y1, msg->drawline.color);
 			break;
+		#if GDISP_NEED_CLIP
+			case GDISP_LLD_MSG_SETCLIP:
+				GDISP_LLD(setclip)(msg->setclip.x, msg->setclip.y, msg->setclip.cx, msg->setclip.cy);
+				break;
+		#endif
 		#if GDISP_NEED_CIRCLE
 			case GDISP_LLD_MSG_DRAWCIRCLE:
 				GDISP_LLD(drawcircle)(msg->drawcircle.x, msg->drawcircle.y, msg->drawcircle.radius, msg->drawcircle.color);
@@ -511,6 +648,14 @@ void *GDISP_LLD(query)(unsigned what) {
 				break;
 			case GDISP_LLD_MSG_FILLELLIPSE:
 				GDISP_LLD(fillellipse)(msg->fillellipse.x, msg->fillellipse.y, msg->fillellipse.a, msg->fillellipse.b, msg->fillellipse.color);
+				break;
+		#endif
+		#if GDISP_NEED_ARC
+			case GDISP_LLD_MSG_DRAWARC:
+				GDISP_LLD(drawcircle)(msg->drawarc.x, msg->drawarc.y, msg->drawarc.radius, msg->drawarc.startangle, msg->drawarc.endangle, msg->drawarc.color);
+				break;
+			case GDISP_LLD_MSG_FILLARC:
+				GDISP_LLD(fillcircle)(msg->fillarc.x, msg->fillarc.y, msg->fillarc.radius, msg->fillarc.startangle, msg->fillarc.endangle, msg->fillarc.color);
 				break;
 		#endif
 		#if GDISP_NEED_TEXT

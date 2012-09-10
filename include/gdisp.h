@@ -163,7 +163,12 @@ extern "C" {
 	void gdispDrawPixel(coord_t x, coord_t y, color_t color);
 	void gdispDrawLine(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color);
 	void gdispFillArea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
-	void gdispBlitArea(coord_t x, coord_t y, coord_t cx, coord_t cy, const pixel_t *buffer);
+	void gdispBlitAreaEx(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer);
+
+	/* Clipping Functions */
+	#if GDISP_NEED_CLIP
+	void gdispSetClip(coord_t x, coord_t y, coord_t cx, coord_t cy);
+	#endif
 
 	/* Circle Functions */
 	#if GDISP_NEED_CIRCLE
@@ -175,6 +180,12 @@ extern "C" {
 	#if GDISP_NEED_ELLIPSE
 	void gdispDrawEllipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
 	void gdispFillEllipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
+	#endif
+
+	/* Arc Functions */
+	#if GDISP_NEED_ARC
+	void gdispDrawArc(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color);
+	void gdispFillArc(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color);
 	#endif
 
 	/* Basic Text Rendering Functions */
@@ -212,9 +223,12 @@ extern "C" {
 	#define gdispDrawPixel(x, y, color)							GDISP_LLD(drawpixel)(x, y, color)
 	#define gdispDrawLine(x0, y0, x1, y1, color)				GDISP_LLD(drawline)(x0, y0, x1, y1, color)
 	#define gdispFillArea(x, y, cx, cy, color)					GDISP_LLD(fillarea)(x, y, cx, cy, color)
-	#define gdispBlitArea(x, y, cx, cy, buffer)					GDISP_LLD(blitarea)(x, y, cx, cy, buffer)
+	#define gdispBlitAreaEx(x, y, cx, cy, sx, sy, scx, buf)		GDISP_LLD(blitareaex)(x, y, cx, cy, sx, sy, scx, buf)
+	#define gdispSetClip(x, y, cx, cy)							GDISP_LLD(setclip)(x, y, cx, cy)
 	#define gdispDrawCircle(x, y, radius, color)				GDISP_LLD(drawcircle)(x, y, radius, color)
 	#define gdispFillCircle(x, y, radius, color)				GDISP_LLD(fillcircle)(x, y, radius, color)
+	#define gdispDrawArc(x, y, radius, sangle, eangle, color)	GDISP_LLD(drawarc)(x, y, radius, sangle, eangle, color)
+	#define gdispFillArc(x, y, radius, sangle, eangle, color)	GDISP_LLD(fillarc)(x, y, radius, sangle, eangle, color)
 	#define gdispDrawEllipse(x, y, a, b, color)					GDISP_LLD(drawellipse)(x, y, a, b, color)
 	#define gdispFillEllipse(x, y, a, b, color)					GDISP_LLD(fillellipse)(x, y, a, b, color)
 	#define gdispDrawChar(x, y, c, font, color)					GDISP_LLD(drawchar)(x, y, c, font, color)
@@ -226,9 +240,11 @@ extern "C" {
 
 #endif
 
+/* Now obsolete functions */
+#define gdispBlitArea(x, y, cx, cy, buffer)						gdispBlitAreaEx(x, y, cx, cy, 0, 0, cx, buffer)
+
+/* Extra drawing functions */
 void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
-void gdispDrawArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color);
-void gdispFillArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color);
 
 /* Extra Text Functions */
 #if GDISP_NEED_TEXT
@@ -257,6 +273,10 @@ void gdispFillArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t
 #define gdispGetOrientation()					((gdisp_orientation_t)(unsigned)gdispQuery(GDISP_QUERY_ORIENTATION))
 #define gdispGetBacklight()						((coord_t)(unsigned)gdispQuery(GDISP_QUERY_BACKLIGHT))
 #define gdispGetContrast()						((coord_t)(unsigned)gdispQuery(GDISP_QUERY_CONTRAST))
+
+/* More interesting macro's */
+#define gdispUnsetClip()						gdispSetClip(0,0,gdispGetWidth(),gdispGetHeight())
+
 
 #ifdef __cplusplus
 }

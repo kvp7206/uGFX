@@ -70,6 +70,14 @@
 	#endif
 
 	/**
+	 * @brief   Are arc functions needed.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GDISP_NEED_ARC
+		#define GDISP_NEED_ARC			FALSE
+	#endif
+
+	/**
 	 * @brief   Are text functions needed.
 	 * @details	Defaults to TRUE
 	 */
@@ -91,6 +99,14 @@
 	 */
 	#ifndef GDISP_NEED_PIXELREAD
 		#define GDISP_NEED_PIXELREAD	FALSE
+	#endif
+
+	/**
+	 * @brief   Are clipping functions needed.
+	 * @details	Defaults to TRUE
+	 */
+	#ifndef GDISP_NEED_CLIP
+		#define GDISP_NEED_CLIP			FALSE
 	#endif
 
 	/**
@@ -254,6 +270,22 @@
 	#endif
 
 	/**
+	 * @brief   Hardware accelerated arc's.
+	 * @details If set to @p FALSE software emulation is used.
+	 */
+	#ifndef GDISP_HARDWARE_ARCS
+		#define GDISP_HARDWARE_ARCS			FALSE
+	#endif
+
+	/**
+	 * @brief   Hardware accelerated filled arcs.
+	 * @details If set to @p FALSE software emulation is used.
+	 */
+	#ifndef GDISP_HARDWARE_ARCFILLS
+		#define GDISP_HARDWARE_ARCFILLS		FALSE
+	#endif
+
+	/**
 	 * @brief   Hardware accelerated text drawing.
 	 * @details If set to @p FALSE software emulation is used.
 	 */
@@ -299,6 +331,14 @@
 	 */
 	#ifndef GDISP_HARDWARE_QUERY
 		#define GDISP_HARDWARE_QUERY			FALSE
+	#endif
+
+	/**
+	 * @brief   The driver supports a clipping in hardware.
+	 * @details If set to @p FALSE there is no support for non-standard queries.
+	 */
+	#ifndef GDISP_HARDWARE_CLIP
+		#define GDISP_HARDWARE_CLIP			FALSE
 	#endif
 /** @} */
 
@@ -543,7 +583,7 @@ extern "C" {
 	extern void GDISP_LLD_VMT(clear)(color_t color);
 	extern void GDISP_LLD_VMT(drawpixel)(coord_t x, coord_t y, color_t color);
 	extern void GDISP_LLD_VMT(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
-	extern void GDISP_LLD_VMT(blitarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, const pixel_t *buffer);
+	extern void GDISP_LLD_VMT(blitareaex)(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer);
 	extern void GDISP_LLD_VMT(drawline)(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color);
 
 	/* Circular Drawing Functions */
@@ -555,6 +595,12 @@ extern "C" {
 	#if GDISP_NEED_ELLIPSE
 	extern void GDISP_LLD_VMT(drawellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
 	extern void GDISP_LLD_VMT(fillellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
+	#endif
+
+	/* Arc Drawing Functions */
+	#if GDISP_NEED_ARC
+	extern void GDISP_LLD_VMT(drawarc)(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color);
+	extern void GDISP_LLD_VMT(fillarc)(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color);
 	#endif
 
 	/* Text Rendering Functions */
@@ -581,6 +627,11 @@ extern "C" {
 	/* Query driver specific data */
 	#if GDISP_NEED_QUERY
 	extern void *GDISP_LLD_VMT(query)(unsigned what);
+	#endif
+
+	/* Clipping Functions */
+	#if GDISP_NEED_CLIP
+	extern void GDISP_LLD_VMT(setclip)(coord_t x, coord_t y, coord_t cx, coord_t cy);
 	#endif
 
 	/* Messaging API */

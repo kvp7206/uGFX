@@ -4,6 +4,8 @@
 
 *** 0.1.0 ***
 FIX: removed gdisp and touchpad prefix of driver directories
-UPDATE: added SSD1289 driver (by Mobyfab)
+UPDATE: added SSD1963 driver (by Mobyfab)
+UPDATE: fixed Validation, VMT driver, console and BitBlit
+UPDATE: added clipping support
 
 

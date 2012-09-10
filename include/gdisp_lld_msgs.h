@@ -39,6 +39,9 @@ typedef enum gdisp_msgaction {
 	GDISP_LLD_MSG_FILLAREA,
 	GDISP_LLD_MSG_BLITAREA,
 	GDISP_LLD_MSG_DRAWLINE,
+	#if GDISP_NEED_CLIP
+		GDISP_LLD_MSG_SETCLIP,
+	#endif
 	#if GDISP_NEED_CIRCLE
 		GDISP_LLD_MSG_DRAWCIRCLE,
 		GDISP_LLD_MSG_FILLCIRCLE,
@@ -46,6 +49,10 @@ typedef enum gdisp_msgaction {
 	#if GDISP_NEED_ELLIPSE
 		GDISP_LLD_MSG_DRAWELLIPSE,
 		GDISP_LLD_MSG_FILLELLIPSE,
+	#endif
+	#if GDISP_NEED_ARC
+		GDISP_LLD_MSG_DRAWARC,
+		GDISP_LLD_MSG_FILLARC,
 	#endif
 	#if GDISP_NEED_TEXT
 		GDISP_LLD_MSG_DRAWCHAR,
@@ -89,8 +96,15 @@ typedef union gdisp_lld_msg {
 		gdisp_msgaction_t	action;			// GDISP_LLD_MSG_BLITAREA
 		coord_t				x, y;
 		coord_t				cx, cy;
+		coord_t				srcx, srcy;
+		coord_t				srccx;
 		const pixel_t		*buffer;
 	} blitarea;
+	struct gdisp_lld_msg_setclip {
+		gdisp_msgaction_t	action;			// GDISP_LLD_MSG_SETCLIP
+		coord_t				x, y;
+		coord_t				cx, cy;
+	} setclip;
 	struct gdisp_lld_msg_drawline {
 		gdisp_msgaction_t	action;			// GDISP_LLD_MSG_DRAWLINE
 		coord_t				x0, y0;
@@ -121,6 +135,20 @@ typedef union gdisp_lld_msg {
 		coord_t				a, b;
 		color_t				color;
 	} fillellipse;
+	struct gdisp_lld_msg_drawarc {
+		gdisp_msgaction_t	action;			// GDISP_LLD_MSG_DRAWARC
+		coord_t				x, y;
+		coord_t				radius;
+		coord_t				startangle, endangle;
+		color_t				color;
+	} drawcircle;
+	struct gdisp_lld_msg_fillarc {
+		gdisp_msgaction_t	action;			// GDISP_LLD_MSG_FILLARC
+		coord_t				x, y;
+		coord_t				radius;
+		coord_t				startangle, endangle;
+		color_t				color;
+	} fillcircle;
 	struct gdisp_lld_msg_drawchar {
 		gdisp_msgaction_t	action;			// GDISP_LLD_MSG_DRAWCHAR
 		coord_t				x, y;

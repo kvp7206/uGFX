@@ -60,8 +60,6 @@
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
-#include "gdisp_fonts.h"
-
 #if defined(BOARD_OLIMEX_SAM7_EX256)
 	#include "gdisp_lld_board_olimexsam7ex256.h"
 #else
@@ -69,16 +67,13 @@
 	#include "gdisp_lld_board.h"
 #endif
 
-#define gdisp_lld_write_command(cmd)		GDISP_LLD(write_spi)((cmd) & ~0x0100)
-#define gdisp_lld_write_data(data)			GDISP_LLD(write_spi)((data) | 0x0100)
-
 static __inline void gdisp_lld_setviewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
-	gdisp_lld_write_command(CASET);			// Column address set
-	gdisp_lld_write_data(x);
-	gdisp_lld_write_data(x+cx-1);
-	gdisp_lld_write_command(PASET);			// Page address set
-	gdisp_lld_write_data(y);
-	gdisp_lld_write_data(y+cy-1);
+	GDISP_LLD(write_cmd)(CASET);			// Column address set
+	GDISP_LLD(write_data)(x);
+	GDISP_LLD(write_data)(x+cx-1);
+	GDISP_LLD(write_cmd)(PASET);			// Page address set
+	GDISP_LLD(write_data)(y);
+	GDISP_LLD(write_data)(y+cy-1);
 }
 
 /*===========================================================================*/
@@ -112,141 +107,141 @@ bool_t GDISP_LLD(init)(void) {
 
 	#if defined(LCD_USE_GE8)
 		#if 1
-			gdisp_lld_write_command(DISCTL);		// Display control
-			gdisp_lld_write_data(0x00);					// P1: 0x00 = 2 divisions, switching period=8 (default)
-			gdisp_lld_write_data(0x20);					// P2: 0x20 = nlines/4 - 1 = 132/4 - 1 = 32)
-			gdisp_lld_write_data(0x00);					// P3: 0x00 = no inversely highlighted lines
-			gdisp_lld_write_command(COMSCN);		// COM scan
-			gdisp_lld_write_data(1);					// P1: 0x01 = Scan 1->80, 160<-81
-			gdisp_lld_write_command(OSCON);			// Internal oscilator ON
-			gdisp_lld_write_command(SLPOUT);		// Sleep out
-			gdisp_lld_write_command(PWRCTR);		// Power control
-			gdisp_lld_write_data(0x0f);					// reference voltage regulator on, circuit voltage follower on, BOOST ON
+			GDISP_LLD(write_cmd)(DISCTL);		// Display control
+			GDISP_LLD(write_data)(0x00);					// P1: 0x00 = 2 divisions, switching period=8 (default)
+			GDISP_LLD(write_data)(0x20);					// P2: 0x20 = nlines/4 - 1 = 132/4 - 1 = 32)
+			GDISP_LLD(write_data)(0x00);					// P3: 0x00 = no inversely highlighted lines
+			GDISP_LLD(write_cmd)(COMSCN);		// COM scan
+			GDISP_LLD(write_data)(1);					// P1: 0x01 = Scan 1->80, 160<-81
+			GDISP_LLD(write_cmd)(OSCON);			// Internal oscilator ON
+			GDISP_LLD(write_cmd)(SLPOUT);		// Sleep out
+			GDISP_LLD(write_cmd)(PWRCTR);		// Power control
+			GDISP_LLD(write_data)(0x0f);					// reference voltage regulator on, circuit voltage follower on, BOOST ON
 			// Interesting - all the code seems to say this should be done. But my display doesn't want it!
-			//gdisp_lld_write_command(DISINV);		// Inverse display
-			gdisp_lld_write_command(DATCTL);		// Data control
-			gdisp_lld_write_data(0x01);					// P1: 0x01 = page address inverted, column address normal, address scan in column direction
-			gdisp_lld_write_data(0x00);					// P2: 0x00 = RGB sequence (default value)
-			gdisp_lld_write_data(0x02);					// P3: 0x02 = Grayscale -> 16 (selects 12-bit color, type A)
-			gdisp_lld_write_command(VOLCTR);		// Voltage control (contrast setting)
-			gdisp_lld_write_data(32);					// P1 = 32 volume value (experiment with this value to get the best contrast)
-			gdisp_lld_write_data(3);					// P2 = 3 resistance ratio (only value that works)
+			//GDISP_LLD(write_cmd)(DISINV);		// Inverse display
+			GDISP_LLD(write_cmd)(DATCTL);		// Data control
+			GDISP_LLD(write_data)(0x48/*0x01*/);					// P1: 0x01 = page address inverted, column address normal, address scan in column direction
+			GDISP_LLD(write_data)(0x00);					// P2: 0x00 = RGB sequence (default value)
+			GDISP_LLD(write_data)(0x02);					// P3: 0x02 = Grayscale -> 16 (selects 12-bit color, type A)
+			GDISP_LLD(write_cmd)(VOLCTR);		// Voltage control (contrast setting)
+			GDISP_LLD(write_data)(32);					// P1 = 32 volume value (experiment with this value to get the best contrast)
+			GDISP_LLD(write_data)(3);					// P2 = 3 resistance ratio (only value that works)
 			chThdSleepMilliseconds(100);			// allow power supply to stabilize
-			gdisp_lld_write_command(DISON);			// Turn on the display
+			GDISP_LLD(write_cmd)(DISON);			// Turn on the display
 		#else
 			// Alternative
-			gdisp_lld_write_command(DISCTL);		// Display control
-			gdisp_lld_write_data(0x00);					// default
-			gdisp_lld_write_data(0x20);					// (32 + 1) * 4 = 132 lines (of which 130 are visible)
-			gdisp_lld_write_data(0x0a);					// default
-			gdisp_lld_write_command(COMSCN);		// COM scan
-			gdisp_lld_write_data(0x00);					// Scan 1-80
-			gdisp_lld_write_command(OSCON);			// Internal oscilator ON
+			GDISP_LLD(write_cmd)(DISCTL);		// Display control
+			GDISP_LLD(write_data)(0x00);					// default
+			GDISP_LLD(write_data)(0x20);					// (32 + 1) * 4 = 132 lines (of which 130 are visible)
+			GDISP_LLD(write_data)(0x0a);					// default
+			GDISP_LLD(write_cmd)(COMSCN);		// COM scan
+			GDISP_LLD(write_data)(0x00);					// Scan 1-80
+			GDISP_LLD(write_cmd)(OSCON);			// Internal oscilator ON
 			chThdSleepMilliseconds(100);			// wait aproximetly 100ms
-			gdisp_lld_write_command(SLPOUT);		// Sleep out
-			gdisp_lld_write_command(VOLCTR);		// Voltage control
-			gdisp_lld_write_data(0x1F);					// middle value of V1
-			gdisp_lld_write_data(0x03);					// middle value of resistance value
-			gdisp_lld_write_command(TMPGRD);		// Temperature gradient
-			gdisp_lld_write_data(0x00);					// default
-			gdisp_lld_write_command(PWRCTR);		// Power control
-			gdisp_lld_write_data(0x0f);					// referance voltage regulator on, circuit voltage follower on, BOOST ON
-			gdisp_lld_write_command(DISNOR);		// Normal display
-			gdisp_lld_write_command(DISINV);		// Inverse display
-			gdisp_lld_write_command(PTLOUT);		// Partial area off
-			//  gdisp_lld_write_command(ASCSET);	// Scroll area set
-			//  gdisp_lld_write_data(0);
-			//  gdisp_lld_write_data(0);
-			//  gdisp_lld_write_data(40);
-			//  gdisp_lld_write_data(3);
-			//  gdisp_lld_write_command(SCSTART);	// Vertical scrool address start
-			//  gdisp_lld_write_data(0);
-			gdisp_lld_write_command(DATCTL);		// Data control
-			gdisp_lld_write_data(0x00);					// all inversions off, column direction
-			gdisp_lld_write_data(0x03);					// RGB sequence
-			gdisp_lld_write_data(0x02);					// Grayscale -> 16
-			gdisp_lld_write_command(PASET);			// Page Address set
-			gdisp_lld_write_data(0);
-			gdisp_lld_write_data(131);
-			gdisp_lld_write_command(CASET);			// Page Column set
-			gdisp_lld_write_data(0);
-			gdisp_lld_write_data(131);
-			gdisp_lld_write_command(DISON);			// Turn on the display
+			GDISP_LLD(write_cmd)(SLPOUT);		// Sleep out
+			GDISP_LLD(write_cmd)(VOLCTR);		// Voltage control
+			GDISP_LLD(write_data)(0x1F);					// middle value of V1
+			GDISP_LLD(write_data)(0x03);					// middle value of resistance value
+			GDISP_LLD(write_cmd)(TMPGRD);		// Temperature gradient
+			GDISP_LLD(write_data)(0x00);					// default
+			GDISP_LLD(write_cmd)(PWRCTR);		// Power control
+			GDISP_LLD(write_data)(0x0f);					// referance voltage regulator on, circuit voltage follower on, BOOST ON
+			GDISP_LLD(write_cmd)(DISNOR);		// Normal display
+			GDISP_LLD(write_cmd)(DISINV);		// Inverse display
+			GDISP_LLD(write_cmd)(PTLOUT);		// Partial area off
+			//  GDISP_LLD(write_cmd)(ASCSET);	// Scroll area set
+			//  GDISP_LLD(write_data)(0);
+			//  GDISP_LLD(write_data)(0);
+			//  GDISP_LLD(write_data)(40);
+			//  GDISP_LLD(write_data)(3);
+			//  GDISP_LLD(write_cmd)(SCSTART);	// Vertical scrool address start
+			//  GDISP_LLD(write_data)(0);
+			GDISP_LLD(write_cmd)(DATCTL);		// Data control
+			GDISP_LLD(write_data)(0x00);					// all inversions off, column direction
+			GDISP_LLD(write_data)(0x03);					// RGB sequence
+			GDISP_LLD(write_data)(0x02);					// Grayscale -> 16
+			GDISP_LLD(write_cmd)(PASET);			// Page Address set
+			GDISP_LLD(write_data)(0);
+			GDISP_LLD(write_data)(131);
+			GDISP_LLD(write_cmd)(CASET);			// Page Column set
+			GDISP_LLD(write_data)(0);
+			GDISP_LLD(write_data)(131);
+			GDISP_LLD(write_cmd)(DISON);			// Turn on the display
 		#endif
 
 	#elif defined(LCD_USE_GE12)
 		#if 1
-			gdisp_lld_write_command(SLEEPOUT);		// Sleep out
-			gdisp_lld_write_command(INVON);			// Inversion on: seems to be required for this controller
-			gdisp_lld_write_command(COLMOD);		// Color Interface Pixel Format
-			gdisp_lld_write_data(0x03);				// 0x03 = 12 bits-per-pixel
-			gdisp_lld_write_command(MADCTL);		// Memory access controler
-			gdisp_lld_write_data(0xC8);				// 0xC0 = mirror x and y, reverse rgb
-			gdisp_lld_write_command(SETCON);		// Write contrast
-			gdisp_lld_write_data(0x30);				// contrast - experiental value
+			GDISP_LLD(write_cmd)(SLEEPOUT);		// Sleep out
+			GDISP_LLD(write_cmd)(INVON);			// Inversion on: seems to be required for this controller
+			GDISP_LLD(write_cmd)(COLMOD);		// Color Interface Pixel Format
+			GDISP_LLD(write_data)(0x03);				// 0x03 = 12 bits-per-pixel
+			GDISP_LLD(write_cmd)(MADCTL);		// Memory access controler
+			GDISP_LLD(write_data)(0xC8);				// 0xC0 = mirror x and y, reverse rgb
+			GDISP_LLD(write_cmd)(SETCON);		// Write contrast
+			GDISP_LLD(write_data)(0x30);				// contrast - experiental value
 			chThdSleepMilliseconds(20);
-			gdisp_lld_write_command(DISPON);		// Display On
+			GDISP_LLD(write_cmd)(DISPON);		// Display On
 		#else
 			// Alternative
 			// Hardware reset commented out
-			gdisp_lld_write_command(SOFTRST);		// Software Reset
+			GDISP_LLD(write_cmd)(SOFTRST);		// Software Reset
 			chThdSleepMilliseconds(20);
-			gdisp_lld_write_command(INITESC);		// Initial escape
+			GDISP_LLD(write_cmd)(INITESC);		// Initial escape
 			chThdSleepMilliseconds(20);
-			gdisp_lld_write_command(REFSET);		// Refresh set
-			gdisp_lld_write_data(0);
-			gdisp_lld_write_command(DISPCTRL);		// Set Display control
-			gdisp_lld_write_data(128);					// Set the lenght of one selection term
-			gdisp_lld_write_data(128);					// Set N inversion -> no N inversion
-			gdisp_lld_write_data(134);					// Set frame frequence and bias rate -> 2 devision of frequency and 1/8 bias, 1/67 duty, 96x67 size
-			gdisp_lld_write_data(84);					// Set duty parameter
-			gdisp_lld_write_data(69);					// Set duty parameter
-			gdisp_lld_write_data(82);					// Set duty parameter
-			gdisp_lld_write_data(67);					// Set duty parameter
-			gdisp_lld_write_command(GRAYSCALE0);	// Grey scale 0 position set - 15 parameters
-			gdisp_lld_write_data(1);					// GCP1 - gray lavel to be output when the RAM data is "0001"
-			gdisp_lld_write_data(2);					// GCP2 - gray lavel to be output when the RAM data is "0010"
-			gdisp_lld_write_data(4);					// GCP3 - gray lavel to be output when the RAM data is "0011"
-			gdisp_lld_write_data(8);					// GCP4 - gray lavel to be output when the RAM data is "0100"
-			gdisp_lld_write_data(16);					// GCP5 - gray lavel to be output when the RAM data is "0101"
-			gdisp_lld_write_data(30);					// GCP6 - gray lavel to be output when the RAM data is "0110"
-			gdisp_lld_write_data(40);					// GCP7 - gray lavel to be output when the RAM data is "0111"
-			gdisp_lld_write_data(50);					// GCP8 - gray lavel to be output when the RAM data is "1000"
-			gdisp_lld_write_data(60);					// GCP9 - gray lavel to be output when the RAM data is "1001"
-			gdisp_lld_write_data(70);					// GCP10 - gray lavel to be output when the RAM data is "1010"
-			gdisp_lld_write_data(80);					// GCP11 - gray lavel to be output when the RAM data is "1011"
-			gdisp_lld_write_data(90);					// GCP12 - gray lavel to be output when the RAM data is "1100"
-			gdisp_lld_write_data(100);					// GCP13 - gray lavel to be output when the RAM data is "1101"
-			gdisp_lld_write_data(110);					// GCP14 - gray lavel to be output when the RAM data is "1110"
-			gdisp_lld_write_data(127);					// GCP15 - gray lavel to be output when the RAM data is "1111"
-			gdisp_lld_write_command(GAMMA);				// Gamma curve set - select gray scale - GRAYSCALE 0 or GREYSCALE 1
-			gdisp_lld_write_data(1);						// Select grey scale 0
-			gdisp_lld_write_command(COMMONDRV);			// Command driver output
-			gdisp_lld_write_data(0);						// Set COM1-COM41 side come first, normal mod
-			gdisp_lld_write_command(NORMALMODE);		// Set Normal mode (my)
-			// gdisp_lld_write_command(INVERSIONOFF);	// Inversion off
-			gdisp_lld_write_command(COLADDRSET);		// Column address set
-			gdisp_lld_write_data(0);
-			gdisp_lld_write_data(131);
-			gdisp_lld_write_command(PAGEADDRSET);		// Page address set
-			gdisp_lld_write_data(0);
-			gdisp_lld_write_data(131);
-			gdisp_lld_write_command(ACCESSCTRL);		// Memory access controler
-			gdisp_lld_write_data(0x40);						// horizontal
-			//gdisp_lld_write_data(0x20);					// vertical
-			gdisp_lld_write_command(PWRCTRL);			// Power control
-			gdisp_lld_write_data(4);						// Internal resistance, V1OUT -> high power mode, oscilator devision rate
-			gdisp_lld_write_command(SLEEPOUT);			// Sleep out
-			gdisp_lld_write_command(VOLTCTRL);			// Voltage control - voltage control and write contrast define LCD electronic volume
-			//gdisp_lld_write_data(0x7f);					//  full voltage control
-			//gdisp_lld_write_data(0x03);					//  must be "1"
-			gdisp_lld_write_command(CONTRAST);			// Write contrast
-			gdisp_lld_write_data(0x3b);						// contrast
+			GDISP_LLD(write_cmd)(REFSET);		// Refresh set
+			GDISP_LLD(write_data)(0);
+			GDISP_LLD(write_cmd)(DISPCTRL);		// Set Display control
+			GDISP_LLD(write_data)(128);					// Set the lenght of one selection term
+			GDISP_LLD(write_data)(128);					// Set N inversion -> no N inversion
+			GDISP_LLD(write_data)(134);					// Set frame frequence and bias rate -> 2 devision of frequency and 1/8 bias, 1/67 duty, 96x67 size
+			GDISP_LLD(write_data)(84);					// Set duty parameter
+			GDISP_LLD(write_data)(69);					// Set duty parameter
+			GDISP_LLD(write_data)(82);					// Set duty parameter
+			GDISP_LLD(write_data)(67);					// Set duty parameter
+			GDISP_LLD(write_cmd)(GRAYSCALE0);	// Grey scale 0 position set - 15 parameters
+			GDISP_LLD(write_data)(1);					// GCP1 - gray lavel to be output when the RAM data is "0001"
+			GDISP_LLD(write_data)(2);					// GCP2 - gray lavel to be output when the RAM data is "0010"
+			GDISP_LLD(write_data)(4);					// GCP3 - gray lavel to be output when the RAM data is "0011"
+			GDISP_LLD(write_data)(8);					// GCP4 - gray lavel to be output when the RAM data is "0100"
+			GDISP_LLD(write_data)(16);					// GCP5 - gray lavel to be output when the RAM data is "0101"
+			GDISP_LLD(write_data)(30);					// GCP6 - gray lavel to be output when the RAM data is "0110"
+			GDISP_LLD(write_data)(40);					// GCP7 - gray lavel to be output when the RAM data is "0111"
+			GDISP_LLD(write_data)(50);					// GCP8 - gray lavel to be output when the RAM data is "1000"
+			GDISP_LLD(write_data)(60);					// GCP9 - gray lavel to be output when the RAM data is "1001"
+			GDISP_LLD(write_data)(70);					// GCP10 - gray lavel to be output when the RAM data is "1010"
+			GDISP_LLD(write_data)(80);					// GCP11 - gray lavel to be output when the RAM data is "1011"
+			GDISP_LLD(write_data)(90);					// GCP12 - gray lavel to be output when the RAM data is "1100"
+			GDISP_LLD(write_data)(100);					// GCP13 - gray lavel to be output when the RAM data is "1101"
+			GDISP_LLD(write_data)(110);					// GCP14 - gray lavel to be output when the RAM data is "1110"
+			GDISP_LLD(write_data)(127);					// GCP15 - gray lavel to be output when the RAM data is "1111"
+			GDISP_LLD(write_cmd)(GAMMA);				// Gamma curve set - select gray scale - GRAYSCALE 0 or GREYSCALE 1
+			GDISP_LLD(write_data)(1);						// Select grey scale 0
+			GDISP_LLD(write_cmd)(COMMONDRV);			// Command driver output
+			GDISP_LLD(write_data)(0);						// Set COM1-COM41 side come first, normal mod
+			GDISP_LLD(write_cmd)(NORMALMODE);		// Set Normal mode (my)
+			// GDISP_LLD(write_cmd)(INVERSIONOFF);	// Inversion off
+			GDISP_LLD(write_cmd)(COLADDRSET);		// Column address set
+			GDISP_LLD(write_data)(0);
+			GDISP_LLD(write_data)(131);
+			GDISP_LLD(write_cmd)(PAGEADDRSET);		// Page address set
+			GDISP_LLD(write_data)(0);
+			GDISP_LLD(write_data)(131);
+			GDISP_LLD(write_cmd)(ACCESSCTRL);		// Memory access controler
+			GDISP_LLD(write_data)(0x40);						// horizontal
+			//GDISP_LLD(write_data)(0x20);					// vertical
+			GDISP_LLD(write_cmd)(PWRCTRL);			// Power control
+			GDISP_LLD(write_data)(4);						// Internal resistance, V1OUT -> high power mode, oscilator devision rate
+			GDISP_LLD(write_cmd)(SLEEPOUT);			// Sleep out
+			GDISP_LLD(write_cmd)(VOLTCTRL);			// Voltage control - voltage control and write contrast define LCD electronic volume
+			//GDISP_LLD(write_data)(0x7f);					//  full voltage control
+			//GDISP_LLD(write_data)(0x03);					//  must be "1"
+			GDISP_LLD(write_cmd)(CONTRAST);			// Write contrast
+			GDISP_LLD(write_data)(0x3b);						// contrast
 			chThdSleepMilliseconds(20);
-			gdisp_lld_write_command(TEMPGRADIENT);		// Temperature gradient
-			for(i=0; i<14; i++) gdisp_lld_write_data(0);
-			gdisp_lld_write_command(BOOSTVON);			// Booster voltage ON
-			gdisp_lld_write_command(DISPLAYON);			// Finally - Display On
+			GDISP_LLD(write_cmd)(TEMPGRADIENT);		// Temperature gradient
+			for(i=0; i<14; i++) GDISP_LLD(write_data)(0);
+			GDISP_LLD(write_cmd)(BOOSTVON);			// Booster voltage ON
+			GDISP_LLD(write_cmd)(DISPLAYON);			// Finally - Display On
 		#endif
 	#endif
 
@@ -260,6 +255,12 @@ bool_t GDISP_LLD(init)(void) {
 	GDISP.Powermode = powerOn;
 	GDISP.Backlight = 100;
 	GDISP.Contrast = 50;
+	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+		GDISP.clipx0 = 0;
+		GDISP.clipy0 = 0;
+		GDISP.clipx1 = GDISP.Width-1;
+		GDISP.clipy1 = GDISP.Height-1;
+	#endif
 	return TRUE;
 }
 
@@ -273,70 +274,21 @@ bool_t GDISP_LLD(init)(void) {
  * @notapi
  */
 void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
-	#if GDISP_NEED_VALIDATION
-		if (x >= GDISP.Width || y >= GDISP.Height) return;
+	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+		if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
 	#endif
 	gdisp_lld_setviewport(x, y, 1, 1);
-	gdisp_lld_write_command(RAMWR);
-	gdisp_lld_write_data((color >> 4) & 0xFF);
-	gdisp_lld_write_data((color << 4) & 0xF0);
-	gdisp_lld_write_command(NOP);
+	GDISP_LLD(write_cmd)(RAMWR);
+	GDISP_LLD(write_data)((color >> 4) & 0xFF);
+	GDISP_LLD(write_data)((color << 4) & 0xF0);
+	GDISP_LLD(write_cmd)(NOP);
 }
 
 /* ---- Optional Routines ---- */
-/*
-	All the below routines are optional.
-	Defining them will increase speed but everything
-	will work if they are not defined.
-	If you are not using a routine - turn it off using
-	the appropriate GDISP_HARDWARE_XXXX macro.
-	Don't bother coding for obvious similar routines if
-	there is no performance penalty as the emulation software
-	makes a good job of using similar routines.
-		eg. If fillarea() is defined there is little
-			point in defining clear() unless the
-			performance bonus is significant.
-	For good performance it is suggested to implement
-		fillarea() and blitarea().
-*/
-
-#if GDISP_HARDWARE_CLEARS || defined(__DOXYGEN__)
-	/**
-	 * @brief   Clear the display.
-	 * @note    Optional - The high level driver can emulate using software.
-	 *
-	 * @param[in] color    The color of the pixel
-	 *
-	 * @notapi
-	 */
-	void GDISP_LLD(clear(color_t color) {
-		/* NOT IMPLEMENTED */
-		/* Nothing to be gained by implementing this
-		 * as fillarea is just as fast.
-		 */
-	}
-#endif
-
-#if GDISP_HARDWARE_LINES || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw a line.
-	 * @note    Optional - The high level driver can emulate using software.
-	 *
-	 * @param[in] x0, y0   The start of the line
-	 * @param[in] x1, y1   The end of the line
-	 * @param[in] color    The color of the line
-	 *
-	 * @notapi
-	 */
-	void GDISP_LLD(drawline)(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
-		/* NOT IMPLEMENTED */
-	}
-#endif
 
 #if GDISP_HARDWARE_FILLS || defined(__DOXYGEN__)
 	/**
 	 * @brief   Fill an area with a color.
-	 * @note    Optional - The high level driver can emulate using software.
 	 *
 	 * @param[in] x, y     The start filled area
 	 * @param[in] cx, cy   The width and height to be filled
@@ -357,11 +309,11 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 											// This extra pixel is ignored by the controller.
 
 		gdisp_lld_setviewport(x, y, cx, cy);
-		gdisp_lld_write_command(RAMWR);
+		GDISP_LLD(write_cmd)(RAMWR);
 		for(i=0; i < tuples; i++) {
-			gdisp_lld_write_data((color >> 4) & 0xFF);
-			gdisp_lld_write_data(((color << 4) & 0xF0)|((color >> 8) & 0x0F));
-			gdisp_lld_write_data(color & 0xFF);
+			GDISP_LLD(write_data)((color >> 4) & 0xFF);
+			GDISP_LLD(write_data)(((color << 4) & 0xF0)|((color >> 8) & 0x0F));
+			GDISP_LLD(write_data)(color & 0xFF);
 		}
 	}
 #endif
@@ -369,175 +321,125 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 #if GDISP_HARDWARE_BITFILLS || defined(__DOXYGEN__)
 	/**
 	 * @brief   Fill an area with a bitmap.
-	 * @note    Optional - The high level driver can emulate using software.
 	 *
 	 * @param[in] x, y     The start filled area
 	 * @param[in] cx, cy   The width and height to be filled
+	 * @param[in] srcx, srcy   The bitmap position to start the fill from
+	 * @param[in] srccx    The width of a line in the bitmap.
 	 * @param[in] buffer   The pixels to use to fill the area.
 	 *
 	 * @notapi
 	 */
-	void GDISP_LLD(blitarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, const pixel_t *buffer) {
-		unsigned i, area, tuples;
-		#ifndef GDISP_PACKED_PIXELS
-			color_t	c1, c2;
+	void GDISP_LLD(blitareaex)(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
+		coord_t endx, endy, lg;
+		color_t	c1, c2;
+		#if GDISP_PACKED_PIXELS
+			coord_t pos;
+			const uint8_t *p;
 		#endif
 
-		#if GDISP_NEED_VALIDATION
-			if (cx < 1 || cy < 1 || x >= GDISP.Width || y >= GDISP.Height) return;
-			if (x+cx > GDISP.Width) return;
-			if (y+cy > GDISP.Height)	cy = GDISP.Height - y;
+		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; srcx += GDISP.clipx0 - x; x = GDISP.clipx0; }
+			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; srcy += GDISP.clipy0 - y; y = GDISP.clipy0; }
+			if (srcx+cx > srccx)		cx = srccx - srcx;
+			if (cx <= 0 || cy <= 0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
+			if (x+cx > GDISP.clipx1)	cx -= GDISP.clipx1 - x;
+			if (y+cy > GDISP.clipy1)	cy -= GDISP.clipy1 - y;
 		#endif
 
-		area = cx*cy;
+		/* What are our end points */
+		endx = srcx + cx;
+		endy = y + cy;
 
 		gdisp_lld_setviewport(x, y, cx, cy);
-		gdisp_lld_write_command(RAMWR);
+		GDISP_LLD(write_cmd)(RAMWR);
 
-		#ifdef GDISP_PACKED_PIXELS
-			// 3 bytes per 2 pixels + an extra 2 bytes if the total size is odd.
-			// Note we can't just over-estimate this and let the controller handle the extra pixel
-			//	as that might over-run our source buffer (very bad in some circumstances).
-			tuples = (area/2)*3+(area & 0x01)*2;
-			for(i=0; i < tuples; i++)
-				gdisp_lld_write_data(*buffer++);
-			if (area & 0x01)
-				gdisp_lld_write_command(NOP);
-		#else
+		#if !GDISP_PACKED_PIXELS
 			// Although this controller uses packed pixels we support unpacked pixel
 			//  formats in this blit by packing the data as we feed it to the controller.
-			tuples = area/2;
-			for(i=0; i < tuples; i++) {
+			lg = srccx - cx;
+			buffer += srcy * srccx + srcx;
+			x = srcx;
+			while (1) {
+				/* Get a pixel */
 				c1 = *buffer++;
+				if (++x >= endx) {
+					if (++y >= endy) {
+						/* Odd pixel at end */
+						GDISP_LLD(write_data)((c1 >> 4) & 0xFF);
+						GDISP_LLD(write_data)((c1 << 4) & 0xF0);
+						GDISP_LLD(write_cmd)(NOP);
+						break;
+					}
+					x = srcx;
+					buffer += lg;
+				}
+				/* Get the next pixel */
 				c2 = *buffer++;
-				gdisp_lld_write_data((c1 >> 4) & 0xFF);
-				gdisp_lld_write_data(((c1 << 4) & 0xF0)|((c2 >> 8) & 0x0F));
-				gdisp_lld_write_data(c2 & 0xFF);
+				GDISP_LLD(write_data)((c1 >> 4) & 0xFF);
+				GDISP_LLD(write_data)(((c1 << 4) & 0xF0)|((c2 >> 8) & 0x0F));
+				GDISP_LLD(write_data)(c2 & 0xFF);
+				if (++x >= endx) {
+					if (++y >= endy)
+						break;
+					x = srcx;
+					buffer += lg;
+				}
 			}
-			if (area & 0x01) {
-				c1 = *buffer++;
-				gdisp_lld_write_data((c1 >> 4) & 0xFF);
-				gdisp_lld_write_data((c1 << 4) & 0xF0);
-				gdisp_lld_write_command(NOP);
+
+		#else
+
+			// Although this controller uses packed pixels, we may have to feed it into
+			//  the controller with different packing to the source bitmap
+			#if !GDISP_PACKED_LINES
+				srccx = (srccx + 1) & ~1;
+			#endif
+			pos = srcy*srccx;
+			lg = (srccx - cx)/2*3;
+			p = ((const uint8_t *)buffer) + ((pos+srcx)/2 * 3);
+
+			x = srcx;
+			while (1) {
+				/* Get a pixel */
+				switch((pos+x)&1) {
+				case 0:		c1 = (((color_t)p[0]) << 4)|(((color_t)p[1])>>4);	break;
+				case 1:		c1 = (((color_t)p[1]&0x0F) << 8)|((color_t)p[1]);	break;
+				}
+				if (++x >= endx) {
+					if (++y >= endy) {
+						/* Odd pixel at end */
+						GDISP_LLD(write_data)((c1 >> 4) & 0xFF);
+						GDISP_LLD(write_data)((c1 << 4) & 0xF0);
+						GDISP_LLD(write_cmd)(NOP);
+						break;
+					}
+					x = srcx;
+					p += lg;
+					pos += srccx;
+				}
+				/* Get the next pixel */
+				switch((pos+x)&1) {
+				case 0:		c2 = (((color_t)p[0]) << 4)|(((color_t)p[1])>>4);	break;
+				case 1:		c2 = (((color_t)p[1]&0x0F) << 8)|((color_t)p[1]);	break;
+				}
+				GDISP_LLD(write_data)((c1 >> 4) & 0xFF);
+				GDISP_LLD(write_data)(((c1 << 4) & 0xF0)|((c2 >> 8) & 0x0F));
+				GDISP_LLD(write_data)(c2 & 0xFF);
+				if (++x >= endx) {
+					if (++y >= endy)
+						break;
+					x = srcx;
+					p += lg;
+					pos += srccx;
+				}
 			}
 		#endif
 	}
 #endif
 
-/* Circular Drawing Functions */
-#if (GDISP_NEED_CIRCLE && GDISP_HARDWARE_CIRCLES) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw a circle.
-	 * @note    Optional - The high level driver can emulate using software.
-	 * @note    If GDISP_NEED_CLIPPING is defined this routine MUST behave
-	 *          correctly if the circle is over the edges of the screen.
-	 *
-	 * @param[in] x, y     The centre of the circle
-	 * @param[in] radius   The radius of the circle
-	 * @param[in] color    The color of the circle
-	 *
-	 * @notapi
-	 */
-	void GDISP_LLD(drawcircle)(coord_t x, coord_t y, coord_t radius, color_t color) {
-		/* NOT IMPLEMENTED */
-	}
-#endif
-
-#if (GDISP_NEED_CIRCLE && GDISP_HARDWARE_CIRCLEFILLS) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Create a filled circle.
-	 * @note    Optional - The high level driver can emulate using software.
-	 * @note    If GDISP_NEED_CLIPPING is defined this routine MUST behave
-	 *          correctly if the circle is over the edges of the screen.
-	 *
-	 * @param[in] x, y     The centre of the circle
-	 * @param[in] radius   The radius of the circle
-	 * @param[in] color    The color of the circle
-	 *
-	 * @notapi
-	 */
-	void GDISP_LLD(fillcircle)(coord_t x, coord_t y, coord_t radius, color_t color) {
-		/* NOT IMPLEMENTED */
-	}
-#endif
-
-#if (GDISP_NEED_ELLIPSE && GDISP_HARDWARE_ELLIPSES) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw an ellipse.
-	 * @note    Optional - The high level driver can emulate using software.
-	 * @note    If GDISP_NEED_CLIPPING is defined this routine MUST behave
-	 *          correctly if the ellipse is over the edges of the screen.
-	 *
-	 * @param[in] x, y     The centre of the ellipse
-	 * @param[in] a, b     The dimensions of the ellipse
-	 * @param[in] color    The color of the ellipse
-	 *
-	 * @notapi
-	 */
-	void GDISP_LLD(drawellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
-		/* NOT IMPLEMENTED */
-	}
-#endif
-
-#if (GDISP_NEED_ELLIPSE && GDISP_HARDWARE_ELLIPSEFILLS) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Create a filled ellipse.
-	 * @note    Optional - The high level driver can emulate using software.
-	 * @note    If GDISP_NEED_CLIPPING is defined this routine MUST behave
-	 *          correctly if the ellipse is over the edges of the screen.
-	 *
-	 * @param[in] x, y     The centre of the ellipse
-	 * @param[in] a, b     The dimensions of the ellipse
-	 * @param[in] color    The color of the ellipse
-	 *
-	 * @notapi
-	 */
-	void GDISP_LLD(fillellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
-		/* NOT IMPLEMENTED */
-	}
-#endif
-
-#if (GDISP_NEED_TEXT && GDISP_HARDWARE_TEXT) || defined(__DOXYGEN__)
-	#include "gdisp_fonts.h"
-#endif
-
-#if (GDISP_NEED_TEXT && GDISP_HARDWARE_TEXT) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw a character using a transparent background.
-	 * @note    Optional - The high level driver can emulate using software.
-	 *
-	 * @param[in] x, y     The top-left corner of the text
-	 * @param[in] c        The character to print
-	 * @param[in] color    The color of the character
-	 *
-	 * @notapi
-	 */
-	void GDISP_LLD(drawchar)(coord_t x, coord_t y, char c, font_t font, color_t color) {
-		/* NOT IMPLEMENTED */
-	}
-#endif
-
-#if (GDISP_NEED_TEXT && GDISP_HARDWARE_TEXTFILLS) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw a character using a filled background.
-	 * @note    Optional - The high level driver can emulate using software.
-	 *
-	 * @param[in] x, y     The top-left corner of the text
-	 * @param[in] c        The character to print
-	 * @param[in] color    The color of the character
-	 * @param[in] bgcolor  The background color
-	 *
-	 * @notapi
-	 */
-	void GDISP_LLD(fillchar)(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
-		/* NOT IMPLEMENTED */
-	}
-#endif
-
-#if (GDISP_NEED_PIXELREAD && GDISP_HARDWARE_PIXELREAD) || defined(__DOXYGEN__)
+#if (GDISP_NEED_PIXELREAD && GDISP_HARDWARE_PIXELREAD)
 	/**
 	 * @brief   Get the color of a particular pixel.
-	 * @note    Optional.
 	 * @note    If x,y is off the screen, the result is undefined.
 	 *
 	 * @param[in] x, y     The start of the text
@@ -546,13 +448,15 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 */
 	color_t GDISP_LLD(getpixelcolor)(coord_t x, coord_t y) {
 		/* NOT IMPLEMENTED */
+		/* Some board hardware might support this in the future.
+		 * The Olimex board doesn't.
+		 */
 	}
 #endif
 
-#if (GDISP_NEED_SCROLL && GDISP_HARDWARE_SCROLL) || defined(__DOXYGEN__)
+#if (GDISP_NEED_SCROLL && GDISP_HARDWARE_SCROLL)
 	/**
 	 * @brief   Scroll vertically a section of the screen.
-	 * @note    Optional.
 	 * @note    If x,y + cx,cy is off the screen, the result is undefined.
 	 * @note    If lines is >= cy, it is equivelent to a area fill with bgcolor.
 	 *
@@ -565,6 +469,9 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 */
 	void GDISP_LLD(verticalscroll)(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
 		/* NOT IMPLEMENTED */
+		/* The hardware seems capable of doing this.
+		 * It is just really complex so we leave it out for now.
+		 */
 	}
 #endif
 
@@ -590,6 +497,13 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 */
 	void GDISP_LLD(control)(int what, void *value) {
 		/* NOT IMPLEMENTED YET */
+		/* The hardware is capable of supporting...
+		 * 	GDISP_CONTROL_POWER
+		 * 	GDISP_CONTROL_ORIENTATION
+		 * 	GDISP_CONTROL_BACKLIGHT (at least on the Olimex board)
+		 * 	GDISP_CONTROL_CONTRAST
+		 * We don't currently implement any of it.
+		 */
 		switch(what) {
 		case GDISP_CONTROL_POWER:
 			if (GDISP.Powermode == (gdisp_powermode_t)value)
@@ -602,7 +516,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 					/* 	Code here */
 					/* You may need this ---
 						if (GDISP.Powermode != powerSleep)
-							GDISP_LLD(init();
+							GDISP_LLD(init)();
 					*/
 					break;
 				case powerSleep:
@@ -642,6 +556,12 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				default:
 					return;
 			}
+			#if GDISP_NEED_CLIP || GDISP_NEED_VALIDATION
+				GDISP.clipx0 = 0;
+				GDISP.clipy0 = 0;
+				GDISP.clipx1 = GDISP.Width;
+				GDISP.clipy1 = GDISP.Height;
+			#endif
 			GDISP.Orientation = (gdisp_orientation_t)value;
 			return;
 /*
@@ -650,38 +570,6 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 */
 		}
 	}
-#endif
-
-#if (GDISP_NEED_QUERY && GDISP_HARDWARE_QUERY) || defined(__DOXYGEN__)
-/**
- * @brief   Query a driver value.
- * @detail	Typecase the result to the type you want.
- * @note	GDISP_QUERY_WIDTH			- (coord_t)	Gets the width of the screen
- * 			GDISP_QUERY_HEIGHT			- (coord_t)	Gets the height of the screen
- * 			GDISP_QUERY_POWER			- (gdisp_powermode_t) Get the current powermode
- * 			GDISP_QUERY_ORIENTATION		- (gdisp_orientation_t) Get the current screen orientation
- * 			GDISP_QUERY_BACKLIGHT		- (coord_t) Get the backlight state (0 to 100)
- * 			GDISP_QUERY_CONTRAST		- (coord_t) Get the contrast (0 to 100).
- * 			GDISP_QUERY_LLD				- Low level driver control constants start at
- * 											this value.
- *
- * @param[in] what     What to Query
- *
- * @notapi
- */
-void *GDISP_LLD(query)(unsigned what) {
-	switch(what) {
-	case GDISP_QUERY_WIDTH:			return (void *)(unsigned)GDISP.Width;
-	case GDISP_QUERY_HEIGHT:		return (void *)(unsigned)GDISP.Height;
-	case GDISP_QUERY_POWER:			return (void *)(unsigned)GDISP.Powermode;
-	case GDISP_QUERY_ORIENTATION:	return (void *)(unsigned)GDISP.Orientation;
-	case GDISP_QUERY_BACKLIGHT:		return (void *)(unsigned)GDISP.Backlight;
-	case GDISP_QUERY_CONTRAST:		return (void *)(unsigned)GDISP.Contrast;
-	case GDISP_QUERY_LLD+0:
-		/* Code here */
-	default:						return (void *)-1;
-	}
-}
 #endif
 
 #endif /* HAL_USE_GDISP */

@@ -35,35 +35,15 @@
 /* Include the emulation code for things we don't support */
 #include "gdisp_emulation.c"
 
-/*===========================================================================*/
-/* Driver local definitions.                                                 */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* Driver exported variables.                                                */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* Driver local variables.                                                   */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* Driver local functions.                                                   */
-/*===========================================================================*/
-
-#if GDISP_NEED_TEXT
-	#include "gdisp_fonts.h"
-#endif
-
 /* All the board specific code should go in these include file so the driver
  * can be ported to another board just by creating a suitable file.
  */
-#if defined(BOARD_YOURBOARDNAME)
-	#include "gdisp_lld_board_yourboardname.h"
-#else
-	/* Include the user supplied board definitions */
-	#include "gdisp_lld_board.h"
-#endif
+//#if defined(BOARD_YOURBOARDNAME)
+//	#include "gdisp_lld_board_yourboardname.h"
+//#else
+//	/* Include the user supplied board definitions */
+//	#include "gdisp_lld_board.h"
+//#endif
 
 /*===========================================================================*/
 /* Driver interrupt handlers.                                                */
@@ -201,16 +181,8 @@ __inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
  * @notapi
  */
 bool_t GDISP_LLD(init)(void) {
-	/* Initialise your display */
+	/* Initialise the display */
 
-	/* Initialise the GDISP structure to match */
-	GDISP.Width = SCREEN_WIDTH;
-	GDISP.Height = SCREEN_HEIGHT;
-	GDISP.Orientation = landscape;
-	GDISP.Powermode = powerOn;
-	GDISP.Backlight = 100;
-	GDISP.Contrast = 50;
-	
 #if defined(LCD_USE_FSMC)
 
   #if defined(STM32F1XX) || defined(STM32F3XX)
@@ -324,14 +296,31 @@ bool_t GDISP_LLD(init)(void) {
 	FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
 #endif
 
+	/* Initialise the GDISP structure to match */
+	GDISP.Width = SCREEN_WIDTH;
+	GDISP.Height = SCREEN_HEIGHT;
+	GDISP.Orientation = landscape;
+	GDISP.Powermode = powerOn;
+	GDISP.Backlight = 100;
+	GDISP.Contrast = 50;
+	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+		GDISP.clipx0 = 0;
+		GDISP.clipy0 = 0;
+		GDISP.clipx1 = GDISP.Width-1;
+		GDISP.clipy1 = GDISP.Height-1;
+	#endif
+
 	return TRUE;
 }
 
 void GDISP_LLD(setwindow)(coord_t x0, coord_t y0, coord_t x1, coord_t y1) {
-	#if GDISP_NEED_VALIDATION
-		if (x0 >= GDISP.Width || y0 >= GDISP.Height) return;
-		else if (x1 >= GDISP.Width || y1 >= GDISP.Height) return;
-	#endif
+	/* We don't need to validate here as the LLD routines will validate first.
+	 *
+	 * #if GDISP_NEED_VALIDATION
+	 * 	if (x0 >= GDISP.Width || y0 >= GDISP.Height || x0 < 0 || y0 < 0) return;
+	 * 	else if (x1 >= GDISP.Width || y1 >= GDISP.Height || y1 < 0 || y2 < 0) return;
+	 * #endif
+	*/
     GDISP_LLD(writeindex)(SSD1963_SET_PAGE_ADDRESS);
     GDISP_LLD(writedata)((y0 >> 8) & 0xFF);
     GDISP_LLD(writedata)((y0 >> 0) & 0xFF);
@@ -354,8 +343,8 @@ void GDISP_LLD(setwindow)(coord_t x0, coord_t y0, coord_t x1, coord_t y1) {
  * @notapi
  */
 void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
-	#if GDISP_NEED_VALIDATION
-		if (x >= GDISP.Width || y >= GDISP.Height) return;
+	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+		if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
 	#endif
 	
     GDISP_LLD(setwindow)(x, y, x, y);
@@ -364,54 +353,6 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 }
 
 /* ---- Optional Routines ---- */
-/*
-	All the below routines are optional.
-	Defining them will increase speed but everything
-	will work if they are not defined.
-	If you are not using a routine - turn it off using
-	the appropriate GDISP_HARDWARE_XXXX macro.
-	Don't bother coding for obvious similar routines if
-	there is no performance penalty as the emulation software
-	makes a good job of using similar routines.
-		eg. If fillarea() is defined there is little
-			point in defining clear() unless the
-			performance bonus is significant.
-	For good performance it is suggested to implement
-		fillarea() and blitarea().
-*/
-
-#if GDISP_HARDWARE_CLEARS || defined(__DOXYGEN__)
-	/**
-	 * @brief   Clear the display.
-	 * @note    Optional - The high level driver can emulate using software.
-	 *
-	 * @param[in] color    The color of the pixel
-	 *
-	 * @notapi
-	 */
-	void GDISP_LLD(clear)(color_t color) {
-		GDISP_LLD(fillarea)(0, 0, GDISP.Width-1, GDISP.Height-1, color);
-	}
-#endif
-
-#if GDISP_HARDWARE_LINES || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw a line.
-	 * @note    Optional - The high level driver can emulate using software.
-	 *
-	 * @param[in] x0, y0   The start of the line
-	 * @param[in] x1, y1   The end of the line
-	 * @param[in] color    The color of the line
-	 *
-	 * @notapi
-	 */
-	void GDISP_LLD(drawline)(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
-		#if GDISP_NEED_VALIDATION
-			/* Need to clip to screen */
-		#endif
-		/* Code here */
-	}
-#endif
 
 #if GDISP_HARDWARE_FILLS || defined(__DOXYGEN__)
 	/**
@@ -425,21 +366,22 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void GDISP_LLD(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
-		#if GDISP_NEED_VALIDATION
-			if (cx < 1 || cy < 1 || x >= GDISP.Width || y >= GDISP.Height) return;
-			if (x+cx > GDISP.Width)	cx = GDISP.Width - x;
-			if (y+cy > GDISP.Height)	cy = GDISP.Height - y;
+		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; x = GDISP.clipx0; }
+			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; y = GDISP.clipy0; }
+			if (cx <= 0 || cy <= 0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
+			if (x+cx > GDISP.clipx1)	cx -= GDISP.clipx1 - x;
+			if (y+cy > GDISP.clipy1)	cy -= GDISP.clipy1 - y;
 		#endif
 		
-    uint32_t index = 0, area;
-    area = (cx+1)*(cy+1);
+		uint32_t index = 0, area;
+		area = cx*cy;
 
-      GDISP_LLD(setwindow)(x, y, x+cx, y+cy);
-      GDISP_LLD(writestreamstart)();
+		GDISP_LLD(setwindow)(x, y, x+cx-1, y+cy-1);
+		GDISP_LLD(writestreamstart)();
 
-      for(index = 0; index <= area; index++)
-          GDISP_LLD(writedata)(color);
-
+		for(index = 0; index < area; index++)
+			GDISP_LLD(writedata)(color);
 	}
 #endif
 
@@ -450,160 +392,35 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @param[in] x, y     The start filled area
 	 * @param[in] cx, cy   The width and height to be filled
+	 * @param[in] srcx, srcy   The bitmap position to start the fill from
+	 * @param[in] srccx    The width of a line in the bitmap.
 	 * @param[in] buffer   The pixels to use to fill the area.
 	 *
 	 * @notapi
 	 */
-	void GDISP_LLD(blitarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, const pixel_t *buffer) {
-		#if GDISP_NEED_VALIDATION
-			if (cx < 1 || cy < 1 || x >= GDISP.Width || y >= GDISP.Height) return;
-			if (x+cx > GDISP.Width) return;
-			if (y+cy > GDISP.Height)	cy = GDISP.Height - y;
-		#endif
-		/* Code here */
-	}
-#endif
+	void GDISP_LLD(blitareaex)(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
+		coord_t endx, endy;
+		unsigned lg;
 
-/* Circular Drawing Functions */
-#if (GDISP_NEED_CIRCLE && GDISP_HARDWARE_CIRCLES) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw a circle.
-	 * @note    Optional - The high level driver can emulate using software.
-	 * @note    If GDISP_NEED_CLIPPING is defined this routine MUST behave
-	 *          correctly if the circle is over the edges of the screen.
-	 *
-	 * @param[in] x, y     The centre of the circle
-	 * @param[in] radius   The radius of the circle
-	 * @param[in] color    The color of the circle
-	 *
-	 * @notapi
-	 */
-	void GDISP_LLD(drawcircle)(coord_t x, coord_t y, coord_t radius, color_t color) {
-		#if GDISP_NEED_VALIDATION
-			/* Code here */
+		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; srcx += GDISP.clipx0 - x; x = GDISP.clipx0; }
+			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; srcy += GDISP.clipy0 - y; y = GDISP.clipy0; }
+			if (srcx+cx > srccx)		cx = srccx - srcx;
+			if (cx <= 0 || cy <= 0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
+			if (x+cx > GDISP.clipx1)	cx -= GDISP.clipx1 - x;
+			if (y+cy > GDISP.clipy1)	cy -= GDISP.clipy1 - y;
 		#endif
-		/* Code here */
-	}
-#endif
 
-#if (GDISP_NEED_CIRCLE && GDISP_HARDWARE_CIRCLEFILLS) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Create a filled circle.
-	 * @note    Optional - The high level driver can emulate using software.
-	 * @note    If GDISP_NEED_CLIPPING is defined this routine MUST behave
-	 *          correctly if the circle is over the edges of the screen.
-	 *
-	 * @param[in] x, y     The centre of the circle
-	 * @param[in] radius   The radius of the circle
-	 * @param[in] color    The color of the circle
-	 *
-	 * @notapi
-	 */
-	void GDISP_LLD(fillcircle)(coord_t x, coord_t y, coord_t radius, color_t color) {
-		#if GDISP_NEED_VALIDATION
-			/* Code here */
-		#endif
-		/* Code here */
-	}
-#endif
+		GDISP_LLD(setwindow)(x, y, x+cx-1, y+cy-1);
+		GDISP_LLD(writestreamstart)();
 
-#if (GDISP_NEED_ELLIPSE && GDISP_HARDWARE_ELLIPSES) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw an ellipse.
-	 * @note    Optional - The high level driver can emulate using software.
-	 * @note    If GDISP_NEED_CLIPPING is defined this routine MUST behave
-	 *          correctly if the ellipse is over the edges of the screen.
-	 *
-	 * @param[in] x, y     The centre of the ellipse
-	 * @param[in] a, b     The dimensions of the ellipse
-	 * @param[in] color    The color of the ellipse
-	 *
-	 * @notapi
-	 */
-	void GDISP_LLD(drawellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
-		#if GDISP_NEED_VALIDATION
-			/* Code here */
-		#endif
-		/* Code here */
-	}
-#endif
-
-#if (GDISP_NEED_ELLIPSE && GDISP_HARDWARE_ELLIPSEFILLS) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Create a filled ellipse.
-	 * @note    Optional - The high level driver can emulate using software.
-	 * @note    If GDISP_NEED_CLIPPING is defined this routine MUST behave
-	 *          correctly if the ellipse is over the edges of the screen.
-	 *
-	 * @param[in] x, y     The centre of the ellipse
-	 * @param[in] a, b     The dimensions of the ellipse
-	 * @param[in] color    The color of the ellipse
-	 *
-	 * @notapi
-	 */
-	void GDISP_LLD(fillellipse)(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
-		#if GDISP_NEED_VALIDATION
-			/* Code here */
-		#endif
-		/* Code here */
-	}
-#endif
-
-#if (GDISP_NEED_TEXT && GDISP_HARDWARE_TEXT) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw a character using a transparent background.
-	 * @note    Optional - The high level driver can emulate using software.
-	 *
-	 * @param[in] x, y     The top-left corner of the text
-	 * @param[in] c        The character to print
-	 * @param[in] color    The color of the character
-	 *
-	 * @notapi
-	 */
-	void GDISP_LLD(drawchar)(coord_t x, coord_t y, char c, font_t font, color_t color) {
-		#if GDISP_NEED_VALIDATION
-			/* Code here */
-		#endif
-		/* Code here */
-	}
-#endif
-
-#if (GDISP_NEED_TEXT && GDISP_HARDWARE_TEXTFILLS) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw a character using a filled background.
-	 * @note    Optional - The high level driver can emulate using software.
-	 *
-	 * @param[in] x, y     The top-left corner of the text
-	 * @param[in] c        The character to print
-	 * @param[in] color    The color of the character
-	 * @param[in] bgcolor  The background color
-	 *
-	 * @notapi
-	 */
-	void GDISP_LLD(fillchar)(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
-		#if GDISP_NEED_VALIDATION
-			/* Code here */
-		#endif
-		/* Code here */
-	}
-#endif
-
-#if (GDISP_NEED_PIXELREAD && GDISP_HARDWARE_PIXELREAD) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Get the color of a particular pixel.
-	 * @note    Optional.
-	 * @note    If x,y is off the screen, the result is undefined.
-	 * @return	The color of the specified pixel.
-	 *
-	 * @param[in] x, y     The start of the text
-	 *
-	 * @notapi
-	 */
-	color_t GDISP_LLD(getpixelcolor)(coord_t x, coord_t y) {
-		#if GDISP_NEED_VALIDATION
-			if (x >= GDISP.Width || y >= GDISP.Height) return 0;
-		#endif
-		/* Code here */
+		endx = srcx + cx;
+		endy = y + cy;
+		lg = srccx - cx;
+		buffer += srcx + srcy * srccx;
+		for(; y < endy; y++, buffer += lg)
+			for(x=srcx; x < endx; x++)
+				GDISP_LLD(writedata)(*buffer++);
 	}
 #endif
 
@@ -622,12 +439,14 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void GDISP_LLD(verticalscroll)(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
-		#if GDISP_NEED_VALIDATION
-			if (cx < 1 || cy < 1 || x >= GDISP.Width || y >= GDISP.Height) return;
-			if (x+cx > GDISP.Width)	cx = GDISP.Width - x;
-			if (y+cy > GDISP.Height)	cy = GDISP.Height - y;
+		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; x = GDISP.clipx0; }
+			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; y = GDISP.clipy0; }
+			if (!lines || cx <= 0 || cy <= 0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
+			if (x+cx > GDISP.clipx1)	cx -= GDISP.clipx1 - x;
+			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
-		/* Code here */
+		/* NOT IMPLEMENTED YET */
 		
 		/*
 			uint16_t size = x1 - x0 ;
@@ -669,6 +488,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void GDISP_LLD(control)(unsigned what, void *value) {
+		/* NOT IMPLEMENTED YET */
 		switch(what) {
 		case GDISP_CONTROL_POWER:
 			if (GDISP.Powermode == (gdisp_powermode_t)value)
@@ -725,6 +545,12 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				default:
 					return;
 			}
+			#if GDISP_NEED_CLIP || GDISP_NEED_VALIDATION
+				GDISP.clipx0 = 0;
+				GDISP.clipy0 = 0;
+				GDISP.clipx1 = GDISP.Width;
+				GDISP.clipy1 = GDISP.Height;
+			#endif
 			GDISP.Orientation = (gdisp_orientation_t)value;
 			return;
 /*
@@ -733,38 +559,6 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 */
 		}
 	}
-#endif
-
-#if (GDISP_NEED_QUERY && GDISP_HARDWARE_QUERY) || defined(__DOXYGEN__)
-/**
- * @brief   Query a driver value.
- * @detail	Typecase the result to the type you want.
- * @note	GDISP_QUERY_WIDTH			- (coord_t)	Gets the width of the screen
- * 			GDISP_QUERY_HEIGHT			- (coord_t)	Gets the height of the screen
- * 			GDISP_QUERY_POWER			- (gdisp_powermode_t) Get the current powermode
- * 			GDISP_QUERY_ORIENTATION		- (gdisp_orientation_t) Get the current screen orientation
- * 			GDISP_QUERY_BACKLIGHT		- (coord_t) Get the backlight state (0 to 100)
- * 			GDISP_QUERY_CONTRAST		- (coord_t) Get the contrast (0 to 100).
- * 			GDISP_QUERY_LLD				- Low level driver control constants start at
- * 											this value.
- *
- * @param[in] what     What to Query
- *
- * @notapi
- */
-void *GDISP_LLD(query)(unsigned what) {
-	switch(what) {
-	case GDISP_QUERY_WIDTH:			return (void *)(unsigned)GDISP.Width;
-	case GDISP_QUERY_HEIGHT:		return (void *)(unsigned)GDISP.Height;
-	case GDISP_QUERY_POWER:			return (void *)(unsigned)GDISP.Powermode;
-	case GDISP_QUERY_ORIENTATION:	return (void *)(unsigned)GDISP.Orientation;
-	case GDISP_QUERY_BACKLIGHT:		return (void *)(unsigned)GDISP.Backlight;
-	case GDISP_QUERY_CONTRAST:		return (void *)(unsigned)GDISP.Contrast;
-	case GDISP_QUERY_LLD+0:
-		/* Code here */
-	default:						return (void *)-1;
-	}
-}
 #endif
 
 #endif /* HAL_USE_GDISP */
