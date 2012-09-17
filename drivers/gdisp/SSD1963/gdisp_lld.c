@@ -184,11 +184,13 @@ bool_t GDISP_LLD(init)(void) {
 	/* Initialise the display */
 
 #if defined(LCD_USE_FSMC)
-  
-#if defined(LCD_USE_DMA)
-  dmaStreamAllocate(LCD_DMA_STREAM, 0, NULL, NULL);
-#endif  //#ifdef LCD_USE_DMA
-
+	
+  #if defined(LCD_USE_DMA)
+	if (dmaStreamAllocate(LCD_DMA_STREAM, 0, NULL, NULL)) chSysHalt();
+	dmaStreamSetMemory0(LCD_DMA_STREAM, &LCD_RAM);
+	dmaStreamSetMode(LCD_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);  
+  #endif
+	
   #if defined(STM32F1XX) || defined(STM32F3XX)
 	/* FSMC setup for F1/F3 */
 	rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
@@ -384,27 +386,18 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		GDISP_LLD(setwindow)(x, y, x+cx-1, y+cy-1);
 		GDISP_LLD(writestreamstart)();
 
-#if defined(LCD_USE_DMA)
-    if (area > 1000) { // Do not use DMA for small areas
+#if defined(LCD_USE_FSMC) && defined(LCD_USE_DMA)
+      uint16_t i, splitarea;
       dmaStreamSetPeripheral(LCD_DMA_STREAM, &color);
-      dmaStreamSetMemory0(LCD_DMA_STREAM, LCD_RAM);
-      uint32_t i;
-      uint16_t splitarea;
       for (i = (area/65535)+1; i > 0; i--) {
-        if (i <= 1) splitarea = area%65535;
-        else splitarea = 65535;
+        if (i <= 1) splitarea = area%65535; else splitarea = 65535;
         dmaStreamSetTransactionSize(LCD_DMA_STREAM, splitarea);
-        dmaStreamSetMode(LCD_DMA_STREAM, STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M | STM32_DMA_CR_EN);  
-        while ((LCD_DMA_STREAM)->stream->NDTR > 0) chThdSleepMilliseconds(5);
+	dmaStreamEnable(LCD_DMA_STREAM);
+	dmaWaitCompletion(LCD_DMA_STREAM);   
       }
-    } 
-    else {
-      for(index = 0; index < area; index++)
-        GDISP_LLD(writedata)(color);
-    }
 #else
-		for(index = 0; index < area; index++)
-			GDISP_LLD(writedata)(color);
+	for(index = 0; index < area; index++)
+		GDISP_LLD(writedata)(color);
 #endif  //#ifdef LCD_USE_DMA
 }
 #endif
@@ -444,33 +437,21 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		buffer += srcx + srcy * srccx;
       
       
-#if defined(LCD_USE_DMA)
-    uint32_t area = cx*cy;
-    if (area > 1000) { // Do not use DMA for small areas
+#if defined(LCD_USE_FSMC) && defined(LCD_USE_DMA)
+      uint32_t area = cx*cy;
+      uint16_t i, splitarea;
       dmaStreamSetPeripheral(LCD_DMA_STREAM, buffer);
-      dmaStreamSetMemory0(LCD_DMA_STREAM, LCD_RAM);
-      uint32_t i;
-      uint16_t splitarea;
       for (i = (area/65535)+1; i > 0; i--) {
-        if (i <= 1) splitarea = area%65535;
-        else splitarea = 65535;
+        if (i <= 1) splitarea = area%65535; else splitarea = 65535;
         dmaStreamSetTransactionSize(LCD_DMA_STREAM, splitarea);
-        dmaStreamSetMode(LCD_DMA_STREAM, STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_PINC | STM32_DMA_CR_DIR_M2M | STM32_DMA_CR_EN);  
-        while ((LCD_DMA_STREAM)->stream->NDTR > 0) chThdSleepMilliseconds(5);
-      }
-    } 
-    else {
-		for(; y < endy; y++, buffer += lg)
-			for(x=srcx; x < endx; x++)
-				GDISP_LLD(writedata)(*buffer++);
-    }
+	dmaStreamEnable(LCD_DMA_STREAM);
+	dmaWaitCompletion(LCD_DMA_STREAM);   
+      } 
 #else
-		for(; y < endy; y++, buffer += lg)
-			for(x=srcx; x < endx; x++)
-				GDISP_LLD(writedata)(*buffer++);
+	for(; y < endy; y++, buffer += lg)
+		for(x=srcx; x < endx; x++)
+			GDISP_LLD(writedata)(*buffer++);
 #endif  //#ifdef LCD_USE_DMA
-      
-
 	}
 #endif
 
