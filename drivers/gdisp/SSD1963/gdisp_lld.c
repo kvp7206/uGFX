@@ -184,6 +184,10 @@ bool_t GDISP_LLD(init)(void) {
 	/* Initialise the display */
 
 #if defined(LCD_USE_FSMC)
+  
+#if defined(LCD_USE_DMA)
+  dmaStreamAllocate(LCD_DMA_STREAM, 0, NULL, NULL);
+#endif  //#ifdef LCD_USE_DMA
 
   #if defined(STM32F1XX) || defined(STM32F3XX)
 	/* FSMC setup for F1/F3 */
@@ -380,9 +384,24 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		GDISP_LLD(setwindow)(x, y, x+cx-1, y+cy-1);
 		GDISP_LLD(writestreamstart)();
 
+#if defined(LCD_USE_DMA)
+    if (area > 1000) { // Do not use DMA for small areas
+      dmaStreamSetPeripheral(LCD_DMA_STREAM, &color);
+      dmaStreamSetMemory0(LCD_DMA_STREAM, LCD_RAM);
+      dmaStreamSetTransactionSize(LCD_DMA_STREAM, area);
+      dmaStreamSetMode(LCD_DMA_STREAM, STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M | STM32_DMA_CR_EN);  
+        
+      while ((LCD_DMA_STREAM)->stream->NDTR > 0) chThdSleepMilliseconds(1);
+    } 
+    else {
+      for(index = 0; index < area; index++)
+        GDISP_LLD(writedata)(color);
+    }
+#else
 		for(index = 0; index < area; index++)
 			GDISP_LLD(writedata)(color);
-	}
+#endif  //#ifdef LCD_USE_DMA
+}
 #endif
 
 #if GDISP_HARDWARE_BITFILLS || defined(__DOXYGEN__)
@@ -418,9 +437,30 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		endy = y + cy;
 		lg = srccx - cx;
 		buffer += srcx + srcy * srccx;
+      
+      
+#if defined(LCD_USE_DMA)
+    uint32_t area = cx*cy;
+    if (area > 1000) { // Do not use DMA for small areas
+      dmaStreamSetPeripheral(LCD_DMA_STREAM, buffer);
+      dmaStreamSetMemory0(LCD_DMA_STREAM, LCD_RAM);
+      dmaStreamSetTransactionSize(LCD_DMA_STREAM, area);
+      dmaStreamSetMode(LCD_DMA_STREAM, STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_PINC | STM32_DMA_CR_DIR_M2M | STM32_DMA_CR_EN);  
+        
+      while ((LCD_DMA_STREAM)->stream->NDTR > 0) chThdSleepMilliseconds(1);
+    } 
+    else {
 		for(; y < endy; y++, buffer += lg)
 			for(x=srcx; x < endx; x++)
 				GDISP_LLD(writedata)(*buffer++);
+    }
+#else
+		for(; y < endy; y++, buffer += lg)
+			for(x=srcx; x < endx; x++)
+				GDISP_LLD(writedata)(*buffer++);
+#endif  //#ifdef LCD_USE_DMA
+      
+
 	}
 #endif
 
