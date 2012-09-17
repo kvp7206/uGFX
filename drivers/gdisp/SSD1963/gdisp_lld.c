@@ -388,10 +388,15 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
     if (area > 1000) { // Do not use DMA for small areas
       dmaStreamSetPeripheral(LCD_DMA_STREAM, &color);
       dmaStreamSetMemory0(LCD_DMA_STREAM, LCD_RAM);
-      dmaStreamSetTransactionSize(LCD_DMA_STREAM, area);
-      dmaStreamSetMode(LCD_DMA_STREAM, STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M | STM32_DMA_CR_EN);  
-        
-      while ((LCD_DMA_STREAM)->stream->NDTR > 0) chThdSleepMilliseconds(1);
+      uint32_t i;
+      uint16_t splitarea;
+      for (i = (area/65535)+1; i > 0; i--) {
+        if (i <= 1) splitarea = area%65535;
+        else splitarea = 65535;
+        dmaStreamSetTransactionSize(LCD_DMA_STREAM, splitarea);
+        dmaStreamSetMode(LCD_DMA_STREAM, STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M | STM32_DMA_CR_EN);  
+        while ((LCD_DMA_STREAM)->stream->NDTR > 0) chThdSleepMilliseconds(5);
+      }
     } 
     else {
       for(index = 0; index < area; index++)
@@ -444,10 +449,15 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
     if (area > 1000) { // Do not use DMA for small areas
       dmaStreamSetPeripheral(LCD_DMA_STREAM, buffer);
       dmaStreamSetMemory0(LCD_DMA_STREAM, LCD_RAM);
-      dmaStreamSetTransactionSize(LCD_DMA_STREAM, area);
-      dmaStreamSetMode(LCD_DMA_STREAM, STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_PINC | STM32_DMA_CR_DIR_M2M | STM32_DMA_CR_EN);  
-        
-      while ((LCD_DMA_STREAM)->stream->NDTR > 0) chThdSleepMilliseconds(1);
+      uint32_t i;
+      uint16_t splitarea;
+      for (i = (area/65535)+1; i > 0; i--) {
+        if (i <= 1) splitarea = area%65535;
+        else splitarea = 65535;
+        dmaStreamSetTransactionSize(LCD_DMA_STREAM, splitarea);
+        dmaStreamSetMode(LCD_DMA_STREAM, STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_PINC | STM32_DMA_CR_DIR_M2M | STM32_DMA_CR_EN);  
+        while ((LCD_DMA_STREAM)->stream->NDTR > 0) chThdSleepMilliseconds(5);
+      }
     } 
     else {
 		for(; y < endy; y++, buffer += lg)
