@@ -185,22 +185,25 @@ bool_t GDISP_LLD(init)(void) {
 
 #if defined(LCD_USE_FSMC)
 	
-  #if defined(LCD_USE_DMA) && defined(LCD_DMA_STREAM)
-	if (dmaStreamAllocate(LCD_DMA_STREAM, 0, NULL, NULL)) chSysHalt();
-	dmaStreamSetMemory0(LCD_DMA_STREAM, &LCD_RAM);
-	dmaStreamSetMode(LCD_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);  
-  #endif
+	#if defined(STM32F1XX) || defined(STM32F3XX)
+		/* FSMC setup for F1/F3 */
+		rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
 	
-  #if defined(STM32F1XX) || defined(STM32F3XX)
-	/* FSMC setup for F1/F3 */
-	rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
-
-  #elif defined(STM32F4XX) || defined(STM32F2XX)
-	/* STM32F2-F4 FSMC init */
-	rccEnableAHB3(RCC_AHB3ENR_FSMCEN, 0);
-  #else
-  #error "FSMC not implemented for this device"
-  #endif
+		#if defined(LCD_USE_DMA) && defined(LCD_DMA_STREAM)
+			#error "DMA not implemented for F1/F3 Devices"
+		#endif
+	#elif defined(STM32F4XX) || defined(STM32F2XX)
+		/* STM32F2-F4 FSMC init */
+		rccEnableAHB3(RCC_AHB3ENR_FSMCEN, 0);
+	
+		#if defined(LCD_USE_DMA) && defined(LCD_DMA_STREAM)
+			if (dmaStreamAllocate(LCD_DMA_STREAM, 0, NULL, NULL)) chSysHalt();
+			dmaStreamSetMemory0(LCD_DMA_STREAM, &LCD_RAM);
+			dmaStreamSetMode(LCD_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);  
+		#endif
+	#else
+		#error "FSMC not implemented for this device"
+	#endif
 	
 	/* set pins to FSMC mode */
 	IOBus busD = {GPIOD, (1 << 0) | (1 << 1) | (1 << 4) | (1 << 5) | (1 << 7) | (1 << 8) |
@@ -222,14 +225,14 @@ bool_t GDISP_LLD(init)(void) {
 	 * This is actually not needed as already set by default after reset */
 	FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
 	
-  #elif defined(LCD_USE_GPIO)
+#elif defined(LCD_USE_GPIO)
 	IOBus busCMD = {LCD_CMD_PORT, (1 << LCD_CS) | (1 << LCD_RS) | (1 << LCD_WR) | (1 << LCD_RD), 0};
 	IOBus busDATA = {LCD_CMD_PORT, 0xFFFFF, 0};
 	palSetBusMode(&busCMD, PAL_MODE_OUTPUT_PUSHPULL);
 	palSetBusMode(&busDATA, PAL_MODE_OUTPUT_PUSHPULL);
 	
-  #else
-  #error "Please define LCD_USE_FSMC or LCD_USE_GPIO"
+#else
+	#error "Please define LCD_USE_FSMC or LCD_USE_GPIO"
 #endif	
 	GDISP_LLD(writeindex)(SSD1963_SOFT_RESET);	
 	chThdSleepMicroseconds(100);
@@ -296,11 +299,11 @@ bool_t GDISP_LLD(init)(void) {
 
 	/* Turn on */
 	GDISP_LLD(writeindex)(SSD1963_SET_DISPLAY_ON);
-#if defined(LCD_USE_FSMC)
-	/* FSMC delay reduced as the controller now runs at full speed */
-	FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_0 | FSMC_BTR1_DATAST_2 | FSMC_BTR1_BUSTURN_0 ;
-	FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
-#endif
+	#if defined(LCD_USE_FSMC)
+		/* FSMC delay reduced as the controller now runs at full speed */
+		FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_0 | FSMC_BTR1_DATAST_2 | FSMC_BTR1_BUSTURN_0 ;
+		FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
+	#endif
 
 	/* Initialise the GDISP structure to match */
 	GDISP.Width = SCREEN_WIDTH;
@@ -387,20 +390,23 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		GDISP_LLD(setwindow)(x, y, x+cx-1, y+cy-1);
 		GDISP_LLD(writestreamstart)();
 
-#if defined(LCD_USE_FSMC) && defined(LCD_USE_DMA) && defined(LCD_DMA_STREAM)
-		uint16_t i, splitarea;
-		dmaStreamSetPeripheral(LCD_DMA_STREAM, &color);
-		for (i = (area/65535)+1; i > 0; i--) {
-			if (i <= 1) splitarea = area%65535; else splitarea = 65535;
-			dmaStreamSetTransactionSize(LCD_DMA_STREAM, splitarea);
+		#if defined(LCD_USE_FSMC) && defined(LCD_USE_DMA) && defined(LCD_DMA_STREAM)
+			uint8_t i;
+			dmaStreamSetPeripheral(LCD_DMA_STREAM, &color);
+			dmaStreamSetMode(LCD_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);  
+			for (i = area/65535; i; i--) {
+				dmaStreamSetTransactionSize(LCD_DMA_STREAM, 65535);
+				dmaStreamEnable(LCD_DMA_STREAM);
+				dmaWaitCompletion(LCD_DMA_STREAM);
+			}
+			dmaStreamSetTransactionSize(LCD_DMA_STREAM, area%65535);
 			dmaStreamEnable(LCD_DMA_STREAM);
-			dmaWaitCompletion(LCD_DMA_STREAM);   
-		}
-#else
-		uint32_t index, 
-		for(index = 0; index < area; index++)
-			GDISP_LLD(writedata)(color);
-#endif  //#ifdef LCD_USE_DMA
+			dmaWaitCompletion(LCD_DMA_STREAM);
+		#else
+			uint32_t index;
+			for(index = 0; index < area; index++)
+				GDISP_LLD(writedata)(color);
+		#endif  //#ifdef LCD_USE_DMA
 }
 #endif
 
@@ -433,26 +439,29 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 
 		buffer += srcx + srcy * srccx;
       
-#if defined(LCD_USE_FSMC) && defined(LCD_USE_DMA) && defined(LCD_DMA_STREAM)
-		uint32_t area = cx*cy;
-		uint16_t i, splitarea;
-		dmaStreamSetPeripheral(LCD_DMA_STREAM, buffer);
-		for (i = (area/65535)+1; i > 0; i--) {
-			if (i <= 1) splitarea = area%65535; else splitarea = 65535;
-			dmaStreamSetTransactionSize(LCD_DMA_STREAM, splitarea);
+		#if defined(LCD_USE_FSMC) && defined(LCD_USE_DMA) && defined(LCD_DMA_STREAM)
+			uint32_t area = cx*cy;
+			uint8_t i;
+			dmaStreamSetPeripheral(LCD_DMA_STREAM, buffer);
+			dmaStreamSetMode(LCD_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PINC | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);  
+			for (i = area/65535; i; i--) {
+				dmaStreamSetTransactionSize(LCD_DMA_STREAM, 65535);
+				dmaStreamEnable(LCD_DMA_STREAM);
+				dmaWaitCompletion(LCD_DMA_STREAM);
+			} 
+			dmaStreamSetTransactionSize(LCD_DMA_STREAM, area%65535);
 			dmaStreamEnable(LCD_DMA_STREAM);
-			dmaWaitCompletion(LCD_DMA_STREAM);   
-		} 
-#else
-		coord_t endx, endy;
-		unsigned lg;
-		endx = srcx + cx;
-		endy = y + cy;
-		lg = srccx - cx;
-		for(; y < endy; y++, buffer += lg)
-			for(x=srcx; x < endx; x++)
-				GDISP_LLD(writedata)(*buffer++);
-#endif  //#ifdef LCD_USE_DMA
+			dmaWaitCompletion(LCD_DMA_STREAM);
+		#else
+			coord_t endx, endy;
+			unsigned lg;
+			endx = srcx + cx;
+			endy = y + cy;
+			lg = srccx - cx;
+			for(; y < endy; y++, buffer += lg)
+				for(x=srcx; x < endx; x++)
+					GDISP_LLD(writedata)(*buffer++);
+		#endif  //#ifdef LCD_USE_DMA
 	}
 #endif
 
