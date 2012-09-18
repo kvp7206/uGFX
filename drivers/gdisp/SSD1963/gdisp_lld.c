@@ -185,7 +185,7 @@ bool_t GDISP_LLD(init)(void) {
 
 #if defined(LCD_USE_FSMC)
 	
-  #if defined(LCD_USE_DMA)
+  #if defined(LCD_USE_DMA) && defined(LCD_DMA_STREAM)
 	if (dmaStreamAllocate(LCD_DMA_STREAM, 0, NULL, NULL)) chSysHalt();
 	dmaStreamSetMemory0(LCD_DMA_STREAM, &LCD_RAM);
 	dmaStreamSetMode(LCD_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);  
@@ -372,6 +372,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void GDISP_LLD(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+    
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; x = GDISP.clipx0; }
 			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; y = GDISP.clipy0; }
@@ -380,22 +381,23 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
 		
-		uint32_t index = 0, area;
+		uint32_t area;
 		area = cx*cy;
 
 		GDISP_LLD(setwindow)(x, y, x+cx-1, y+cy-1);
 		GDISP_LLD(writestreamstart)();
 
-#if defined(LCD_USE_FSMC) && defined(LCD_USE_DMA)
+#if defined(LCD_USE_FSMC) && defined(LCD_USE_DMA) && defined(LCD_DMA_STREAM)
       uint16_t i, splitarea;
       dmaStreamSetPeripheral(LCD_DMA_STREAM, &color);
       for (i = (area/65535)+1; i > 0; i--) {
         if (i <= 1) splitarea = area%65535; else splitarea = 65535;
         dmaStreamSetTransactionSize(LCD_DMA_STREAM, splitarea);
-	dmaStreamEnable(LCD_DMA_STREAM);
-	dmaWaitCompletion(LCD_DMA_STREAM);   
+        dmaStreamEnable(LCD_DMA_STREAM);
+        dmaWaitCompletion(LCD_DMA_STREAM);   
       }
 #else
+  uint32_t index, 
 	for(index = 0; index < area; index++)
 		GDISP_LLD(writedata)(color);
 #endif  //#ifdef LCD_USE_DMA
@@ -416,8 +418,6 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void GDISP_LLD(blitareaex)(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
-		coord_t endx, endy;
-		unsigned lg;
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; srcx += GDISP.clipx0 - x; x = GDISP.clipx0; }
@@ -431,23 +431,24 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		GDISP_LLD(setwindow)(x, y, x+cx-1, y+cy-1);
 		GDISP_LLD(writestreamstart)();
 
-		endx = srcx + cx;
-		endy = y + cy;
-		lg = srccx - cx;
 		buffer += srcx + srcy * srccx;
       
-      
-#if defined(LCD_USE_FSMC) && defined(LCD_USE_DMA)
+#if defined(LCD_USE_FSMC) && defined(LCD_USE_DMA) && defined(LCD_DMA_STREAM)
       uint32_t area = cx*cy;
       uint16_t i, splitarea;
       dmaStreamSetPeripheral(LCD_DMA_STREAM, buffer);
       for (i = (area/65535)+1; i > 0; i--) {
         if (i <= 1) splitarea = area%65535; else splitarea = 65535;
         dmaStreamSetTransactionSize(LCD_DMA_STREAM, splitarea);
-	dmaStreamEnable(LCD_DMA_STREAM);
-	dmaWaitCompletion(LCD_DMA_STREAM);   
+        dmaStreamEnable(LCD_DMA_STREAM);
+        dmaWaitCompletion(LCD_DMA_STREAM);   
       } 
 #else
+  coord_t endx, endy;
+  unsigned lg;
+  endx = srcx + cx;
+  endy = y + cy;
+  lg = srccx - cx;
 	for(; y < endy; y++, buffer += lg)
 		for(x=srcx; x < endx; x++)
 			GDISP_LLD(writedata)(*buffer++);
