@@ -52,7 +52,7 @@
 /*===========================================================================*/
 /* Driver local variables.                                                   */
 /*===========================================================================*/
-volatile static struct cal cal = {
+static volatile struct cal cal = {
     1, 1, 0, 0
 };
 
@@ -167,7 +167,8 @@ uint16_t tpReadX(void) {
 			return SCREEN_WIDTH - x;
 		case landscapeInv:
 			return y;
-	}   
+	}
+	return 0;
 }
 	
 /**
@@ -193,6 +194,7 @@ uint16_t tpReadY(void) {
 		case landscapeInv:
 			return SCREEN_WIDTH - x;
 	}
+	return 0;
 }
 
 void tpCalibrate(void) {
@@ -202,7 +204,7 @@ void tpCalibrate(void) {
 	uint16_t points[2][2];
 	uint8_t i;
 
-    gdispClear(Red);
+	gdispClear(Red);
 	gdispFillStringBox(0, 10, gdispGetWidth(), 30, "Calibration", &fontUI2Double,  White, Red, justifyCenter);
 
     for(i = 0; i < 2; i++) {
