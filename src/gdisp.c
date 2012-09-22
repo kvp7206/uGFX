@@ -28,6 +28,7 @@
 #include "ch.h"
 #include "hal.h"
 #include "gdisp.h"
+#include "math.h"
 
 #ifndef _GDISP_C
 #define _GDISP_C
@@ -490,65 +491,109 @@
 	}
 #endif
 
-#if (GDISP_NEED_ARC && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw an arc.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
-	 *
-	 * @param[in] x,y     The center of the arc circle
-	 * @param[in] radius  The radius of the arc circle
-	 * @param[in] startangle, endangle  The start and end angle in degrees (0 to 359)
-	 * @param[in] color   The color to use
-	 *
-	 * @api
-	 */
-	void gdispDrawArc(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color) {
-		chMtxLock(&gdispMutex);
-		GDISP_LLD(drawarc)(x, y, radius, startangle, endangle, color);
-		chMtxUnlock();
-	}
-#elif GDISP_NEED_ARC && GDISP_NEED_ASYNC
-	void gdispDrawArc(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color) {
-		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_DRAWARC);
-		p->drawarc.x = x;
-		p->drawarc.y = y;
-		p->drawarc.radius = radius;
-		p->drawarc.startangle = startangle;
-		p->drawarc.endangle = endangle;
-		p->drawarc.color = color;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
-	}
-#endif
+/*
+ * @brief				Internal helper function for gdispDrawArc()
+ *
+ * @note				DO NOT USE DIRECTLY!
+ *
+ * @param[in] x, y		The middle point of the arc
+ * @param[in] start		The start angle of the arc
+ * @param[in] end		The end angle of the arc
+ * @param[in] radius	The radius of the arc
+ * @param[in] color		The color in which the arc will be drawn
+ *
+ * @notapi
+ */
+void _draw_arc(coord_t x, coord_t y, uint16_t start, uint16_t end, uint16_t radius, color_t color) {
+    if (start >= 0 && start <= 180) {
+        float x_maxI = x + radius*cos(start*M_PI/180);
+        float x_minI;
 
-#if (GDISP_NEED_ARC && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Draw a filled arc.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
-	 *
-	 * @param[in] x,y     The center of the arc circle
-	 * @param[in] radius  The radius of the arc circle
-	 * @param[in] startangle, endangle  The start and end angle in degrees (0 to 359)
-	 * @param[in] color   The color to use
-	 *
-	 * @api
-	 */
-	void gdispFillArc(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color) {
-		chMtxLock(&gdispMutex);
-		GDISP_LLD(fillarc)(x, y, radius, startangle, endangle, color);
-		chMtxUnlock();
+        if (end > 180)
+            x_minI = x - radius;
+        else
+            x_minI = x + radius*cos(end*M_PI/180);
+
+        int a = 0;
+        int b = radius;
+        int P = 1 - radius;
+
+        do { 
+            if(x-a <= x_maxI && x-a >= x_minI)
+                gdispDrawPixel(x-a, y+b, color);
+            if(x+a <= x_maxI && x+a >= x_minI)
+                gdispDrawPixel(x+a, y+b, color);
+            if(x-b <= x_maxI && x-b >= x_minI)
+                gdispDrawPixel(x-b, y+a, color);
+            if(x+b <= x_maxI && x+b >= x_minI)
+                gdispDrawPixel(x+b, y+a, color);
+
+            if (P < 0) {
+                P = P + 3 + 2*a;
+                a = a + 1;
+            } else {
+                P = P + 5 + 2*(a - b);
+                a = a + 1;
+                b = b - 1;
+            }
+        } while(a <= b);
+    }
+
+    if (end > 180 && end <= 360) {
+        float x_maxII = x+radius*cos(end*M_PI/180);
+        float x_minII;
+
+        if(start <= 180)
+            x_minII = x - radius;
+        else
+            x_minII = x+radius*cos(start*M_PI/180);
+
+        int a = 0;
+        int b = radius;
+        int P = 1 - radius;
+
+        do {
+            if(x-a <= x_maxII && x-a >= x_minII)
+                gdispDrawPixel(x-a, y-b, color);
+            if(x+a <= x_maxII && x+a >= x_minII)
+                gdispDrawPixel(x+a, y-b, color);
+            if(x-b <= x_maxII && x-b >= x_minII)
+                gdispDrawPixel(x-b, y-a, color);
+            if(x+b <= x_maxII && x+b >= x_minII)
+                gdispDrawPixel(x+b, y-a, color);
+
+            if (P < 0) {
+                P = P + 3 + 2*a;
+                a = a + 1;
+            } else {
+                P = P + 5 + 2*(a - b);
+                a = a + 1;
+                b = b - 1;
+            }
+        } while (a <= b);
+    }
+}
+
+/*
+ * @brief	Draw an arc.
+ * @pre		The GDISP must be in powerOn or powerSleep mode.
+ *
+ * @param[in] x0,y0		The center point
+ * @param[in] radius	The radius of the arc
+ * @param[in] start		The start angle (0 to 360)
+ * @param[in] end		The end angle (0 to 360)
+ * @param[in] color		The color of the arc
+ *
+ * @api
+ */
+void gdispDrawArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
+	if(end < start) {
+        _draw_arc(x, y, start, 360, radius, color);
+        _draw_arc(x, y, 0, end, radius, color);
+    } else {
+        _draw_arc(x, y, start, end, radius, color);
 	}
-#elif GDISP_NEED_ARC && GDISP_NEED_ASYNC
-	void gdispFillArc(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color) {
-		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_FILLARC);
-		p->fillarc.x = x;
-		p->fillarc.y = y;
-		p->fillarc.radius = radius;
-		p->fillarc.startangle = startangle;
-		p->fillarc.endangle = endangle;
-		p->fillarc.color = color;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
-	}
-#endif
+}
 
 #if (GDISP_NEED_TEXT && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
 	/**
