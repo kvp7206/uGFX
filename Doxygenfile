@@ -25,7 +25,7 @@ DOXYFILE_ENCODING      = UTF-8
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded
 # by quotes) that should identify the project.
 
-PROJECT_NAME           = ChibiOS-LCD-Driver
+PROJECT_NAME           = ChibiOS/GFX
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number.
 # This could be handy for archiving the generated documentation or
@@ -986,7 +986,7 @@ GENERATE_HTMLHELP      = NO
 # can add a path in front of the file if the result should not be
 # written to the html output directory.
 
-CHM_FILE               = ../ChibiOS-LCD-Driver.chm
+CHM_FILE               = ../ChibiOS/GFX.chm
 
 # If the GENERATE_HTMLHELP tag is set to YES, the HHC_LOCATION tag can
 # be used to specify the location (absolute path including file name) of
