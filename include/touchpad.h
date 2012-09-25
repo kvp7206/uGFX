@@ -52,6 +52,10 @@
 /* Type definitions                                                          */
 /*===========================================================================*/
 
+#ifndef TOUCHPAD_STORE_CALIBRATION
+	#define TOUCHPAD_STORE_CALIBRATION FALSE
+#endif
+
 /**
  * @brief	Struct used for calibration
  */
@@ -81,6 +85,11 @@ void tpCalibrate(void);
 
 #if TOUCHPAD_HAS_PRESSURE
 	uint16_t tpReadZ(void);
+#endif
+
+#if TOUCHPAD_STORE_CALIBRATION
+	extern void lld_tpWriteCalibration(struct cal cal);
+	extern struct cal lld_tpReadCalibration(void);
 #endif
 
 #ifdef __cplusplus

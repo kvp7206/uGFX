@@ -143,6 +143,10 @@ void tpInit(const TOUCHPADDriver *tp) {
 	//MUTEX_ENTER
 	tp_lld_init(tp);
 	//MUTEX_EXIT
+
+	#if TOUCHPAD_STORE_CALIBRATION
+		cal = lld_tpReadCalibration();
+	#endif
 }
 
 /**
@@ -222,6 +226,10 @@ void tpCalibrate(void) {
 
     cal.xn = (float)cross[0][0] - cal.xm * (float)points[0][0];
     cal.yn = (float)cross[0][1] - cal.ym * (float)points[0][1];
+
+	#if TOUCHPAD_STORE_CALIBRATION
+		lld_tpWriteCalibration(cal);
+	#endif
 }
 
 #if TOUCHPAD_HAS_IRQ || defined(__DOXYGEN__)
