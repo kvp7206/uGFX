@@ -505,7 +505,7 @@
  * @notapi
  */
 void _draw_arc(coord_t x, coord_t y, uint16_t start, uint16_t end, uint16_t radius, color_t color) {
-    if (start >= 0 && start <= 180) {
+    if(start > 0 && start <= 180) {
         float x_maxI = x + radius*cos(start*M_PI/180);
         float x_minI;
 
