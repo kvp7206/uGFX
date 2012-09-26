@@ -31,6 +31,9 @@
 	#define Set_RD		palSetPad(LCD_CMD_PORT, LCD_RD);
 	#define Clr_RD		palClearPad(LCD_CMD_PORT, LCD_RD);
 
+	extern void lld_lcdWriteGPIO(uint16_t data);
+	extern uint16_t lld_lcdReadGPIO(void);
+
 	static __inline void lld_lcdWriteIndex(uint16_t index)	{
 		Clr_RS; Set_RD;
 		lld_lcdWriteGPIO(index);
