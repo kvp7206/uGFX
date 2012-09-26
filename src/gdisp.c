@@ -43,15 +43,6 @@
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
 
-#ifdef UNUSED
-#elif defined(__GNUC__)
-# define UNUSED(x) UNUSED_ ## x __attribute__((unused))
-#elif defined(__LCLINT__)
-# define UNUSED(x) /*@unused@*/ x
-#else
-# define UNUSED(x) x
-#endif
-
 #if GDISP_NEED_MULTITHREAD
 	#if !CH_USE_MUTEXES
 		#error "GDISP: CH_USE_MUTEXES must be defined in chconf.h because GDISP_NEED_MULTITHREAD is defined"
@@ -94,7 +85,8 @@
 /*===========================================================================*/
 
 #if GDISP_NEED_ASYNC
-	static msg_t GDISPThreadHandler(void *UNUSED(arg)) {
+	static msg_t GDISPThreadHandler(void *arg) {
+		(void)arg;
 		gdisp_lld_msg_t	*pmsg;
 
 		#if CH_USE_REGISTRY

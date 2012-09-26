@@ -131,7 +131,12 @@
 	}
 	static __inline void lld_lcdReadStreamStart(void) {	/* TODO */ }
 	static __inline void lld_lcdReadStreamStop(void) { /* TODO */ }
-	static __inline void lld_lcdReadStream(uint16_t *UNUSED(buffer), size_t UNUSED(size)) { /* TODO */ }
+	static __inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
+		(void)buffer;
+		(void)size;
+
+		/* TODO */
+	}
 
 #elif defined(LCD_USE_FSMC)
 	#define LCD_REG              (*((volatile uint16_t *) 0x60000000)) /* RS = 0 */

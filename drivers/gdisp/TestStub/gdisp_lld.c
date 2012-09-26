@@ -72,7 +72,10 @@ bool_t GDISP_LLD(init)(void) {
  *
  * @notapi
  */
-void GDISP_LLD(drawpixel)(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(color)) {
+void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
+	(void)x;
+	(void)y;
+	(void)color;
 }
 
 /* ---- Optional Routines ---- */
@@ -87,7 +90,10 @@ void GDISP_LLD(drawpixel)(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(c
 	 *
 	 * @notapi
 	 */
-	color_t GDISP_LLD(getpixelcolor)(coord_t UNUSED(x), coord_t UNUSED(y)) {
+	color_t GDISP_LLD(getpixelcolor)(coord_t x, coord_t y) {
+		(void)x;
+		(void)y;
+
 		return 0;
 	}
 #endif
@@ -106,7 +112,13 @@ void GDISP_LLD(drawpixel)(coord_t UNUSED(x), coord_t UNUSED(y), color_t UNUSED(c
 	 *
 	 * @notapi
 	 */
-	void GDISP_LLD(verticalscroll)(coord_t UNUSED(x), coord_t UNUSED(y), coord_t UNUSED(cx), coord_t UNUSED(cy), int UNUSED(lines), color_t UNUSED(bgcolor)) {
+	void GDISP_LLD(verticalscroll)(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
+		(void)x;
+		(void)y;
+		(void)cx;
+		(void)cy;
+		(void)lines;
+		(void)bgcolor;
 	}
 #endif
 

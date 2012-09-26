@@ -33,15 +33,6 @@
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
-#ifdef UNUSED
-#elif defined(__GNUC__)
-# define UNUSED(x) UNUSED_ ## x __attribute__((unused))
-#elif defined(__LCLINT__)
-# define UNUSED(x) /*@unused@*/ x
-#else
-# define UNUSED(x) x
-#endif
-
 #ifndef GDISP_LLD_NO_STRUCT
 	static struct GDISPDriver {
 		coord_t				Width;
@@ -587,7 +578,9 @@
 
 
 #if GDISP_NEED_CONTROL && !GDISP_HARDWARE_CONTROL
-	void GDISP_LLD(control)(unsigned UNUSED(what), void *UNUSED(value)) {
+	void GDISP_LLD(control)(unsigned what, void *value) {
+		(void)what;
+		(void)value;
 		/* Ignore everything */
 	}
 #endif

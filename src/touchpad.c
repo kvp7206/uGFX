@@ -36,15 +36,6 @@
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
 
-#ifdef UNUSED
-#elif defined(__GNUC__)
-# define UNUSED(x) UNUSED_ ## x __attribute__((unused))
-#elif defined(__LCLINT__)
-# define UNUSED(x) /*@unused@*/ x
-#else
-# define UNUSED(x) x
-#endif
-
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
@@ -172,6 +163,7 @@ uint16_t tpReadX(void) {
 		case landscapeInv:
 			return y;
 	}
+
 	return 0;
 }
 	
@@ -198,6 +190,7 @@ uint16_t tpReadY(void) {
 		case landscapeInv:
 			return SCREEN_WIDTH - x;
 	}
+
 	return 0;
 }
 
@@ -232,27 +225,27 @@ void tpCalibrate(void) {
 	#endif
 }
 
+/**
+ * @brief	returns if touchpad is pressed or not
+ *
+ * @return	1 if pressed, 0 otherwise
+ *
+ * @api
+ */
 #if TOUCHPAD_HAS_IRQ || defined(__DOXYGEN__)
-	/**
-	 * @brief	returns if touchpad is pressed or not
-	 *
-	 * @return	1 if pressed, 0 otherwise
-	 *
-	 * @api
-	 */
 	uint8_t tpIRQ(void) {
 		return tp_lld_irq();
 	}
 #endif
 
+/**
+ * @brief	Get the pressure.
+ *
+ * @return	The pressure.
+ *
+ * @api
+ */
 #if TOUCHPAD_HAS_PRESSURE || defined(__DOXYGEN__)
-	/**
-	 * @brief	Get the pressure.
-	 *
-	 * @return	The pressure.
-	 *
-	 * @api
-	 */
 	uint16_t tpReadZ(void) {
 		/* ToDo */
 		return (tp_lld_read_z());

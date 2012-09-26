@@ -42,15 +42,6 @@
 #define TP_CS_HIGH      palSetPad(TP_CS_PORT, TP_CS)
 #define TP_CS_LOW       palClearPad(TP_CS_PORT, TP_CS)
 
-#ifdef UNUSED
-#elif defined(__GNUC__)
-# define UNUSED(x) UNUSED_ ## x __attribute__((unused))
-#elif defined(__LCLINT__)
-# define UNUSED(x) /*@unused@*/ x
-#else
-# define UNUSED(x) x
-#endif
-
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
