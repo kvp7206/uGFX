@@ -21,7 +21,7 @@
 #ifndef SSD1289_H
 #define SSD1289_H
 
-#if LCD_USE_GPIO
+#if defined(LCD_USE_GPIO)
 	#define Set_CS		palSetPad(LCD_CMD_PORT, LCD_CS);
 	#define Clr_CS		palClearPad(LCD_CMD_PORT, LCD_CS);
 	#define Set_RS		palSetPad(LCD_CMD_PORT, LCD_RS);
