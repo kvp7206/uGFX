@@ -4,11 +4,13 @@
 
 current stable: 1.0.0
 
-*** 0.1.0 ***
-FIX: removed gdisp and touchpad prefix of driver directories
+*** 1.1.0 ***
+FIX: 	removed gdisp and touchpad prefix of driver directories
 UPDATE: added SSD1963 driver
 UPDATE: fixed Validation, VMT driver, console and BitBlit
 UPDATE: added clipping support
 UPDATE: addad gdispDrawArc()
 UPDATE: added SSD1963 DMA support
+UPDATE: added touchpad interface for storing calibration values (#define TOUCHPAD_STORE_CALIBRATION)
+FIX:	replaced every  LCD_XXX  macro with  GDISP_XXX
 
