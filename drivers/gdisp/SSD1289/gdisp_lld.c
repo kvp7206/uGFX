@@ -57,7 +57,7 @@
  * @notapi
  */
 bool_t GDISP_LLD(init)(void) {
-	#ifdef LCD_USE_FSMC
+	#ifdef GDISP_USE_FSMC
 		/* FSMC setup. TODO: this only works for STM32F1 */
 		rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
 		int FSMC_Bank = 0;

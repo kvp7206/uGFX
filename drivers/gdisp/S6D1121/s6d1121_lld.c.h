@@ -22,107 +22,107 @@
 #define S6D1121_H
 
 // I/O assignments
-#define LCD_BL_GPIO			GPIOB
-#define LCD_BL_PIN			8
+#define GDISP_BL_GPIO			GPIOB
+#define GDISP_BL_PIN			8
 
-#define LCD_CS_GPIO			GPIOD
-#define LCD_CS_PIN			7
+#define GDISP_CS_GPIO			GPIOD
+#define GDISP_CS_PIN			7
 
-#define LCD_RS_GPIO			GPIOD
-#define LCD_RS_PIN			11
+#define GDISP_RS_GPIO			GPIOD
+#define GDISP_RS_PIN			11
 
-#define LCD_RST_GPIO		GPIOD
-#define LCD_RST_PIN			10
+#define GDISP_RST_GPIO		GPIOD
+#define GDISP_RST_PIN			10
 
-#define LCD_RD_GPIO			GPIOD
-#define LCD_RD_PIN			9
+#define GDISP_RD_GPIO			GPIOD
+#define GDISP_RD_PIN			9
 
-#define LCD_WR_GPIO			GPIOD
-#define LCD_WR_PIN			8
+#define GDISP_WR_GPIO			GPIOD
+#define GDISP_WR_PIN			8
 
-#define LCD_D0_GPIO			GPIOD
-#define LCD_D4_GPIO			GPIOE
+#define GDISP_D0_GPIO			GPIOD
+#define GDISP_D4_GPIO			GPIOE
 
 /* all interfaces use RST via GPIO */
 /* TODO: option to disable RST; assumes RST is tied high */
-#define LCD_RST_LOW		palClearPad(LCD_RST_GPIO, LCD_RST_PIN)
-#define LCD_RST_HIGH	palSetPad(LCD_RST_GPIO, LCD_RST_PIN)
+#define GDISP_RST_LOW		palClearPad(GDISP_RST_GPIO, GDISP_RST_PIN)
+#define GDISP_RST_HIGH	palSetPad(GDISP_RST_GPIO, GDISP_RST_PIN)
 
 #define s6d1121_delay(n) 	halPolledDelay(MS2RTT(n));
 
-#if defined(LCD_USE_GPIO)
+#if defined(GDISP_USE_GPIO)
 
-	#define LCD_CS_LOW		palClearPad(LCD_CS_GPIO, LCD_CS_PIN)
-	#define LCD_CS_HIGH		palSetPad(LCD_CS_GPIO, LCD_CS_PIN)
+	#define GDISP_CS_LOW		palClearPad(GDISP_CS_GPIO, GDISP_CS_PIN)
+	#define GDISP_CS_HIGH		palSetPad(GDISP_CS_GPIO, GDISP_CS_PIN)
 
-	#define LCD_RS_LOW		palClearPad(LCD_RS_GPIO, LCD_RS_PIN)
-	#define LCD_RS_HIGH		palSetPad(LCD_RS_GPIO, LCD_RS_PIN)
+	#define GDISP_RS_LOW		palClearPad(GDISP_RS_GPIO, GDISP_RS_PIN)
+	#define GDISP_RS_HIGH		palSetPad(GDISP_RS_GPIO, GDISP_RS_PIN)
 
-	#define LCD_RD_LOW		palClearPad(LCD_RD_GPIO, LCD_RD_PIN)
-	#define LCD_RD_HIGH		palSetPad(LCD_RD_GPIO, LCD_RD_PIN)
+	#define GDISP_RD_LOW		palClearPad(GDISP_RD_GPIO, GDISP_RD_PIN)
+	#define GDISP_RD_HIGH		palSetPad(GDISP_RD_GPIO, GDISP_RD_PIN)
 
-	#define LCD_WR_LOW		palClearPad(LCD_WR_GPIO, LCD_WR_PIN)
-	#define LCD_WR_HIGH		palSetPad(LCD_WR_GPIO, LCD_WR_PIN)
+	#define GDISP_WR_LOW		palClearPad(GDISP_WR_GPIO, GDISP_WR_PIN)
+	#define GDISP_WR_HIGH		palSetPad(GDISP_WR_GPIO, GDISP_WR_PIN)
 
-	#define LCD_BL_LOW		palClearPad(LCD_BL_GPIO, LCD_BL_PIN)
-	#define LCD_BL_HIGH		palSetPad(LCD_BL_GPIO, LCD_BL_PIN)
+	#define GDISP_BL_LOW		palClearPad(GDISP_BL_GPIO, GDISP_BL_PIN)
+	#define GDISP_BL_HIGH		palSetPad(GDISP_BL_GPIO, GDISP_BL_PIN)
 
 
 	static inline void lld_lcddelay(void)				{ asm volatile ("nop"); asm volatile ("nop"); }
 	static inline void lld_lcdwrite(uint16_t db) {
-		LCD_D4_GPIO->BSRR.W=((~db&0xFFF0)<<16)|(db&0xFFF0);
-		LCD_D0_GPIO->BSRR.W=((~db&0x000F)<<16)|(db&0x000F);
-		LCD_WR_LOW;
+		GDISP_D4_GPIO->BSRR.W=((~db&0xFFF0)<<16)|(db&0xFFF0);
+		GDISP_D0_GPIO->BSRR.W=((~db&0x000F)<<16)|(db&0x000F);
+		GDISP_WR_LOW;
 		lld_lcddelay();
-		LCD_WR_HIGH;
+		GDISP_WR_HIGH;
 	}
 	static __inline uint16_t lld_lcdReadData(void) {
 		uint16_t value=0;
 
-		LCD_RS_HIGH; LCD_WR_HIGH; LCD_RD_LOW;
+		GDISP_RS_HIGH; GDISP_WR_HIGH; GDISP_RD_LOW;
 		#ifndef STM32F4XX
 			// change pin mode to digital input
-			LCD_DATA_PORT->CRH = 0x47444444;
-			LCD_DATA_PORT->CRL = 0x47444444;
+			GDISP_DATA_PORT->CRH = 0x47444444;
+			GDISP_DATA_PORT->CRL = 0x47444444;
 		#endif
 		#ifndef STM32F4XX
 			// change pin mode back to digital output
-			LCD_DATA_PORT->CRH = 0x33333333;
-			LCD_DATA_PORT->CRL = 0x33333333;
+			GDISP_DATA_PORT->CRH = 0x33333333;
+			GDISP_DATA_PORT->CRL = 0x33333333;
 		#endif
-	    LCD_RD_HIGH;
+	    GDISP_RD_HIGH;
 		return value;
 	}
 	static __inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
 	    uint16_t lcdRAM;
 
-	    LCD_CS_LOW; LCD_RS_LOW;
+	    GDISP_CS_LOW; GDISP_RS_LOW;
 	    lld_lcdwrite(lcdReg);
-	    LCD_RS_HIGH;
+	    GDISP_RS_HIGH;
 	    lcdRAM = lld_lcdReadData();
-	    LCD_CS_HIGH;
+	    GDISP_CS_HIGH;
 	    return lcdRAM;
 	}
 	static void lld_lcdWriteIndex(uint16_t lcdReg) {
-		LCD_RS_LOW;
+		GDISP_RS_LOW;
 		lld_lcdwrite(lcdReg);
-		LCD_RS_HIGH;
+		GDISP_RS_HIGH;
 	}
 	static void lld_lcdWriteData(uint16_t lcdData) {
 		lld_lcdwrite(lcdData);
 	}
 	static void lld_lcdWriteReg(uint16_t lcdReg, uint16_t lcdRegValue) {
-		LCD_CS_LOW;
+		GDISP_CS_LOW;
 		lld_lcdWriteIndex(lcdReg);
 		lld_lcdWriteData(lcdRegValue);
-		LCD_CS_HIGH;
+		GDISP_CS_HIGH;
 	}
 	static __inline void lld_lcdWriteStreamStart(void) {
-		LCD_CS_LOW;
+		GDISP_CS_LOW;
 		lld_lcdWriteIndex(0x0022);
 	}
 	static __inline void lld_lcdWriteStreamStop(void) {
-		LCD_CS_HIGH;
+		GDISP_CS_HIGH;
 	}
 	static __inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
 		uint16_t i;
@@ -138,43 +138,43 @@
 		/* TODO */
 	}
 
-#elif defined(LCD_USE_FSMC)
-	#define LCD_REG              (*((volatile uint16_t *) 0x60000000)) /* RS = 0 */
-	#define LCD_RAM              (*((volatile uint16_t *) 0x60020000)) /* RS = 1 */
+#elif defined(GDISP_USE_FSMC)
+	#define GDISP_REG              (*((volatile uint16_t *) 0x60000000)) /* RS = 0 */
+	#define GDISP_RAM              (*((volatile uint16_t *) 0x60020000)) /* RS = 1 */
 
-	static __inline void lld_lcdWriteIndex(uint16_t index)			{ LCD_REG = index; }
-	static __inline void lld_lcdWriteData(uint16_t data)			{ LCD_RAM = data; }
+	static __inline void lld_lcdWriteIndex(uint16_t index)			{ GDISP_REG = index; }
+	static __inline void lld_lcdWriteData(uint16_t data)			{ GDISP_RAM = data; }
 	static __inline void lld_lcdWriteReg(uint16_t lcdReg,uint16_t lcdRegValue) {
-		LCD_REG = lcdReg;
-		LCD_RAM = lcdRegValue;
+		GDISP_REG = lcdReg;
+		GDISP_RAM = lcdRegValue;
 	}
-	static __inline uint16_t lld_lcdReadData(void)					{ return (LCD_RAM); }
+	static __inline uint16_t lld_lcdReadData(void)					{ return (GDISP_RAM); }
 	static __inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
-		LCD_REG = lcdReg;
-		return LCD_RAM;
+		GDISP_REG = lcdReg;
+		return GDISP_RAM;
 	}
-	static __inline void lld_lcdWriteStreamStart(void)				{ LCD_REG = 0x0022; }
+	static __inline void lld_lcdWriteStreamStart(void)				{ GDISP_REG = 0x0022; }
 	static __inline void lld_lcdWriteStreamStop(void)				{}
 	static __inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
 		uint16_t i;
-		for(i = 0; i < size; i++) LCD_RAM = buffer[i];
+		for(i = 0; i < size; i++) GDISP_RAM = buffer[i];
 	}
-	static __inline void lld_lcdReadStreamStart(void)				{ LCD_REG = 0x0022; }
+	static __inline void lld_lcdReadStreamStart(void)				{ GDISP_REG = 0x0022; }
 	static __inline void lld_lcdReadStreamStop(void)				{}
 	static __inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
 		uint16_t i;
 		volatile uint16_t dummy;
 
 		/* throw away first value read */
-		dummy = LCD_RAM;
-		for(i = 0; i < size; i++) buffer[i] = LCD_RAM;
+		dummy = GDISP_RAM;
+		for(i = 0; i < size; i++) buffer[i] = GDISP_RAM;
 	}
 
-#elif defined(LCD_USE_SPI)
-	#error "gdispS6d1121: LCD_USE_SPI not implemented yet"
+#elif defined(GDISP_USE_SPI)
+	#error "gdispS6d1121: GDISP_USE_SPI not implemented yet"
 
 #else
-	#error "gdispS6d1121: No known LCD_USE_XXX has been defined"
+	#error "gdispS6d1121: No known GDISP_USE_XXX has been defined"
 #endif
 
 static void lld_lcdSetCursor(coord_t x, coord_t y) {

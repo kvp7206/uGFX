@@ -40,12 +40,12 @@
 /*===========================================================================*/
 
 /* Controller definitions */
-#if defined(LCD_USE_GE8)
+#if defined(GDISP_USE_GE8)
 	#include "GE8.h"
-#elif defined(LCD_USE_GE12)
+#elif defined(GDISP_USE_GE12)
 	#include "GE12.h"
 #else
-	#error "gdispNokia6610: Either LCD_USE_GE8 or LCD_USE_GE12 must be defined depending on your controller"
+	#error "gdispNokia6610: Either GDISP_USE_GE8 or GDISP_USE_GE12 must be defined depending on your controller"
 #endif
 
 #define SCREEN_HEIGHT		132
@@ -109,7 +109,7 @@ bool_t GDISP_LLD(init)(void) {
 	GDISP_LLD(setpin_reset)(FALSE);
 	chThdSleepMilliseconds(20);
 
-	#if defined(LCD_USE_GE8)
+	#if defined(GDISP_USE_GE8)
 		#if 1
 			GDISP_LLD(write_cmd)(DISCTL);		// Display control
 			GDISP_LLD(write_data)(0x00);					// P1: 0x00 = 2 divisions, switching period=8 (default)
@@ -173,7 +173,7 @@ bool_t GDISP_LLD(init)(void) {
 			GDISP_LLD(write_cmd)(DISON);			// Turn on the display
 		#endif
 
-	#elif defined(LCD_USE_GE12)
+	#elif defined(GDISP_USE_GE12)
 		#if 1
 			GDISP_LLD(write_cmd)(SLEEPOUT);		// Sleep out
 			GDISP_LLD(write_cmd)(INVON);			// Inversion on: seems to be required for this controller
@@ -575,11 +575,11 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 */
 		case GDISP_CONTROL_CONTRAST:
 			if ((unsigned)value > 100) value = (void *)100;
-#if defined(LCD_USE_GE8)
+#if defined(GDISP_USE_GE8)
 			GDISP_LLD(write_cmd)(VOLCTR);
 			GDISP_LLD(write_data)((unsigned)value);
 			GDISP_LLD(write_data)(3);
-#elif defined(LCD_USE_GE12)
+#elif defined(GDISP_USE_GE12)
 			GDISP_LLD(write_cmd)(CONTRAST);
 			GDISP_LLD(write_data)((unsigned)value);
 #endif

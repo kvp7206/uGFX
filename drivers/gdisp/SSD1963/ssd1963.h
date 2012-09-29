@@ -31,21 +31,21 @@
 
 #include "gdisp_lld_panel.h"
 
-#if defined(LCD_USE_GPIO)
-	#define Set_CS		palSetPad(LCD_CMD_PORT, LCD_CS);
-	#define Clr_CS		palClearPad(LCD_CMD_PORT, LCD_CS);
-	#define Set_RS		palSetPad(LCD_CMD_PORT, LCD_RS);
-	#define Clr_RS		palClearPad(LCD_CMD_PORT, LCD_RS);
-	#define Set_WR		palSetPad(LCD_CMD_PORT, LCD_WR);
-	#define Clr_WR		palClearPad(LCD_CMD_PORT, LCD_WR);
-	#define Set_RD		palSetPad(LCD_CMD_PORT, LCD_RD);
-	#define Clr_RD		palClearPad(LCD_CMD_PORT, LCD_RD);
+#if defined(GDISP_USE_GPIO)
+	#define Set_CS		palSetPad(GDISP_CMD_PORT, GDISP_CS);
+	#define Clr_CS		palClearPad(GDISP_CMD_PORT, GDISP_CS);
+	#define Set_RS		palSetPad(GDISP_CMD_PORT, GDISP_RS);
+	#define Clr_RS		palClearPad(GDISP_CMD_PORT, GDISP_RS);
+	#define Set_WR		palSetPad(GDISP_CMD_PORT, GDISP_WR);
+	#define Clr_WR		palClearPad(GDISP_CMD_PORT, GDISP_WR);
+	#define Set_RD		palSetPad(GDISP_CMD_PORT, GDISP_RD);
+	#define Clr_RD		palClearPad(GDISP_CMD_PORT, GDISP_RD);
 #endif
 
-#if defined(LCD_USE_FSMC)
+#if defined(GDISP_USE_FSMC)
 	/* Using FSMC A16 as RS */
-	#define LCD_REG              (*((volatile uint16_t *) 0x60000000)) /* RS = 0 */
-	#define LCD_RAM              (*((volatile uint16_t *) 0x60020000)) /* RS = 1 */
+	#define GDISP_REG              (*((volatile uint16_t *) 0x60000000)) /* RS = 0 */
+	#define GDISP_RAM              (*((volatile uint16_t *) 0x60020000)) /* RS = 1 */
 #endif
 
 #define mHIGH(x) (x >> 8)
@@ -86,8 +86,8 @@
 #define SSD1963_SET_TEAR_SCANLINE		0x0044
 #define SSD1963_GET_SCANLINE			0x0045
 #define SSD1963_READ_DDB				0x00A1
-#define SSD1963_SET_LCD_MODE			0x00B0
-#define SSD1963_GET_LCD_MODE			0x00B1
+#define SSD1963_SET_GDISP_MODE			0x00B0
+#define SSD1963_GET_GDISP_MODE			0x00B1
 #define SSD1963_SET_HORI_PERIOD			0x00B4
 #define SSD1963_GET_HORI_PERIOD			0x00B5
 #define SSD1963_SET_VERT_PERIOD			0x00B6
@@ -100,14 +100,14 @@
 #define SSD1963_GET_POST_PROC			0x00BD
 #define SSD1963_SET_PWM_CONF			0x00BE
 #define SSD1963_GET_PWM_CONF			0x00BF
-#define SSD1963_GET_LCD_GEN0			0x00C0
-#define SSD1963_SET_LCD_GEN0			0x00C1
-#define SSD1963_GET_LCD_GEN1			0x00C2
-#define SSD1963_SET_LCD_GEN1			0x00C3
-#define SSD1963_GET_LCD_GEN2			0x00C4
-#define SSD1963_SET_LCD_GEN2			0x00C5
-#define SSD1963_GET_LCD_GEN3			0x00C6
-#define SSD1963_SET_LCD_GEN3			0x00C7
+#define SSD1963_GET_GDISP_GEN0			0x00C0
+#define SSD1963_SET_GDISP_GEN0			0x00C1
+#define SSD1963_GET_GDISP_GEN1			0x00C2
+#define SSD1963_SET_GDISP_GEN1			0x00C3
+#define SSD1963_GET_GDISP_GEN2			0x00C4
+#define SSD1963_SET_GDISP_GEN2			0x00C5
+#define SSD1963_GET_GDISP_GEN3			0x00C6
+#define SSD1963_SET_GDISP_GEN3			0x00C7
 #define SSD1963_SET_GPIO0_ROP			0x00C8
 #define SSD1963_GET_GPIO0_ROP			0x00C9
 #define SSD1963_SET_GPIO1_ROP			0x00CA

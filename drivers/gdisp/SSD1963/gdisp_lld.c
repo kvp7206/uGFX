@@ -56,27 +56,27 @@
 #include "ssd1963.h"
 
 
-#if defined(LCD_USE_FSMC)
+#if defined(GDISP_USE_FSMC)
 __inline void GDISP_LLD(writeindex)(uint8_t cmd) {
-  LCD_REG = cmd;
+  GDISP_REG = cmd;
 }
 
 __inline void GDISP_LLD(writereg)(uint16_t lcdReg,uint16_t lcdRegValue) {
-	LCD_REG = lcdReg;
-	LCD_RAM = lcdRegValue;
+	GDISP_REG = lcdReg;
+	GDISP_RAM = lcdRegValue;
 }
 
 __inline void GDISP_LLD(writedata)(uint16_t data) {
-	LCD_RAM = data;
+	GDISP_RAM = data;
 }
 
 __inline uint16_t GDISP_LLD(readdata)(void) {
-	return (LCD_RAM);
+	return (GDISP_RAM);
 }
 
 __inline uint8_t GDISP_LLD(readreg)(uint8_t lcdReg) {
-	LCD_REG = lcdReg;
-	return (LCD_RAM);
+	GDISP_REG = lcdReg;
+	return (GDISP_RAM);
 }
 
 __inline void GDISP_LLD(writestreamstart)(void) {
@@ -90,50 +90,50 @@ __inline void GDISP_LLD(readstreamstart)(void) {
 __inline void GDISP_LLD(writestream)(uint16_t *buffer, uint16_t size) {
 	uint16_t i;
 	for(i = 0; i < size; i++)
-		LCD_RAM = buffer[i];
+		GDISP_RAM = buffer[i];
 }
 
 __inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
 	uint16_t i;
 
 	for(i = 0; i < size; i++) {
-		buffer[i] = LCD_RAM;
+		buffer[i] = GDISP_RAM;
 	}
 }
 
-#elif defined(LCD_USE_GPIO)
+#elif defined(GDISP_USE_GPIO)
 
 __inline void GDISP_LLD(writeindex)(uint8_t cmd) {
 	Set_CS; Set_RS; Set_WR; Clr_RD;
-	palWritePort(LCD_DATA_PORT, cmd);
+	palWritePort(GDISP_DATA_PORT, cmd);
 	Clr_CS;
 }
 
 __inline void GDISP_LLD(writereg)(uint16_t lcdReg,uint16_t lcdRegValue) {
 	Set_CS; Set_RS; Set_WR; Clr_RD;
-	palWritePort(LCD_DATA_PORT, lcdReg);
+	palWritePort(GDISP_DATA_PORT, lcdReg);
 	Clr_RS;
-	palWritePort(LCD_DATA_PORT, lcdRegValue);
+	palWritePort(GDISP_DATA_PORT, lcdRegValue);
 	Clr_CS;
 }
 __inline void GDISP_LLD(writedata)(uint16_t data) {
 	Set_CS; Clr_RS; Set_WR; Clr_RD;
-	palWritePort(LCD_DATA_PORT, data);
+	palWritePort(GDISP_DATA_PORT, data);
 	Clr_CS;
 }
 
 __inline uint16_t GDISP_LLD(readdata)(void) {
 	Set_CS; Clr_RS; Clr_WR; Set_RD;
-	uint16_t data = palReadPort(LCD_DATA_PORT); 
+	uint16_t data = palReadPort(GDISP_DATA_PORT); 
 	Clr_CS;
 	return data;
 }
 
 __inline uint8_t GDISP_LLD(readreg)(uint8_t lcdReg) {
 	Set_CS; Set_RS; Clr_WR; Set_RD;
-	palWritePort(LCD_DATA_PORT, lcdReg);
+	palWritePort(GDISP_DATA_PORT, lcdReg);
 	Clr_RS;
-	uint16_t data = palReadPort(LCD_DATA_PORT);
+	uint16_t data = palReadPort(GDISP_DATA_PORT);
 	Clr_CS;
 	return data;
 }
@@ -151,7 +151,7 @@ __inline void GDISP_LLD(writestream)(uint16_t *buffer, uint16_t size) {
 	Set_CS; Clr_RS; Set_WR; Clr_RD;
 	for(i = 0; i < size; i++) {
 		Set_WR;
-		palWritePort(LCD_DATA_PORT, buffer[i]);
+		palWritePort(GDISP_DATA_PORT, buffer[i]);
 		Clr_WR;
 	}
 	Clr_CS;
@@ -162,7 +162,7 @@ __inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
 	Set_CS; Clr_RS; Clr_WR; Set_RD;
 	for(i = 0; i < size; i++) {
 		Set_RD;
-		buffer[i] = palReadPort(LCD_DATA_PORT);
+		buffer[i] = palReadPort(GDISP_DATA_PORT);
 		Clr_RD;
 	}
 }
@@ -183,23 +183,23 @@ __inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
 bool_t GDISP_LLD(init)(void) {
 	/* Initialise the display */
 
-#if defined(LCD_USE_FSMC)
+#if defined(GDISP_USE_FSMC)
 	
 	#if defined(STM32F1XX) || defined(STM32F3XX)
 		/* FSMC setup for F1/F3 */
 		rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
 	
-		#if defined(LCD_USE_DMA) && defined(LCD_DMA_STREAM)
+		#if defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
 			#error "DMA not implemented for F1/F3 Devices"
 		#endif
 	#elif defined(STM32F4XX) || defined(STM32F2XX)
 		/* STM32F2-F4 FSMC init */
 		rccEnableAHB3(RCC_AHB3ENR_FSMCEN, 0);
 	
-		#if defined(LCD_USE_DMA) && defined(LCD_DMA_STREAM)
-			if (dmaStreamAllocate(LCD_DMA_STREAM, 0, NULL, NULL)) chSysHalt();
-			dmaStreamSetMemory0(LCD_DMA_STREAM, &LCD_RAM);
-			dmaStreamSetMode(LCD_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);  
+		#if defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
+			if (dmaStreamAllocate(GDISP_DMA_STREAM, 0, NULL, NULL)) chSysHalt();
+			dmaStreamSetMemory0(GDISP_DMA_STREAM, &GDISP_RAM);
+			dmaStreamSetMode(GDISP_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);  
 		#endif
 	#else
 		#error "FSMC not implemented for this device"
@@ -225,14 +225,14 @@ bool_t GDISP_LLD(init)(void) {
 	 * This is actually not needed as already set by default after reset */
 	FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
 	
-#elif defined(LCD_USE_GPIO)
-	IOBus busCMD = {LCD_CMD_PORT, (1 << LCD_CS) | (1 << LCD_RS) | (1 << LCD_WR) | (1 << LCD_RD), 0};
-	IOBus busDATA = {LCD_CMD_PORT, 0xFFFFF, 0};
+#elif defined(GDISP_USE_GPIO)
+	IOBus busCMD = {GDISP_CMD_PORT, (1 << GDISP_CS) | (1 << GDISP_RS) | (1 << GDISP_WR) | (1 << GDISP_RD), 0};
+	IOBus busDATA = {GDISP_CMD_PORT, 0xFFFFF, 0};
 	palSetBusMode(&busCMD, PAL_MODE_OUTPUT_PUSHPULL);
 	palSetBusMode(&busDATA, PAL_MODE_OUTPUT_PUSHPULL);
 	
 #else
-	#error "Please define LCD_USE_FSMC or LCD_USE_GPIO"
+	#error "Please define GDISP_USE_FSMC or GDISP_USE_GPIO"
 #endif	
 	GDISP_LLD(writeindex)(SSD1963_SOFT_RESET);	
 	chThdSleepMicroseconds(100);
@@ -255,7 +255,7 @@ bool_t GDISP_LLD(init)(void) {
 	chThdSleepMicroseconds(100);
 
 	/* Screen size */
-	GDISP_LLD(writeindex)(SSD1963_SET_LCD_MODE);
+	GDISP_LLD(writeindex)(SSD1963_SET_GDISP_MODE);
 //	GDISP_LLD(writedata)(0x0000);
 	GDISP_LLD(writedata)(0b00011000); //Enabled dithering
 	GDISP_LLD(writedata)(0x0000);
@@ -270,9 +270,9 @@ bool_t GDISP_LLD(init)(void) {
 
 	/* LCD Clock specs */
 	GDISP_LLD(writeindex)(SSD1963_SET_LSHIFT_FREQ);
-	GDISP_LLD(writedata)((LCD_FPR >> 16) & 0xFF);
-	GDISP_LLD(writedata)((LCD_FPR >> 8) & 0xFF);
-	GDISP_LLD(writedata)(LCD_FPR & 0xFF);
+	GDISP_LLD(writedata)((GDISP_FPR >> 16) & 0xFF);
+	GDISP_LLD(writedata)((GDISP_FPR >> 8) & 0xFF);
+	GDISP_LLD(writedata)(GDISP_FPR & 0xFF);
 
 	GDISP_LLD(writeindex)(SSD1963_SET_HORI_PERIOD);
 	GDISP_LLD(writedata)(mHIGH(SCREEN_HSYNC_PERIOD));
@@ -299,7 +299,7 @@ bool_t GDISP_LLD(init)(void) {
 
 	/* Turn on */
 	GDISP_LLD(writeindex)(SSD1963_SET_DISPLAY_ON);
-	#if defined(LCD_USE_FSMC)
+	#if defined(GDISP_USE_FSMC)
 		/* FSMC delay reduced as the controller now runs at full speed */
 		FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_0 | FSMC_BTR1_DATAST_2 | FSMC_BTR1_BUSTURN_0 ;
 		FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
@@ -390,23 +390,23 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		GDISP_LLD(setwindow)(x, y, x+cx-1, y+cy-1);
 		GDISP_LLD(writestreamstart)();
 
-		#if defined(LCD_USE_FSMC) && defined(LCD_USE_DMA) && defined(LCD_DMA_STREAM)
+		#if defined(GDISP_USE_FSMC) && defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
 			uint8_t i;
-			dmaStreamSetPeripheral(LCD_DMA_STREAM, &color);
-			dmaStreamSetMode(LCD_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);  
+			dmaStreamSetPeripheral(GDISP_DMA_STREAM, &color);
+			dmaStreamSetMode(GDISP_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);  
 			for (i = area/65535; i; i--) {
-				dmaStreamSetTransactionSize(LCD_DMA_STREAM, 65535);
-				dmaStreamEnable(LCD_DMA_STREAM);
-				dmaWaitCompletion(LCD_DMA_STREAM);
+				dmaStreamSetTransactionSize(GDISP_DMA_STREAM, 65535);
+				dmaStreamEnable(GDISP_DMA_STREAM);
+				dmaWaitCompletion(GDISP_DMA_STREAM);
 			}
-			dmaStreamSetTransactionSize(LCD_DMA_STREAM, area%65535);
-			dmaStreamEnable(LCD_DMA_STREAM);
-			dmaWaitCompletion(LCD_DMA_STREAM);
+			dmaStreamSetTransactionSize(GDISP_DMA_STREAM, area%65535);
+			dmaStreamEnable(GDISP_DMA_STREAM);
+			dmaWaitCompletion(GDISP_DMA_STREAM);
 		#else
 			uint32_t index;
 			for(index = 0; index < area; index++)
 				GDISP_LLD(writedata)(color);
-		#endif  //#ifdef LCD_USE_DMA
+		#endif  //#ifdef GDISP_USE_DMA
 }
 #endif
 
@@ -439,19 +439,19 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 
 		buffer += srcx + srcy * srccx;
       
-		#if defined(LCD_USE_FSMC) && defined(LCD_USE_DMA) && defined(LCD_DMA_STREAM)
+		#if defined(GDISP_USE_FSMC) && defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
 			uint32_t area = cx*cy;
 			uint8_t i;
-			dmaStreamSetPeripheral(LCD_DMA_STREAM, buffer);
-			dmaStreamSetMode(LCD_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PINC | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);  
+			dmaStreamSetPeripheral(GDISP_DMA_STREAM, buffer);
+			dmaStreamSetMode(GDISP_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PINC | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);  
 			for (i = area/65535; i; i--) {
-				dmaStreamSetTransactionSize(LCD_DMA_STREAM, 65535);
-				dmaStreamEnable(LCD_DMA_STREAM);
-				dmaWaitCompletion(LCD_DMA_STREAM);
+				dmaStreamSetTransactionSize(GDISP_DMA_STREAM, 65535);
+				dmaStreamEnable(GDISP_DMA_STREAM);
+				dmaWaitCompletion(GDISP_DMA_STREAM);
 			} 
-			dmaStreamSetTransactionSize(LCD_DMA_STREAM, area%65535);
-			dmaStreamEnable(LCD_DMA_STREAM);
-			dmaWaitCompletion(LCD_DMA_STREAM);
+			dmaStreamSetTransactionSize(GDISP_DMA_STREAM, area%65535);
+			dmaStreamEnable(GDISP_DMA_STREAM);
+			dmaWaitCompletion(GDISP_DMA_STREAM);
 		#else
 			coord_t endx, endy;
 			unsigned lg;
@@ -461,7 +461,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			for(; y < endy; y++, buffer += lg)
 				for(x=srcx; x < endx; x++)
 					GDISP_LLD(writedata)(*buffer++);
-		#endif  //#ifdef LCD_USE_DMA
+		#endif  //#ifdef GDISP_USE_DMA
 	}
 #endif
 

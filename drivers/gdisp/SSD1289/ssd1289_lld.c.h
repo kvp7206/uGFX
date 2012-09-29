@@ -21,15 +21,15 @@
 #ifndef SSD1289_H
 #define SSD1289_H
 
-#if defined(LCD_USE_GPIO)
-	#define Set_CS		palSetPad(LCD_CMD_PORT, LCD_CS);
-	#define Clr_CS		palClearPad(LCD_CMD_PORT, LCD_CS);
-	#define Set_RS		palSetPad(LCD_CMD_PORT, LCD_RS);
-	#define Clr_RS		palClearPad(LCD_CMD_PORT, LCD_RS);
-	#define Set_WR		palSetPad(LCD_CMD_PORT, LCD_WR);
-	#define Clr_WR		palClearPad(LCD_CMD_PORT, LCD_WR);
-	#define Set_RD		palSetPad(LCD_CMD_PORT, LCD_RD);
-	#define Clr_RD		palClearPad(LCD_CMD_PORT, LCD_RD);
+#if defined(GDISP_USE_GPIO)
+	#define Set_CS		palSetPad(GDISP_CMD_PORT, GDISP_CS);
+	#define Clr_CS		palClearPad(GDISP_CMD_PORT, GDISP_CS);
+	#define Set_RS		palSetPad(GDISP_CMD_PORT, GDISP_RS);
+	#define Clr_RS		palClearPad(GDISP_CMD_PORT, GDISP_RS);
+	#define Set_WR		palSetPad(GDISP_CMD_PORT, GDISP_WR);
+	#define Clr_WR		palClearPad(GDISP_CMD_PORT, GDISP_WR);
+	#define Set_RD		palSetPad(GDISP_CMD_PORT, GDISP_RD);
+	#define Clr_RD		palClearPad(GDISP_CMD_PORT, GDISP_RD);
 
 	extern void lld_lcdWriteGPIO(uint16_t data);
 	extern uint16_t lld_lcdReadGPIO(void);
@@ -103,7 +103,7 @@
 		(void)dummy;
 	}
 
-#elif defined(LCD_USE_FSMC)
+#elif defined(GDISP_USE_FSMC)
 	/* LCD Registers */
 	#define R0             0x00
 	#define R1             0x01
@@ -214,45 +214,45 @@
 	#define R193           0xC1
 	#define R229           0xE5
 
-	#define LCD_REG              (*((volatile uint16_t *) 0x60000000)) /* RS = 0 */
-	#define LCD_RAM              (*((volatile uint16_t *) 0x60020000)) /* RS = 1 */
+	#define GDISP_REG              (*((volatile uint16_t *) 0x60000000)) /* RS = 0 */
+	#define GDISP_RAM              (*((volatile uint16_t *) 0x60020000)) /* RS = 1 */
 
-	static __inline void lld_lcdWriteIndex(uint16_t index)		{ LCD_REG = index; }
-	static __inline void lld_lcdWriteData(uint16_t data)		{ LCD_RAM = data; }
+	static __inline void lld_lcdWriteIndex(uint16_t index)		{ GDISP_REG = index; }
+	static __inline void lld_lcdWriteData(uint16_t data)		{ GDISP_RAM = data; }
 	static __inline void lld_lcdWriteReg(uint16_t lcdReg,uint16_t lcdRegValue) {
-		LCD_REG = lcdReg;
-		LCD_RAM = lcdRegValue;
+		GDISP_REG = lcdReg;
+		GDISP_RAM = lcdRegValue;
 	}
-	static __inline uint16_t lld_lcdReadData(void)				{ return (LCD_RAM); }
+	static __inline uint16_t lld_lcdReadData(void)				{ return (GDISP_RAM); }
 	static __inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
 		volatile uint16_t dummy;
 
-		LCD_REG = lcdReg;
-		dummy = LCD_RAM;
-		return (LCD_RAM);
+		GDISP_REG = lcdReg;
+		dummy = GDISP_RAM;
+		return (GDISP_RAM);
 	}
-	static __inline void lld_lcdWriteStreamStart(void)			{ LCD_REG = 0x0022; }
+	static __inline void lld_lcdWriteStreamStart(void)			{ GDISP_REG = 0x0022; }
 	static __inline void lld_lcdWriteStreamStop(void)			{}
 	static __inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
 		uint16_t i;
 
-		for(i = 0; i < size; i++) LCD_RAM = buffer[i];
+		for(i = 0; i < size; i++) GDISP_RAM = buffer[i];
 	}
-	static __inline void lld_lcdReadStreamStart(void)			{ LCD_REG = 0x0022; }
+	static __inline void lld_lcdReadStreamStart(void)			{ GDISP_REG = 0x0022; }
 	static __inline void lld_lcdReadStreamStop(void)			{}
 	static __inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
 		uint16_t i;
 		volatile uint16_t dummy;
 
-		dummy = LCD_RAM; /* throw away first value read */
-		for(i = 0; i < size; i++) buffer[i] = LCD_RAM;
+		dummy = GDISP_RAM; /* throw away first value read */
+		for(i = 0; i < size; i++) buffer[i] = GDISP_RAM;
 	}
 
-#elif defined(LCD_USE_SPI)
-	#error "gdispSsd1289: LCD_USE_SPI not implemented yet"
+#elif defined(GDISP_USE_SPI)
+	#error "gdispSsd1289: GDISP_USE_SPI not implemented yet"
 
 #else
-	#error "gdispSsd1289: No known LCD_USE_XXX has been defined"
+	#error "gdispSsd1289: No known GDISP_USE_XXX has been defined"
 #endif
 
 static __inline void lld_lcdDelay(uint16_t us) {
