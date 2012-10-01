@@ -2,7 +2,10 @@
 *** Releases                                                              ***
 *****************************************************************************
 
-current stable: 1.0
+current stable: 1.1
+
+*** changer after 1.1 ***
+
 
 *** changes after 1.0 ***
 FIX: 	removed gdisp and touchpad prefix of driver directories
