@@ -2,12 +2,17 @@ This is a tree of the toplevel directory of the GLCD library.
 The maintainer is supposed to keep it up to date at any new release.
 
 ├── demos
+│   ├── console
+│   │   └── main.c
 │   ├── lcd
+│   │   └── main.c
+│   ├── notepad
 │   │   └── main.c
 │   ├── readme.txt
 │   └── touchpad
 │       └── main.c
 ├── docs
+│   ├── console.txt
 │   ├── contributors.txt
 │   ├── files.txt
 │   ├── readme.txt
@@ -16,7 +21,7 @@ The maintainer is supposed to keep it up to date at any new release.
 ├── Doxygenfile
 ├── drivers
 │   ├── gdisp
-│   │   ├── gdispNokia6610
+│   │   ├── Nokia6610
 │   │   │   ├── gdisp_lld_board_example.h
 │   │   │   ├── gdisp_lld_board_olimexsam7ex256.h
 │   │   │   ├── gdisp_lld.c
@@ -25,24 +30,31 @@ The maintainer is supposed to keep it up to date at any new release.
 │   │   │   ├── GE12.h
 │   │   │   ├── GE8.h
 │   │   │   └── readme.txt
-│   │   ├── gdispS6d1121
+│   │   ├── S6D1121
 │   │   │   ├── gdisp_lld.c
 │   │   │   ├── gdisp_lld_config.h
 │   │   │   ├── gdisp_lld.mk
 │   │   │   ├── readme.txt
 │   │   │   └── s6d1121_lld.c.h
-│   │   ├── gdispSsd1289
+│   │   ├── SSD1289
 │   │   │   ├── gdisp_lld.c
 │   │   │   ├── gdisp_lld_config.h
 │   │   │   ├── gdisp_lld.mk
 │   │   │   ├── readme.txt
 │   │   │   └── ssd1289_lld.c.h
-│   │   ├── gdispTestStub
+│   │   ├── SSD1963
+│   │   │   ├── gdisp_lld.c
+│   │   │   ├── gdisp_lld_config.h
+│   │   │   ├── gdisp_lld.mk
+│   │   │   ├── gdisp_lld_panel.h
+│   │   │   ├── readme.txt
+│   │   │   └── ssd1963.h
+│   │   ├── TestStub
 │   │   │   ├── gdisp_lld.c
 │   │   │   ├── gdisp_lld_config.h
 │   │   │   ├── gdisp_lld.mk
 │   │   │   └── readme.txt
-│   │   └── gdispVMT
+│   │   └── VMT
 │   │       ├── gdisp_lld.c
 │   │       ├── gdisp_lld_config.h
 │   │       ├── gdisp_lld_driver1.c
@@ -50,12 +62,12 @@ The maintainer is supposed to keep it up to date at any new release.
 │   │       ├── gdisp_lld.mk
 │   │       └── readme.txt
 │   └── touchpad
-│       ├── touchpadADS7843
+│       ├── ADS7843
 │       │   ├── readme.txt
 │       │   ├── touchpad_lld.c
 │       │   ├── touchpad_lld_config.h
 │       │   └── touchpad_lld.mk
-│       └── touchpadXPT2046
+│       └── XPT2046
 │           ├── readme.txt
 │           ├── touchpad_lld.c
 │           ├── touchpad_lld_config.h
@@ -67,7 +79,6 @@ The maintainer is supposed to keep it up to date at any new release.
 │   ├── gdisp.h
 │   ├── gdisp_lld.h
 │   ├── gdisp_lld_msgs.h
-│   ├── glcd.h
 │   ├── touchpad.h
 │   └── touchpad_lld.h
 ├── lcd.mk
@@ -102,5 +113,5 @@ The maintainer is supposed to keep it up to date at any new release.
 └── tools
     └── readme.txt
 
-23 directories, 77 files
+26 directories, 85 files
 
