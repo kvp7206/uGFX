@@ -2,9 +2,9 @@
 *** Releases                                                              ***
 *****************************************************************************
 
-current stable: 1.0.0
+current stable: 1.0
 
-*** 1.1.0 ***
+*** changes after 1.0 ***
 FIX: 	removed gdisp and touchpad prefix of driver directories
 UPDATE: added SSD1963 driver
 UPDATE: fixed Validation, VMT driver, console and BitBlit
