@@ -157,11 +157,11 @@ uint16_t tpReadX(void) {
 		case portrait:
 			return x;
 		case landscape:
-			return SCREEN_HEIGHT - y;
-		case portraitInv:
-			return SCREEN_WIDTH - x;
-		case landscapeInv:
 			return y;
+		case portraitInv:
+			return SCREEN_WIDTH - x - 1;
+		case landscapeInv:
+			return SCREEN_HEIGHT - y - 1;
 	}
 
 	return 0;
@@ -184,11 +184,11 @@ uint16_t tpReadY(void) {
 		case portrait:
 			return y;
 		case landscape:
-			return x;
+			return SCREEN_WIDTH - x - 1;
 		case portraitInv:
-			return SCREEN_HEIGHT - y;
+			return SCREEN_HEIGHT - y - 1;
 		case landscapeInv:
-			return SCREEN_WIDTH - x;
+			return x;
 	}
 
 	return 0;
