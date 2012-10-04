@@ -13,7 +13,7 @@ To use this driver:
 2. Edit gdisp_lld_panel.h with your panel properties
 
 3. To your makefile add the following lines:
-	include $(LCDLIB)/drivers/gdisp/SSD1963/gdisp_lld.mk
+	include $(GFXLIB)/drivers/gdisp/SSD1963/gdisp_lld.mk
   
   
 Example FSMC config with DMA:

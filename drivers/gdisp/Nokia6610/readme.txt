@@ -13,4 +13,4 @@ To use this driver:
 		 	Olimex SAM7-EX256
 
 2. To your makefile add the following lines:
-	include $(LCDLIB)/drivers/gdisp/Nokia6610/gdisp_lld.mk
+	include $(GFXLIB)/drivers/gdisp/Nokia6610/gdisp_lld.mk

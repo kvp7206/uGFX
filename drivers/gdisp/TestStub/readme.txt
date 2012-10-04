@@ -13,4 +13,4 @@ To use this driver:
 		you want to compile test eg: GDISP_NEED_MULTITHREAD
 
 2. To your makefile add the following lines:
-	include $(LCDLIB)/drivers/gdisp/TestStub/gdisp_lld.mk
+	include $(GFXLIB)/drivers/gdisp/TestStub/gdisp_lld.mk

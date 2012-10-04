@@ -4,5 +4,5 @@ To use this driver:
 	a) #define HAL_USE_TOUCHPAD		TRUE
 
 2. To your makefile add the following lines:
-	include $(LCDLIB)/drivers/touchpadADS7843/touchpad_lld.mk
+	include $(GFXLIB)/drivers/touchpadADS7843/touchpad_lld.mk
 

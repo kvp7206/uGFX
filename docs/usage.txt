@@ -1,15 +1,15 @@
 To include any of these functions/drivers in your project...
 
-	1/ Specify the path to the LCDLIB. If none defined, default is $(CHIBIOS)/ext/lcd
+	1/ Specify the path to the GFXLIB. If none defined, default is $(CHIBIOS)/ext/lcd
 
 	2/ In your project Makefile (amongst similiar lines but after the hal line) add the line...
-		include $(LCDLIB)/lcd.mk
+		include $(GFXLIB)/lcd.mk
 
-	3/ Add $(LCDSRC) and $(LCDINC) to your SRCS and INCDIR of your projects Makefile
+	3/ Add $(GFXSRC) and $(GFXINC) to your SRCS and INCDIR of your projects Makefile
 
 	4/ In your project Makefile add the makefiles for any specific drivers you want e.g
-		include $(LCDLIB)/halext/drivers/touchpad/XPT2046/touchpad_lld.mk
-		include $(LCDLIB)/halext/drivers/gdisp/Nokia6610/gdisp_lld.mk
+		include $(GFXLIB)/halext/drivers/touchpad/XPT2046/touchpad_lld.mk
+		include $(GFXLIB)/halext/drivers/gdisp/Nokia6610/gdisp_lld.mk
 
 	5/ In your project halconf.h turn on the support you want eg.
 		/**

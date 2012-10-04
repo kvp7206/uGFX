@@ -1,5 +1,5 @@
 # List the required driver.
-LCDSRC += $(LCDLIB)/drivers/gdisp/TestStub/gdisp_lld.c
+GFXSRC += $(GFXLIB)/drivers/gdisp/TestStub/gdisp_lld.c
 
 # Required include directories
-LCDINC += $(LCDLIB)/drivers/gdisp/TestStub
+GFXINC += $(GFXLIB)/drivers/gdisp/TestStub

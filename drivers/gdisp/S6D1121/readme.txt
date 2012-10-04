@@ -12,4 +12,4 @@ To use this driver:
 		#define SCREEN_HEIGHT	240
 
 2. To your makefile add the following lines:
-	include $(LCDLIB)/drivers/gdisp/S6D1121/gdisp_lld.mk
+	include $(GFXLIB)/drivers/gdisp/S6D1121/gdisp_lld.mk

@@ -4,5 +4,5 @@ To use this driver:
 	a) #define HAL_USE_TOUCHPAD		TRUE
 
 2. To your makefile add the following lines:
-	include $(LCDLIB)/drivers/touchpad/XPT2046/touchpad_lld.mk
+	include $(GFXLIB)/drivers/touchpad/XPT2046/touchpad_lld.mk
 
