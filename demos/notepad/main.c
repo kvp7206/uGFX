@@ -36,7 +36,7 @@ void drawScreen(void) {
 	uint16_t colorsize = COLOR_SIZE;
 	uint16_t pensize = PEN_SIZE;
 
-	gdispSetOrientation(landscape);
+	gdispSetOrientation(GDISP_ROTATE_90);
 	gdispClear(White);
 	gdispDrawString(gdispGetWidth()-gdispGetStringWidth(msg, &fontUI2Double)-3, 3, msg, &fontUI2Double, Black);
 	
