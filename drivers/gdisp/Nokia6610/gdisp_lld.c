@@ -255,7 +255,7 @@ bool_t GDISP_LLD(init)(void) {
 	/* Initialise the GDISP structure to match */
 	GDISP.Width = SCREEN_WIDTH;
 	GDISP.Height = SCREEN_HEIGHT;
-	GDISP.Orientation = GDISP_ROTATE_0;
+	GDISP.Orientation = portrait;
 	GDISP.Powermode = powerOn;
 	GDISP.Backlight = 100;
 	GDISP.Contrast = INITIAL_CONTRAST;
@@ -539,22 +539,22 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	//		WriteSpiData(0x48); // no mirror Y (temporary to satisfy Olimex bmptoarray utility)
 	//		WriteSpiData(0xC8); // restore to (mirror x and y, reverse rgb)
 			switch((gdisp_orientation_t)value) {
-				case GDISP_ROTATE_0:
+				case portrait:
 					/* 	Code here */
 					GDISP.Height = SCREEN_HEIGHT;
 					GDISP.Width = SCREEN_WIDTH;
 					break;
-				case GDISP_ROTATE_90:
+				case landscape:
 					/* 	Code here */
 					GDISP.Height = SCREEN_WIDTH;
 					GDISP.Width = SCREEN_HEIGHT;
 					break;
-				case GDISP_ROTATE_0Inv:
+				case portraitInv:
 					/* 	Code here */
 					GDISP.Height = SCREEN_HEIGHT;
 					GDISP.Width = SCREEN_WIDTH;
 					break;
-				case GDISP_ROTATE_90Inv:
+				case landscapeInv:
 					/* 	Code here */
 					GDISP.Height = SCREEN_WIDTH;
 					GDISP.Width = SCREEN_HEIGHT;

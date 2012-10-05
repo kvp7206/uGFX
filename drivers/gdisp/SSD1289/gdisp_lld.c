@@ -121,7 +121,7 @@ bool_t GDISP_LLD(init)(void) {
     /* Initialise the GDISP structure */
 	GDISP.Width = SCREEN_WIDTH;
 	GDISP.Height = SCREEN_HEIGHT;
-	GDISP.Orientation = GDISP_ROTATE_0;
+	GDISP.Orientation = portrait;
 	GDISP.Powermode = powerOn;
 	GDISP.Backlight = 100;
 	GDISP.Contrast = 50;
@@ -407,28 +407,28 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			if (GDISP.Orientation == (gdisp_orientation_t)value)
 				return;
 			switch((gdisp_orientation_t)value) {
-			case GDISP_ROTATE_0:
+			case portrait:
 				lld_lcdWriteReg(0x0001, 0x2B3F);
 				/* ID = 11 AM = 0 */
 				lld_lcdWriteReg(0x0011, 0x6070);
 				GDISP.Height = SCREEN_HEIGHT;
 				GDISP.Width = SCREEN_WIDTH;
 				break;
-			case GDISP_ROTATE_90:
+			case landscape:
 				lld_lcdWriteReg(0x0001, 0x293F);
 				/* ID = 11 AM = 1 */
 				lld_lcdWriteReg(0x0011, 0x6078);
 				GDISP.Height = SCREEN_WIDTH;
 				GDISP.Width = SCREEN_HEIGHT;
 				break;
-			case GDISP_ROTATE_0Inv:
+			case portraitInv:
 				lld_lcdWriteReg(0x0001, 0x2B3F);
 				/* ID = 01 AM = 0 */
 				lld_lcdWriteReg(0x0011, 0x6040);
 				GDISP.Height = SCREEN_HEIGHT;
 				GDISP.Width = SCREEN_WIDTH;
 				break;
-			case GDISP_ROTATE_90Inv:
+			case landscapeInv:
 				lld_lcdWriteReg(0x0001, 0x293F);
 				/* ID = 01 AM = 1 */
 				lld_lcdWriteReg(0x0011, 0x6048);

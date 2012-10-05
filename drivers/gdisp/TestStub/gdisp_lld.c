@@ -50,7 +50,7 @@ bool_t GDISP_LLD(init)(void) {
 	/* Initialise the GDISP structure */
 	GDISP.Width = 128;
 	GDISP.Height = 128;
-	GDISP.Orientation = GDISP_ROTATE_0;
+	GDISP.Orientation = portrait;
 	GDISP.Powermode = powerOff;
 	GDISP.Backlight = 100;
 	GDISP.Contrast = 50;
