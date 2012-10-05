@@ -154,13 +154,13 @@ uint16_t tpReadX(void) {
 	y = cal.ym * _tpReadRealY() + cal.yn;
 
 	switch(gdispGetOrientation()) {  
-		case portrait:
+		case GDISP_ROTATE_0:
 			return x;
-		case landscape:
+		case GDISP_ROTATE_90:
 			return SCREEN_HEIGHT - y;
-		case portraitInv:
+		case GDISP_ROTATE_0Inv:
 			return SCREEN_WIDTH - x;
-		case landscapeInv:
+		case GDISP_ROTATE_90Inv:
 			return y;
 	}
 
@@ -181,13 +181,13 @@ uint16_t tpReadY(void) {
 	y = cal.ym * _tpReadRealY() + cal.yn;
 
 	switch(gdispGetOrientation()) { 
-		case portrait:
+		case GDISP_ROTATE_0:
 			return y;
-		case landscape:
+		case GDISP_ROTATE_90:
 			return x;
-		case portraitInv:
+		case GDISP_ROTATE_0Inv:
 			return SCREEN_HEIGHT - y;
-		case landscapeInv:
+		case GDISP_ROTATE_90Inv:
 			return SCREEN_WIDTH - x;
 	}
 
