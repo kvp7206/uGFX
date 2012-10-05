@@ -553,7 +553,7 @@ typedef const struct font *font_t;
 /**
  * @brief   Type for the screen orientation.
  */
-typedef enum orientation {portrait, landscape, portraitInv, landscapeInv} gdisp_orientation_t;
+typedef enum orientation {GDISP_ROTATE_0, GDISP_ROTATE_90, GDISP_ROTATE_180, GDISP_ROTATE_270} gdisp_orientation_t;
 /**
  * @brief   Type for the available power modes for the screen.
  */

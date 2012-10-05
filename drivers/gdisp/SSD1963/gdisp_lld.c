@@ -308,7 +308,7 @@ bool_t GDISP_LLD(init)(void) {
 	/* Initialise the GDISP structure to match */
 	GDISP.Width = SCREEN_WIDTH;
 	GDISP.Height = SCREEN_HEIGHT;
-	GDISP.Orientation = landscape;
+	GDISP.Orientation = GDISP_ROTATE_90;
 	GDISP.Powermode = powerOn;
 	GDISP.Backlight = 100;
 	GDISP.Contrast = 50;
@@ -563,22 +563,22 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				if (GDISP.Orientation == (gdisp_orientation_t)value)
 					return;
 			switch((gdisp_orientation_t)value) {
-				case portrait:
+				case GDISP_ROTATE_0:
 					/* 	Code here */
 					GDISP.Height = SCREEN_HEIGHT;
 					GDISP.Width = SCREEN_WIDTH;
 					break;
-				case landscape:
+				case GDISP_ROTATE_90:
 					/* 	Code here */
 					GDISP.Height = SCREEN_WIDTH;
 					GDISP.Width = SCREEN_HEIGHT;
 					break;
-				case portraitInv:
+				case GDISP_ROTATE_180:
 					/* 	Code here */
 					GDISP.Height = SCREEN_HEIGHT;
 					GDISP.Width = SCREEN_WIDTH;
 					break;
-				case landscapeInv:
+				case GDISP_ROTATE_270:
 					/* 	Code here */
 					GDISP.Height = SCREEN_WIDTH;
 					GDISP.Width = SCREEN_HEIGHT;

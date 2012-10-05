@@ -182,19 +182,19 @@ static void lld_lcdSetCursor(coord_t x, coord_t y) {
 	 * R21h - 9 bit
 	 */
 	switch(GDISP.Orientation) {
-		case portraitInv:
+		case GDISP_ROTATE_180:
 			lld_lcdWriteReg(0x0020, (SCREEN_WIDTH-1-x) & 0x00FF);
 			lld_lcdWriteReg(0x0021, (SCREEN_HEIGHT-1-y) & 0x01FF);
 			break;
-		case portrait:
+		case GDISP_ROTATE_0:
 			lld_lcdWriteReg(0x0020, x & 0x00FF);
 			lld_lcdWriteReg(0x0021, y & 0x01FF);
 			break;
-		case landscape:
+		case GDISP_ROTATE_90:
 			lld_lcdWriteReg(0x0020, y & 0x00FF);
 			lld_lcdWriteReg(0x0021, x & 0x01FF);
 			break;
-		case landscapeInv:
+		case GDISP_ROTATE_270:
 			lld_lcdWriteReg(0x0020, (SCREEN_WIDTH - y - 1) & 0x00FF);
 			lld_lcdWriteReg(0x0021, (SCREEN_HEIGHT - x - 1) & 0x01FF);
 			break;
@@ -208,22 +208,22 @@ static void lld_lcdSetViewPort(uint16_t x, uint16_t y, uint16_t cx, uint16_t cy)
 	 */
 
 	switch(GDISP.Orientation) {
-		case portrait:
+		case GDISP_ROTATE_0:
 			lld_lcdWriteReg(0x46, (((x+cx-1) << 8) & 0xFF00 ) | (x & 0x00FF));
 			lld_lcdWriteReg(0x48, y & 0x01FF);
 			lld_lcdWriteReg(0x47, (y+cy-1) & 0x01FF);
 			break;
-		case landscape:
+		case GDISP_ROTATE_90:
 			lld_lcdWriteReg(0x46, (((x+cx-1) << 8) & 0xFF00) | ((y+cy) & 0x00FF));
 			lld_lcdWriteReg(0x48, x & 0x01FF);
 			lld_lcdWriteReg(0x47, (x+cx-1) & 0x01FF);
 			break;
-		case portraitInv:
+		case GDISP_ROTATE_180:
 			lld_lcdWriteReg(0x46, (((SCREEN_WIDTH-x-1) & 0x00FF) << 8) | ((SCREEN_WIDTH - (x+cx)) & 0x00FF));
 			lld_lcdWriteReg(0x48, (SCREEN_HEIGHT-(y+cy)) & 0x01FF);
 			lld_lcdWriteReg(0x47, (SCREEN_HEIGHT-y-1) & 0x01FF);
 			break;
-		case landscapeInv:
+		case GDISP_ROTATE_270:
 			lld_lcdWriteReg(0x46, (((SCREEN_WIDTH - y - 1) & 0x00FF) << 8) | ((SCREEN_WIDTH - (y+cy)) & 0x00FF));
 			lld_lcdWriteReg(0x48, (SCREEN_HEIGHT - (x+cx)) & 0x01FF);
 			lld_lcdWriteReg(0x47, (SCREEN_HEIGHT - x - 1) & 0x01FF);
@@ -235,12 +235,12 @@ static void lld_lcdSetViewPort(uint16_t x, uint16_t y, uint16_t cx, uint16_t cy)
 
 static void lld_lcdResetViewPort(void) {
 	switch(GDISP.Orientation) {
-		case portrait:
-		case portraitInv:
+		case GDISP_ROTATE_0:
+		case GDISP_ROTATE_180:
 			lld_lcdSetViewPort(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 			break;
-		case landscape:
-		case landscapeInv:
+		case GDISP_ROTATE_90:
+		case GDISP_ROTATE_270:
 			lld_lcdSetViewPort(0, 0, SCREEN_HEIGHT, SCREEN_WIDTH);
 			break;
 	}
