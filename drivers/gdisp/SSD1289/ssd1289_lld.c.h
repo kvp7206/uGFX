@@ -273,11 +273,11 @@ static void lld_lcdSetCursor(uint16_t x, uint16_t y) {
 			lld_lcdWriteReg(0x004e, x & 0x00FF);
 			lld_lcdWriteReg(0x004f, y & 0x01FF);
 			break;
-		case GDISP_ROTATE_90:
+		case GDISP_ROTATE_270:
 			lld_lcdWriteReg(0x004e, y & 0x00FF);
 			lld_lcdWriteReg(0x004f, x & 0x01FF);
 			break;
-		case GDISP_ROTATE_270:
+		case GDISP_ROTATE_90:
 			lld_lcdWriteReg(0x004e, (SCREEN_WIDTH - y - 1) & 0x00FF);
 			lld_lcdWriteReg(0x004f, (SCREEN_HEIGHT - x - 1) & 0x01FF);
 			break;

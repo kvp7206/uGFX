@@ -157,11 +157,11 @@ uint16_t tpReadX(void) {
 		case GDISP_ROTATE_0:
 			return x;
 		case GDISP_ROTATE_90:
-			return SCREEN_HEIGHT - y;
-		case GDISP_ROTATE_180:
-			return SCREEN_WIDTH - x;
-		case GDISP_ROTATE_270:
 			return y;
+		case GDISP_ROTATE_180:
+			return SCREEN_WIDTH - x - 1;
+		case GDISP_ROTATE_270:
+			return SCREEN_HEIGHT - y - 1;
 	}
 
 	return 0;
@@ -184,11 +184,11 @@ uint16_t tpReadY(void) {
 		case GDISP_ROTATE_0:
 			return y;
 		case GDISP_ROTATE_90:
-			return x;
+			return SCREEN_WIDTH - x - 1;
 		case GDISP_ROTATE_180:
-			return SCREEN_HEIGHT - y;
+			return SCREEN_HEIGHT - y - 1;
 		case GDISP_ROTATE_270:
-			return SCREEN_WIDTH - x;
+			return x;
 	}
 
 	return 0;
