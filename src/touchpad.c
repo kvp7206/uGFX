@@ -149,7 +149,8 @@ void tpInit(const TOUCHPADDriver *tp) {
  */
 uint16_t tpReadX(void) {
 	uint16_t x, y;
-#if defined(TOUCHPAD_XY_INVERTED) && (TOUCHPAD_XY_INVERTED == TRUE)
+
+#if TOUCHPAD_XY_INVERTED == TRUE
 	x = cal.xm * _tpReadRealY() + cal.xn;
 	y = cal.ym * _tpReadRealX() + cal.yn;
 #else
@@ -179,7 +180,8 @@ uint16_t tpReadX(void) {
  */
 uint16_t tpReadY(void) {
 	uint16_t x, y;
-#if defined(TOUCHPAD_XY_INVERTED) && (TOUCHPAD_XY_INVERTED == TRUE)
+
+#if TOUCHPAD_XY_INVERTED == TRUE
 	x = cal.xm * _tpReadRealY() + cal.xn;
 	y = cal.ym * _tpReadRealX() + cal.yn;
 #else
