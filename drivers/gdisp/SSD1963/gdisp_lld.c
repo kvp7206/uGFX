@@ -308,7 +308,7 @@ bool_t GDISP_LLD(init)(void) {
 	/* Initialise the GDISP structure to match */
 	GDISP.Width = SCREEN_WIDTH;
 	GDISP.Height = SCREEN_HEIGHT;
-	GDISP.Orientation = GDISP_ROTATE_90;
+	GDISP.Orientation = GDISP_ROTATE_0;
 	GDISP.Powermode = powerOn;
 	GDISP.Backlight = 100;
 	GDISP.Contrast = 50;
