@@ -149,10 +149,13 @@ void tpInit(const TOUCHPADDriver *tp) {
  */
 uint16_t tpReadX(void) {
 	uint16_t x, y;
-
+#if defined(TOUCHPAD_XY_INVERTED) && (TOUCHPAD_XY_INVERTED == TRUE)
+	x = cal.xm * _tpReadRealY() + cal.xn;
+	y = cal.ym * _tpReadRealX() + cal.yn;
+#else
 	x = cal.xm * _tpReadRealX() + cal.xn;
 	y = cal.ym * _tpReadRealY() + cal.yn;
-
+#endif
 	switch(gdispGetOrientation()) {  
 		case GDISP_ROTATE_0:
 			return x;
@@ -176,10 +179,13 @@ uint16_t tpReadX(void) {
  */
 uint16_t tpReadY(void) {
 	uint16_t x, y;
-
+#if defined(TOUCHPAD_XY_INVERTED) && (TOUCHPAD_XY_INVERTED == TRUE)
+	x = cal.xm * _tpReadRealY() + cal.xn;
+	y = cal.ym * _tpReadRealX() + cal.yn;
+#else
 	x = cal.xm * _tpReadRealX() + cal.xn;
 	y = cal.ym * _tpReadRealY() + cal.yn;
-
+#endif
 	switch(gdispGetOrientation()) { 
 		case GDISP_ROTATE_0:
 			return y;
@@ -204,21 +210,21 @@ void tpCalibrate(void) {
 	gdispClear(Red);
 	gdispFillStringBox(0, 10, gdispGetWidth(), 30, "Calibration", &fontUI2Double,  White, Red, justifyCenter);
 
-    for(i = 0; i < 2; i++) {
-        _tpDrawCross(cross[i][0], cross[i][1]);
-        while(!tpIRQ());
-        points[i][0] = _tpReadRealX();
-        points[i][1] = _tpReadRealY();
+	for(i = 0; i < 2; i++) {
+		_tpDrawCross(cross[i][0], cross[i][1]);
+		while(!tpIRQ());
+		points[i][0] = _tpReadRealX();
+		points[i][1] = _tpReadRealY();
 		chThdSleepMilliseconds(100);
-        while(tpIRQ());
-        gdispFillArea(cross[i][0]-15, cross[i][1]-15, 42, 42, Red);
+		while(tpIRQ());
+		gdispFillArea(cross[i][0]-15, cross[i][1]-15, 42, 42, Red);
 	}
 
-    cal.xm = ((float)cross[1][0] - (float)cross[0][0]) / ((float)points[1][0] - (float)points[0][0]);
-    cal.ym = ((float)cross[1][1] - (float)cross[0][1]) / ((float)points[1][1] - (float)points[0][1]);
+	cal.xm = ((float)cross[1][0] - (float)cross[0][0]) / ((float)points[1][0] - (float)points[0][0]);
+	cal.ym = ((float)cross[1][1] - (float)cross[0][1]) / ((float)points[1][1] - (float)points[0][1]);
 
-    cal.xn = (float)cross[0][0] - cal.xm * (float)points[0][0];
-    cal.yn = (float)cross[0][1] - cal.ym * (float)points[0][1];
+	cal.xn = (float)cross[0][0] - cal.xm * (float)points[0][0];
+	cal.yn = (float)cross[0][1] - cal.ym * (float)points[0][1];
 
 	#if TOUCHPAD_STORE_CALIBRATION
 		lld_tpWriteCalibration(cal);
