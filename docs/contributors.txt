@@ -6,7 +6,7 @@ At this point we want to thank all of these people for their work.
 NickName		RealName				Contribution
 ========		========				============
 
-Mobyfab			Fabien Poussin			SSD1963 driver
+Mobyfab			Fabien Poussin			SSD1963 driver, TOUCHPAD_XY_INVERTED macro
 
 inmarket		Andrew Hannam			GDISP (restructorizing the entire library)
 										VMT

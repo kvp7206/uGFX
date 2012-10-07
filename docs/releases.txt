@@ -7,6 +7,7 @@ current stable: 1.1
 *** changer after 1.1 ***
 FIX:		orientation macros changed
 FIX:		huge internal bugfix in orientation stuff (big thanks to Abhishek)
+FEATURE:	added TOUCHPAD_XY_INVERTED macro
 
 *** changes after 1.0 ***
 FIX:		removed gdisp and touchpad prefix of driver directories
