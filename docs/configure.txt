@@ -2,17 +2,25 @@ There are serval macros available to configure the behaviour of the GFX-Library.
 
 HAL macros:
 
-	#define HAL_USE_GFX				// enables the GDISP sub system. This is essentially needed to use the display
-	#define HAL_USE_TOUCHPAD		// enables the TouchPad sub system. This is essentially needed to use the touchpad
+	#define HAL_USE_GFX					// enables the GDISP sub system. This is essentially needed to use the display
+	#define HAL_USE_TOUCHPAD			// enables the TouchPad sub system. This is essentially needed to use the touchpad
+
 
 
 GDISP macors:
 
-	#define GDISP_
+	#define GDISP_USE_GPIO				// GDISP is connected to the MCU using GPIO interface, involves using lld_lcdWriteGPIO() and lld_lcdReadGPIO()
+	#define GDISP_USE_FSMC				// GDISP is connected to the MCU using FSMC interface
+	#define GDISP_USE_SPI				// GDISP is connected to the MCU using SPI interface
+
+	#define GDISP_SCREEN_WIDTH			// defines width of panel in pixels
+	#define GDISP_SCREEN_HEIGHT			// defines height of panel in pixels
+
+	#define GDISP_NEED_MULTITHREAD		// GDISP will be accessed across different threads -> thread safe support 
+	#define GDISP_NEED_CONTROL			// must be set to TRUE if access control access to the LCD controller is needed
 
 
-
-TouchPAD macros:
+TouchPad macros:
 
 	#define TOUCHPAD_
 
