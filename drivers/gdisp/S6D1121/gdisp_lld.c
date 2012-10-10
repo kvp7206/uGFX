@@ -178,8 +178,8 @@ bool_t GDISP_LLD(init)(void) {
 	lld_lcdResetViewPort();
 
 	/* Now initialise the GDISP structure */
-	GDISP.Width = SCREEN_WIDTH;
-	GDISP.Height = SCREEN_HEIGHT;
+	GDISP.Width = GDISP_SCREEN_WIDTH;
+	GDISP.Height = GDISP_SCREEN_HEIGHT;
 	GDISP.Orientation = GDISP_ROTATE_0;
 	GDISP.Powermode = powerOn;
 	GDISP.Backlight = 100;
@@ -227,7 +227,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	    lld_lcdSetCursor(0, 0);
 	    lld_lcdWriteStreamStart();
 
-	    for(i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++)
+	    for(i = 0; i < GDISP_SCREEN_WIDTH * GDISP_SCREEN_HEIGHT; i++)
 	    	lld_lcdWriteData(color);
 
 	    lld_lcdWriteStreamStop();
@@ -358,7 +358,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		/* This is marked as "TODO: Test this" in the original GLCD driver.
 		 * For now we just leave the GDISP_HARDWARE_SCROLL off.
 		 */
-		static color_t buf[((SCREEN_HEIGHT > SCREEN_WIDTH ) ? SCREEN_HEIGHT : SCREEN_WIDTH)];
+		static color_t buf[((GDISP_SCREEN_HEIGHT > GDISP_SCREEN_WIDTH ) ? GDISP_SCREEN_HEIGHT : GDISP_SCREEN_WIDTH)];
 		coord_t row0, row1;
 		unsigned i, gap, abslines;
 
@@ -459,26 +459,26 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			case GDISP_ROTATE_0:
 				lld_lcdWriteReg(0x0001,0x0127);
 				lld_lcdWriteReg(0x03, 0b0011);
-				GDISP.Height = SCREEN_HEIGHT;
-				GDISP.Width = SCREEN_WIDTH;
+				GDISP.Height = GDISP_SCREEN_HEIGHT;
+				GDISP.Width = GDISP_SCREEN_WIDTH;
 				break;
 			case GDISP_ROTATE_90:
 				lld_lcdWriteReg(0x0001,0x0027);
 				lld_lcdWriteReg(0x0003, 0b1011);
-				GDISP.Height = SCREEN_WIDTH;
-				GDISP.Width = SCREEN_HEIGHT;
+				GDISP.Height = GDISP_SCREEN_WIDTH;
+				GDISP.Width = GDISP_SCREEN_HEIGHT;
 				break;
 			case GDISP_ROTATE_180:
 				lld_lcdWriteReg(0x0001,0x0127);
 				lld_lcdWriteReg(0x0003, 0b0000);
-				GDISP.Height = SCREEN_HEIGHT;
-				GDISP.Width = SCREEN_WIDTH;
+				GDISP.Height = GDISP_SCREEN_HEIGHT;
+				GDISP.Width = GDISP_SCREEN_WIDTH;
 				break;
 			case GDISP_ROTATE_270:
 				lld_lcdWriteReg(0x0001,0x0027);
 				lld_lcdWriteReg(0x0003, 0b1000);
-				GDISP.Height = SCREEN_WIDTH;
-				GDISP.Width = SCREEN_HEIGHT;
+				GDISP.Height = GDISP_SCREEN_WIDTH;
+				GDISP.Width = GDISP_SCREEN_HEIGHT;
 				break;
 			default:
 				return;

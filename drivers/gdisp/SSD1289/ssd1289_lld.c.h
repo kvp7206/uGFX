@@ -266,8 +266,8 @@ static void lld_lcdSetCursor(uint16_t x, uint16_t y) {
 	 */
 	switch(GDISP.Orientation) {
 		case GDISP_ROTATE_180:
-			lld_lcdWriteReg(0x004e, (SCREEN_WIDTH-1-x) & 0x00FF);
-			lld_lcdWriteReg(0x004f, (SCREEN_HEIGHT-1-y) & 0x01FF);
+			lld_lcdWriteReg(0x004e, (GDISP_SCREEN_WIDTH-1-x) & 0x00FF);
+			lld_lcdWriteReg(0x004f, (GDISP_SCREEN_HEIGHT-1-y) & 0x01FF);
 			break;
 		case GDISP_ROTATE_0:
 			lld_lcdWriteReg(0x004e, x & 0x00FF);
@@ -278,8 +278,8 @@ static void lld_lcdSetCursor(uint16_t x, uint16_t y) {
 			lld_lcdWriteReg(0x004f, x & 0x01FF);
 			break;
 		case GDISP_ROTATE_90:
-			lld_lcdWriteReg(0x004e, (SCREEN_WIDTH - y - 1) & 0x00FF);
-			lld_lcdWriteReg(0x004f, (SCREEN_HEIGHT - x - 1) & 0x01FF);
+			lld_lcdWriteReg(0x004e, (GDISP_SCREEN_WIDTH - y - 1) & 0x00FF);
+			lld_lcdWriteReg(0x004f, (GDISP_SCREEN_HEIGHT - x - 1) & 0x01FF);
 			break;
 	}
 }
@@ -308,14 +308,14 @@ static void lld_lcdSetViewPort(uint16_t x, uint16_t y, uint16_t cx, uint16_t cy)
 			lld_lcdWriteReg(0x46, (x+cx-1) & 0x01FF);
 			break;
 		case GDISP_ROTATE_180:
-			lld_lcdWriteReg(0x44, (((SCREEN_WIDTH-x-1) & 0x00FF) << 8) | ((SCREEN_WIDTH - (x+cx)) & 0x00FF));
-			lld_lcdWriteReg(0x45, (SCREEN_HEIGHT-(y+cy)) & 0x01FF);
-			lld_lcdWriteReg(0x46, (SCREEN_HEIGHT-y-1) & 0x01FF);
+			lld_lcdWriteReg(0x44, (((GDISP_SCREEN_WIDTH-x-1) & 0x00FF) << 8) | ((GDISP_SCREEN_WIDTH - (x+cx)) & 0x00FF));
+			lld_lcdWriteReg(0x45, (GDISP_SCREEN_HEIGHT-(y+cy)) & 0x01FF);
+			lld_lcdWriteReg(0x46, (GDISP_SCREEN_HEIGHT-y-1) & 0x01FF);
 			break;
 		case GDISP_ROTATE_270:
-			lld_lcdWriteReg(0x44, (((SCREEN_WIDTH - y - 1) & 0x00FF) << 8) | ((SCREEN_WIDTH - (y+cy)) & 0x00FF));
-			lld_lcdWriteReg(0x45, (SCREEN_HEIGHT - (x+cx)) & 0x01FF);
-			lld_lcdWriteReg(0x46, (SCREEN_HEIGHT - x - 1) & 0x01FF);
+			lld_lcdWriteReg(0x44, (((GDISP_SCREEN_WIDTH - y - 1) & 0x00FF) << 8) | ((GDISP_SCREEN_WIDTH - (y+cy)) & 0x00FF));
+			lld_lcdWriteReg(0x45, (GDISP_SCREEN_HEIGHT - (x+cx)) & 0x01FF);
+			lld_lcdWriteReg(0x46, (GDISP_SCREEN_HEIGHT - x - 1) & 0x01FF);
 			break;
 	}
 

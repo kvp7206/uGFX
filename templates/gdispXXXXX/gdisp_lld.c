@@ -73,8 +73,8 @@ bool_t GDISP_LLD(init)(void) {
 	/* Initialise your display */
 
 	/* Initialise the GDISP structure to match */
-	GDISP.Width = SCREEN_WIDTH;
-	GDISP.Height = SCREEN_HEIGHT;
+	GDISP.Width = GDISP_SCREEN_WIDTH;
+	GDISP.Height = GDISP_SCREEN_HEIGHT;
 	GDISP.Orientation = GDISP_ROTATE_0;
 	GDISP.Powermode = powerOn;
 	GDISP.Backlight = 100;
@@ -467,23 +467,23 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			switch((gdisp_orientation_t)value) {
 				case GDISP_ROTATE_0:
 					/* 	Code here */
-					GDISP.Height = SCREEN_HEIGHT;
-					GDISP.Width = SCREEN_WIDTH;
+					GDISP.Height = GDISP_SCREEN_HEIGHT;
+					GDISP.Width = GDISP_SCREEN_WIDTH;
 					break;
 				case GDISP_ROTATE_90:
 					/* 	Code here */
-					GDISP.Height = SCREEN_WIDTH;
-					GDISP.Width = SCREEN_HEIGHT;
+					GDISP.Height = GDISP_SCREEN_WIDTH;
+					GDISP.Width = GDISP_SCREEN_HEIGHT;
 					break;
 				case GDISP_ROTATE_180:
 					/* 	Code here */
-					GDISP.Height = SCREEN_HEIGHT;
-					GDISP.Width = SCREEN_WIDTH;
+					GDISP.Height = GDISP_SCREEN_HEIGHT;
+					GDISP.Width = GDISP_SCREEN_WIDTH;
 					break;
 				case GDISP_ROTATE_270:
 					/* 	Code here */
-					GDISP.Height = SCREEN_WIDTH;
-					GDISP.Width = SCREEN_HEIGHT;
+					GDISP.Height = GDISP_SCREEN_WIDTH;
+					GDISP.Width = GDISP_SCREEN_HEIGHT;
 					break;
 				default:
 					return;

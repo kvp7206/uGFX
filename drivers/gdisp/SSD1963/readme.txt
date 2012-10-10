@@ -18,8 +18,8 @@ To use this driver:
   
 Example FSMC config with DMA:
 
-#define SCREEN_WIDTH 480
-#define SCREEN_HEIGHT 272
+#define GDISP_SCREEN_WIDTH 480
+#define GDISP_SCREEN_HEIGHT 272
 
 #define GDISP_USE_FSMC
 

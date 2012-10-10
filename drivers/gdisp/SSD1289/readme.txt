@@ -11,8 +11,8 @@ To use this driver:
 		#define GDISP_USE_FSMC
 
 	d) All of the following (with appropriate values):
-		#define SCREEN_WIDTH	320
-		#define SCREEN_HEIGHT	240
+		#define GDISP_SCREEN_WIDTH	320
+		#define GDISP_SCREEN_HEIGHT	240
 
 2. To your makefile add the following lines:
 	include $(GFXLIB)/drivers/gdisp/SSD1289/gdisp_lld.mk

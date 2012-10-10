@@ -21,8 +21,8 @@ To use this driver:
 		#define GDISP_USE_SPI
 		#define GDISP_USE_FSMC
 	d) All of the following (with appropriate values):
-		#define SCREEN_WIDTH	128
-		#define SCREEN_HEIGHT	128
+		#define GDISP_SCREEN_WIDTH	128
+		#define GDISP_SCREEN_HEIGHT	128
 	e) If you are not using a known board then create a gdisp_lld_board.h file
 		and ensure it is on your include path.
 		Use the gdisp_lld_board_example.h file as a basis.

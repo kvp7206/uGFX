@@ -18,8 +18,8 @@ To include any of these functions/drivers in your project...
 			#define HAL_USE_TOUCHPAD			TRUE
 
 			#define GDISP_USE_GPIO				TRUE
-			#define GDISP_SCREEN_WIDTH			240
-			#define GDISP_SCREEN_HEIGHT			320
+			#define GDISP_GDISP_SCREEN_WIDTH			240
+			#define GDISP_GDISP_SCREEN_HEIGHT			320
 			#define GDISP_NEED_CONTROL			TRUE
 			#define TOUCHPAD_NEED_MULTITHREAD	TRUE
 	
