@@ -3,30 +3,25 @@ To include any of these functions/drivers in your project...
 	1/ Specify the path to the GFXLIB. If none defined, default is $(CHIBIOS)/ext/lcd
 
 	2/ In your project Makefile (amongst similiar lines but after the hal line) add the line...
-		include $(GFXLIB)/lcd.mk
+		include $(GFXLIB)/gfx.mk
 
 	3/ Add $(GFXSRC) and $(GFXINC) to your SRCS and INCDIR of your projects Makefile
 
 	4/ In your project Makefile add the makefiles for any specific drivers you want e.g
-		include $(GFXLIB)/halext/drivers/touchpad/XPT2046/touchpad_lld.mk
-		include $(GFXLIB)/halext/drivers/gdisp/Nokia6610/gdisp_lld.mk
+		include $(GFXLIB)/drivers/touchpad/XPT2046/touchpad_lld.mk
+		include $(GFXLIB)/drivers/gdisp/SSD1289/gdisp_lld.mk
 
-	5/ In your project halconf.h turn on the support you want eg.
-		/**
-		 * @brief   Enables the Touchpad subsystem.
-		 */
-		#if !defined(HAL_USE_TOUCHPAD) || defined(__DOXYGEN__)
-			#define HAL_USE_TOUCHPAD           TRUE
-		#endif
+	5/ In your project halconf.h turn on the support you want. Please take a look to
+		docs/configure.txt for a list and description of all available macros. For example:
 
-		/**
-		 * @brief   Enables the GDISP subsystem.
-		 */
-		#if !defined(HAL_USE_GDISP) || defined(__DOXYGEN__)
-			#define HAL_USE_GDISP           TRUE
-			/* Any driver specific defines required go here. The below line is an example. */
-			#define GDISP_NEED_MULTITHREAD	TRUE
-		#endif
+			#define HAL_USE_GDISP				TRUE
+			#define HAL_USE_TOUCHPAD			TRUE
+
+			#define GDISP_USE_GPIO				TRUE
+			#define GDISP_SCREEN_WIDTH			240
+			#define GDISP_SCREEN_HEIGHT			320
+			#define GDISP_NEED_CONTROL			TRUE
+			#define TOUCHPAD_NEED_MULTITHREAD	TRUE
 	
-	6/ Do a make clean.
+	6/ Do a make clean
 
