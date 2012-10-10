@@ -19,8 +19,8 @@
 */
 
 /**
- * @file    gdispSsd1289/gdisp_lld_config.h
- * @brief   GDISP Graphic Driver subsystem low level driver header for the Ssd1289 display.
+ * @file    drivers/gdisp/SSD1289/gdisp_lld_config.h
+ * @brief   GDISP Graphic Driver subsystem low level driver header for the SSD1289 display.
  *
  * @addtogroup GDISP
  * @{
