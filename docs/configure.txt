@@ -13,15 +13,22 @@ GDISP macors:
 	#define GDISP_USE_FSMC				// GDISP is connected to the MCU using FSMC interface
 	#define GDISP_USE_SPI				// GDISP is connected to the MCU using SPI interface
 
-	#define GDISP_SCREEN_WIDTH			// defines width of panel in pixels
-	#define GDISP_SCREEN_HEIGHT			// defines height of panel in pixels
+	#define GDISP_SCREEN_WIDTH			// defines width of panel in pixels. This is essentially needed to use the display
+	#define GDISP_SCREEN_HEIGHT			// defines height of panel in pixels. This is essentailly needed to use the display
 
-	#define GDISP_NEED_MULTITHREAD		// GDISP will be accessed across different threads -> thread safe support 
-	#define GDISP_NEED_CONTROL			// must be set to TRUE if access control access to the LCD controller is needed
+	#define GDISP_NEED_MULTITHREAD		// GDISP will be accessed across different threads -> thread safe mode 
+	#define GDISP_NEED_CONTROL			// must be set to TRUE if controll access to the LCD controller is needed, eg for changing orientation or power mode
+
 
 
 TouchPad macros:
 
-	#define TOUCHPAD_
+	#define TOUCHPAD_NEED_MULTITHREAD	// TouchPad will be accessed across different threads -> thread safe mode
+	
+	#define TOUCHPAD_XY_INVERTED		// output of tpReadX() and tpReadY() swapped - needed if touchpad writes swapped to touchpad controller
+
+	#define TOUCHPAD_STORE_CALIBRATION	// calibration values can be stored if set to true. Therefore tpCalibration() is not neccessary to call on each reset. involves using lld_tpWriteCalibration() and lld_tpReadCalibration()
+
+	
 
 
