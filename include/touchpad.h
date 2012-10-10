@@ -59,12 +59,12 @@
 /**
  * @brief	Struct used for calibration
  */
-struct cal {
+typedef struct cal_t {
     float xm; 
     float ym; 
     float xn; 
     float yn; 
-};
+} cal_t;
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -88,8 +88,8 @@ void tpCalibrate(void);
 #endif
 
 #if TOUCHPAD_STORE_CALIBRATION
-	extern void lld_tpWriteCalibration(struct cal cal);
-	extern struct cal lld_tpReadCalibration(void);
+	extern void lld_tpWriteCalibration(struct cal_t cal);
+	extern struct cal_t lld_tpReadCalibration(void);
 #endif
 
 #ifdef __cplusplus
