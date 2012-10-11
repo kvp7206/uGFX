@@ -41,6 +41,18 @@
 /* Error checks.                                                             */
 /*===========================================================================*/
 
+#ifndef TOUCHPAD_NEED_MULTITHREAD
+	#define TOUCHPAD_NEED_MULTITHREAD	FALSE
+#endif
+
+#ifndef TOUCHPAD_XY_INVERTED
+	#define TOUCHPAD_XY_INVERTED	FALSE
+#endif
+
+#ifndef TOUCHPAD_STORE_CALIBRATION
+	#define TOUCHPAD_STORE_CALIBRATION FALSE
+#endif 
+
 #ifndef TOUCHPAD_HAS_IRQ
 	#define TOUCHPAD_HAS_IRQ	FALSE
 #endif

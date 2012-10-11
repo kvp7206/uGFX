@@ -52,10 +52,6 @@
 /* Type definitions                                                          */
 /*===========================================================================*/
 
-#ifndef TOUCHPAD_STORE_CALIBRATION
-	#define TOUCHPAD_STORE_CALIBRATION FALSE
-#endif
-
 /**
  * @brief	Struct used for calibration
  */
