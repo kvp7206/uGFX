@@ -18,6 +18,14 @@ GDISP macors:
 
 	#define GDISP_NEED_MULTITHREAD		// GDISP will be accessed across different threads -> thread safe mode 
 	#define GDISP_NEED_CONTROL			// must be set to TRUE if controll access to the LCD controller is needed, eg for changing orientation or power mode
+	#define GDISP_NEED_CLIP				// when clipping is needed
+	#define GDISP_NEED_CIRCLE			// for circle drawing support (filled and frame)
+	#define GDISP_NEED_ELLIPSE			// for ellipse drawing support (filled and frame)
+	#define GDISP_NEED_ARC				// for arc drawing support (filled and frame)
+	#define GDISP_NEED_TEXT				// for font rendering support
+	#define GDISP_NEED_PIXELREAD		// to read a pixels color value back
+	#define GDISP_NEED_SCROLL			// is scrolling is needed (pixel shift)
+	#define GDISPI_NEED_QUERY			// to make certain queries to the LCD controller
 
 
 
