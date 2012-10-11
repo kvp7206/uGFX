@@ -45,7 +45,7 @@
 /*===========================================================================*/
 #if !defined(__DOXYGEN__)
     /* Local copy of the current touchpad driver */
-    static const TOUCHPADDriver *tpDriver;
+    static const TOUCHPADDriver_t *tpDriver;
 
     static uint16_t sampleBuf[7];
 #endif
@@ -69,7 +69,7 @@
  *
  * @notapi
  */
-void tp_lld_init(const TOUCHPADDriver *tp) {
+void tp_lld_init(const TOUCHPADDriver_t *tp) {
 	tpDriver = tp;
 
 	if(tpDriver->direct_init)

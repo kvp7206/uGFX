@@ -73,12 +73,10 @@
 /* Driver types.                                                             */
 /*===========================================================================*/
 
-typedef struct _TOUCHPADDriver TOUCHPADDriver;
-
 /**
  * @brief	Structure representing a Touchpad driver.
  */
-struct _TOUCHPADDriver {
+typedef struct _TOUCHPADDriver_t {
     /*
      * @brief   Pointer to SPI driver.
      * @note    SPI driver must be enabled in mcuconf.h and halconf.h
@@ -115,7 +113,7 @@ struct _TOUCHPADDriver {
      *          bus with a fast flash memory chip.
      */
     bool_t          direct_init;
-};
+} TOUCHPADDriver_t;
 
 
 /*===========================================================================*/
@@ -128,7 +126,7 @@ extern "C" {
 #endif
 
 	/* Core functions */
-	void tp_lld_init(const TOUCHPADDriver *tp);
+	void tp_lld_init(const TOUCHPADDriver_t *tp);
 
 	uint16_t tp_lld_read_value(uint8_t cmd);
 	uint16_t tp_lld_read_x(void);
