@@ -41,7 +41,7 @@ struct GConsoleVMT {
  * @details This class extends @p BaseAsynchronousChannel by adding physical
  *          I/O queues.
  */
-struct GConsole {
+typedef struct _GConsole_t {
 	/** @brief Virtual Methods Table.*/
 	const struct GConsoleVMT *vmt;
 	_base_asynchronous_channel_data
@@ -60,7 +60,7 @@ struct GConsole {
 	uint8_t fy;
 	/* font inter-character padding in pixels */
 	uint8_t fp;
-};
+} GConsole_t;
 
 /*
  * Interface implementation. The interface is write only
@@ -130,7 +130,7 @@ static const struct GConsoleVMT vmt = {
 };
 
 
-msg_t lcdConsoleInit(GConsole *console, coord_t x0, coord_t y0, coord_t width, coord_t height, font_t font, pixel_t bkcolor, pixel_t color) {
+msg_t lcdConsoleInit(GConsole_t *console, coord_t x0, coord_t y0, coord_t width, coord_t height, font_t font, pixel_t bkcolor, pixel_t color) {
 	console->vmt = &vmt;
 	/* read font, get height & padding */
 	console->fy = gdispGetFontMetric(font, fontHeight);
@@ -154,7 +154,7 @@ msg_t lcdConsoleInit(GConsole *console, coord_t x0, coord_t y0, coord_t width, c
 	return RDY_OK;
 }
 
-msg_t lcdConsolePut(GLCDConsole *console, char c) {
+msg_t lcdConsolePut(GLCDConsole_t *console, char c) {
 	uint8_t width;
 
 	if(c == '\n') {
@@ -208,7 +208,7 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 	return RDY_OK;
 }
 
-msg_t lcdConsoleWrite(GLCDConsole *console, const uint8_t *bp, size_t n) {
+msg_t lcdConsoleWrite(GLCDConsole_t *console, const uint8_t *bp, size_t n) {
 	size_t i;
 	for(i = 0; i < n; i++)
 		lcdConsolePut(console, bp[i]);
@@ -217,3 +217,4 @@ msg_t lcdConsoleWrite(GLCDConsole *console, const uint8_t *bp, size_t n) {
 }
 
 #endif /* GDISP_NEED_CONSOLE */
+

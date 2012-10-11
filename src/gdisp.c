@@ -1122,3 +1122,4 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 
 #endif /* _GDISP_C */
 /** @} */
+
