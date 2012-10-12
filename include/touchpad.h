@@ -70,7 +70,7 @@ typedef struct cal_t {
 extern "C" {
 #endif
 
-void tpInit(const TOUCHPADDriver_t *tp);
+void tpInit(const TOUCHPADDriver *tp);
 uint16_t tpReadX(void);
 uint16_t tpReadY(void);
 void tpCalibrate(void);

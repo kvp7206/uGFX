@@ -126,7 +126,7 @@ static void _tpDrawCross(uint16_t x, uint16_t y) {
  *
  * @api
  */
-void tpInit(const TOUCHPADDriver_t *tp) {
+void tpInit(const TOUCHPADDriver *tp) {
 	/* Initialise Mutex */
 	//MUTEX_INIT
 

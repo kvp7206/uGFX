@@ -39,9 +39,9 @@
 extern "C" {
 #endif
 
-msg_t lcdConsoleInit(GConsole_t *console, coord_t x0, coord_t y0, coord_t width, coord_t height, font_t font, pixel_t bkcolor, pixel_t color);
-msg_t lcdConsolePut(GConsole_t *console, char c);
-msg_t lcdConsoleWrite(GConsole_t *console, const uint8_t *bp, size_t n);
+msg_t lcdConsoleInit(GConsole *console, coord_t x0, coord_t y0, coord_t width, coord_t height, font_t font, pixel_t bkcolor, pixel_t color);
+msg_t lcdConsolePut(GConsole *console, char c);
+msg_t lcdConsoleWrite(GConsole *console, const uint8_t *bp, size_t n);
 
 #ifdef __cplusplus
 }
