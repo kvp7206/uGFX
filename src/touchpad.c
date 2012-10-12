@@ -32,6 +32,11 @@
 
 #if HAL_USE_TOUCHPAD || defined(__DOXYGEN__)
 
+#if TOUCHPAD_STORE_CALIBRATION
+extern void lld_tpWriteCalibration(struct cal_t cal);
+extern struct cal_t lld_tpReadCalibration(void);
+#endif
+
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
