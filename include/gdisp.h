@@ -29,7 +29,7 @@
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
-#ifndef GDISP_USE_GPIO || GDISP_USE_FSCM || GDISP_USE_SPI
+#ifndef GDISP_USE_GPIO || GDISP_USE_FSMC || GDISP_USE_SPI
 	#error "No known GDISP_USE_XXX has been defined"
 #endif
 
