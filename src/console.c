@@ -24,23 +24,14 @@
 
 #if GDISP_NEED_CONSOLE
 
-/**
- * @extends BaseAsynchronousChannelVMT
- *
- * @brief   @p GConsole virtual methods table.
- */
-struct GConsoleVMT {
-	_base_asynchronous_channel_methods
-};
-
 /*
  * Interface implementation. The interface is write only
  */
-static size_t writes(void *ip, const uint8_t *bp, size_t n) {
+static size_t write(void *ip, const uint8_t *bp, size_t n) {
 	return lcdConsoleWrite((GConsole *)ip, bp, n);
 }
 
-static size_t reads(void *ip, uint8_t *bp, size_t n) {
+static size_t read(void *ip, uint8_t *bp, size_t n) {
 	(void)ip;
 	(void)bp;
 	(void)n;
@@ -48,10 +39,10 @@ static size_t reads(void *ip, uint8_t *bp, size_t n) {
 	return 0;
 }
 
-static msg_t put(void *ip) {
+static msg_t put(void *ip, uint8_t b) {
 	(void)ip;
 
-	return RDY_OK;
+	return lcdConsolePut((GConsole *)ip, (char)b);
 }
 
 static msg_t get(void *ip) {
@@ -90,16 +81,10 @@ static size_t readt(void *ip, uint8_t *bp, size_t n, systime_t time) {
 	return 0;
 }
 
-static uint32_t getflags(void *ip) {
-	_ch_get_and_clear_flags_impl(ip);
-}
-
 static const struct GConsoleVMT vmt = {
-	writes, reads, put, get,
-	putt, gett, writet, readt,
-	getflags
+	write, read, put, get,
+	putt, gett, writet, readt
 };
-
 
 msg_t lcdConsoleInit(GConsole *console, coord_t x0, coord_t y0, coord_t width, coord_t height, font_t font, pixel_t bkcolor, pixel_t color) {
 	console->vmt = &vmt;
