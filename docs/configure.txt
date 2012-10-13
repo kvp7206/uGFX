@@ -25,8 +25,9 @@ GDISP macors:
 	#define GDISP_NEED_TEXT				// for font rendering support
 	#define GDISP_NEED_PIXELREAD		// to read a pixels color value back
 	#define GDISP_NEED_SCROLL			// is scrolling is needed (pixel shift)
-	#define GDISPI_NEED_QUERY			// to make certain queries to the LCD controller
+	#define GDISP_NEED_QUERY			// to make certain queries to the LCD controller
 
+	#define GDISP_NEED_CONSOLE			// for the console abstraction
 
 
 TouchPad macros:

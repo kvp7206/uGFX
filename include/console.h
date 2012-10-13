@@ -21,10 +21,8 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#ifdef HAL_USE_GDISP
-
 #ifndef GDISP_NEED_CONSOLE
-	#define GDISP_NEED_CONSOLE	FALSE
+	#define GDISP_NEED_CONSOLE FALSE
 #endif
 
 #if GDISP_NEED_CONSOLE
@@ -32,8 +30,32 @@
 #include "gdisp.h"
 
 /**
- * @brief   Structure representing a GConsole driver.
+ * @extends BaseAsynchronousChannel
+ *
+ * @brief   GConsole class.
+ * @details This class extends @p BaseAsynchronousChannel by adding physical
+ *          I/O queues.
  */
+typedef struct _GConsole {
+	/** @brief Virtual Methods Table.*/
+	const struct GConsoleVMT *vmt;
+	_base_asynchronous_channel_data
+	/* WARNING: Do not add any data to this struct above this comment, only below */
+	/* font */
+	font_t font;
+	/* lcd area to use */
+	coord_t x0,y0;
+	/* current cursor position, in pixels */
+	coord_t cx,cy;
+	/* console size in pixels */
+	coord_t sx,sy;
+	/* foreground and background colour */
+	color_t bkcolor, color;
+	/* font size in pixels */
+	uint8_t fy;
+	/* font inter-character padding in pixels */
+	uint8_t fp;
+} GConsole; 
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,5 +70,6 @@ msg_t lcdConsoleWrite(GConsole *console, const uint8_t *bp, size_t n);
 #endif
 
 #endif /* GDISP_NEED_CONSOLE */
-#endif /* HAL_USE_GDISP */
+
 #endif /* CONSOLE_H */
+

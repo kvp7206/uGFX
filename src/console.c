@@ -18,11 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if GDISP_NEED_CONSOLE
-
 #include "ch.h"
 #include "hal.h"
-
 #include "console.h"
 
 /**
@@ -33,34 +30,6 @@
 struct GConsoleVMT {
 	_base_asynchronous_channel_methods
 };
-
-/**
- * @extends BaseAsynchronousChannel
- *
- * @brief   GConsole class.
- * @details This class extends @p BaseAsynchronousChannel by adding physical
- *          I/O queues.
- */
-typedef struct _GConsole {
-	/** @brief Virtual Methods Table.*/
-	const struct GConsoleVMT *vmt;
-	_base_asynchronous_channel_data
-	/* WARNING: Do not add any data to this struct above this comment, only below */
-	/* font */
-	font_t font;
-	/* lcd area to use */
-	coord_t x0,y0;
-	/* current cursor position, in pixels */
-	coord_t cx,cy;
-	/* console size in pixels */
-	coord_t sx,sy;
-	/* foreground and background colour */
-	color_t bkcolor, color;
-	/* font size in pixels */
-	uint8_t fy;
-	/* font inter-character padding in pixels */
-	uint8_t fp;
-} GConsole;
 
 /*
  * Interface implementation. The interface is write only
@@ -154,7 +123,7 @@ msg_t lcdConsoleInit(GConsole *console, coord_t x0, coord_t y0, coord_t width, c
 	return RDY_OK;
 }
 
-msg_t lcdConsolePut(GLCDConsole *console, char c) {
+msg_t lcdConsolePut(GConsole *console, char c) {
 	uint8_t width;
 
 	if(c == '\n') {
@@ -208,13 +177,11 @@ msg_t lcdConsolePut(GLCDConsole *console, char c) {
 	return RDY_OK;
 }
 
-msg_t lcdConsoleWrite(GLCDConsole *console, const uint8_t *bp, size_t n) {
+msg_t lcdConsoleWrite(GConsole *console, const uint8_t *bp, size_t n) {
 	size_t i;
 	for(i = 0; i < n; i++)
 		lcdConsolePut(console, bp[i]);
 
 	return RDY_OK;
 }
-
-#endif /* GDISP_NEED_CONSOLE */
 
