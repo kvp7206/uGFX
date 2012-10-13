@@ -22,6 +22,8 @@
 #include "hal.h"
 #include "console.h"
 
+#if GDISP_NEED_CONSOLE
+
 /**
  * @extends BaseAsynchronousChannelVMT
  *
@@ -184,4 +186,6 @@ msg_t lcdConsoleWrite(GConsole *console, const uint8_t *bp, size_t n) {
 
 	return RDY_OK;
 }
+
+#endif 
 
