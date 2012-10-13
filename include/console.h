@@ -22,12 +22,21 @@
 #define CONSOLE_H
 
 #ifndef GDISP_NEED_CONSOLE
-	#undef GDISP_NEED_CONSOLE
+	#define GDISP_NEED_CONSOLE FALSE
 #endif
 
 #if GDISP_NEED_CONSOLE
 
 #include "gdisp.h"
+
+ /**
+ * @extends BaseAsynchronousChannelVMT
+ *
+ * @brief   @p GConsole virtual methods table.
+ */
+struct GConsoleVMT {
+	_base_asynchronous_channel_methods
+};
 
 /**
  * @extends BaseAsynchronousChannel
