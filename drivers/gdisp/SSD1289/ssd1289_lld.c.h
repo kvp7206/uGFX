@@ -250,9 +250,6 @@
 
 #elif defined(GDISP_USE_SPI)
 	#error "gdispSsd1289: GDISP_USE_SPI not implemented yet"
-
-#else
-	#error "gdispSsd1289: No known GDISP_USE_XXX has been defined"
 #endif
 
 static __inline void lld_lcdDelay(uint16_t us) {

@@ -172,9 +172,6 @@
 
 #elif defined(GDISP_USE_SPI)
 	#error "gdispS6d1121: GDISP_USE_SPI not implemented yet"
-
-#else
-	#error "gdispS6d1121: No known GDISP_USE_XXX has been defined"
 #endif
 
 static void lld_lcdSetCursor(coord_t x, coord_t y) {
