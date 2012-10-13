@@ -47,7 +47,7 @@ int main(void) {
 	gdispInit();
 	gdispClear(Lime);
 
-	lcdConsoleInit(&CON1, 0, 0, gdispGetWidth(), gdispGetHeight(), &fontLarger, Black, White);
+	gfxConsoleInit(&CON1, 0, 0, gdispGetWidth(), gdispGetHeight(), &fontLarger, Black, White);
 	chprintf((BaseSequentialStream *)&CON1, "Hello the time is %d\nGoodbye.", chTimeNow());
 
 

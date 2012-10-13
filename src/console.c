@@ -28,7 +28,7 @@
  * Interface implementation. The interface is write only
  */
 static size_t write(void *ip, const uint8_t *bp, size_t n) {
-	return lcdConsoleWrite((GConsole *)ip, bp, n);
+	return gfxConsoleWrite((GConsole *)ip, bp, n);
 }
 
 static size_t read(void *ip, uint8_t *bp, size_t n) {
@@ -42,7 +42,7 @@ static size_t read(void *ip, uint8_t *bp, size_t n) {
 static msg_t put(void *ip, uint8_t b) {
 	(void)ip;
 
-	return lcdConsolePut((GConsole *)ip, (char)b);
+	return gfxConsolePut((GConsole *)ip, (char)b);
 }
 
 static msg_t get(void *ip) {
@@ -56,7 +56,7 @@ static msg_t putt(void *ip, uint8_t b, systime_t timeout) {
 
 	/* TODO: handle timeout */
 
-	return lcdConsolePut((GConsole *)ip, (char)b);
+	return gfxConsolePut((GConsole *)ip, (char)b);
 }
 
 static msg_t gett(void *ip, systime_t timeout) {
@@ -69,7 +69,7 @@ static msg_t gett(void *ip, systime_t timeout) {
 static size_t writet(void *ip, const uint8_t *bp, size_t n, systime_t time) {
 	(void)time;
 
-	return lcdConsoleWrite((GConsole *)ip, bp, n);
+	return gfxConsoleWrite((GConsole *)ip, bp, n);
 }
 
 static size_t readt(void *ip, uint8_t *bp, size_t n, systime_t time) {
@@ -86,7 +86,7 @@ static const struct GConsoleVMT vmt = {
 	putt, gett, writet, readt
 };
 
-msg_t lcdConsoleInit(GConsole *console, coord_t x0, coord_t y0, coord_t width, coord_t height, font_t font, pixel_t bkcolor, pixel_t color) {
+msg_t gfxConsoleInit(GConsole *console, coord_t x0, coord_t y0, coord_t width, coord_t height, font_t font, pixel_t bkcolor, pixel_t color) {
 	console->vmt = &vmt;
 	/* read font, get height & padding */
 	console->fy = gdispGetFontMetric(font, fontHeight);
@@ -110,7 +110,7 @@ msg_t lcdConsoleInit(GConsole *console, coord_t x0, coord_t y0, coord_t width, c
 	return RDY_OK;
 }
 
-msg_t lcdConsolePut(GConsole *console, char c) {
+msg_t gfxConsolePut(GConsole *console, char c) {
 	uint8_t width;
 
 	if(c == '\n') {
@@ -164,10 +164,10 @@ msg_t lcdConsolePut(GConsole *console, char c) {
 	return RDY_OK;
 }
 
-msg_t lcdConsoleWrite(GConsole *console, const uint8_t *bp, size_t n) {
+msg_t gfxConsoleWrite(GConsole *console, const uint8_t *bp, size_t n) {
 	size_t i;
 	for(i = 0; i < n; i++)
-		lcdConsolePut(console, bp[i]);
+		gfxConsolePut(console, bp[i]);
 
 	return RDY_OK;
 }
