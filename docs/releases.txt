@@ -2,7 +2,10 @@
 *** Releases                                                              ***
 *****************************************************************************
 
-current stable: 1.1
+current stable: 1.2
+
+*** changes after 1.2 ***
+
 
 *** changer after 1.1 ***
 FIX:		orientation macros changed

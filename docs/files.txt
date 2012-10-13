@@ -1,6 +1,7 @@
 This is a tree of the toplevel directory of the GLCD library.
 The maintainer is supposed to keep it up to date at any new release.
 
+.
 ├── demos
 │   ├── console
 │   │   └── main.c
@@ -12,6 +13,8 @@ The maintainer is supposed to keep it up to date at any new release.
 │   └── touchpad
 │       └── main.c
 ├── docs
+│   ├── codingstyle.txt
+│   ├── configure.txt
 │   ├── console.txt
 │   ├── contributors.txt
 │   ├── files.txt
@@ -72,6 +75,7 @@ The maintainer is supposed to keep it up to date at any new release.
 │           ├── touchpad_lld.c
 │           ├── touchpad_lld_config.h
 │           └── touchpad_lld.mk
+├── gfx.mk
 ├── include
 │   ├── console.h
 │   ├── gdisp_emulation.c
@@ -81,7 +85,6 @@ The maintainer is supposed to keep it up to date at any new release.
 │   ├── gdisp_lld_msgs.h
 │   ├── touchpad.h
 │   └── touchpad_lld.h
-├── lcd.mk
 ├── license.txt
 ├── old
 │   ├── graph
@@ -113,5 +116,4 @@ The maintainer is supposed to keep it up to date at any new release.
 └── tools
     └── readme.txt
 
-26 directories, 85 files
-
+26 directories, 87 files
