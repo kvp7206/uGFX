@@ -90,7 +90,7 @@ static size_t readt(void *ip, uint8_t *bp, size_t n, systime_t time) {
 	return 0;
 }
 
-static ioflags_t getflags(void *ip) {
+static uint32_t getflags(void *ip) {
 	_ch_get_and_clear_flags_impl(ip);
 }
 
