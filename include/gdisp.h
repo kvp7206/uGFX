@@ -29,10 +29,6 @@
 
 #if HAL_USE_GDISP || defined(__DOXYGEN__)
 
-#if !defined(GDISP_USE_GPIO) && !defined(GDISP_USE_FSMC) && !defined(GDISP_USE_SPI)
-	#error "No known GDISP_USE_XXX has been defined"
-#endif
-
 /*===========================================================================*/
 /* Driver constants.														 */
 /*===========================================================================*/
@@ -99,6 +95,10 @@
 
 #if GDISP_NEED_MULTITHREAD && GDISP_NEED_ASYNC
 	#error "GDISP: Only one of GDISP_NEED_MULTITHREAD and GDISP_NEED_ASYNC should be defined."
+#endif
+
+#if !defined(GDISP_USE_GPIO) && !defined(GDISP_USE_FSMC) && !defined(GDISP_USE_SPI)
+	#error "No known GDISP_USE_XXX has been defined"
 #endif
 
 #if GDISP_NEED_ASYNC
