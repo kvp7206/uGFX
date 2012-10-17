@@ -58,8 +58,14 @@
  */
 bool_t GDISP_LLD(init)(void) {
 	#ifdef GDISP_USE_FSMC
-		/* FSMC setup. TODO: this only works for STM32F1 */
-		rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
+		#if defined(STM32F1XX) || defined(STM32F3XX)
+			/* FSMC clock init for F1/F3 */
+			rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
+		#elif defined(STM32F4XX) || defined(STM32F2XX)
+			/* FSMC clock init for F2/F4 */
+			rccEnableAHB3(RCC_AHB3ENR_FSMCEN, 0);
+		#endif
+
 		int FSMC_Bank = 0;
 		/* timing structure */
 		/* from datasheet:
