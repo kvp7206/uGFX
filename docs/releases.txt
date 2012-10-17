@@ -16,6 +16,7 @@ FIX:		SCREEN_WIDTH and SCREEN_HEIGHT renamed to GDISP_SCREEN_WIDTH and GDISP_SCR
 FIX:		struct TOUCHPAD_t   renamed to   struct TOUCHPADDriver_t
 FIX:		struct GConsole   renamed to   struct GConsole_t
 FIX:		lcdConsoleXXX()   functions have been renamed to   gfxConsoleXXX()
+FEATURE:	FSMC for SSD1289 F2/F4
 
 *** changes after 1.0 ***
 FIX:		removed gdisp and touchpad prefix of driver directories
