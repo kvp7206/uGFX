@@ -28,7 +28,7 @@
 #ifndef _TOUCHPAD_H
 #define _TOUCHPAD_H
 
-#if HAL_USE_TOUCHPAD || defined(__DOXYGEN__)
+#if GFX_USE_TOUCHPAD || defined(__DOXYGEN__)
 
 /**
  * @brief	specifies how many conversions are made for a readout.
@@ -87,7 +87,7 @@ void tpCalibrate(void);
 }
 #endif
 
-#endif /* HAL_USE_TOUCHPAD */
+#endif /* GFX_USE_TOUCHPAD */
 
 #endif /* _TOUCHPAD_H */
 /** @} */

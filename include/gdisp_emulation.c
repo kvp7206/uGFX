@@ -31,7 +31,7 @@
 #ifndef GDISP_EMULATION_C
 #define GDISP_EMULATION_C
 
-#if HAL_USE_GDISP || defined(__DOXYGEN__)
+#if GFX_USE_GDISP || defined(__DOXYGEN__)
 
 #ifndef GDISP_LLD_NO_STRUCT
 	static struct GDISPDriver {
@@ -683,5 +683,5 @@ void *GDISP_LLD(query)(unsigned what) {
 	}
 #endif
 
-#endif  /* HAL_USE_GDISP */
+#endif  /* GFX_USE_GDISP */
 #endif	/* GDISP_EMULATION_C */

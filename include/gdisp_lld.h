@@ -28,7 +28,7 @@
 #ifndef _GDISP_LLD_H
 #define _GDISP_LLD_H
 
-#if HAL_USE_GDISP || defined(__DOXYGEN__)
+#if GFX_USE_GDISP || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Low level driver configuration needs					                     */
@@ -644,7 +644,7 @@ extern "C" {
 }
 #endif
 
-#endif	/* HAL_USE_GDISP */
+#endif	/* GFX_USE_GDISP */
 
 #endif	/* _GDISP_LLD_H */
 /** @} */

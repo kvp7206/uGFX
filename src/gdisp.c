@@ -33,7 +33,7 @@
 #ifndef _GDISP_C
 #define _GDISP_C
 
-#if HAL_USE_GDISP || defined(__DOXYGEN__)
+#if GFX_USE_GDISP || defined(__DOXYGEN__)
 
 #ifdef GDISP_NEED_TEXT
 	#include "gdisp_fonts.h"
@@ -1118,7 +1118,7 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	}
 #endif
 
-#endif /* HAL_USE_GDISP */
+#endif /* GFX_USE_GDISP */
 
 #endif /* _GDISP_C */
 /** @} */

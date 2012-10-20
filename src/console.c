@@ -22,7 +22,7 @@
 #include "hal.h"
 #include "console.h"
 
-#if GDISP_NEED_CONSOLE
+#if GFX_USE_CONSOLE
 
 /*
  * Interface implementation. The interface is write only

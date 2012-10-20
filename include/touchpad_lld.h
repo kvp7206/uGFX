@@ -29,7 +29,7 @@
 #ifndef _TOUCHPAD_LLD_H
 #define _TOUCHPAD_LLD_H
 
-#if HAL_USE_TOUCHPAD || defined(__DOXYGEN__)
+#if GFX_USE_TOUCHPAD || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Include the low level driver configuration information                    */
@@ -144,7 +144,7 @@ extern "C" {
 }
 #endif
 
-#endif /* HAL_USE_TOUCHPAD */
+#endif /* GFX_USE_TOUCHPAD */
 
 #endif /* _TOUCHPAD_LLD_H */
 /** @} */

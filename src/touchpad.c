@@ -30,7 +30,7 @@
 #include "gdisp.h"
 #include "touchpad.h"
 
-#if HAL_USE_TOUCHPAD || defined(__DOXYGEN__)
+#if GFX_USE_TOUCHPAD || defined(__DOXYGEN__)
 
 #if TOUCHPAD_STORE_CALIBRATION
 extern void lld_tpWriteCalibration(struct cal_t cal);
@@ -265,6 +265,6 @@ void tpCalibrate(void) {
 	}
 #endif
 
-#endif /* HAL_USE_TOUCHPAD */
+#endif /* GFX_USE_TOUCHPAD */
 /** @} */
 

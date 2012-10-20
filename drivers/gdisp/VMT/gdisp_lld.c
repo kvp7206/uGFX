@@ -30,7 +30,7 @@
 #include "hal.h"
 #include "gdisp.h"
 
-#if HAL_USE_GDISP || defined(__DOXYGEN__)
+#if GFX_USE_GDISP || defined(__DOXYGEN__)
 
 #define GDISP_LLD_NO_STRUCT
 
@@ -277,5 +277,5 @@ bool_t	gdisp_lld_init_VMT(void) {
 	return FALSE;
 }
 
-#endif /* HAL_USE_GDISP */
+#endif /* GFX_USE_GDISP */
 /** @} */

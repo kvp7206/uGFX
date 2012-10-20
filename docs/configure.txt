@@ -3,7 +3,7 @@ There are serval macros available to configure the behaviour of the GFX-Library.
 HAL macros:
 
 	#define HAL_USE_GFX					// enables the GDISP sub system. This is essentially needed to use the display
-	#define HAL_USE_TOUCHPAD			// enables the TouchPad sub system. This is essentially needed to use the touchpad
+	#define GFX_USE_TOUCHPAD			// enables the TouchPad sub system. This is essentially needed to use the touchpad
 
 
 
@@ -27,7 +27,7 @@ GDISP macors:
 	#define GDISP_NEED_SCROLL			// is scrolling is needed (pixel shift)
 	#define GDISP_NEED_QUERY			// to make certain queries to the LCD controller
 
-	#define GDISP_NEED_CONSOLE			// for the console abstraction
+	#define GFX_USE_CONSOLE			// for the console abstraction
 
 
 TouchPad macros:

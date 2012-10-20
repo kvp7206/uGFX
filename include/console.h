@@ -21,11 +21,11 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#ifndef GDISP_NEED_CONSOLE
-	#define GDISP_NEED_CONSOLE FALSE
+#ifndef GFX_USE_CONSOLE
+	#define GFX_USE_CONSOLE FALSE
 #endif
 
-#if GDISP_NEED_CONSOLE
+#if GFX_USE_CONSOLE
 
 #include "gdisp.h"
 
@@ -78,7 +78,7 @@ msg_t gfxConsoleWrite(GConsole *console, const uint8_t *bp, size_t n);
 }
 #endif
 
-#endif /* GDISP_NEED_CONSOLE */
+#endif /* GFX_USE_CONSOLE */
 
 #endif /* CONSOLE_H */
 

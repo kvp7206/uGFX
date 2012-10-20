@@ -27,7 +27,7 @@
 #ifndef _GDISP_H
 #define _GDISP_H
 
-#if HAL_USE_GDISP || defined(__DOXYGEN__)
+#if GFX_USE_GDISP || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver constants.														 */
@@ -286,7 +286,7 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 }
 #endif
 
-#endif /* HAL_USE_GDISP */
+#endif /* GFX_USE_GDISP */
 
 #endif /* _GDISP_H */
 /** @} */

@@ -28,7 +28,7 @@
 /*
  * Please add the following to your halconf.h
  *
- * #define GDISP_NEED_CONSOLE TRUE
+ * #define GFX_USE_CONSOLE TRUE
  * #define GDISP_NEED_SCROLL TRUE
  */
 

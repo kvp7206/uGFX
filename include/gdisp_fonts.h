@@ -30,7 +30,7 @@
 #ifndef _GDISP_FONTS_H
 #define _GDISP_FONTS_H
 
-/* Don't test against HAL_USE_GDISP as we may want to use this in other non-GDISP utilities. */
+/* Don't test against GFX_USE_GDISP as we may want to use this in other non-GDISP utilities. */
 
 /**
  * @brief   The maximum height of a font.

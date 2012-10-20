@@ -14,8 +14,8 @@ To include any of these functions/drivers in your project...
 	5/ In your project halconf.h turn on the support you want. Please take a look to
 		docs/configure.txt for a list and description of all available macros. For example:
 
-			#define HAL_USE_GDISP				TRUE
-			#define HAL_USE_TOUCHPAD			TRUE
+			#define GFX_USE_GDISP				TRUE
+			#define GFX_USE_TOUCHPAD			TRUE
 
 			#define GDISP_USE_GPIO				TRUE
 			#define GDISP_GDISP_SCREEN_WIDTH			240

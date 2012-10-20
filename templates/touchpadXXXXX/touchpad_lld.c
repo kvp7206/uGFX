@@ -30,7 +30,7 @@
 #include "hal.h"
 #include "touchpad.h"
 
-#if HAL_USE_TOUCHPAD || defined(__DOXYGEN__)
+#if GFX_USE_TOUCHPAD || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
@@ -140,6 +140,6 @@ uint16_t tp_lld_read_y(void) {
 	}
 #endif
 
-#endif /* HAL_USE_TOUCHPAD */
+#endif /* GFX_USE_TOUCHPAD */
 /** @} */
 

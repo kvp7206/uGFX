@@ -29,7 +29,7 @@
 #define _GDISP_LLD_MSGS_H
 
 /* This file describes the message API for gdisp_lld */
-#if HAL_USE_GDISP && GDISP_NEED_MSGAPI
+#if GFX_USE_GDISP && GDISP_NEED_MSGAPI
 
 typedef enum gdisp_msgaction {
 	GDISP_LLD_MSG_NOP,
@@ -188,6 +188,6 @@ typedef union gdisp_lld_msg {
 	} query;
 } gdisp_lld_msg_t;
 
-#endif	/* HAL_USE_GDISP */
+#endif	/* GFX_USE_GDISP */
 #endif	/* _GDISP_LLD_MSGS_H */
 /** @} */

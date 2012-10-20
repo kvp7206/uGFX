@@ -24,7 +24,7 @@
 #include "hal.h"
 #include "gdisp.h"
 
-#if HAL_USE_GDISP || defined(__DOXYGEN__)
+#if GFX_USE_GDISP || defined(__DOXYGEN__)
 
 #if GDISP_NEED_TEXT
 
@@ -652,4 +652,4 @@
 
 #endif /* GDISP_NEED_TEXT */
 
-#endif /* HAL_USE_GDISP */
+#endif /* GFX_USE_GDISP */

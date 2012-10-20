@@ -29,7 +29,7 @@
 #ifndef _GDISP_LLD_CONFIG_H
 #define _GDISP_LLD_CONFIG_H
 
-#if HAL_USE_GDISP || defined(__DOXYGEN__)
+#if GFX_USE_GDISP || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver hardware support.                                                  */
@@ -46,7 +46,7 @@
 
 #define GDISP_PIXELFORMAT				GDISP_PIXELFORMAT_RGB565
 
-#endif	/* HAL_USE_GDISP */
+#endif	/* GFX_USE_GDISP */
 
 #endif	/* _GDISP_LLD_CONFIG_H */
 /** @} */

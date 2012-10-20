@@ -29,7 +29,7 @@
 #ifndef _TOUCHPAD_LLD_CONFIG_H
 #define _TOUCHPAD_LLD_CONFIG_H
 
-#if HAL_USE_TOUCHPAD || defined(__DOXYGEN__)
+#if GFX_USE_TOUCHPAD || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver hardware support.                                                  */
@@ -38,7 +38,7 @@
 #define TOUCHPAD_HAS_IRQ				TRUE
 #define TOUCHPAD_HAS_PRESSURE			FALSE
 
-#endif	/* HAL_USE_TOUCHPAD */
+#endif	/* GFX_USE_TOUCHPAD */
 
 #endif	/* _TOUCHPAD_LLD_CONFIG_H */
 /** @} */

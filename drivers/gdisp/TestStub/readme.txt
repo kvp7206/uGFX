@@ -8,7 +8,7 @@ Do not use this driver as a template for new drivers. Use the
 To use this driver:
 
 1. Add in your halconf.h:
-	a) #define HAL_USE_GDISP	TRUE
+	a) #define GFX_USE_GDISP	TRUE
 	b) Any optional high level driver defines (see gdisp.h)
 		you want to compile test eg: GDISP_NEED_MULTITHREAD
 
