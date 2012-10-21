@@ -31,17 +31,17 @@
 	#define Set_RD		palSetPad(GDISP_CMD_PORT, GDISP_RD);
 	#define Clr_RD		palClearPad(GDISP_CMD_PORT, GDISP_RD);
 
-	extern void lld_lcdWriteGPIO(uint16_t data);
-	extern uint16_t lld_lcdReadGPIO(void);
+	extern void gdisp_write_gpio_lld(uint16_t data);
+	extern uint16_t gdisp_read_gpio_lld(void);
 
 	static __inline void lld_lcdWriteIndex(uint16_t index)	{
 		Clr_RS; Set_RD;
-		lld_lcdWriteGPIO(index);
+		gdisp_write_gpio_lld(index);
 		Clr_WR; Set_WR;
 	}
 	static __inline void lld_lcdWriteData(uint16_t data)	{
 		Set_RS;
-		lld_lcdWriteGPIO(data);
+		gdisp_write_gpio_lld(data);
 		Clr_WR; Set_WR;
 	}
 	static __inline void lld_lcdWriteReg(uint16_t lcdReg,uint16_t lcdRegValue) {
@@ -54,7 +54,7 @@
 		uint16_t value;
 
 		Set_RS; Set_WR; Clr_RD;
-		value = lld_lcdReadGPIO();
+		value = gdisp_read_gpio_lld();
 		Set_RD;
 		return value;
 	}
@@ -81,7 +81,7 @@
 		uint16_t i;
 
 		Set_RS;
-		for(i = 0; i < size; i++) {	lld_lcdWriteGPIO(buffer[i]); Clr_WR; Set_WR; }
+		for(i = 0; i < size; i++) {	gdisp_write_gpio_lld(buffer[i]); Clr_WR; Set_WR; }
 	}
 
 	static __inline void lld_lcdReadStreamStart(void) {
