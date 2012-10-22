@@ -319,6 +319,9 @@ static void lld_lcdSetViewPort(uint16_t x, uint16_t y, uint16_t cx, uint16_t cy)
 	lld_lcdSetCursor(x, y);
 }
 
-static __inline void lld_lcdResetViewPort(void)							{}
+static __inline void lld_lcdResetViewPort(void) { 
+	/* ToDo */
+}
 
 #endif /* SSD1289_H */
+
