@@ -57,30 +57,48 @@
  * @notapi
  */
 bool_t GDISP_LLD(init)(void) {
-	#ifdef GDISP_USE_FSMC
-		#if defined(STM32F1XX) || defined(STM32F3XX)
-			/* FSMC clock init for F1/F3 */
-			rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
-		#elif defined(STM32F4XX) || defined(STM32F2XX)
-			/* FSMC clock init for F2/F4 */
-			rccEnableAHB3(RCC_AHB3ENR_FSMCEN, 0);
+#if defined(GDISP_USE_FSMC)
+
+	#if defined(STM32F1XX) || defined(STM32F3XX)
+		/* FSMC setup for F1/F3 */
+		rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
+
+		#if defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
+			#error "DMA not implemented for F1/F3 Devices"
 		#endif
+	#elif defined(STM32F4XX) || defined(STM32F2XX)
+		/* STM32F2-F4 FSMC init */
+		rccEnableAHB3(RCC_AHB3ENR_FSMCEN, 0);
 
-		int FSMC_Bank = 0;
-		/* timing structure */
-		/* from datasheet:
-			address setup: 0ns
-			address hold: 0ns
-			Data setup: 5ns
-			Data hold: 5ns
-			Data access: 250ns
-			output hold: 100ns
-		 */
-		FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_1 | FSMC_BTR1_DATAST_1;
-
-		/* Bank1 NOR/SRAM control register configuration */
-		FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
+		#if defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
+			if (dmaStreamAllocate(GDISP_DMA_STREAM, 0, NULL, NULL)) chSysHalt();
+			dmaStreamSetMemory0(GDISP_DMA_STREAM, &GDISP_RAM);
+			dmaStreamSetMode(GDISP_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);  
+		#endif
+	#else
+		#error "FSMC not implemented for this device"
 	#endif
+
+	/* set pins to FSMC mode */
+	IOBus busD = {GPIOD, (1 << 0) | (1 << 1) | (1 << 4) | (1 << 5) | (1 << 7) | (1 << 8) |
+							(1 << 9) | (1 << 10) | (1 << 11) | (1 << 14) | (1 << 15), 0};
+
+	IOBus busE = {GPIOE, (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10) | (1 << 11) | (1 << 12) |
+						(1 << 13) | (1 << 14) | (1 << 15), 0};
+
+	palSetBusMode(&busD, PAL_MODE_ALTERNATE(12));
+	palSetBusMode(&busE, PAL_MODE_ALTERNATE(12));
+
+	const unsigned char FSMC_Bank = 0;
+	/* FSMC timing */
+	FSMC_Bank1->BTCR[FSMC_Bank+1] = (FSMC_BTR1_ADDSET_1 | FSMC_BTR1_ADDSET_3) \
+			| (FSMC_BTR1_DATAST_1 | FSMC_BTR1_DATAST_3) \
+			| (FSMC_BTR1_BUSTURN_1 | FSMC_BTR1_BUSTURN_3) ;
+
+	/* Bank1 NOR/SRAM control register configuration
+	 * This is actually not needed as already set by default after reset */
+	FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
+#endif
 
 	lld_lcdWriteReg(0x0000,0x0001);		lld_lcdDelay(5);
     lld_lcdWriteReg(0x0003,0xA8A4);    	lld_lcdDelay(5);
