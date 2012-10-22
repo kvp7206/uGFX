@@ -712,6 +712,7 @@ void gdispDrawArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t
 		chMtxLock(&gdispMutex);
 		GDISP_LLD(control)(what, value);
 		chMtxUnlock();
+		chThdSleepMilliseconds(100);
 	}
 #elif GDISP_NEED_CONTROL && GDISP_NEED_ASYNC
 	void gdispControl(unsigned what, void *value) {
@@ -719,6 +720,7 @@ void gdispDrawArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t
 		p->control.what = what;
 		p->control.value = value;
 		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+		chThdSleepMilliseconds(100);
 	}
 #endif
 
