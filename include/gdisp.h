@@ -118,6 +118,11 @@
 /* Type definitions                                                          */
 /*===========================================================================*/
 
+typedef struct _point_t {
+	coord_t x;
+	coord_t y;
+} point_t;
+
 /**
  * @brief   Type for the text justification.
  */
