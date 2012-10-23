@@ -105,7 +105,7 @@ bool_t GDISP_LLD(init)(void) {
 
 		int FSMC_Bank = 0;
 		/* FSMC timing */
-		FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_1 | FSMC_BTR1_DATAST_1;
+		FSMC_Bank1->BTCR[FSMC_Bank+1] = (10) | (10 << 8) | (10 << 16);
 
 		/* Bank1 NOR/SRAM control register configuration */
 		FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
