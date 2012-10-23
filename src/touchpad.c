@@ -214,6 +214,7 @@ void tpCalibrate(void) {
 	uint16_t points[2][2];
 	uint8_t i;
 
+	gdispSetOrientation(GDISP_ROTATE_0);
 	gdispClear(Red);
 	gdispFillStringBox(0, 10, gdispGetWidth(), 30, "Calibration", &fontUI2Double,  White, Red, justifyCenter);
 
