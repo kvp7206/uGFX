@@ -9,7 +9,7 @@ int main(void) {
 	gdispInit();
 	gdispSetOrientation(GDISP_ROTATE_270);
 
-	mandelbrotInit(50, 50, 512);
+	mandelbrotInit(128, 128, 512);
 
 	while(TRUE) {
 	
