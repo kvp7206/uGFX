@@ -50,10 +50,6 @@ extern struct cal_t *lld_tpReadCalibration(void);
 /*===========================================================================*/
 static struct cal_t *cal;
 
-#if TOUCHPAD_STORE_CALIBRATION
-static bool_t calibration_failed = FALSE;
-#endif
-
 /*===========================================================================*/
 /* Driver local functions.                                                   */
 /*===========================================================================*/
@@ -150,7 +146,6 @@ void tpInit(const TOUCHPADDriver *tp) {
 		cal = lld_tpReadCalibration();
 		if(cal == NULL) {
 			cal = (struct cal_t*)chHeapAlloc(NULL, sizeof(struct cal_t));
-			calibration_failed = TRUE;
 			tpCalibrate();
 		}
 	#endif
@@ -248,8 +243,7 @@ void tpCalibrate(void) {
 	cal->yn = (float)cross[0][1] - cal->ym * (float)points[0][1];
 	
 	#if TOUCHPAD_STORE_CALIBRATION
-		if(!calibration_failed)
-			lld_tpWriteCalibration(cal);
+		lld_tpWriteCalibration(cal);
 	#endif
 }
 
