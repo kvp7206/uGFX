@@ -33,8 +33,8 @@
 #if GFX_USE_TOUCHPAD || defined(__DOXYGEN__)
 
 #if TOUCHPAD_STORE_CALIBRATION
-extern void lld_tpWriteCalibration(struct cal_t cal);
-extern struct cal_t lld_tpReadCalibration(void);
+extern void lld_tpWriteCalibration(struct cal_t *cal);
+extern struct cal_t *lld_tpReadCalibration(void);
 #endif
 
 /*===========================================================================*/
@@ -48,9 +48,11 @@ extern struct cal_t lld_tpReadCalibration(void);
 /*===========================================================================*/
 /* Driver local variables.                                                   */
 /*===========================================================================*/
-static volatile struct cal_t cal = {
-    1, 1, 0, 0
-};
+static struct cal_t *cal;
+
+#if TOUCHPAD_STORE_CALIBRATION
+static bool_t calibration_failed = FALSE;
+#endif
 
 /*===========================================================================*/
 /* Driver local functions.                                                   */
@@ -132,6 +134,10 @@ static void _tpDrawCross(uint16_t x, uint16_t y) {
  * @api
  */
 void tpInit(const TOUCHPADDriver *tp) {
+	cal = (struct cal_t*)chHeapAlloc(NULL, sizeof(struct cal_t));
+	if(cal == NULL)
+		return;
+
 	/* Initialise Mutex */
 	//MUTEX_INIT
 
@@ -142,6 +148,11 @@ void tpInit(const TOUCHPADDriver *tp) {
 
 	#if TOUCHPAD_STORE_CALIBRATION
 		cal = lld_tpReadCalibration();
+		if(cal == NULL) {
+			cal = (struct cal_t*)chHeapAlloc(NULL, sizeof(struct cal_t));
+			calibration_failed = TRUE;
+			tpCalibrate();
+		}
 	#endif
 }
 
@@ -156,11 +167,11 @@ uint16_t tpReadX(void) {
 	uint16_t x, y;
 
 #if TOUCHPAD_XY_INVERTED == TRUE
-	x = cal.xm * _tpReadRealY() + cal.xn;
-	y = cal.ym * _tpReadRealX() + cal.yn;
+	x = cal->xm * _tpReadRealY() + cal->xn;
+	y = cal->ym * _tpReadRealX() + cal->yn;
 #else
-	x = cal.xm * _tpReadRealX() + cal.xn;
-	y = cal.ym * _tpReadRealY() + cal.yn;
+	x = cal->xm * _tpReadRealX() + cal->xn;
+	y = cal->ym * _tpReadRealY() + cal->yn;
 #endif
 
 	switch(gdispGetOrientation()) {  
@@ -188,11 +199,11 @@ uint16_t tpReadY(void) {
 	uint16_t x, y;
 
 #if TOUCHPAD_XY_INVERTED == TRUE
-	x = cal.xm * _tpReadRealY() + cal.xn;
-	y = cal.ym * _tpReadRealX() + cal.yn;
+	x = cal->xm * _tpReadRealY() + cal->xn;
+	y = cal->ym * _tpReadRealX() + cal->yn;
 #else
-	x = cal.xm * _tpReadRealX() + cal.xn;
-	y = cal.ym * _tpReadRealY() + cal.yn;
+	x = cal->xm * _tpReadRealX() + cal->xn;
+	y = cal->ym * _tpReadRealY() + cal->yn;
 #endif
 
 	switch(gdispGetOrientation()) { 
@@ -229,15 +240,16 @@ void tpCalibrate(void) {
 		while(tpIRQ());
 		gdispFillArea(cross[i][0]-15, cross[i][1]-15, 42, 42, Red);
 	}
+	
+	cal->xm = ((float)cross[1][0] - (float)cross[0][0]) / ((float)points[1][0] - (float)points[0][0]);
+	cal->ym = ((float)cross[1][1] - (float)cross[0][1]) / ((float)points[1][1] - (float)points[0][1]);
 
-	cal.xm = ((float)cross[1][0] - (float)cross[0][0]) / ((float)points[1][0] - (float)points[0][0]);
-	cal.ym = ((float)cross[1][1] - (float)cross[0][1]) / ((float)points[1][1] - (float)points[0][1]);
-
-	cal.xn = (float)cross[0][0] - cal.xm * (float)points[0][0];
-	cal.yn = (float)cross[0][1] - cal.ym * (float)points[0][1];
-
+	cal->xn = (float)cross[0][0] - cal->xm * (float)points[0][0];
+	cal->yn = (float)cross[0][1] - cal->ym * (float)points[0][1];
+	
 	#if TOUCHPAD_STORE_CALIBRATION
-		lld_tpWriteCalibration(cal);
+		if(!calibration_failed)
+			lld_tpWriteCalibration(cal);
 	#endif
 }
 
