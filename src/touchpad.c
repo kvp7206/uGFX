@@ -162,6 +162,7 @@ uint16_t tpReadX(void) {
 	x = cal.xm * _tpReadRealX() + cal.xn;
 	y = cal.ym * _tpReadRealY() + cal.yn;
 #endif
+
 	switch(gdispGetOrientation()) {  
 		case GDISP_ROTATE_0:
 			return x;
@@ -193,6 +194,7 @@ uint16_t tpReadY(void) {
 	x = cal.xm * _tpReadRealX() + cal.xn;
 	y = cal.ym * _tpReadRealY() + cal.yn;
 #endif
+
 	switch(gdispGetOrientation()) { 
 		case GDISP_ROTATE_0:
 			return y;
