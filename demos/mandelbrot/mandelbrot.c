@@ -96,7 +96,7 @@ void mandelbrotLoop() {
 	//offsety += 0.001;
 	//offsetx += 0.0016;
  
-	if(count++ > 500)  {
+	if(count++ > 80)  {
 		offsetx = -0.756423894274328;
 		offsety = 0.064179410646170;
 		mag = 1;
