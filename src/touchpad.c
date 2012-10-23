@@ -1,5 +1,4 @@
-/*
-    ChibiOS/GFX - Copyright (C) 2012
+/* ChibiOS/GFX - Copyright (C) 2012
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -33,8 +32,8 @@
 #if GFX_USE_TOUCHPAD || defined(__DOXYGEN__)
 
 #if TOUCHPAD_STORE_CALIBRATION
-extern void lld_tpWriteCalibration(struct cal_t *cal);
-extern struct cal_t *lld_tpReadCalibration(void);
+extern void tp_store_calibration_lld(struct cal_t *cal);
+extern struct cal_t *tp_restore_calibration_lld(void);
 #endif
 
 /*===========================================================================*/
@@ -143,7 +142,7 @@ void tpInit(const TOUCHPADDriver *tp) {
 	//MUTEX_EXIT
 
 	#if TOUCHPAD_STORE_CALIBRATION
-		cal = lld_tpReadCalibration();
+		cal = tp_restore_calibration_lld();
 		if(cal == NULL) {
 			cal = (struct cal_t*)chHeapAlloc(NULL, sizeof(struct cal_t));
 			tpCalibrate();
@@ -243,7 +242,7 @@ void tpCalibrate(void) {
 	cal->yn = (float)cross[0][1] - cal->ym * (float)points[0][1];
 	
 	#if TOUCHPAD_STORE_CALIBRATION
-		lld_tpWriteCalibration(cal);
+		tp_store_calibration_lld(cal);
 	#endif
 }
 
