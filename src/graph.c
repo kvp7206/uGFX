@@ -71,13 +71,13 @@ void graphDrawOneQuadrant(Graph *g) {
 	origin.y = g->y1;
 
     /* X Axis */
-    gdispDrawLine(g->x0, g->y1, g->x1, g->y1, g->color);
+    gdispDrawLine(g->x0, g->y0, g->x1, g->y0, g->color);
 	if(g->grid_size > 0)
 		for(i = 0; i <= (length_y / g->grid_size); i++)
     	    _horizontalDotLine(g->x0, g->y0 + g->grid_size * i, g->x1, g->dot_space, g->color);
 
     /* Y Axis */
-    gdispDrawLine(g->x0, g->y0, g->x0, g->y1, g->color);
+    gdispDrawLine(g->x1, g->y0, g->x1, g->y1, g->color);
 	if(g->grid_size > 0);
 		for(i = 0; i <= (length_x / g->grid_size); i++)
     	    _verticalDotLine(g->x0 + g->grid_size * i, g->y0, g->y1, g->dot_space, g->color);		
