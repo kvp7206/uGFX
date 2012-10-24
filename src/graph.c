@@ -98,17 +98,31 @@ void graphDrawFourQuadrants(Graph *g) {
 	origin.x = middle_x;
 	origin.y = middle_y;
 
-	/* X Axis */
+	/* X - Axis */
 	gdispDrawLine(g->x0, middle_y, g->x1, middle_y, g->color);
-	if(g->grid_size > 0)
-		for(i = 0; i <= (length_y / g->grid_size); i++) 
-			_horizontalDotLine(g->x0, g->y0 + g->grid_size * i, g->x1, g->dot_space, g->color);
+	
+	/* draw X - Grid ? */
+	if(g->grid_size > 0) {
+		for(i = 1; i <= (middle_y / g->grid_size); i++) {
+			if(g->grid_size + g->grid_size * i <= middle_y)
+				_horizontalDotLine(g->x0, middle_y - g->grid_size * i, g->x1, g->dot_space, g->color);
+			if(g->grid_size * i <= middle_y)
+				_horizontalDotLine(g->x0, middle_y + g->grid_size * i, g->x1, g->dot_space, g->color);
+		}
+	}
 
-	/* Y Axis */
+	/* Y - Axis */
 	gdispDrawLine(middle_x, g->y0, middle_x, g->y1, g->color);
-	if(g->grid_size > 0)
-		for(i = 0; i <= (length_x / g->grid_size); i++)
-			_verticalDotLine(g->x0 + g->grid_size * i, g->y0, g->y1, g->dot_space, g->color);
+
+	/* draw Y - Grid ? */
+	if(g->grid_size > 0) {
+		for(i = 1; i <= (middle_x / g->grid_size); i++) {
+			if(g->grid_size + g->grid_size * i <= middle_x)
+				_verticalDotLine(middle_x - g->grid_size * i, g->y0, g->y1, g->dot_space, g->color);
+			if(g->grid_size * i <= middle_x)
+				_verticalDotLine(middle_x + g->grid_size * i, g->y0, g->y1, g->dot_space, g->color);
+		}
+	}
 }
 
 void graphDrawDot(coord_t x, coord_t y, uint16_t radius, color_t color) {
