@@ -25,7 +25,7 @@
 
 #if GFX_USE_GRAPH
 
-point_t origin;		// origin of graph
+static point_t origin;		// origin of graph
 
 static void swapCoordinates(coord_t *a, coord_t *b) {
 	coord_t temp;
@@ -145,6 +145,10 @@ void graphDrawNet(int coord[][2], uint16_t entries, uint16_t radius, uint16_t li
     for(i = 0; i < entries; ++i)
         if(radius != 0)
             lcdFillCircle(coord[i][0] + origin.x, origin.y - coord[i][1], radius, dotColor);
+}
+
+point_t graphGetOrigin(void) {
+	return origin;
 }
 
 #endif /* GFX_USE_GRAPH */
