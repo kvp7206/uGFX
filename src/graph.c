@@ -89,9 +89,9 @@ bool_t _boundaryCheck(Graph *g, coord_t x, coord_t y) {
 		return 1;
 	if(g->origin_x + x < g->x0)
 		return 1;
-	if(g->origin_y + y < g->y1)
+	if(g->origin_y - y < g->y1)
 		return 1;
-	if(g->origin_y + y > g->y0)
+	if(g->origin_y - y > g->y0)
 		return 1;
 
 	return 0;
@@ -102,9 +102,9 @@ void graphDrawDot(Graph *g, coord_t x, coord_t y, uint16_t radius, color_t color
 		return;
 
 	if(radius == 0)
-		gdispDrawPixel(g->origin_x + x, g->origin_y + y, color);
+		gdispDrawPixel(g->origin_x + x, g->origin_y - y, color);
 	else
-		gdispFillCircle(g->origin_x + x, g->origin_y + y, radius, color);
+		gdispFillCircle(g->origin_x + x, g->origin_y - y, radius, color);
 }
 
 void graphDrawDots(Graph *g, int coord[][2], uint16_t entries, uint16_t radius, uint16_t color) {
@@ -137,8 +137,10 @@ void graphDrawNet(Graph *g, int coord[][2], uint16_t entries, uint16_t radius, u
 		if(_boundaryCheck(g, coord[i][0], coord[i][1]))
 			continue;
 
-        if(radius != 0)
-            lcdFillCircle(coord[i][0] + g->origin_x, g->origin_y - coord[i][1], radius, dotColor);
+        if(radius == 0)
+			gdispDrawPixel(coord[i][0] + g->origin_x, g->origin_y - coord[i][1], dotColor);
+		else
+            gdispFillCircle(coord[i][0] + g->origin_x, g->origin_y - coord[i][1], radius, dotColor);
 	}
 }
 
