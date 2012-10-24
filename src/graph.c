@@ -126,7 +126,7 @@ void graphDrawFourQuadrants(Graph *g) {
 }
 
 void graphDrawDot(coord_t x, coord_t y, uint16_t radius, color_t color) {
-	if(radius == 1)
+	if(radius == 0)
 		gdispDrawPixel(origin.x + x, origin.y + y, color);
 	else
 		gdispFillCircle(origin.x + x, origin.y + y, radius, color);
