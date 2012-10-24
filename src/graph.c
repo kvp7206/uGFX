@@ -25,16 +25,6 @@
 
 #if GFX_USE_GRAPH
 
-static point_t origin;		// origin of graph
-
-static void swapCoordinates(coord_t *a, coord_t *b) {
-	coord_t temp;
- 
-	temp = *b;
-	*b = *a;
-	*a = temp;   
-}
-
 static void _horizontalDotLine(coord_t x0, coord_t y0, coord_t x1, uint16_t space, color_t color) {
 	uint16_t offset = x0;
 	uint16_t count = ((x1 - x0) / space);
@@ -55,104 +45,51 @@ static void _verticalDotLine(coord_t x0, coord_t y0, coord_t y1, uint16_t space,
 	} while(count--);
 }
 
-void graphDrawOneQuadrant(Graph *g) {
-	if(g->x0 > g->x1)
-		swapCoordinates(&g->x0, &g->x1);
-	if(g->y0 > g->y1)
-		swapCoordinates(&g->y0, &g->y1);
-
+void graphDrawSystem(Graph *g) {
 	uint16_t i;
-	uint16_t length_x = (g->x1 - g->y0);
-	uint16_t length_y = (g->y1 - g->y0);
-    uint16_t middle_x = (g->x1 - g->x0) / 2;
-    uint16_t middle_y = (g->y1 - g->y0) / 2;
 
-	origin.x = g->x0;
-	origin.y = g->y1;
-
-    /* X Axis */
-    gdispDrawLine(g->x0, g->y1, g->x1, g->y1, g->axis_color);
-	if(g->grid_size > 0)
-		for(i = 0; i <= (length_y / g->grid_size); i++)
-    	    _horizontalDotLine(g->x0, g->y0 + g->grid_size * i, g->x1, g->dot_space, g->grid_color);
-
-    /* Y Axis */
-    gdispDrawLine(g->x0, g->y0, g->x0, g->y1, g->axis_color);
-	if(g->grid_size > 0);
-		for(i = 0; i <= (length_x / g->grid_size); i++)
-    	    _verticalDotLine(g->x0 + g->grid_size * i, g->y0, g->y1, g->dot_space, g->grid_color);		
-}
-
-void graphDrawFourQuadrants(Graph *g) {
-	if(g->x0 > g->x1)
-		swapCoordinates(&g->x0, &g->x1);
-	if(g->y0 > g->y1)
-		swapCoordinates(&g->y0, &g->y1);
-
-	uint16_t i;
-	uint16_t middle_x = (g->x1 - g->x0) / 2;
-	uint16_t middle_y = (g->y1 - g->y0) / 2;
-
-	origin.x = middle_x;
-	origin.y = middle_y;
+	g->x0 = g->origin_x - abs(g->xmin);
+	g->x1 = g->origin_x + abs(g->xmax);
+	g->y0 = g->origin_y + abs(g->ymin);
+	g->y1 = g->origin_y - abs(g->ymax);
 
 	/* X - Axis */
-	gdispDrawLine(g->x0, middle_y, g->x1, middle_y, g->axis_color);
-	
-	/* draw X - Grid ? */
-	if(g->grid_size > 0) {
-		for(i = 1; i <= (middle_y / g->grid_size); i++) {
-			if(g->grid_size + g->grid_size * i <= middle_y)
-				_horizontalDotLine(g->x0, middle_y - g->grid_size * i, g->x1, g->dot_space, g->grid_color);
-			if(g->grid_size * i <= middle_y)
-				_horizontalDotLine(g->x0, middle_y + g->grid_size * i, g->x1, g->dot_space, g->grid_color);
+	gdispDrawLine(g->x0, g->origin_y, g->x1, g->origin_y, g->axis_color);
+	if(g->arrows) {
+		gdispDrawLine(g->x1, g->origin_y, g->x1-5, g->origin_y+5, g->axis_color);
+		gdispDrawLine(g->x1, g->origin_y, g->x1-5, g->origin_y-5, g->axis_color);
+	}
+	if(g->full_grid) {
+		for(i = 1; i <= ((g->origin_y - g->y1) / g->grid_size); i++) {
+			_horizontalDotLine(g->x0, g->origin_y - g->grid_size * i, g->x1, g->dot_space, g->grid_color);
+		}
+		for(i = 1; i <= ((g->y0 - g->origin_y) / g->grid_size); i++) {
+			_horizontalDotLine(g->x0, g->origin_y + g->grid_size * i, g->x1, g->dot_space, g->grid_color);
 		}
 	}
+
 
 	/* Y - Axis */
-	gdispDrawLine(middle_x, g->y0, middle_x, g->y1, g->axis_color);
-
-	/* draw Y - Grid ? */
-	if(g->grid_size > 0) {
-		for(i = 1; i <= (middle_x / g->grid_size); i++) {
-			if(g->grid_size + g->grid_size * i <= middle_x)
-				_verticalDotLine(middle_x - g->grid_size * i, g->y0, g->y1, g->dot_space, g->grid_color);
-			if(g->grid_size * i <= middle_x)
-				_verticalDotLine(middle_x + g->grid_size * i, g->y0, g->y1, g->dot_space, g->grid_color);
+	gdispDrawLine(g->origin_x, g->y0, g->origin_x, g->y1, g->axis_color);
+	if(g->arrows) {
+		gdispDrawLine(g->origin_x, g->y1, g->origin_x-5, g->y1+5, g->axis_color);
+		gdispDrawLine(g->origin_x, g->y1, g->origin_x+5, g->y1+5, g->axis_color);
+	}
+	if(g->full_grid) {
+		for(i = 1; i <= ((g->origin_x - g->x0) / g->grid_size); i++) {
+			_verticalDotLine(g->origin_x - g->grid_size * i, g->y1, g->y0, g->dot_space, g->grid_color);
+		}
+		for(i = 1; i <= ((g->x1 - g->origin_x) / g->grid_size); i++) {
+			_verticalDotLine(g->origin_x + g->grid_size * i, g->y1, g->y0, g->dot_space, g->grid_color);
 		}
 	}
 }
 
-void graphDrawDot(coord_t x, coord_t y, uint16_t radius, color_t color) {
+void graphDrawDot(Graph *g, coord_t x, coord_t y, uint16_t radius, color_t color) {
 	if(radius == 0)
-		gdispDrawPixel(origin.x + x, origin.y + y, color);
+		gdispDrawPixel(g->origin_x + x, g->origin_y + y, color);
 	else
-		gdispFillCircle(origin.x + x, origin.y + y, radius, color);
-}
-
-void graphDrawDots(int coord[][2], uint16_t entries, uint16_t radius, uint16_t color) {
-    uint16_t i;
-
-    for(i = 0; i < entries; i++) {
-		if(radius == 0)
-			gdispDrawPixel(coord[i][0] + origin.x, origin.y - coord[i][1], color);
-		else
-        	gdispFillCircle(coord[i][0] + origin.x, origin.y - coord[i][1], radius, color);
-	}
-}
-
-void graphDrawNet(int coord[][2], uint16_t entries, uint16_t radius, uint16_t lineColor, uint16_t dotColor) {
-    uint16_t i;
-
-    for(i = 0; i < entries; ++i)
-        gdispDrawLine(coord[i-1][0] + origin.x, origin.y - coord[i-1][1], coord[i][0] + origin.x, origin.y - coord[i][1], lineColor); 
-    for(i = 0; i < entries; ++i)
-        if(radius != 0)
-            lcdFillCircle(coord[i][0] + origin.x, origin.y - coord[i][1], radius, dotColor);
-}
-
-point_t graphGetOrigin(void) {
-	return origin;
+		gdispFillCircle(g->origin_x + x, g->origin_y + y, radius, color);
 }
 
 #endif /* GFX_USE_GRAPH */

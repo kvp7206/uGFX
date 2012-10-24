@@ -24,28 +24,32 @@
 #if GFX_USE_GRAPH
 
 typedef struct _Graph {
-	coord_t x0;
-	coord_t y0;
-	coord_t x1;
-	coord_t y1;
+	coord_t origin_x;
+	coord_t origin_y;
+	int xmin;
+	int xmax;
+	int ymin;
+	int ymax;
 	uint16_t grid_size;
 	uint16_t dot_space;
 	bool_t full_grid;
+	bool_t arrows;
 	color_t axis_color;
 	color_t grid_color;
+
+	/* do never modify values below this line manually */
+	coord_t x0;
+	coord_t x1;
+	coord_t y0;
+	coord_t y1;
 } Graph;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void graphDrawOneQuadrat(Graph *g);
-void graphDrawFourQuadrants(Graph *g);
-void graphDrawDot(coord_t x, coord_t y, uint16_t radius, color_t color);
-void graphDrawDots(int coord[][2], uint16_t entries, uint16_t radius, uint16_t color);
-void graphDrawNet(int coord[][2], uint16_t entries, uint16_t radius, uint16_t lineColor, uint16_t dotColor);
-
-point_t graphGetOrigin(void);
+void graphDrawSystem(Graph *g);
+void graphDrawDot(Graph *g, coord_t x, coord_t y, uint16_t radius, color_t color);
 
 #ifdef __cplusplus
 }
