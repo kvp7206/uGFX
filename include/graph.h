@@ -50,6 +50,8 @@ extern "C" {
 
 void graphDrawSystem(Graph *g);
 void graphDrawDot(Graph *g, coord_t x, coord_t y, uint16_t radius, color_t color);
+void graphDrawDots(Graph *g, int coord[][2], uint16_t entries, uint16_t radius, uint16_t color);
+void graphDrawNet(Graph *g, int coord[][2], uint16_t entries, uint16_t radius, uint16_t lineColor, uint16_t dotColor);
 
 #ifdef __cplusplus
 }

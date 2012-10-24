@@ -92,5 +92,26 @@ void graphDrawDot(Graph *g, coord_t x, coord_t y, uint16_t radius, color_t color
 		gdispFillCircle(g->origin_x + x, g->origin_y + y, radius, color);
 }
 
+void graphDrawDots(Graph *g, int coord[][2], uint16_t entries, uint16_t radius, uint16_t color) {
+    uint16_t i;
+
+    for(i = 0; i < entries; i++) {
+		if(radius == 0)
+			gdispDrawPixel(coord[i][0] + g->origin_x, g->origin_y - coord[i][1], color);
+		else
+        	gdispFillCircle(coord[i][0] + g->origin_x, g->origin_y - coord[i][1], radius, color);
+	}
+}
+
+void graphDrawNet(Graph *g, int coord[][2], uint16_t entries, uint16_t radius, uint16_t lineColor, uint16_t dotColor) {
+    uint16_t i;
+
+    for(i = 0; i < entries; ++i)
+        gdispDrawLine(coord[i-1][0] + g->origin_x, g->origin_y - coord[i-1][1], coord[i][0] + g->origin_x, g->origin_y - coord[i][1], lineColor); 
+    for(i = 0; i < entries; ++i)
+        if(radius != 0)
+            lcdFillCircle(coord[i][0] + g->origin_x, g->origin_y - coord[i][1], radius, dotColor);
+}
+
 #endif /* GFX_USE_GRAPH */
 
