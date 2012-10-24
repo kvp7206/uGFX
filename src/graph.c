@@ -125,15 +125,15 @@ void graphDrawNet(Graph *g, int coord[][2], uint16_t entries, uint16_t radius, u
     uint16_t i;
 
 	/* draw lines */
-    for(i = 0; i < entries; ++i) {
+    for(i = 0; i < entries-1; i++) {
 		if(_boundaryCheck(g, coord[i][0], coord[i][1]))
 			continue;
 
-        gdispDrawLine(coord[i-1][0] + g->origin_x, g->origin_y - coord[i-1][1], coord[i][0] + g->origin_x, g->origin_y - coord[i][1], lineColor); 
+        gdispDrawLine(coord[i][0] + g->origin_x, g->origin_y - coord[i][1], coord[i+1][0] + g->origin_x, g->origin_y - coord[i+1][1], lineColor); 
 	}
     
 	/* draw dots */
-	for(i = 0; i < entries; ++i) {
+	for(i = 0; i < entries; i++) {
 		if(_boundaryCheck(g, coord[i][0], coord[i][1]))
 			continue;
 
