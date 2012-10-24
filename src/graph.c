@@ -72,13 +72,15 @@ void graphDrawOneQuadrant(Graph *g) {
 
     /* X Axis */
     gdispDrawLine(g->x0, g->y1, g->x1, g->y1, g->color);
-	for(i = 0; i <= (length_y / g->grid_size); i++)
-        _horizontalDotLine(g->x0, g->y0 + g->grid_size * i, g->x1, g->dot_space, g->color);
+	if(g->grid_size > 0)
+		for(i = 0; i <= (length_y / g->grid_size); i++)
+    	    _horizontalDotLine(g->x0, g->y0 + g->grid_size * i, g->x1, g->dot_space, g->color);
 
     /* Y Axis */
     gdispDrawLine(g->x0, g->y0, g->x0, g->y1, g->color);
-	for(i = 0; i <= (length_x / g->grid_size); i++)
-        _verticalDotLine(g->x0 + g->grid_size * i, g->y0, g->y1, g->dot_space, g->color);		
+	if(g->grid_size > 0);
+		for(i = 0; i <= (length_x / g->grid_size); i++)
+    	    _verticalDotLine(g->x0 + g->grid_size * i, g->y0, g->y1, g->dot_space, g->color);		
 }
 
 void graphDrawFourQuadrants(Graph *g) {
@@ -98,13 +100,22 @@ void graphDrawFourQuadrants(Graph *g) {
 
 	/* X Axis */
 	gdispDrawLine(g->x0, middle_y, g->x1, middle_y, g->color);
-	for(i = 0; i <= (length_y / g->grid_size); i++) 
-		_horizontalDotLine(g->x0, g->y0 + g->grid_size * i, g->x1, g->dot_space, g->color);
+	if(g->grid_size > 0)
+		for(i = 0; i <= (length_y / g->grid_size); i++) 
+			_horizontalDotLine(g->x0, g->y0 + g->grid_size * i, g->x1, g->dot_space, g->color);
 
 	/* Y Axis */
 	gdispDrawLine(middle_x, g->y0, middle_x, g->y1, g->color);
-	for(i = 0; i <= (length_x / g->grid_size); i++)
-		_verticalDotLine(g->x0 + g->grid_size * i, g->y0, g->y1, g->dot_space, g->color);
+	if(g->grid_size > 0)
+		for(i = 0; i <= (length_x / g->grid_size); i++)
+			_verticalDotLine(g->x0 + g->grid_size * i, g->y0, g->y1, g->dot_space, g->color);
+}
+
+void graphDrawDot(coord_t x, coord_t y, uint16_t radius, color_t color) {
+	if(radius == 1)
+		gdispDrawPixel(origin.x + x, origin.y + y, color);
+	else
+		gdispFillCircle(origin.x + x, origin.y + y, radius, color);
 }
 
 void graphDrawDots(int coord[][2], uint16_t entries, uint16_t radius, uint16_t color) {
