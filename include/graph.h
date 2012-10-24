@@ -29,9 +29,23 @@ typedef struct _Graph {
 	coord_t x1;
 	coord_t y1;
 	uint16_t grid_size;
+	uint16_t dot_space;
 	bool_t full_grid;
 	color_t color;
 } Graph;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void graphDrawOneQuadrat(Graph *g);
+void graphDrawFourQuadrants(Graph *g);
+void graphDrawDots(int coord[][2], uint16_t entries, uint16_t radius, uint16_t color);
+void graphDrawNet(int coord[][2], uint16_t entries, uint16_t radius, uint16_t lineColor, uint16_t dotColor);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* GFX_USE_GRAPH */
 

@@ -258,9 +258,9 @@
 	 * @brief   Draw a line.
 	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x0,y0   The start position
-	 * @param[in] x1,y1   The end position
-	 * @param[in] color The color to use
+	 * @param[in] x0,y0		The start position
+	 * @param[in] x1,y1 	The end position
+	 * @param[in] color		The color to use
 	 *
 	 * @api
 	 */
@@ -280,6 +280,18 @@
 		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
 	}
 #endif
+
+	/**
+	 * @brief	Draw a dashed line.
+	 * @pre		The GDISP unit must be in powerOn or powerSleep mode.
+	 *
+	 * @param[in] x0,y0		The start position
+	 * @param[in] x1,y1		The end position
+	 * @param[in] length	The length of the dash
+	 * @param[in] color		The color of the dashed line
+	 *
+	 * @api
+	 */
 	
 #if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
 	/**

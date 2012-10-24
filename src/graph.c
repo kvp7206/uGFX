@@ -25,8 +25,103 @@
 
 #if GFX_USE_GRAPH
 
-gfxGraphInit(struct graph_t *g) {
-	(void)g;
+point_t origin;		// origin of graph
+
+static void swapCoordinates(coord_t *a, coord_t *b) {
+	coord_t temp;
+ 
+	temp = *b;
+	*b = *a;
+	*a = temp;   
+}
+
+static void _horizontalDotLine(coord_t x0, coord_t y0, coord_t x1, uint16_t space, color_t color) {
+	uint16_t offset = x0;
+	uint16_t count = ((x1 - x0) / space);
+
+	do {
+		gdispDrawPixel(offset, y0, color);
+		offset += space;
+	} while(count--);
+}
+
+static void _verticalDotLine(coord_t x0, coord_t y0, coord_t y1, uint16_t space, color_t color) {
+	uint16_t offset = y0;
+	uint16_t count = ((y1 - y0) / space);
+
+	do {
+		gdispDrawPixel(x0, offset, color);
+		offset += space;
+	} while(count--);
+}
+
+void graphDrawOneQuadrant(Graph *g) {
+	if(g->x0 > g->x1)
+		swapCoordinates(&g->x0, &g->x1);
+	if(g->y0 > g->y1)
+		swapCoordinates(&g->y0, &g->y1);
+
+	uint16_t i;
+    uint16_t length_x = (g->x1 - g->x0);
+    uint16_t length_y = (g->y1 - g->y0);
+    uint16_t middle_x = (g->x1 - g->x0) / 2;
+    uint16_t middle_y = (g->y1 - g->y0) / 2;
+
+	origin.x = g->x0;
+	origin.y = g->y1;
+
+    /* X Axis */
+    gdispDrawLine(g->x0, g->y1, g->x1, g->y1, g->color);
+	for(i = 0; i <= (length_y / g->grid_size); i++)
+        _horizontalDotLine(g->x0, g->y0 + g->grid_size * i, g->x1, g->dot_space, g->color);
+
+    /* Y Axis */
+    gdispDrawLine(g->x0, g->y0, g->x0, g->y1, g->color);
+	for(i = 0; i <= (length_x / g->grid_size); i++)
+        _verticalDotLine(g->x0 + g->grid_size * i, g->y0, g->y1, g->dot_space, g->color);		
+}
+
+void graphDrawFourQuadrants(Graph *g) {
+	if(g->x0 > g->x1)
+		swapCoordinates(&g->x0, &g->x1);
+	if(g->y0 > g->y1)
+		swapCoordinates(&g->y0, &g->y1);
+
+	uint16_t i;
+	uint16_t length_x = (g->x1 - g->x0);
+	uint16_t length_y = (g->y1 - g->y0);
+	uint16_t middle_x = (g->x1 - g->x0) / 2;
+	uint16_t middle_y = (g->y1 - g->y0) / 2;
+
+	origin.x = middle_x;
+	origin.y = middle_y;
+
+	/* X Axis */
+	gdispDrawLine(g->x0, middle_y, g->x1, middle_y, g->color);
+	for(i = 0; i <= (length_y / g->grid_size); i++) 
+		_horizontalDotLine(g->x0, g->y0 + g->grid_size * i, g->x1, g->dot_space, g->color);
+
+	/* Y Axis */
+	gdispDrawLine(middle_x, g->y0, middle_x, g->y1, g->color);
+	for(i = 0; i <= (length_x / g->grid_size); i++)
+		_verticalDotLine(g->x0 + g->grid_size * i, g->y0, g->y1, g->dot_space, g->color);
+}
+
+void graphDrawDots(int coord[][2], uint16_t entries, uint16_t radius, uint16_t color) {
+    uint16_t i;
+
+    for(i = 0; i < entries; i++)
+        gdispFillCircle(coord[i][0] + origin.x, origin.y - coord[i][1], radius, color);
+}
+
+void graphDrawNet(int coord[][2], uint16_t entries, uint16_t radius, uint16_t lineColor, uint16_t dotColor) {
+    uint16_t i;
+
+    for(i = 0; i < entries; ++i)
+        gdispDrawLine(coord[i-1][0] + origin.x, origin.y - coord[i-1][1], coord[i][0] + origin.x, origin.y - coord[i][1], lineColor); 
+    for(i = 0; i < entries; ++i)
+        if(radius != 0)
+            lcdFillCircle(coord[i][0] + origin.x, origin.y - coord[i][1], radius, dotColor);
 }
 
 #endif /* GFX_USE_GRAPH */
