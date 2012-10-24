@@ -133,8 +133,12 @@ void graphDrawDot(coord_t x, coord_t y, uint16_t radius, color_t color) {
 void graphDrawDots(int coord[][2], uint16_t entries, uint16_t radius, uint16_t color) {
     uint16_t i;
 
-    for(i = 0; i < entries; i++)
-        gdispFillCircle(coord[i][0] + origin.x, origin.y - coord[i][1], radius, color);
+    for(i = 0; i < entries; i++) {
+		if(radius == 0)
+			gdispDrawPixel(coord[i][0] + origin.x, origin.y - coord[i][1], color);
+		else
+        	gdispFillCircle(coord[i][0] + origin.x, origin.y - coord[i][1], radius, color);
+	}
 }
 
 void graphDrawNet(int coord[][2], uint16_t entries, uint16_t radius, uint16_t lineColor, uint16_t dotColor) {
