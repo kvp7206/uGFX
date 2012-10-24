@@ -21,15 +21,19 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
+#ifndef GFX_USE_GRAPH
+	#define GFX_USE_GRAPH FALSE
+#endif
+
 #if GFX_USE_GRAPH
 
 typedef struct _Graph {
 	coord_t origin_x;
 	coord_t origin_y;
-	int xmin;
-	int xmax;
-	int ymin;
-	int ymax;
+	coord_t xmin;
+	coord_t xmax;
+	coord_t ymin;
+	coord_t ymax;
 	uint16_t grid_size;
 	uint16_t dot_space;
 	bool_t full_grid;

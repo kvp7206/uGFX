@@ -27,6 +27,10 @@
 #ifndef _GDISP_H
 #define _GDISP_H
 
+#ifndef GFX_USE_GDISP
+	#define GFX_USE_GDISP FALSE
+#endif
+
 #if GFX_USE_GDISP || defined(__DOXYGEN__)
 
 /*===========================================================================*/
