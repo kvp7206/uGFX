@@ -31,7 +31,8 @@ typedef struct _Graph {
 	uint16_t grid_size;
 	uint16_t dot_space;
 	bool_t full_grid;
-	color_t color;
+	color_t axis_color;
+	color_t grid_color;
 } Graph;
 
 #ifdef __cplusplus
