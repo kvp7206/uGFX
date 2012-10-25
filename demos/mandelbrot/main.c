@@ -22,17 +22,53 @@
 #include "hal.h"
 #include "gdisp.h"
 
+void mandelbrot(float x1, float y1, float x2, float y2) {
+	unsigned int i,j;
+	uint16_t iter;
+	color_t color;
+	
+	float sy = y2 - y1;
+	float sx = x2 - x1;
+	const int MAX = 512;
+	
+	for(i = 0; i < 320; i++) {
+		for(j = 0; j < 240; j++) {
+			float cy = j * sy / 240.0f + y1;
+			float cx = i * sx / 320.0f + x1;
+			float x=0.0f, y=0.0f, xx=0.0f, yy=0.0f;
+			for(iter=0; iter <= MAX && xx+yy<4.0f; iter++) {
+				xx = x*x;
+				yy = y*y;
+				y = 2.0f*x*y + cy;
+				x = xx - yy + cx;
+			}
+			color = ((iter << 8) | (iter&0xFF));
+			//color = RGB565CONVERT(iter*4, iter*13, iter*10);
+			gdispDrawPixel(i, j, color);
+		}
+	}
+}
+
 int main(void) {
+	float cx, cy;
+	float zoom = 1.0f;
+
 	halInit();
 	chSysInit();
 
 	gdispInit();
 	gdispSetOrientation(GDISP_ROTATE_270);
 
-	mandelbrotInit(128, 128, 512);
+	/* where to zoom in */
+	cx = -0.086f;
+	cy = 0.85f;
 
 	while(TRUE) {
-	
+		mandelbrot(-2.0f*zoom+cx, -1.5f*zoom+cy, 2.0f*zoom+cx, 1.5f*zoom+cy);
+
+		zoom *= 0.7f;
+		if(zoom <= 0.00001f)
+			zoom = 1.0f;	
 	}
 }
 
