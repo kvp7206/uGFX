@@ -28,7 +28,6 @@
 #include "ch.h"
 #include "hal.h"
 #include "gdisp.h"
-#include "math.h"
 
 #ifndef _GDISP_C
 #define _GDISP_C
@@ -495,6 +494,10 @@
 	}
 #endif
 
+#if GDISP_NEED_ARC || defined(__DOXYGEN__)
+
+#include "math.h"
+
 /*
  * @brief				Internal helper function for gdispDrawArc()
  *
@@ -598,6 +601,115 @@ void gdispDrawArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t
         _draw_arc(x, y, start, end, radius, color);
 	}
 }
+#endif
+
+#if GDISP_NEED_ARC || defined(__DOXYGEN__)
+/*
+ * @brief				Internal helper function for gdispFillArc()
+ *
+ * @note				DO NOT USE DIRECTLY!
+ * @note				Not very efficient currently - does lots of overdrawing
+ *
+ * @param[in] x, y		The middle point of the arc
+ * @param[in] start		The start angle of the arc
+ * @param[in] end		The end angle of the arc
+ * @param[in] radius	The radius of the arc
+ * @param[in] color		The color in which the arc will be drawn
+ *
+ * @notapi
+ */
+void _fill_arc(coord_t x, coord_t y, uint16_t start, uint16_t end, uint16_t radius, color_t color) {
+    if(start > 0 && start <= 180) {
+        float x_maxI = x + radius*cos(start*M_PI/180);
+        float x_minI;
+
+        if (end > 180)
+            x_minI = x - radius;
+        else
+            x_minI = x + radius*cos(end*M_PI/180);
+
+        int a = 0;
+        int b = radius;
+        int P = 1 - radius;
+
+        do {
+            if(x-a <= x_maxI && x-a >= x_minI)
+                gdispDrawLine(x, y, x-a, y+b, color);
+            if(x+a <= x_maxI && x+a >= x_minI)
+            	gdispDrawLine(x, y, x+a, y+b, color);
+            if(x-b <= x_maxI && x-b >= x_minI)
+            	gdispDrawLine(x, y, x-b, y+a, color);
+            if(x+b <= x_maxI && x+b >= x_minI)
+            	gdispDrawLine(x, y, x+b, y+a, color);
+
+            if (P < 0) {
+                P = P + 3 + 2*a;
+                a = a + 1;
+            } else {
+                P = P + 5 + 2*(a - b);
+                a = a + 1;
+                b = b - 1;
+            }
+        } while(a <= b);
+    }
+
+    if (end > 180 && end <= 360) {
+        float x_maxII = x+radius*cos(end*M_PI/180);
+        float x_minII;
+
+        if(start <= 180)
+            x_minII = x - radius;
+        else
+            x_minII = x+radius*cos(start*M_PI/180);
+
+        int a = 0;
+        int b = radius;
+        int P = 1 - radius;
+
+        do {
+            if(x-a <= x_maxII && x-a >= x_minII)
+            	gdispDrawLine(x, y, x-a, y-b, color);
+            if(x+a <= x_maxII && x+a >= x_minII)
+            	gdispDrawLine(x, y, x+a, y-b, color);
+            if(x-b <= x_maxII && x-b >= x_minII)
+            	gdispDrawLine(x, y, x-b, y-a, color);
+            if(x+b <= x_maxII && x+b >= x_minII)
+            	gdispDrawLine(x, y, x+b, y-a, color);
+
+            if (P < 0) {
+                P = P + 3 + 2*a;
+                a = a + 1;
+            } else {
+                P = P + 5 + 2*(a - b);
+                a = a + 1;
+                b = b - 1;
+            }
+        } while (a <= b);
+    }
+}
+
+/*
+ * @brief	Draw a filled arc.
+ * @pre		The GDISP must be in powerOn or powerSleep mode.
+ * @note				Not very efficient currently - does lots of overdrawing
+ *
+ * @param[in] x0,y0		The center point
+ * @param[in] radius	The radius of the arc
+ * @param[in] start		The start angle (0 to 360)
+ * @param[in] end		The end angle (0 to 360)
+ * @param[in] color		The color of the arc
+ *
+ * @api
+ */
+void gdispFillArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
+	if(end < start) {
+        _fill_arc(x, y, start, 360, radius, color);
+        _fill_arc(x, y, 0, end, radius, color);
+    } else {
+        _fill_arc(x, y, start, end, radius, color);
+	}
+}
+#endif
 
 #if (GDISP_NEED_TEXT && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
 	/**
