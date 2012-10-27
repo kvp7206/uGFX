@@ -18,6 +18,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#if !defined(GDISP_USE_SPI)
+	#error "GDISP_USE_SPI must be defined for the board"
+#endif
+
 /**
  * @file    gdispNokia6610/gdisp_lld_board_olimexsam7ex256.h
  * @brief   GDISP Graphic Driver subsystem board interface for the Olimex SAM7-EX256 board.
@@ -100,12 +104,12 @@ static __inline void GDISP_LLD(init_board)(void) {
 	/* This code should really use the ChibiOS driver for these functions */
 
 	// Pin for backlight
-	pPIOB->PIO_CODR   = PIOB_GDISP_BL_MASK;    // Set PB20 to LOW
-	pPIOB->PIO_OER    = PIOB_GDISP_BL_MASK;    // Configure PB20 as output
+	pPIOB->PIO_CODR   = PIOB_LCD_BL_MASK;    // Set PB20 to LOW
+	pPIOB->PIO_OER    = PIOB_LCD_BL_MASK;    // Configure PB20 as output
 
 	// Reset pin
-	pPIOA->PIO_SODR   = PIOA_GDISP_RESET_MASK;     // Set PA2 to HIGH
-	pPIOA->PIO_OER    = PIOA_GDISP_RESET_MASK;     // Configure PA2 as output
+	pPIOA->PIO_SODR   = PIOA_LCD_RESET_MASK;     // Set PA2 to HIGH
+	pPIOA->PIO_OER    = PIOA_LCD_RESET_MASK;     // Configure PA2 as output
 
 	// CS pin - this seems to be ignored
 	// pPIOA->PIO_SODR   = BIT12;     // Set PA2 to HIGH
@@ -144,11 +148,11 @@ static __inline void GDISP_LLD(init_board)(void) {
  */
 static __inline void GDISP_LLD(setpin_reset)(bool_t state) {
 	if (state)
-		palClearPad(IOPORT1, PIOA_GDISP_RESET);
-//		pPIOA->PIO_CODR = PIOA_GDISP_RESET_MASK;
+		palClearPad(IOPORT1, PIOA_LCD_RESET);
+//		pPIOA->PIO_CODR = PIOA_LCD_RESET_MASK;
 	else
-		palSetPad(IOPORT1, PIOA_GDISP_RESET);
-//		pPIOA->PIO_SODR = PIOA_GDISP_RESET_MASK;
+		palSetPad(IOPORT1, PIOA_LCD_RESET);
+//		pPIOA->PIO_SODR = PIOA_LCD_RESET_MASK;
 }
 
 /**
@@ -160,11 +164,11 @@ static __inline void GDISP_LLD(setpin_reset)(bool_t state) {
  */
 static __inline void GDISP_LLD(setpin_backlight)(bool_t state) {
 	if (state)
-		palSetPad(IOPORT2, PIOB_GDISP_BL);
-//		pPIOB->PIO_SODR = PIOB_GDISP_BL_MASK;
+		palSetPad(IOPORT2, PIOB_LCD_BL);
+//		pPIOB->PIO_SODR = PIOB_LCD_BL_MASK;
 	else
-		palClearPad(IOPORT2, PIOB_GDISP_BL);
-//		pPIOB->PIO_CODR = PIOB_GDISP_BL_MASK;
+		palClearPad(IOPORT2, PIOB_LCD_BL);
+//		pPIOB->PIO_CODR = PIOB_LCD_BL_MASK;
 }
 
 /**
