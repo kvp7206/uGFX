@@ -5,6 +5,7 @@ endif
 
 GFXSRC +=   $(GFXLIB)/src/gdisp.c \
             $(GFXLIB)/src/gdisp_fonts.c \
+            $(GFXLIB)/src/gwin.c \
             $(GFXLIB)/src/touchpad.c \
 			$(GFXLIB)/src/console.c \
 			$(GFXLIB)/src/graph.c \
