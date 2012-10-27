@@ -1,0 +1,414 @@
+/*
+    ChibiOS/RT - Copyright (C) 2012
+                 Joel Bodenmann aka Tectu <joel@unormal.org>
+
+    This file is part of ChibiOS-LCD-Driver.
+
+    ChibiOS-LCD-Driver is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    ChibiOS-LCD-Driver is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/**
+ * @file    Win32/gdisp_lld.c
+ * @brief   GDISP Graphics Driver subsystem low level driver source for Win32.
+ *
+ * @addtogroup GDISP
+ * @{
+ */
+
+#include "ch.h"
+#include "hal.h"
+#include "gdisp.h"
+
+#if GFX_USE_GDISP || defined(__DOXYGEN__)
+
+/* Include the emulation code for things we don't support */
+#include "gdisp_emulation.c"
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <windows.h>
+#include <wingdi.h>
+#include <assert.h>
+
+/*===========================================================================*/
+/* Driver local routines    .                                                */
+/*===========================================================================*/
+
+#define APP_NAME "GDISP"
+
+#define COLOR2BGR(c)	((((c) & 0xFF)<<16)|((c) & 0xFF00)|(((c)>>16) & 0xFF))
+#define BGR2COLOR(c)	COLOR2BGR(c)
+
+static HWND winRootWindow = NULL;
+static HDC dcBuffer = NULL;
+static HBITMAP dcBitmap = NULL;
+static HBITMAP dcOldBitmap;
+
+static LRESULT
+myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	HDC dc;
+	PAINTSTRUCT ps;
+
+	switch (Msg) {
+	case WM_CREATE:
+		break;
+	case WM_MOUSEMOVE:
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_LBUTTONDBLCLK:
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+	case WM_MBUTTONDBLCLK:
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+	case WM_RBUTTONDBLCLK:
+		break;
+	case WM_SYSKEYDOWN:
+	case WM_KEYDOWN:
+	case WM_SYSKEYUP:
+	case WM_KEYUP:
+		break;
+	case WM_CHAR:
+	case WM_DEADCHAR:
+	case WM_SYSCHAR:
+	case WM_SYSDEADCHAR:
+		break;
+	case WM_PAINT:
+		dc = BeginPaint(hWnd, &ps);
+		BitBlt(dc, ps.rcPaint.left, ps.rcPaint.top,
+			ps.rcPaint.right - ps.rcPaint.left,
+			ps.rcPaint.bottom - ps.rcPaint.top,
+			dcBuffer, ps.rcPaint.left, ps.rcPaint.top, SRCCOPY);
+		EndPaint(hWnd, &ps);
+		break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		SelectObject(dcBuffer, dcOldBitmap);
+		DeleteDC(dcBuffer);
+		DeleteObject(dcBitmap);
+		winRootWindow = NULL;
+		break;
+	default:
+		return DefWindowProc(hWnd, Msg, wParam, lParam);
+	}
+	return 0;
+}
+
+/*===========================================================================*/
+/* Driver exported functions.                                                */
+/*===========================================================================*/
+
+/* ---- Required Routines ---- */
+/*
+	The following 2 routines are required.
+	All other routines are optional.
+*/
+
+/**
+ * @brief   Low level GDISP driver initialisation.
+ * @return	TRUE if successful, FALSE on error.
+ *
+ * @notapi
+ */
+bool_t GDISP_LLD(init)(void) {
+	/* Initialise the window */
+	HANDLE hInstance;
+	HDC rootDC;
+	int depth;
+	RECT rect;
+	PSUBDRIVER subdriver;
+	WNDCLASS wc;
+
+	hInstance = GetModuleHandle(NULL);
+	rootDC = CreateDC("DISPLAY", NULL, NULL, NULL);
+	depth = GetDeviceCaps(rootDC, BITSPIXEL);
+	DeleteDC(rootDC);
+	GetWindowRect(GetDesktopWindow(), &rect);
+	GDISP.Width = rect.right - rect.left;
+	GDISP.Height = rect.bottom - rect.top;
+	if (GDISP.Width > GDISP_SCREEN_WIDTH)
+		GDISP.Width = GDISP_SCREEN_WIDTH;
+	if (GDISP.Height > GDISP_SCREEN_HEIGHT)
+		GDISP.Height = GDISP_SCREEN_HEIGHT;
+
+	wc.style           = CS_HREDRAW | CS_VREDRAW; // | CS_OWNDC;
+	wc.lpfnWndProc     = (WNDPROC)myWindowProc;
+	wc.cbClsExtra      = 0;
+	wc.cbWndExtra      = 0;
+	wc.hInstance       = hInstance;
+	wc.hIcon           = LoadIcon(NULL, IDI_APPLICATION);
+	wc.hCursor         = LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground   = GetStockObject(WHITE_BRUSH);
+	wc.lpszMenuName    = NULL;
+	wc.lpszClassName   = APP_NAME;
+	RegisterClass(&wc);
+
+	winRootWindow = CreateWindow(APP_NAME, "", WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU, 0, 0,
+			GDISP.Width, GDISP.Height, 0, 0, hInstance, NULL);
+	assert(winRootWindow != NULL);
+
+	HDC dc = GetDC(winRootWindow);
+
+	GetClientRect(winRootWindow, &rect);
+	dcBitmap = CreateCompatibleBitmap(dc, GDISP.Width, GDISP.Height);
+	dcBuffer = CreateCompatibleDC(dc);
+	dcOldBitmap = SelectObject(dcBuffer, dcBitmap);
+	ReleaseDC(winRootWindow, dc);
+	ShowWindow(winRootWindow, SW_SHOW);
+	UpdateWindow(winRootWindow);
+
+	/* Initialise the GDISP structure to match */
+	GDISP.Orientation = GDISP.Width > GDISP.Height ? landscape : portrait;
+	GDISP.Powermode = powerOn;
+	GDISP.Backlight = 100;
+	GDISP.Contrast = 50;
+	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+		GDISP.clipx0 = 0;
+		GDISP.clipy0 = 0;
+		GDISP.clipx1 = GDISP.Width;
+		GDISP.clipy1 = GDISP.Height;
+	#endif
+	return TRUE;
+}
+
+/**
+ * @brief   Draws a pixel on the display.
+ *
+ * @param[in] x        X location of the pixel
+ * @param[in] y        Y location of the pixel
+ * @param[in] color    The color of the pixel
+ *
+ * @notapi
+ */
+void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
+	HDC dc;
+
+	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+		if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
+	#endif
+
+	color = COLOR2BGR(color);
+	dc = GetDC(winRootWindow);
+	SetPixel(dc, x, y, color);
+	ReleaseDC(winRootWindow, dc);
+	SetPixel(dcBuffer, x, y, color);
+}
+
+/* ---- Optional Routines ---- */
+
+#if GDISP_HARDWARE_LINES || defined(__DOXYGEN__)
+	/**
+	 * @brief   Draw a line.
+	 * @note    Optional - The high level driver can emulate using software.
+	 *
+	 * @param[in] x0, y0   The start of the line
+	 * @param[in] x1, y1   The end of the line
+	 * @param[in] color    The color of the line
+	 *
+	 * @notapi
+	 */
+	void GDISP_LLD(drawline)(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
+		POINT p;
+		HPEN pen;
+		HDC dc;
+		HGDIOBJ old;
+		HRGN	clip;
+
+		#if GDISP_NEED_CLIP
+			clip = NULL;
+			if (GDISP.clipx0 != 0 || GDISP.clipy0 != 0 || GDISP.clipx1 != GDISP.Width || GDISP.clipy1 != GDISP.Height)
+				clip = CreateRectRgn(GDISP.clipx0, GDISP.clipy0, GDISP.clipx1, GDISP.clipy1);
+		#endif
+
+		color = COLOR2BGR(color);
+		pen = CreatePen(PS_SOLID, 1, c);
+		if (pen) {
+			dc = GetDC(winRootWindow);
+			#if GDISP_NEED_CLIP
+				if (clip) SelectClipRgn(dc, clip);
+			#endif
+			old = SelectObject(dc, pen);
+			MoveToEx(dc, x0, y0, &p);
+			LineTo(dc, x1, y1);
+			SelectObject(dc, old);
+			SetPixel(dc, x1, y1, color);
+			#if GDISP_NEED_CLIP
+				if (clip) SelectClipRgn(dc, NULL);
+			#endif
+			ReleaseDC(winRootWindow, dc);
+
+			#if GDISP_NEED_CLIP
+				if (clip) SelectClipRgn(dcBuffer, clip);
+			#endif
+			old = SelectObject(dcBuffer, pen);
+			MoveToEx(dcBuffer, x0, y0, &p);
+			LineTo(dcBuffer, x1, y1);
+			SelectObject(dcBuffer, old);
+			SetPixel(dcBuffer, x1, y1, color);
+			#if GDISP_NEED_CLIP
+				if (clip) SelectClipRgn(dcBuffer, NULL);
+			#endif
+
+			DeleteObject(pen);
+		}
+	}
+#endif
+
+#if GDISP_HARDWARE_FILLS || defined(__DOXYGEN__)
+	/**
+	 * @brief   Fill an area with a color.
+	 * @note    Optional - The high level driver can emulate using software.
+	 *
+	 * @param[in] x, y     The start filled area
+	 * @param[in] cx, cy   The width and height to be filled
+	 * @param[in] color    The color of the fill
+	 *
+	 * @notapi
+	 */
+	void GDISP_LLD(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+		RECT rect;
+		HDC dc;
+		HBRUSH hbr;
+
+		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; x = GDISP.clipx0; }
+			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; y = GDISP.clipy0; }
+			if (cx <= 0 || cy <= 0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
+			if (x+cx > GDISP.clipx1)	cx = GDISP.clipx1 - x;
+			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
+		#endif
+
+		color = COLOR2BGR(color);
+		hbr = CreateSolidBrush(color);
+
+		if (hbr) {
+			rect.bottom = y+cy-1;
+			rect.top = y;
+			rect.left = x;
+			rect.right = x+cx-1;
+			dc = GetDC(winRootWindow);
+			FillRect(dc, &rect, hbr);
+			ReleaseDC(winRootWindow, dc);
+			FillRect(dcBuffer, &rect, hbr);
+			DeleteObject(hbr);
+		}
+	}
+#endif
+
+#if GDISP_HARDWARE_BITFILLS || defined(__DOXYGEN__)
+	/**
+	 * @brief   Fill an area with a bitmap.
+	 * @note    Optional - The high level driver can emulate using software.
+	 *
+	 * @param[in] x, y     The start filled area
+	 * @param[in] cx, cy   The width and height to be filled
+	 * @param[in] srcx, srcy   The bitmap position to start the fill from
+	 * @param[in] srccx    The width of a line in the bitmap.
+	 * @param[in] buffer   The pixels to use to fill the area.
+	 *
+	 * @notapi
+	 */
+	void GDISP_LLD(blitareaex)(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
+		HDC dc;
+		BITMAPV4HEADER bmpInfo;
+
+		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; srcx += GDISP.clipx0 - x; x = GDISP.clipx0; }
+			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; srcy += GDISP.clipy0 - y; y = GDISP.clipy0; }
+			if (srcx+cx > srccx)		cx = srccx - srcx;
+			if (cx <= 0 || cy <= 0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
+			if (x+cx > GDISP.clipx1)	cx = GDISP.clipx1 - x;
+			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
+		#endif
+
+		dc = GetDC(winRootWindow);
+		memset(&bmpInfo, 0, sizeof(bmpInfo));
+		bmpInfo.bV4Size = sizeof(bmpInfo);
+		bmpInfo.bV4Width = srccx;
+		bmpInfo.bV4Height = -(srcy+cy); /* top-down image */
+		bmpInfo.bV4Planes = 1;
+		bmpInfo.bV4BitCount = BITSPERPIXEL;
+		bmpInfo.bV4SizeImage = ((srcy+cy)*srccx * BITSPERPIXEL)/8;
+		bmpInfo.bV4AlphaMask = 0;
+		bmpInfo.bV4RedMask		= RGB2COLOR(255,0,0);
+		bmpInfo.bV4GreenMask	= RGB2COLOR(0,255,0);
+		bmpInfo.bV4BlueMask		= RGB2COLOR(0,0,255);
+		bmpInfo.bV4V4Compression = BI_BITFIELDS;
+		bmpInfo.bV4XPelsPerMeter = 3078;
+		bmpInfo.bV4YPelsPerMeter = 3078;
+		bmpInfo.bV4ClrUsed = 0;
+		bmpInfo.bV4ClrImportant = 0;
+		bmpInfo.bV4CSType = LCS_sRGB;
+
+		SetDIBitsToDevice(dc, x, y, cx, cy, srcx, srcy, 0, cy+srcy, buffer,
+			(BITMAPINFO*)&bmpInfo, DIB_RGB_COLORS);
+		SetDIBitsToDevice(dcBuffer, x, y, cx, cy, srcx, srcy, 0, cy+srcy, buffer,
+			(BITMAPINFO*)&bmpInfo, DIB_RGB_COLORS);
+		ReleaseDC(winRootWindow, dc);
+	}
+#endif
+
+#if (GDISP_NEED_PIXELREAD && GDISP_HARDWARE_PIXELREAD) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Get the color of a particular pixel.
+	 * @note    Optional.
+	 * @note    If x,y is off the screen, the result is undefined.
+	 * @return	The color of the specified pixel.
+	 *
+	 * @param[in] x, y     The start of the text
+	 *
+	 * @notapi
+	 */
+	color_t GDISP_LLD(getpixelcolor)(coord_t x, coord_t y) {
+		color_t color;
+
+		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+			if (x < 0 || x >= GDISP.Width || y < 0 || y >= GDISP.Height) return 0;
+		#endif
+
+		color = GetPixel(dcBuffer, x, y);
+		return BGR2COLOR(color);
+	}
+#endif
+
+#if (GDISP_NEED_SCROLL && GDISP_HARDWARE_SCROLL) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Scroll vertically a section of the screen.
+	 * @note    Optional.
+	 * @note    If x,y + cx,cy is off the screen, the result is undefined.
+	 * @note    If lines is >= cy, it is equivelent to a area fill with bgcolor.
+	 *
+	 * @param[in] x, y     The start of the area to be scrolled
+	 * @param[in] cx, cy   The size of the area to be scrolled
+	 * @param[in] lines    The number of lines to scroll (Can be positive or negative)
+	 * @param[in] bgcolor  The color to fill the newly exposed area.
+	 *
+	 * @notapi
+	 */
+	void GDISP_LLD(verticalscroll)(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
+		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; x = GDISP.clipx0; }
+			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; y = GDISP.clipy0; }
+			if (!lines || cx <= 0 || cy <= 0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
+			if (x+cx > GDISP.clipx1)	cx = GDISP.clipx1 - x;
+			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
+		#endif
+		/* NOT IMPLEMENTED YET */
+	}
+#endif
+
+#endif /* GFX_USE_GDISP */
+/** @} */

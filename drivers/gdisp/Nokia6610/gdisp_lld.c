@@ -48,9 +48,16 @@
 	#error "gdispNokia6610: Either GDISP_USE_GE8 or GDISP_USE_GE12 must be defined depending on your controller"
 #endif
 
+/* This controller is only ever used with a 132 x 132 display */
+#if defined(GDISP_SCREEN_HEIGHT)
+	#undef GDISP_SCREEN_HEIGHT
+#endif
+#if defined(GDISP_SCREEN_WIDTH)
+	#undef GDISP_SCREEN_WIDTH
+#endif
 #define GDISP_SCREEN_HEIGHT		132
 #define GDISP_SCREEN_WIDTH		132
-#define INITIAL_CONTRAST	38
+#define GDISP_INITIAL_CONTRAST	38
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -110,7 +117,6 @@ bool_t GDISP_LLD(init)(void) {
 	chThdSleepMilliseconds(20);
 
 	#if defined(GDISP_USE_GE8)
-		#if 1
 			GDISP_LLD(write_cmd)(DISCTL);		// Display control
 			GDISP_LLD(write_data)(0x00);					// P1: 0x00 = 2 divisions, switching period=8 (default)
 			GDISP_LLD(write_data)(0x20);					// P2: 0x20 = nlines/4 - 1 = 132/4 - 1 = 32)
@@ -121,57 +127,15 @@ bool_t GDISP_LLD(init)(void) {
 			GDISP_LLD(write_cmd)(SLPOUT);		// Sleep out
 			GDISP_LLD(write_cmd)(PWRCTR);		// Power control
 			GDISP_LLD(write_data)(0x0f);					// reference voltage regulator on, circuit voltage follower on, BOOST ON
-			// Interesting - all the code seems to say this should be done. But my display doesn't want it!
-			//GDISP_LLD(write_cmd)(DISINV);		// Inverse display
 			GDISP_LLD(write_cmd)(DATCTL);		// Data control
-			GDISP_LLD(write_data)(0x48/*0x01*/);					// P1: 0x01 = page address inverted, column address normal, address scan in column direction
+			GDISP_LLD(write_data)(0x48);					// P1: 0x01 = page address inverted, column address normal, address scan in column direction
 			GDISP_LLD(write_data)(0x00);					// P2: 0x00 = RGB sequence (default value)
 			GDISP_LLD(write_data)(0x02);					// P3: 0x02 = Grayscale -> 16 (selects 12-bit color, type A)
 			GDISP_LLD(write_cmd)(VOLCTR);		// Voltage control (contrast setting)
-			GDISP_LLD(write_data)(INITIAL_CONTRAST);	// P1 = Contrast
+			GDISP_LLD(write_data)(GDISP_INITIAL_CONTRAST);	// P1 = Contrast
 			GDISP_LLD(write_data)(3);					// P2 = 3 resistance ratio (only value that works)
 			chThdSleepMilliseconds(100);			// allow power supply to stabilize
 			GDISP_LLD(write_cmd)(DISON);			// Turn on the display
-		#else
-			// Alternative
-			GDISP_LLD(write_cmd)(DISCTL);		// Display control
-			GDISP_LLD(write_data)(0x00);					// default
-			GDISP_LLD(write_data)(0x20);					// (32 + 1) * 4 = 132 lines (of which 130 are visible)
-			GDISP_LLD(write_data)(0x0a);					// default
-			GDISP_LLD(write_cmd)(COMSCN);		// COM scan
-			GDISP_LLD(write_data)(0x00);					// Scan 1-80
-			GDISP_LLD(write_cmd)(OSCON);			// Internal oscilator ON
-			chThdSleepMilliseconds(100);			// wait aproximetly 100ms
-			GDISP_LLD(write_cmd)(SLPOUT);		// Sleep out
-			GDISP_LLD(write_cmd)(VOLCTR);		// Voltage control
-			GDISP_LLD(write_data)(INITIAL_CONTRAST);		// middle value of V1
-			GDISP_LLD(write_data)(0x03);					// middle value of resistance value
-			GDISP_LLD(write_cmd)(TMPGRD);		// Temperature gradient
-			GDISP_LLD(write_data)(0x00);					// default
-			GDISP_LLD(write_cmd)(PWRCTR);		// Power control
-			GDISP_LLD(write_data)(0x0f);					// referance voltage regulator on, circuit voltage follower on, BOOST ON
-			GDISP_LLD(write_cmd)(DISNOR);		// Normal display
-			GDISP_LLD(write_cmd)(DISINV);		// Inverse display
-			GDISP_LLD(write_cmd)(PTLOUT);		// Partial area off
-			//  GDISP_LLD(write_cmd)(ASCSET);	// Scroll area set
-			//  GDISP_LLD(write_data)(0);
-			//  GDISP_LLD(write_data)(0);
-			//  GDISP_LLD(write_data)(40);
-			//  GDISP_LLD(write_data)(3);
-			//  GDISP_LLD(write_cmd)(SCSTART);	// Vertical scrool address start
-			//  GDISP_LLD(write_data)(0);
-			GDISP_LLD(write_cmd)(DATCTL);		// Data control
-			GDISP_LLD(write_data)(0x00);					// all inversions off, column direction
-			GDISP_LLD(write_data)(0x03);					// RGB sequence
-			GDISP_LLD(write_data)(0x02);					// Grayscale -> 16
-			GDISP_LLD(write_cmd)(PASET);			// Page Address set
-			GDISP_LLD(write_data)(0);
-			GDISP_LLD(write_data)(131);
-			GDISP_LLD(write_cmd)(CASET);			// Page Column set
-			GDISP_LLD(write_data)(0);
-			GDISP_LLD(write_data)(131);
-			GDISP_LLD(write_cmd)(DISON);			// Turn on the display
-		#endif
 
 	#elif defined(GDISP_USE_GE12)
 		#if 1
@@ -182,7 +146,7 @@ bool_t GDISP_LLD(init)(void) {
 			GDISP_LLD(write_cmd)(MADCTL);		// Memory access controler
 			GDISP_LLD(write_data)(0xC8);				// 0xC0 = mirror x and y, reverse rgb
 			GDISP_LLD(write_cmd)(SETCON);		// Write contrast
-			GDISP_LLD(write_data)(INITIAL_CONTRAST);	// contrast - experiental value
+			GDISP_LLD(write_data)(GDISP_INITIAL_CONTRAST);	// contrast - experiental value
 			chThdSleepMilliseconds(20);
 			GDISP_LLD(write_cmd)(DISPON);		// Display On
 		#else
@@ -240,7 +204,7 @@ bool_t GDISP_LLD(init)(void) {
 			//GDISP_LLD(write_data)(0x7f);					//  full voltage control
 			//GDISP_LLD(write_data)(0x03);					//  must be "1"
 			GDISP_LLD(write_cmd)(CONTRAST);			// Write contrast
-			GDISP_LLD(write_data)(INITIAL_CONTRAST);						// contrast
+			GDISP_LLD(write_data)(GDISP_INITIAL_CONTRAST);						// contrast
 			chThdSleepMilliseconds(20);
 			GDISP_LLD(write_cmd)(TEMPGRADIENT);		// Temperature gradient
 			for(i=0; i<14; i++) GDISP_LLD(write_data)(0);
@@ -258,7 +222,7 @@ bool_t GDISP_LLD(init)(void) {
 	GDISP.Orientation = GDISP_ROTATE_0;
 	GDISP.Powermode = powerOn;
 	GDISP.Backlight = 100;
-	GDISP.Contrast = INITIAL_CONTRAST;
+	GDISP.Contrast = GDISP_INITIAL_CONTRAST;
 	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 		GDISP.clipx0 = 0;
 		GDISP.clipy0 = 0;
