@@ -11,3 +11,7 @@ To use this driver:
 2. To your makefile add the following lines:
 	include $(GFXLIB)/gfx.mk
 	include $(GFXLIB)/drivers/gdisp/Win32/gdisp_lld.mk
+
+3. Modify your makefile to add -lgdi32 to the DLIBS line. i.e.
+	DLIBS = -lws2_32 -lgdi32
+
