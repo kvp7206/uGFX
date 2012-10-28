@@ -6,6 +6,9 @@ current stable: 1.3
 
 
 *** changes after 1.3 ***
+FIX:		Nokia 6610 fix
+FEATURE:	New driver: Win32
+FEATURE:	implementation of gdispFillArc()
 
 
 *** changes after 1.2 ***
@@ -14,6 +17,7 @@ FEATURE:	added calibration storage interface
 FIX:		bugfix in filling functions for SSD1289
 FEATURE:	added point_t struct in gdisp.h
 FEATURE:	added graph module
+
 
 *** changer after 1.1 ***
 FIX:		orientation macros changed
@@ -25,6 +29,7 @@ FIX:		struct TOUCHPAD_t   renamed to   struct TOUCHPADDriver_t
 FIX:		struct GConsole   renamed to   struct GConsole_t
 FIX:		lcdConsoleXXX()   functions have been renamed to   gfxConsoleXXX()
 FEATURE:	FSMC for SSD1289 F2/F4
+
 
 *** changes after 1.0 ***
 FIX:		removed gdisp and touchpad prefix of driver directories
