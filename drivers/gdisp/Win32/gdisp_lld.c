@@ -2,14 +2,14 @@
     ChibiOS/RT - Copyright (C) 2012
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
-    This file is part of ChibiOS-LCD-Driver.
+    This file is part of ChibiOS/GFX.
 
-    ChibiOS-LCD-Driver is free software; you can redistribute it and/or modify
+    ChibiOS/GFX is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 3 of the License, or
     (at your option) any later version.
 
-    ChibiOS-LCD-Driver is distributed in the hope that it will be useful,
+    ChibiOS/GFX is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
@@ -55,9 +55,9 @@ static HWND winRootWindow = NULL;
 static HDC dcBuffer = NULL;
 static HBITMAP dcBitmap = NULL;
 static HBITMAP dcOldBitmap;
+static volatile bool_t isReady = FALSE;
 
-static LRESULT
-myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
+static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 {
 	HDC dc;
 	PAINTSTRUCT ps;
@@ -107,42 +107,15 @@ myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-/*===========================================================================*/
-/* Driver exported functions.                                                */
-/*===========================================================================*/
-
-/* ---- Required Routines ---- */
-/*
-	The following 2 routines are required.
-	All other routines are optional.
-*/
-
-/**
- * @brief   Low level GDISP driver initialisation.
- * @return	TRUE if successful, FALSE on error.
- *
- * @notapi
- */
-bool_t GDISP_LLD(init)(void) {
-	/* Initialise the window */
+static DWORD WINAPI WindowThread(LPVOID lpParameter) {
+	(void)lpParameter;
+	
+	MSG msg;
 	HANDLE hInstance;
-	HDC rootDC;
-	int depth;
-	RECT rect;
-	PSUBDRIVER subdriver;
 	WNDCLASS wc;
+	RECT	rect;
 
 	hInstance = GetModuleHandle(NULL);
-	rootDC = CreateDC("DISPLAY", NULL, NULL, NULL);
-	depth = GetDeviceCaps(rootDC, BITSPIXEL);
-	DeleteDC(rootDC);
-	GetWindowRect(GetDesktopWindow(), &rect);
-	GDISP.Width = rect.right - rect.left;
-	GDISP.Height = rect.bottom - rect.top;
-	if (GDISP.Width > GDISP_SCREEN_WIDTH)
-		GDISP.Width = GDISP_SCREEN_WIDTH;
-	if (GDISP.Height > GDISP_SCREEN_HEIGHT)
-		GDISP.Height = GDISP_SCREEN_HEIGHT;
 
 	wc.style           = CS_HREDRAW | CS_VREDRAW; // | CS_OWNDC;
 	wc.lpfnWndProc     = (WNDPROC)myWindowProc;
@@ -167,11 +140,54 @@ bool_t GDISP_LLD(init)(void) {
 	dcBuffer = CreateCompatibleDC(dc);
 	dcOldBitmap = SelectObject(dcBuffer, dcBitmap);
 	ReleaseDC(winRootWindow, dc);
+
 	ShowWindow(winRootWindow, SW_SHOW);
 	UpdateWindow(winRootWindow);
+	isReady = TRUE;
+
+	while(GetMessage(&msg, NULL, 0, 0) > 0) {
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	ExitProcess(0);
+	return msg.wParam;
+}
+
+/*===========================================================================*/
+/* Driver exported functions.                                                */
+/*===========================================================================*/
+
+/* ---- Required Routines ---- */
+/*
+	The following 2 routines are required.
+	All other routines are optional.
+*/
+
+/**
+ * @brief   Low level GDISP driver initialisation.
+ * @return	TRUE if successful, FALSE on error.
+ *
+ * @notapi
+ */
+bool_t GDISP_LLD(init)(void) {
+	RECT rect;
+
+	/* Set the window dimensions */
+	GetWindowRect(GetDesktopWindow(), &rect);
+	GDISP.Width = rect.right - rect.left;
+	GDISP.Height = rect.bottom - rect.top;
+	if (GDISP.Width > GDISP_SCREEN_WIDTH)
+		GDISP.Width = GDISP_SCREEN_WIDTH;
+	if (GDISP.Height > GDISP_SCREEN_HEIGHT)
+		GDISP.Height = GDISP_SCREEN_HEIGHT;
+
+	/* Initialise the window */
+	CreateThread(0, 0, WindowThread, 0, 0, 0);
+	while (!isReady)
+		Sleep(1);
 
 	/* Initialise the GDISP structure to match */
-	GDISP.Orientation = GDISP.Width > GDISP.Height ? landscape : portrait;
+	GDISP.Orientation = GDISP_ROTATE_0;
 	GDISP.Powermode = powerOn;
 	GDISP.Backlight = 100;
 	GDISP.Contrast = 50;
@@ -200,11 +216,15 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
 	#endif
 
+	// Draw the pixel in the buffer
 	color = COLOR2BGR(color);
+	SetPixel(dcBuffer, x, y, color);
+	
+	// Draw the pixel again directly on the screen.
+	// This is cheaper than invalidating a single pixel in the window
 	dc = GetDC(winRootWindow);
 	SetPixel(dc, x, y, color);
 	ReleaseDC(winRootWindow, dc);
-	SetPixel(dcBuffer, x, y, color);
 }
 
 /* ---- Optional Routines ---- */
@@ -234,8 +254,22 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		#endif
 
 		color = COLOR2BGR(color);
-		pen = CreatePen(PS_SOLID, 1, c);
+		pen = CreatePen(PS_SOLID, 1, color);
 		if (pen) {
+			// Draw the line in the buffer
+			#if GDISP_NEED_CLIP
+				if (clip) SelectClipRgn(dcBuffer, clip);
+			#endif
+			old = SelectObject(dcBuffer, pen);
+			MoveToEx(dcBuffer, x0, y0, &p);
+			LineTo(dcBuffer, x1, y1);
+			SelectObject(dcBuffer, old);
+			SetPixel(dcBuffer, x1, y1, color);
+			#if GDISP_NEED_CLIP
+				if (clip) SelectClipRgn(dcBuffer, NULL);
+			#endif
+
+			// Redrawing the line on the screen is cheaper than invalidating the whole rectangular area
 			dc = GetDC(winRootWindow);
 			#if GDISP_NEED_CLIP
 				if (clip) SelectClipRgn(dc, clip);
@@ -249,18 +283,6 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				if (clip) SelectClipRgn(dc, NULL);
 			#endif
 			ReleaseDC(winRootWindow, dc);
-
-			#if GDISP_NEED_CLIP
-				if (clip) SelectClipRgn(dcBuffer, clip);
-			#endif
-			old = SelectObject(dcBuffer, pen);
-			MoveToEx(dcBuffer, x0, y0, &p);
-			LineTo(dcBuffer, x1, y1);
-			SelectObject(dcBuffer, old);
-			SetPixel(dcBuffer, x1, y1, color);
-			#if GDISP_NEED_CLIP
-				if (clip) SelectClipRgn(dcBuffer, NULL);
-			#endif
 
 			DeleteObject(pen);
 		}
@@ -279,8 +301,8 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void GDISP_LLD(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
-		RECT rect;
 		HDC dc;
+		RECT rect;
 		HBRUSH hbr;
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
@@ -295,14 +317,19 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		hbr = CreateSolidBrush(color);
 
 		if (hbr) {
-			rect.bottom = y+cy-1;
+			rect.bottom = y+cy;
 			rect.top = y;
 			rect.left = x;
-			rect.right = x+cx-1;
+			rect.right = x+cx;
+			
+			// Fill the area
+			FillRect(dcBuffer, &rect, hbr);
+
+			// Filling the area directly on the screen is likely to be cheaper than invalidating it
 			dc = GetDC(winRootWindow);
 			FillRect(dc, &rect, hbr);
 			ReleaseDC(winRootWindow, dc);
-			FillRect(dcBuffer, &rect, hbr);
+
 			DeleteObject(hbr);
 		}
 	}
@@ -322,8 +349,8 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void GDISP_LLD(blitareaex)(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
-		HDC dc;
 		BITMAPV4HEADER bmpInfo;
+		RECT	rect;
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; srcx += GDISP.clipx0 - x; x = GDISP.clipx0; }
@@ -334,14 +361,13 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
 
-		dc = GetDC(winRootWindow);
 		memset(&bmpInfo, 0, sizeof(bmpInfo));
 		bmpInfo.bV4Size = sizeof(bmpInfo);
 		bmpInfo.bV4Width = srccx;
 		bmpInfo.bV4Height = -(srcy+cy); /* top-down image */
 		bmpInfo.bV4Planes = 1;
-		bmpInfo.bV4BitCount = BITSPERPIXEL;
-		bmpInfo.bV4SizeImage = ((srcy+cy)*srccx * BITSPERPIXEL)/8;
+		bmpInfo.bV4BitCount = 32;
+		bmpInfo.bV4SizeImage = ((srcy+cy)*srccx * 32)/8;
 		bmpInfo.bV4AlphaMask = 0;
 		bmpInfo.bV4RedMask		= RGB2COLOR(255,0,0);
 		bmpInfo.bV4GreenMask	= RGB2COLOR(0,255,0);
@@ -351,13 +377,18 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		bmpInfo.bV4YPelsPerMeter = 3078;
 		bmpInfo.bV4ClrUsed = 0;
 		bmpInfo.bV4ClrImportant = 0;
-		bmpInfo.bV4CSType = LCS_sRGB;
+		bmpInfo.bV4CSType = 0; //LCS_sRGB;
 
-		SetDIBitsToDevice(dc, x, y, cx, cy, srcx, srcy, 0, cy+srcy, buffer,
-			(BITMAPINFO*)&bmpInfo, DIB_RGB_COLORS);
-		SetDIBitsToDevice(dcBuffer, x, y, cx, cy, srcx, srcy, 0, cy+srcy, buffer,
-			(BITMAPINFO*)&bmpInfo, DIB_RGB_COLORS);
-		ReleaseDC(winRootWindow, dc);
+		// Draw the bitmap
+		SetDIBitsToDevice(dcBuffer, x, y, cx, cy, srcx, srcy, 0, cy+srcy, buffer, (BITMAPINFO*)&bmpInfo, DIB_RGB_COLORS);
+
+		// Invalidate the region to get it on the screen.
+		rect.bottom = y+cy;
+		rect.top = y;
+		rect.left = x;
+		rect.right = x+cx;
+		InvalidateRect(winRootWindow, &rect, FALSE);
+		UpdateWindow(winRootWindow);
 	}
 #endif
 
