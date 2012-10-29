@@ -175,7 +175,6 @@ extern "C" {
 	void gdispClear(color_t color);
 	void gdispDrawPixel(coord_t x, coord_t y, color_t color);
 	void gdispDrawLine(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color);
-	void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 	void gdispFillArea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 	void gdispBlitAreaEx(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer);
 
@@ -206,12 +205,6 @@ extern "C" {
 	#if GDISP_NEED_TEXT
 	void gdispDrawChar(coord_t x, coord_t y, char c, font_t font, color_t color);
 	void gdispFillChar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor);
-	void gdispDrawString(coord_t x, coord_t y, const char *str, font_t font, color_t color);
-	void gdispFillString(coord_t x, coord_t y, const char *str, font_t font, color_t color, color_t bgcolor);
-	void gdispFillStringBox(coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, color_t bgColor, justify_t justify);
-	coord_t gdispGetFontMetric(font_t font, fontmetric_t metric);
-	coord_t gdispGetCharWidth(char c, font_t font);
-	coord_t gdispGetStringWidth(const char* str, font_t font);	
 	#endif
 	
 	/* Read a pixel Function */
@@ -262,6 +255,19 @@ extern "C" {
 
 /* Now obsolete functions */
 #define gdispBlitArea(x, y, cx, cy, buffer)						gdispBlitAreaEx(x, y, cx, cy, 0, 0, cx, buffer)
+
+/* Extra drawing functions */
+void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
+
+/* Extra Text Functions */
+#if GDISP_NEED_TEXT
+	void gdispDrawString(coord_t x, coord_t y, const char *str, font_t font, color_t color);
+	void gdispFillString(coord_t x, coord_t y, const char *str, font_t font, color_t color, color_t bgcolor);
+	void gdispFillStringBox(coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, color_t bgColor, justify_t justify);
+	coord_t gdispGetFontMetric(font_t font, fontmetric_t metric);
+	coord_t gdispGetCharWidth(char c, font_t font);
+	coord_t gdispGetStringWidth(const char* str, font_t font);
+#endif
 
 /* Support routine for packed pixel formats */
 #ifndef gdispPackPixels
