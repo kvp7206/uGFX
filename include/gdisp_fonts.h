@@ -77,7 +77,7 @@ struct font {
 	const uint8_t		*widthTable;
 	const uint16_t      *offsetTable;
 	const fontcolumn_t  *dataTable;
-	};
+};
 
 /**
  * @brief   Macros to get to the complex parts of the font structure.
@@ -88,3 +88,4 @@ struct font {
 
 #endif /* _GDISP_FONTS_H */
 /** @} */
+
