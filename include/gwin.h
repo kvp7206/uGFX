@@ -51,9 +51,10 @@
 /* Low Level Driver details and error checks.                                */
 /*===========================================================================*/
 
-#if !defined(GFX_USE_GDISP)
+#if !GFX_USE_GDISP
 	#error "GWIN: GFX_USE_GDISP must also be defined"
 #endif
+
 #include "gdisp.h"
 
 #if !GDISP_NEED_CLIP
@@ -174,3 +175,4 @@ void gwinPutCharArray(GWindow *gw, const char *str, size_t n);
 
 #endif /* _GWIN_H */
 /** @} */
+
