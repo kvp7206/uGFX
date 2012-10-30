@@ -166,6 +166,9 @@ extern "C" {
 #endif
 
 #if GDISP_NEED_MULTITHREAD || GDISP_NEED_ASYNC
+	/* These routines can be hardware accelerated
+	 *	- Do not add a routine here unless it has also been added to the hardware acceleration layer
+	 */
 
 	/* Base Functions */
 	bool_t gdispInit(void);
@@ -253,8 +256,9 @@ extern "C" {
 
 #endif
 
-/* Now obsolete functions */
-#define gdispBlitArea(x, y, cx, cy, buffer)						gdispBlitAreaEx(x, y, cx, cy, 0, 0, cx, buffer)
+/* These routines are not hardware accelerated
+ *	- Do not add a hardware accelerated routines here.
+ */
 
 /* Extra drawing functions */
 void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
@@ -263,16 +267,30 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 #if GDISP_NEED_TEXT
 	void gdispDrawString(coord_t x, coord_t y, const char *str, font_t font, color_t color);
 	void gdispFillString(coord_t x, coord_t y, const char *str, font_t font, color_t color, color_t bgcolor);
+	void gdispDrawStringBox(coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, justify_t justify);
 	void gdispFillStringBox(coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, color_t bgColor, justify_t justify);
 	coord_t gdispGetFontMetric(font_t font, fontmetric_t metric);
 	coord_t gdispGetCharWidth(char c, font_t font);
 	coord_t gdispGetStringWidth(const char* str, font_t font);
 #endif
 
+/* Extra Arc Functions */
+#if GDISP_NEED_ARC
+	void gdispDrawRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t radius, color_t color);
+	void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t radius, color_t color);
+#endif
+
 /* Support routine for packed pixel formats */
 #ifndef gdispPackPixels
 	void gdispPackPixels(const pixel_t *buf, coord_t cx, coord_t x, coord_t y, color_t color);
 #endif
+
+/* Macro definitions
+ *
+ */
+ 
+/* Now obsolete functions */
+#define gdispBlitArea(x, y, cx, cy, buffer)						gdispBlitAreaEx(x, y, cx, cy, 0, 0, cx, buffer)
 
 /* Macro definitions for common gets and sets */
 #define gdispSetPowerMode(powerMode)			gdispControl(GDISP_CONTROL_POWER, (void *)(unsigned)(powerMode))

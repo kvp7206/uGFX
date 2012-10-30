@@ -9,6 +9,11 @@ current stable: 1.3
 FIX:		Nokia 6610 fix
 FEATURE:	New driver: Win32
 FEATURE:	implementation of gdispFillArc()
+FIX:		Hardware accelerate Arc routines
+FIX:		Fix axis orientation for Arc routines
+FEATURE:	new gdisp rounded box routines
+FEATURE:	new gdispDrawStringBox()
+FEATURE:	GWIN infrastructure
 
 
 *** changes after 1.2 ***
@@ -41,4 +46,3 @@ FEATURE:	added SSD1963 DMA support
 FEATURE:	added touchpad interface for storing calibration values (#define TOUCHPAD_STORE_CALIBRATION)
 CHANGE:		replaced every  GDISP_XXX  macro with  GDISP_XXX
 CHANGE:		removed last digit of version number
-

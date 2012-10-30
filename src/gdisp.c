@@ -494,220 +494,124 @@
 	}
 #endif
 
+#if (GDISP_NEED_ARC && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+	/*
+	 * @brief	Draw an arc.
+	 * @pre		The GDISP must be in powerOn or powerSleep mode.
+	 *
+	 * @param[in] x0,y0		The center point
+	 * @param[in] radius	The radius of the arc
+	 * @param[in] start		The start angle (0 to 360)
+	 * @param[in] end		The end angle (0 to 360)
+	 * @param[in] color		The color of the arc
+	 *
+	 * @api
+	 */
+	void gdispDrawArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
+		chMtxLock(&gdispMutex);
+		GDISP_LLD(drawarc)(x, y, radius, start, end, color);
+		chMtxUnlock();
+	}
+#elif GDISP_NEED_ARC && GDISP_NEED_ASYNC
+	void gdispDrawArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
+		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_DRAWARC);
+		p->drawarc.x = x;
+		p->drawarc.y = y;
+		p->drawarc.radius = radius;
+		p->drawarc.start = start;
+		p->drawarc.end = end;
+		p->drawarc.color = color;
+		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+	}
+#endif
+
+#if (GDISP_NEED_ARC && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+	/*
+	 * @brief	Draw a filled arc.
+	 * @pre		The GDISP must be in powerOn or powerSleep mode.
+	 * @note				Not very efficient currently - does lots of overdrawing
+	 *
+	 * @param[in] x0,y0		The center point
+	 * @param[in] radius	The radius of the arc
+	 * @param[in] start		The start angle (0 to 360)
+	 * @param[in] end		The end angle (0 to 360)
+	 * @param[in] color		The color of the arc
+	 *
+	 * @api
+	 */
+	void gdispFillArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
+		chMtxLock(&gdispMutex);
+		GDISP_LLD(fillarc)(x, y, radius, start, end, color);
+		chMtxUnlock();
+	}
+#elif GDISP_NEED_ARC && GDISP_NEED_ASYNC
+	void gdispFillArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
+		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_FILLARC);
+		p->fillarc.x = x;
+		p->fillarc.y = y;
+		p->fillarc.radius = radius;
+		p->fillarc.start = start;
+		p->fillarc.end = end;
+		p->fillarc.color = color;
+		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+	}
+#endif
+
 #if GDISP_NEED_ARC || defined(__DOXYGEN__)
-
-#include "math.h"
-
-/*
- * @brief				Internal helper function for gdispDrawArc()
+/**
+ * @brief   Draw a rectangular box with rounded corners
+ * @pre     The GDISP unit must be in powerOn or powerSleep mode.
  *
- * @note				DO NOT USE DIRECTLY!
- *
- * @param[in] x, y		The middle point of the arc
- * @param[in] start		The start angle of the arc
- * @param[in] end		The end angle of the arc
- * @param[in] radius	The radius of the arc
- * @param[in] color		The color in which the arc will be drawn
- *
- * @notapi
- */
-void _draw_arc(coord_t x, coord_t y, uint16_t start, uint16_t end, uint16_t radius, color_t color) {
-    if(start > 0 && start <= 180) {
-        float x_maxI = x + radius*cos(start*M_PI/180);
-        float x_minI;
-
-        if (end > 180)
-            x_minI = x - radius;
-        else
-            x_minI = x + radius*cos(end*M_PI/180);
-
-        int a = 0;
-        int b = radius;
-        int P = 1 - radius;
-
-        do { 
-            if(x-a <= x_maxI && x-a >= x_minI)
-                gdispDrawPixel(x-a, y+b, color);
-            if(x+a <= x_maxI && x+a >= x_minI)
-                gdispDrawPixel(x+a, y+b, color);
-            if(x-b <= x_maxI && x-b >= x_minI)
-                gdispDrawPixel(x-b, y+a, color);
-            if(x+b <= x_maxI && x+b >= x_minI)
-                gdispDrawPixel(x+b, y+a, color);
-
-            if (P < 0) {
-                P = P + 3 + 2*a;
-                a = a + 1;
-            } else {
-                P = P + 5 + 2*(a - b);
-                a = a + 1;
-                b = b - 1;
-            }
-        } while(a <= b);
-    }
-
-    if (end > 180 && end <= 360) {
-        float x_maxII = x+radius*cos(end*M_PI/180);
-        float x_minII;
-
-        if(start <= 180)
-            x_minII = x - radius;
-        else
-            x_minII = x+radius*cos(start*M_PI/180);
-
-        int a = 0;
-        int b = radius;
-        int P = 1 - radius;
-
-        do {
-            if(x-a <= x_maxII && x-a >= x_minII)
-                gdispDrawPixel(x-a, y-b, color);
-            if(x+a <= x_maxII && x+a >= x_minII)
-                gdispDrawPixel(x+a, y-b, color);
-            if(x-b <= x_maxII && x-b >= x_minII)
-                gdispDrawPixel(x-b, y-a, color);
-            if(x+b <= x_maxII && x+b >= x_minII)
-                gdispDrawPixel(x+b, y-a, color);
-
-            if (P < 0) {
-                P = P + 3 + 2*a;
-                a = a + 1;
-            } else {
-                P = P + 5 + 2*(a - b);
-                a = a + 1;
-                b = b - 1;
-            }
-        } while (a <= b);
-    }
-}
-
-/*
- * @brief	Draw an arc.
- * @pre		The GDISP must be in powerOn or powerSleep mode.
- *
- * @param[in] x0,y0		The center point
- * @param[in] radius	The radius of the arc
- * @param[in] start		The start angle (0 to 360)
- * @param[in] end		The end angle (0 to 360)
- * @param[in] color		The color of the arc
+ * @param[in] x,y		The start position
+ * @param[in] cx,cy		The size of the box (outside dimensions)
+ * @param[in] radius	The radius of the rounded corners
+ * @param[in] color		The color to use
  *
  * @api
  */
-void gdispDrawArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
-	if(end < start) {
-        _draw_arc(x, y, start, 360, radius, color);
-        _draw_arc(x, y, 0, end, radius, color);
-    } else {
-        _draw_arc(x, y, start, end, radius, color);
+void gdispDrawRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t radius, color_t color) {
+	if (2*radius > cx || 2*radius > cy) {
+		gdispDrawBox(x, y, cx, cy, color);
+		return;
 	}
+	gdispDrawArc(x+radius, y+radius, radius, 90, 180, color);
+	gdispDrawLine(x+radius+1, y, x+cx-2-radius, y, color);
+	gdispDrawArc(x+cx-1-radius, y+radius, radius, 0, 90, color);
+	gdispDrawLine(x+cx-1, y+radius+1, x+cx-1, y+cy-2-radius, color);
+	gdispDrawArc(x+cx-1-radius, y+cy-1-radius, radius, 270, 360, color);
+	gdispDrawLine(x+radius+1, y+cy-1, x+cx-2-radius, y+cy-1, color);
+	gdispDrawArc(x+radius, y+cy-1-radius, radius, 180, 270, color);
+	gdispDrawLine(x, y+radius+1, x, y+cy-2-radius, color);
 }
 #endif
 
 #if GDISP_NEED_ARC || defined(__DOXYGEN__)
-/*
- * @brief				Internal helper function for gdispFillArc()
+/**
+ * @brief   Draw a filled rectangular box with rounded corners
+ * @pre     The GDISP unit must be in powerOn or powerSleep mode.
  *
- * @note				DO NOT USE DIRECTLY!
- * @note				Not very efficient currently - does lots of overdrawing
- *
- * @param[in] x, y		The middle point of the arc
- * @param[in] start		The start angle of the arc
- * @param[in] end		The end angle of the arc
- * @param[in] radius	The radius of the arc
- * @param[in] color		The color in which the arc will be drawn
- *
- * @notapi
- */
-void _fill_arc(coord_t x, coord_t y, uint16_t start, uint16_t end, uint16_t radius, color_t color) {
-    if(start > 0 && start <= 180) {
-        float x_maxI = x + radius*cos(start*M_PI/180);
-        float x_minI;
-
-        if (end > 180)
-            x_minI = x - radius;
-        else
-            x_minI = x + radius*cos(end*M_PI/180);
-
-        int a = 0;
-        int b = radius;
-        int P = 1 - radius;
-
-        do {
-            if(x-a <= x_maxI && x-a >= x_minI)
-                gdispDrawLine(x, y, x-a, y+b, color);
-            if(x+a <= x_maxI && x+a >= x_minI)
-            	gdispDrawLine(x, y, x+a, y+b, color);
-            if(x-b <= x_maxI && x-b >= x_minI)
-            	gdispDrawLine(x, y, x-b, y+a, color);
-            if(x+b <= x_maxI && x+b >= x_minI)
-            	gdispDrawLine(x, y, x+b, y+a, color);
-
-            if (P < 0) {
-                P = P + 3 + 2*a;
-                a = a + 1;
-            } else {
-                P = P + 5 + 2*(a - b);
-                a = a + 1;
-                b = b - 1;
-            }
-        } while(a <= b);
-    }
-
-    if (end > 180 && end <= 360) {
-        float x_maxII = x+radius*cos(end*M_PI/180);
-        float x_minII;
-
-        if(start <= 180)
-            x_minII = x - radius;
-        else
-            x_minII = x+radius*cos(start*M_PI/180);
-
-        int a = 0;
-        int b = radius;
-        int P = 1 - radius;
-
-        do {
-            if(x-a <= x_maxII && x-a >= x_minII)
-            	gdispDrawLine(x, y, x-a, y-b, color);
-            if(x+a <= x_maxII && x+a >= x_minII)
-            	gdispDrawLine(x, y, x+a, y-b, color);
-            if(x-b <= x_maxII && x-b >= x_minII)
-            	gdispDrawLine(x, y, x-b, y-a, color);
-            if(x+b <= x_maxII && x+b >= x_minII)
-            	gdispDrawLine(x, y, x+b, y-a, color);
-
-            if (P < 0) {
-                P = P + 3 + 2*a;
-                a = a + 1;
-            } else {
-                P = P + 5 + 2*(a - b);
-                a = a + 1;
-                b = b - 1;
-            }
-        } while (a <= b);
-    }
-}
-
-/*
- * @brief	Draw a filled arc.
- * @pre		The GDISP must be in powerOn or powerSleep mode.
- * @note				Not very efficient currently - does lots of overdrawing
- *
- * @param[in] x0,y0		The center point
- * @param[in] radius	The radius of the arc
- * @param[in] start		The start angle (0 to 360)
- * @param[in] end		The end angle (0 to 360)
- * @param[in] color		The color of the arc
+ * @param[in] x,y		The start position
+ * @param[in] cx,cy		The size of the box (outside dimensions)
+ * @param[in] radius	The radius of the rounded corners
+ * @param[in] color		The color to use
  *
  * @api
  */
-void gdispFillArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
-	if(end < start) {
-        _fill_arc(x, y, start, 360, radius, color);
-        _fill_arc(x, y, 0, end, radius, color);
-    } else {
-        _fill_arc(x, y, start, end, radius, color);
+void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t radius, color_t color) {
+	coord_t radius2;
+
+	radius2 = radius*2;
+	if (radius2 > cx || radius2 > cy) {
+		gdispFillArea(x, y, cx, cy, color);
+		return;
 	}
+	gdispFillArc(x+radius, y+radius, radius, 90, 180, color);
+	gdispFillArea(x+radius+1, y, cx-radius2, radius, color);
+	gdispFillArc(x+cx-1-radius, y+radius, radius, 0, 90, color);
+	gdispFillArc(x+cx-1-radius, y+cy-1-radius, radius, 270, 360, color);
+	gdispFillArea(x+radius+1, y+cy-radius, cx-radius2, radius, color);
+	gdispFillArc(x+radius, y+cy-1-radius, radius, 180, 270, color);
+	gdispFillArea(x, y+radius, cx, cy-radius2, color);
 }
 #endif
 
@@ -877,10 +781,9 @@ void gdispFillArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t
  * @brief   Draw a rectangular box.
  * @pre     The GDISP unit must be in powerOn or powerSleep mode.
  *
- * @param[in] x0,y0   The start position
- * @param[in] cx,cy   The size of the box (outside dimensions)
- * @param[in] color   The color to use
- * @param[in] filled  Should the box should be filled
+ * @param[in] x,y		The start position
+ * @param[in] cx,cy		The size of the box (outside dimensions)
+ * @param[in] color		The color to use
  *
  * @api
  */
@@ -928,6 +831,8 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		char		c;
 		int			first;
 		
+		if (!str) return;
+		
 		first = 1;
 		p = font->charPadding * font->xscale;
 		while(*str) {
@@ -969,6 +874,8 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		char		c;
 		int			first;
 		
+		if (!str) return;
+		
 		first = 1;
 		h = font->height * font->yscale;
 		p = font->charPadding * font->xscale;
@@ -998,6 +905,137 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	/**
 	 * @brief   Draw a text string verticly centered within the specified box.
 	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
+	 *
+	 * @param[in] x,y     The position for the text (need to define top-right or base-line - check code)
+	 * @param[in] str     The string to draw
+	 * @param[in] color   The color to use
+	 * @param[in] justify Justify the text left, center or right within the box
+	 *
+	 * @api
+	 */
+	void gdispDrawStringBox(coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, justify_t justify) {
+		/* No mutex required as we only call high level functions which have their own mutex */
+		coord_t		w, h, p, ypos, xpos;
+		char		c;
+		int			first;
+		const char *rstr;
+		
+		if (!str) str = "";
+
+		h = font->height * font->yscale;
+		p = font->charPadding * font->xscale;
+
+		/* Oops - font too large for the area */
+		if (h > cy) return;
+
+		/* See if we need to fill above the font */
+		ypos = (cy - h + 1)/2;
+		if (ypos > 0) {
+			y += ypos;
+			cy -= ypos;
+		}
+		
+		/* See if we need to fill below the font */
+		ypos = cy - h;
+		if (ypos > 0)
+			cy -= ypos;
+		
+		/* get the start of the printable string and the xpos */
+		switch(justify) {
+		case justifyCenter:
+			/* Get the length of the entire string */
+			w = gdispGetStringWidth(str, font);
+			if (w <= cx)
+				xpos = x + (cx - w)/2;
+			else {
+				/* Calculate how much of the string we need to get rid of */
+				ypos = (w - cx)/2;
+				xpos = 0;
+				first = 1;
+				while(*str) {
+					/* Get the next printable character */
+					c = *str++;
+					w = _getCharWidth(font, c) * font->xscale;
+					if (!w) continue;
+					
+					/* Handle inter-character padding */
+					if (p) {
+						if (!first) {
+							xpos += p;
+							if (xpos > ypos) break;
+						} else
+							first = 0;
+					}
+
+					/* Print the character */
+					xpos += w;
+					if (xpos > ypos) break;
+				}
+				xpos = ypos - xpos + x;
+			}
+			break;
+		case justifyRight:
+			/* Find the end of the string */
+			for(rstr = str; *str; str++);
+			xpos = x+cx - 2;
+			first = 1;
+			for(str--; str >= rstr; str--) {
+				/* Get the next printable character */
+				c = *str;
+				w = _getCharWidth(font, c) * font->xscale;
+				if (!w) continue;
+				
+				/* Handle inter-character padding */
+				if (p) {
+					if (!first) {
+						if (xpos - p < x) break;
+						xpos -= p;
+					} else
+						first = 0;
+				}
+
+				/* Print the character */
+				if (xpos - w < x) break;
+				xpos -= w;
+			}
+			str++;
+			break;
+		case justifyLeft:
+			/* Fall through */
+		default:
+			xpos = x+1;
+			break;
+		}
+		
+		/* Print characters until we run out of room */
+		first = 1;
+		while(*str) {
+			/* Get the next printable character */
+			c = *str++;
+			w = _getCharWidth(font, c) * font->xscale;
+			if (!w) continue;
+			
+			/* Handle inter-character padding */
+			if (p) {
+				if (!first) {
+					if (xpos + p > x+cx) break;
+					xpos += p;
+				} else
+					first = 0;
+			}
+
+			/* Print the character */
+			if (xpos + w > x+cx) break;
+			gdispDrawChar(xpos, y, c, font, color);
+			xpos += w;
+		}
+	}
+#endif
+	
+#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
+	/**
+	 * @brief   Draw a text string verticly centered within the specified box. The box background is filled with the specified background color.
+	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 * @note    The entire box is filled
 	 *
 	 * @param[in] x,y     The position for the text (need to define top-right or base-line - check code)
@@ -1015,6 +1053,8 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		int			first;
 		const char *rstr;
 		
+		if (!str) str = "";
+
 		h = font->height * font->yscale;
 		p = font->charPadding * font->xscale;
 
