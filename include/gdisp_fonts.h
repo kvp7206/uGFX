@@ -88,4 +88,3 @@ struct font {
 
 #endif /* _GDISP_FONTS_H */
 /** @} */
-

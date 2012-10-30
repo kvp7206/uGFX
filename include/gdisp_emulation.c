@@ -291,7 +291,7 @@
 
 #if GDISP_NEED_ARC && !GDISP_HARDWARE_ARCS
 
-	#include <maths.h>
+	#include <math.h>
 
 	/*
 	 * @brief				Internal helper function for gdispDrawArc()
@@ -307,7 +307,7 @@
 	 * @notapi
 	 */
 	static void _draw_arc(coord_t x, coord_t y, uint16_t start, uint16_t end, uint16_t radius, color_t color) {
-	    if (start >= 0 && start <= 180) {
+	    if (/*start >= 0 && */start <= 180) {
 	        float x_maxI = x + radius*cos(start*M_PI/180);
 	        float x_minI;
 
@@ -322,13 +322,13 @@
 
 	        do {
 	            if(x-a <= x_maxI && x-a >= x_minI)
-	            	GDISP_LLD(drawpixel)(x-a, y+b, color);
+	            	GDISP_LLD(drawpixel)(x-a, y-b, color);
 	            if(x+a <= x_maxI && x+a >= x_minI)
-	            	GDISP_LLD(drawpixel)(x+a, y+b, color);
+	            	GDISP_LLD(drawpixel)(x+a, y-b, color);
 	            if(x-b <= x_maxI && x-b >= x_minI)
-	            	GDISP_LLD(drawpixel)(x-b, y+a, color);
+	            	GDISP_LLD(drawpixel)(x-b, y-a, color);
 	            if(x+b <= x_maxI && x+b >= x_minI)
-	            	GDISP_LLD(drawpixel)(x+b, y+a, color);
+	            	GDISP_LLD(drawpixel)(x+b, y-a, color);
 
 	            if (P < 0) {
 	                P = P + 3 + 2*a;
@@ -356,13 +356,13 @@
 
 	        do {
 	            if(x-a <= x_maxII && x-a >= x_minII)
-	            	GDISP_LLD(drawpixel)(x-a, y-b, color);
+	            	GDISP_LLD(drawpixel)(x-a, y+b, color);
 	            if(x+a <= x_maxII && x+a >= x_minII)
-	            	GDISP_LLD(drawpixel)(x+a, y-b, color);
+	            	GDISP_LLD(drawpixel)(x+a, y+b, color);
 	            if(x-b <= x_maxII && x-b >= x_minII)
-	            	GDISP_LLD(drawpixel)(x-b, y-a, color);
+	            	GDISP_LLD(drawpixel)(x-b, y+a, color);
 	            if(x+b <= x_maxII && x+b >= x_minII)
-	            	GDISP_LLD(drawpixel)(x+b, y-a, color);
+	            	GDISP_LLD(drawpixel)(x+b, y+a, color);
 
 	            if (P < 0) {
 	                P = P + 3 + 2*a;
@@ -387,14 +387,96 @@
 #endif
 
 #if GDISP_NEED_ARC && !GDISP_HARDWARE_ARCFILLS
+	/*
+	 * @brief				Internal helper function for gdispDrawArc()
+	 *
+	 * @note				DO NOT USE DIRECTLY!
+	 *
+	 * @param[in] x, y		The middle point of the arc
+	 * @param[in] start		The start angle of the arc
+	 * @param[in] end		The end angle of the arc
+	 * @param[in] radius	The radius of the arc
+	 * @param[in] color		The color in which the arc will be drawn
+	 *
+	 * @notapi
+	 */
+	static void _fill_arc(coord_t x, coord_t y, uint16_t start, uint16_t end, uint16_t radius, color_t color) {
+	    if (/*start >= 0 && */start <= 180) {
+	        float x_maxI = x + radius*cos(start*M_PI/180);
+	        float x_minI;
+
+	        if (end > 180)
+	            x_minI = x - radius;
+	        else
+	            x_minI = x + radius*cos(end*M_PI/180);
+
+	        int a = 0;
+	        int b = radius;
+	        int P = 1 - radius;
+
+	        do {
+	            if(x-a <= x_maxI && x-a >= x_minI)
+	            	GDISP_LLD(drawline)(x, y, x-a, y-b, color);
+	            if(x+a <= x_maxI && x+a >= x_minI)
+	            	GDISP_LLD(drawline)(x, y, x+a, y-b, color);
+	            if(x-b <= x_maxI && x-b >= x_minI)
+	            	GDISP_LLD(drawline)(x, y, x-b, y-a, color);
+	            if(x+b <= x_maxI && x+b >= x_minI)
+	            	GDISP_LLD(drawline)(x, y, x+b, y-a, color);
+
+	            if (P < 0) {
+	                P = P + 3 + 2*a;
+	                a = a + 1;
+	            } else {
+	                P = P + 5 + 2*(a - b);
+	                a = a + 1;
+	                b = b - 1;
+	            }
+	        } while(a <= b);
+	    }
+
+	    if (end > 180 && end <= 360) {
+	        float x_maxII = x+radius*cos(end*M_PI/180);
+	        float x_minII;
+
+	        if(start <= 180)
+	            x_minII = x - radius;
+	        else
+	            x_minII = x+radius*cos(start*M_PI/180);
+
+	        int a = 0;
+	        int b = radius;
+	        int P = 1 - radius;
+
+	        do {
+	            if(x-a <= x_maxII && x-a >= x_minII)
+	            	GDISP_LLD(drawline)(x, y, x-a, y+b, color);
+	            if(x+a <= x_maxII && x+a >= x_minII)
+	            	GDISP_LLD(drawline)(x, y, x+a, y+b, color);
+	            if(x-b <= x_maxII && x-b >= x_minII)
+	            	GDISP_LLD(drawline)(x, y, x-b, y+a, color);
+	            if(x+b <= x_maxII && x+b >= x_minII)
+	            	GDISP_LLD(drawline)(x, y, x+b, y+a, color);
+
+	            if (P < 0) {
+	                P = P + 3 + 2*a;
+	                a = a + 1;
+	            } else {
+	                P = P + 5 + 2*(a - b);
+	                a = a + 1;
+	                b = b - 1;
+	            }
+	        } while (a <= b);
+	    }
+	}
+
 	void GDISP_LLD(fillarc)(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color) {
-		(void)x;
-		(void)y;
-		(void)radius;
-		(void)startangle;
-		(void)endangle;
-		(void)color;
-#warning "GDISP: FillArc Emulation Not Implemented Yet"
+		if(endangle < startangle) {
+	        _fill_arc(x, y, startangle, 360, radius, color);
+	        _fill_arc(x, y, 0, endangle, radius, color);
+	    } else {
+	        _fill_arc(x, y, startangle, endangle, radius, color);
+		}
 	}
 #endif
 
