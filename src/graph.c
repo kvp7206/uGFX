@@ -18,6 +18,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file	graph.c
+ * @brief	GRAPH module code.
+ *
+ * @addtogroup GRAPH
+ * @{
+ */
 #include <stdlib.h>
 #include "ch.h"
 #include "hal.h"
@@ -26,6 +33,15 @@
 
 #if GFX_USE_GRAPH
 
+/**
+ * @brief	Draw a horizontal dot line.
+ *
+ * @param[in] x0,y0,x1	The coordinates where the dot line will be drawn
+ * @param[in] space		The distance from one dot to the other in pixels
+ * @param[in] color		The color of the dots
+ *
+ * @notapi
+ */
 static void _horizontalDotLine(coord_t x0, coord_t y0, coord_t x1, uint16_t space, color_t color) {
 	uint16_t offset = x0;
 	uint16_t count = ((x1 - x0) / space);
@@ -36,6 +52,15 @@ static void _horizontalDotLine(coord_t x0, coord_t y0, coord_t x1, uint16_t spac
 	} while(count--);
 }
 
+/*
+ * @brief	Draw a vertical dot line.
+ * 
+ * @param[in] x0,y0,y1	The coordinates where the dot line will be drawn
+ * @param[in] space		The distance from one dot to the other in pixels
+ * @param[in] color		The color of the dots
+ *
+ * @notapi
+ */
 static void _verticalDotLine(coord_t x0, coord_t y0, coord_t y1, uint16_t space, color_t color) {
 	uint16_t offset = y0;
 	uint16_t count = ((y1 - y0) / space);
@@ -46,6 +71,16 @@ static void _verticalDotLine(coord_t x0, coord_t y0, coord_t y1, uint16_t space,
 	} while(count--);
 }
 
+/*
+ * @brief	Draws a graph system
+ * @details	Draws a graph system with two axis, X and Y.
+ *			Different optinal parameters like grid size, grid color,
+ *			arrow color (if any) etc. are defined in the struct.
+ *
+ * @param[in] g		A pointer to a Graph struct
+ *
+ * @init
+ */
 void graphDrawSystem(Graph *g) {
 	uint16_t i;
 
@@ -85,7 +120,17 @@ void graphDrawSystem(Graph *g) {
 	}
 }
 
-bool_t _boundaryCheck(Graph *g, coord_t x, coord_t y) {
+/**
+ * @brief	Checks if x and y are inside the graph area
+ *
+ * @param[in] g		The pointer to the graph
+ * @param[in] x,y	The coordinates to be checked
+ *
+ * @return			1 if outside the graph area, 0 otherwise
+ *
+ * @notapi
+ */
+static bool_t _boundaryCheck(Graph *g, coord_t x, coord_t y) {
 	if(g->origin_x + x > g->x1)
 		return 1;
 	if(g->origin_x + x < g->x0)
@@ -98,6 +143,18 @@ bool_t _boundaryCheck(Graph *g, coord_t x, coord_t y) {
 	return 0;
 }
 
+/**
+ * @brief	Draws a single dot into the graph
+ * @note	The dot won't be drawn if it's outsite the max and min
+ *			values of the graph.
+ *
+ * @param[in] g			The pointer to the graph
+ * @param[in] x,y		The coordinates where the data point will be drawn
+ * @param[in] radius	The radius of the dot. One pixel if 0.
+ * @param[in] color		The color of the dot.
+ *
+ * @api
+ */
 void graphDrawDot(Graph *g, coord_t x, coord_t y, uint16_t radius, color_t color) {
 	if(_boundaryCheck(g, x, y))
 		return;
@@ -108,6 +165,19 @@ void graphDrawDot(Graph *g, coord_t x, coord_t y, uint16_t radius, color_t color
 		gdispFillCircle(g->origin_x + x, g->origin_y - y, radius, color);
 }
 
+/**
+ * @brief   Draws multiple dots into the graph
+ * @note    A dot won't be drawn if it's outsite the max and min
+ *          values of the graph.
+ *
+ * @param[in] g         The pointer to the graph
+ * @param[in] coord		A two dimensional int array containing the dots coordinates.
+ * @param[in] entries	How many dots will be drawn (array index from 0 to entries);
+ * @param[in] radius    The radius of the dots. One pixel if 0.
+ * @param[in] color     The color of the dots.
+ *
+ * @api
+ */
 void graphDrawDots(Graph *g, int coord[][2], uint16_t entries, uint16_t radius, uint16_t color) {
     uint16_t i;
 
@@ -122,6 +192,20 @@ void graphDrawDots(Graph *g, int coord[][2], uint16_t entries, uint16_t radius, 
 	}
 }
 
+/**
+ * @brief   Draws multiple dots into the graph and connects them by a line
+ * @note    A dot won't be drawn if it's outsite the max and min
+ *          values of the graph.
+ *  
+ * @param[in] g         The pointer to the graph
+ * @param[in] coord     A two dimensional int array containing the dots coordinates.
+ * @param[in] entries   How many dots will be drawn (array index from 0 to entries);
+ * @param[in] radius    The radius of the dots. One pixel if 0.
+ * @param[in] lineColor	The color of the line.
+ * @param[in] dotColor	The color of the dots.
+ *
+ * @api
+ */
 void graphDrawNet(Graph *g, int coord[][2], uint16_t entries, uint16_t radius, uint16_t lineColor, uint16_t dotColor) {
     uint16_t i;
 
@@ -146,4 +230,5 @@ void graphDrawNet(Graph *g, int coord[][2], uint16_t entries, uint16_t radius, u
 }
 
 #endif /* GFX_USE_GRAPH */
+/** @} */
 
