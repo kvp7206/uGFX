@@ -166,6 +166,7 @@ void gwinClear(GHandle gh) {
  * @note	May leave GDISP clipping to this window's dimensions
  *
  * @param[in] gh		The window handle
+ * @param[in] x,y		The coordinates of the pixel
  *
  * @api
  */

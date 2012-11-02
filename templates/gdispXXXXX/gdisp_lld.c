@@ -507,7 +507,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 #if (GDISP_NEED_QUERY && GDISP_HARDWARE_QUERY) || defined(__DOXYGEN__)
 /**
  * @brief   Query a driver value.
- * @detail	Typecase the result to the type you want.
+ * @details	Typecase the result to the type you want.
  * @note	GDISP_QUERY_WIDTH			- (coord_t)	Gets the width of the screen
  * 			GDISP_QUERY_HEIGHT			- (coord_t)	Gets the height of the screen
  * 			GDISP_QUERY_POWER			- (gdisp_powermode_t) Get the current powermode

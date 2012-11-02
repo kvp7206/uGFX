@@ -67,6 +67,8 @@
 /**
  * @brief   Low level Touchpad driver initialization.
  *
+ * @param[in]	The touchpad driver
+ *
  * @notapi
  */
 void tp_lld_init(const TOUCHPADDriver *tp) {

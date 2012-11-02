@@ -82,6 +82,8 @@ void tp_lld_init(TOUCHPADDriver *tp) {
 /**
  * @brief   Reads out the X direction.
  *
+ * @return	The uncalibrated X coordinate
+ *
  * @notapi
  */
 uint16_t tp_lld_read_x(void) {
@@ -97,6 +99,8 @@ uint16_t tp_lld_read_x(void) {
 
 /*
  * @brief	Reads out the Y direction.
+ *
+ * @return	The uncalibrated Y coordinate
  *
  * @notapi
  */
