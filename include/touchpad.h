@@ -22,7 +22,7 @@
  * @file	touchpad.h
  * @brief	TOUCHPAD Touchpad Driver subsystem header file.
  *
- * @addgroup TOUCHPAD
+ * @addtogroup TOUCHPAD
  * @{
  */
 #ifndef _TOUCHPAD_H

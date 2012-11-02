@@ -22,7 +22,7 @@
  * @file	touchpad_lld.h
  * @brief	TOUCHPAD Driver subsystem low level driver header.
  *
- * @addgroup TOUCHPAD
+ * @addtogroup TOUCHPAD
  * @{
  */
 

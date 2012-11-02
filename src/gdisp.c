@@ -144,6 +144,8 @@
 	 * @note    This function is NOT currently implicitly invoked by @p halInit().
 	 *			It must be called manually.
 	 *
+	 * @return	True if succeeded, False otherwise
+	 *
 	 * @init
 	 */
 	bool_t gdispInit(void) {
@@ -192,7 +194,9 @@
 	/**
 	 * @brief   Test if the GDISP engine is currently drawing.
 	 * @note    This function will always return FALSE if
-	 * 			 GDISP_NEED_ASYNC is not defined.
+	 * 			GDISP_NEED_ASYNC is not defined.
+	 *
+	 * @return	TRUE if gdisp is busy, FALSE otherwise
 	 *
 	 * @init
 	 */
@@ -280,24 +284,12 @@
 	}
 #endif
 
-	/**
-	 * @brief	Draw a dashed line.
-	 * @pre		The GDISP unit must be in powerOn or powerSleep mode.
-	 *
-	 * @param[in] x0,y0		The start position
-	 * @param[in] x1,y1		The end position
-	 * @param[in] length	The length of the dash
-	 * @param[in] color		The color of the dashed line
-	 *
-	 * @api
-	 */
-	
 #if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
 	/**
 	 * @brief   Fill an area with a color.
 	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x0,y0   The start position
+	 * @param[in] x,y   The start position
 	 * @param[in] cx,cy   The size of the box (outside dimensions)
 	 * @param[in] color   The color to use
 	 *
@@ -332,9 +324,11 @@
 	 * 			or at least retained until this call has finished the blit. You can
 	 * 			tell when all graphics drawing is finished by @p gdispIsBusy() going FALSE.
 	 *
-	 * @param[in] x,y     The start position
-	 * @param[in] cx,cy   The size of the filled area
-	 * @param[in] buffer  The bitmap in the driver's pixel format.
+	 * @param[in] x,y		The start position
+	 * @param[in] cx,cy		The size of the filled area
+	 * @param[in] srcx,srcy	I've no idea
+	 * @param[in] srccx		Really, I've no fucking idea
+	 * @param[in] buffer	The bitmap in the driver's pixel format
 	 *
 	 * @api
 	 */
@@ -389,7 +383,7 @@
 	 * @brief   Draw a circle.
 	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x0,y0   The center of the circle
+	 * @param[in] x,y   The center of the circle
 	 * @param[in] radius  The radius of the circle
 	 * @param[in] color   The color to use
 	 *
@@ -416,7 +410,7 @@
 	 * @brief   Draw a filled circle.
 	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x0,y0   The center of the circle
+	 * @param[in] x,y   The center of the circle
 	 * @param[in] radius  The radius of the circle
 	 * @param[in] color   The color to use
 	 *
@@ -443,7 +437,7 @@
 	 * @brief   Draw an ellipse.
 	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x0,y0   The center of the ellipse
+	 * @param[in] x,y   The center of the ellipse
 	 * @param[in] a,b     The dimensions of the ellipse
 	 * @param[in] color   The color to use
 	 *
@@ -471,7 +465,7 @@
 	 * @brief   Draw a filled ellipse.
 	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x0,y0   The center of the ellipse
+	 * @param[in] x,y   The center of the ellipse
 	 * @param[in] a,b     The dimensions of the ellipse
 	 * @param[in] color   The color to use
 	 *
@@ -620,9 +614,10 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 	 * @brief   Draw a text character.
 	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x,y     The position for the text
-	 * @param[in] c       The character to draw
-	 * @param[in] color   The color to use
+	 * @param[in] x,y		The position for the text
+	 * @param[in] c			The character to draw
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color to use
 	 *
 	 * @api
 	 */
@@ -648,10 +643,11 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 	 * @brief   Draw a text character with a filled background.
 	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x,y     The position for the text
-	 * @param[in] c       The character to draw
-	 * @param[in] color   The color to use
-	 * @param[in] bgcolor The background color to use
+	 * @param[in] x,y		The position for the text
+	 * @param[in] c			The character to draw
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color to use
+	 * @param[in] bgcolor	The background color to use
 	 *
 	 * @api
 	 */
@@ -732,7 +728,8 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 	 * @note    Depending on the hardware implementation this function may not
 	 *          support some codes. They will be ignored.
 	 *
-	 * @param[in] powerMode The power mode to use
+	 * @param[in] what		what you want to control
+	 * @param[in] value		The value to be assigned
 	 *
 	 * @api
 	 */
@@ -819,9 +816,10 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	 * @brief   Draw a text string.
 	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x,y     The position for the text
-	 * @param[in] str     The string to draw
-	 * @param[in] color   The color to use
+	 * @param[in] x,y		The position for the text
+	 * @param[in] font		The font to use
+	 * @param[in] str		The string to draw
+	 * @param[in] color		The color to use
 	 *
 	 * @api
 	 */
@@ -861,10 +859,11 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	 * @brief   Draw a text string.
 	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x,y     The position for the text
-	 * @param[in] str     The string to draw
-	 * @param[in] color   The color to use
-	 * @param[in] bgcolor The background color to use
+	 * @param[in] x,y		The position for the text
+	 * @param[in] str		The string to draw
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color to use
+	 * @param[in] bgcolor	The background color to use
 	 *
 	 * @api
 	 */
@@ -906,10 +905,12 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	 * @brief   Draw a text string verticly centered within the specified box.
 	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x,y     The position for the text (need to define top-right or base-line - check code)
-	 * @param[in] str     The string to draw
-	 * @param[in] color   The color to use
-	 * @param[in] justify Justify the text left, center or right within the box
+	 * @param[in] x,y		The position for the text (need to define top-right or base-line - check code)
+	 * @param[in] cx,cy		The width and height of the box
+	 * @param[in] str		The string to draw
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color to use
+	 * @param[in] justify	Justify the text left, center or right within the box
 	 *
 	 * @api
 	 */
@@ -1038,11 +1039,13 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 * @note    The entire box is filled
 	 *
-	 * @param[in] x,y     The position for the text (need to define top-right or base-line - check code)
-	 * @param[in] str     The string to draw
-	 * @param[in] color   The color to use
-	 * @param[in] bgcolor The background color to use
-	 * @param[in] justify Justify the text left, center or right within the box
+	 * @param[in] x,y		The position for the text (need to define top-right or base-line - check code)
+	 * @param[in] cx,cy		The width and height of the box
+	 * @param[in] str		The string to draw
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color to use
+	 * @param[in] bgcolor	The background color to use
+	 * @param[in] justify	Justify the text left, center or right within the box
 	 *
 	 * @api
 	 */

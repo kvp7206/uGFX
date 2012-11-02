@@ -21,7 +21,7 @@
  * @file	touchpad.c
  * @brief	Touchpad Driver code.
  *
- * @addgroup TOUCHPAD
+ * @addtogroup TOUCHPAD
  * @{
  */
 #include "ch.h"
@@ -125,6 +125,8 @@ static void _tpDrawCross(uint16_t x, uint16_t y) {
  * @brief	Touchpad Driver initialization.
  * @note    This function is NOT currently implicitly invoked by @p halInit().
  *          It must be called manually.
+ *
+ * @param[in] tp	The touchpad driver struct
  *
  * @api
  */

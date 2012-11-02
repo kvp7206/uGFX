@@ -338,9 +338,10 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @brief   Draw a character using a transparent background.
 	 * @note    Optional - The high level driver can emulate using software.
 	 *
-	 * @param[in] x, y     The top-left corner of the text
-	 * @param[in] c        The character to print
-	 * @param[in] color    The color of the character
+	 * @param[in] x, y		The top-left corner of the text
+	 * @param[in] c			The character to print
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color of the character
 	 *
 	 * @notapi
 	 */
@@ -357,10 +358,11 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @brief   Draw a character using a filled background.
 	 * @note    Optional - The high level driver can emulate using software.
 	 *
-	 * @param[in] x, y     The top-left corner of the text
-	 * @param[in] c        The character to print
-	 * @param[in] color    The color of the character
-	 * @param[in] bgcolor  The background color
+	 * @param[in] x, y		The top-left corner of the text
+	 * @param[in] c			The character to print
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color of the character
+	 * @param[in] bgcolor	The background color
 	 *
 	 * @notapi
 	 */
@@ -420,7 +422,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 #if (GDISP_NEED_CONTROL && GDISP_HARDWARE_CONTROL) || defined(__DOXYGEN__)
 	/**
 	 * @brief   Driver Control
-	 * @detail	Unsupported control codes are ignored.
+	 * @details	Unsupported control codes are ignored.
 	 * @note	The value parameter should always be typecast to (void *).
 	 * @note	There are some predefined and some specific to the low level driver.
 	 * @note	GDISP_CONTROL_POWER			- Takes a gdisp_powermode_t

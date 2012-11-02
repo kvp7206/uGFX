@@ -411,7 +411,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 #if GDISP_HARDWARE_CONTROL || defined(__DOXYGEN__)
 	/**
 	 * @brief   Driver Control
-	 * @detail	Unsupported control codes are ignored.
+	 * @details	Unsupported control codes are ignored.
 	 * @note	The value parameter should always be typecast to (void *).
 	 * @note	There are some predefined and some specific to the low level driver.
 	 * @note	GDISP_CONTROL_POWER			- Takes a gdisp_powermode_t

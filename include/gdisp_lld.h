@@ -146,7 +146,7 @@
 
 /**
  * @brief   Driver Control Constants
- * @detail	Unsupported control codes are ignored.
+ * @details	Unsupported control codes are ignored.
  * @note	The value parameter should always be typecast to (void *).
  * @note	There are some predefined and some specific to the low level driver.
  * @note	GDISP_CONTROL_POWER			- Takes a gdisp_powermode_t
@@ -166,7 +166,7 @@
 
 /**
  * @brief   Driver Query Constants
- * @detail	Unsupported query codes return (void *)-1.
+ * @details	Unsupported query codes return (void *)-1.
  * @note	There are some predefined and some specific to the low level driver.
  * @note	The result should be typecast the required type.
  * @note	GDISP_QUERY_WIDTH			- Gets the width of the screen
@@ -398,7 +398,7 @@
 	 *				GDISP_PIXELFORMAT_RGB666
 	 *				GDISP_PIXELFORMAT_CUSTOM
 	 * @note	If you use GDISP_PIXELFORMAT_CUSTOM and packed bit fills
-	 *				you need to also define @P gdispPackPixels(buf,cx,x,y,c)
+	 *				you need to also define @p gdispPackPixels(buf,cx,x,y,c)
 	 * @note	If you are using GDISP_HARDWARE_BITFILLS = FALSE then the pixel
 	 *				format must not be a packed format as the software blit does
 	 *				not support packed pixels
