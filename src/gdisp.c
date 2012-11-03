@@ -693,6 +693,7 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 #if (GDISP_NEED_SCROLL && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
 	/**
 	 * @brief   Scroll vertically a section of the screen.
+	 * @pre		GDISP_NEED_SCROLL must be set to TRUE in halconf.h
 	 * @note    Optional.
 	 * @note    If lines is >= cy, it is equivelent to a area fill with bgcolor.
 	 *
