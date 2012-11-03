@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    SSD1963/gdisp_lld.c
+ * @file    drivers/gdisp/SSD1963/gdisp_lld.c
  * @brief   GDISP Graphics Driver subsystem low level driver source.
  *
  * @addtogroup GDISP

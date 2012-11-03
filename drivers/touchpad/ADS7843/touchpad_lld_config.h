@@ -19,7 +19,7 @@
 */
 
 /**
- * @file   touchpadADS7843/touchpad_lld_config.h
+ * @file	drivers/touchpad/ADS7843/touchpad_lld_config.h
  * @brief   Touchpad Driver subsystem low level driver.
  *
  * @addtogroup TOUCHPAD
@@ -42,3 +42,4 @@
 
 #endif	/* _TOUCHPAD_LLD_CONFIG_H */
 /** @} */
+

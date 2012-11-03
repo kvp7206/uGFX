@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    gdispNokia6610/gdisp_lld_board_example.h
+ * @file    drivers/gdisp/Nokia6610/gdisp_lld_board_example.h
  * @brief   GDISP Graphic Driver subsystem board interface for the Nokia6610 display.
  *
  * @addtogroup GDISP

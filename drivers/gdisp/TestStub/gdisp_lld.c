@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    gdispTestStub/gdisp_lld.c
+ * @file    drivers/gdisp/TestStub/gdisp_lld.c
  * @brief   GDISP Graphics Driver subsystem low level driver source (stub).
  *
  * @addtogroup GDISP

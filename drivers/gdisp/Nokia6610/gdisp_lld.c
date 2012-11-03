@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    gdispNokia6610/gdisp_lld.c
+ * @file    drivers/gdisp/Nokia6610/gdisp_lld.c
  * @brief   GDISP Graphics Driver subsystem low level driver source for the Nokia6610 display.
  *
  * @addtogroup GDISP

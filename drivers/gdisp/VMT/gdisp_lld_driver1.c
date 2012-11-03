@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    gdispVMT/gdisp_lld.c
+ * @file    drivers/gdisp/VMT/gdisp_lld_driver1.c
  * @brief   GDISP Graphics Driver subsystem low level driver source for VMT.
  *
  * @addtogroup GDISP
@@ -49,3 +49,4 @@
 
 #endif /* GFX_USE_GDISP */
 /** @} */
+

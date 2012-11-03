@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    gdispS6d1121/gdisp_lld.c
+ * @file    drivers/gdisp/S6D1121/gdisp_lld.c
  * @brief   GDISP Graphics Driver subsystem low level driver source for the S6d1121 display.
  *
  * @addtogroup GDISP
@@ -501,3 +501,4 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 
 #endif /* GFX_USE_GDISP */
 /** @} */
+

@@ -23,7 +23,7 @@
 #endif
 
 /**
- * @file    gdispNokia6610/gdisp_lld_board_olimexsam7ex256.h
+ * @file    drivers/gdisp/Nokia6610/gdisp_lld_board_olimexsam7ex256.h
  * @brief   GDISP Graphic Driver subsystem board interface for the Olimex SAM7-EX256 board.
  *
  * @addtogroup GDISP
