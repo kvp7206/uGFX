@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    Win32/gdisp_lld.c
+ * @file    drivers/gdisp/Win32/gdisp_lld.c
  * @brief   GDISP Graphics Driver subsystem low level driver source for Win32.
  *
  * @addtogroup GDISP
@@ -443,3 +443,4 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 
 #endif /* GFX_USE_GDISP */
 /** @} */
+

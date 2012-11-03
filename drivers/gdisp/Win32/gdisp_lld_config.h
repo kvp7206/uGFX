@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    Win32/gdisp_lld_config.h
+ * @file    drivers/gdisp/Win32/gdisp_lld_config.h
  * @brief   GDISP Graphic Driver subsystem low level driver header for Win32.
  *
  * @addtogroup GDISP
@@ -50,3 +50,4 @@
 
 #endif	/* _GDISP_LLD_CONFIG_H */
 /** @} */
+
