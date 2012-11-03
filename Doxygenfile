@@ -51,7 +51,7 @@ PROJECT_LOGO           =
 # If a relative path is entered, it will be relative to the location
 # where doxygen was started. If left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = 
+OUTPUT_DIRECTORY       = docs
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create
 # 4096 sub-directories (in 2 levels) under the output directory of each output
@@ -578,7 +578,7 @@ FILE_VERSION_FILTER    =
 # You can optionally specify a file name after the option, if omitted
 # DoxygenLayout.xml will be used as the name of the layout file.
 
-LAYOUT_FILE            = ./rsc/layout.xml
+LAYOUT_FILE            = docs/layout.xml
 
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
@@ -986,7 +986,7 @@ GENERATE_HTMLHELP      = NO
 # can add a path in front of the file if the result should not be
 # written to the html output directory.
 
-CHM_FILE               = ../ChibiOS-GFX.chm
+CHM_FILE               = ChibiOS-GFX.chm
 
 # If the GENERATE_HTMLHELP tag is set to YES, the HHC_LOCATION tag can
 # be used to specify the location (absolute path including file name) of

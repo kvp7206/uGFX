@@ -31,7 +31,7 @@
 #include "gdisp.h"
 #include "graph.h"
 
-#if GFX_USE_GRAPH
+#if GFX_USE_GRAPH || defined(__DOXYGEN__)
 
 /**
  * @brief	Draw a horizontal dot line.

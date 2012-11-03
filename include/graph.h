@@ -17,7 +17,6 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 /**
  * @file	graph.h
  * @brief	GRAPH module header file.
@@ -32,7 +31,7 @@
 	#define GFX_USE_GRAPH FALSE
 #endif
 
-#if GFX_USE_GRAPH
+#if GFX_USE_GRAPH || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Type definitions                                                          */
