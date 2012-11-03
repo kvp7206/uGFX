@@ -14,6 +14,7 @@ FIX:		Fix axis orientation for Arc routines
 FEATURE:	new gdisp rounded box routines
 FEATURE:	new gdispDrawStringBox()
 FEATURE:	GWIN infrastructure
+FEATURE:	now we fully support doxygen
 
 
 *** changes after 1.2 ***
