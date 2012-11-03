@@ -27,8 +27,8 @@
  * interface all different types of LCDs and touchscreens. 
  *
  * <h2>Features</h2>
- * - modular design to reduce memory footprint.
- * - HAL abstractions allows it to easily write new drivers.
+ * - Modular design to reduce memory footprint
+ * - HAL abstractions allows it to easily write new drivers
  * - Completely written in C, usable in C++ without any modifications
  * - Supports hardware accelerated drawing by LCDs
  * - Very flexible interfaces for calibration storage and more
