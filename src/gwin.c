@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    gwin.c
+ * @file    src/gwin.c
  * @brief   GWIN Driver code.
  *
  * @addtogroup GWIN
@@ -888,3 +888,4 @@ void gwinButtonDraw(GHandle gh) {
 
 #endif /* _GWIN_C */
 /** @} */
+

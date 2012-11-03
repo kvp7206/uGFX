@@ -17,13 +17,15 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /**
- * @file	graph.h
+ * @file	include/graph.h
  * @brief	GRAPH module header file.
  *
  * @addtogroup GRAPH
  * @{
  */
+
 #ifndef GRAPH_H
 #define GRAPH_H
 

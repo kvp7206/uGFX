@@ -17,8 +17,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /**
- * @file    gdisp_fonts.h
+ * @file    include/gdisp_fonts.h
  * @brief   GDISP internal font definitions.
  * @details	This is not generally needed by an application. It is used
  * 			by the low level drivers that need to understand a font.
@@ -88,3 +89,4 @@ struct font {
 
 #endif /* _GDISP_FONTS_H */
 /** @} */
+

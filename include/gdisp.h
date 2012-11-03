@@ -17,13 +17,15 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /**
- * @file    gdisp.h
+ * @file    include/gdisp.h
  * @brief   GDISP Graphic Driver subsystem header file.
  *
  * @addtogroup GDISP
  * @{
  */
+
 #ifndef _GDISP_H
 #define _GDISP_H
 
@@ -317,3 +319,4 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 
 #endif /* _GDISP_H */
 /** @} */
+

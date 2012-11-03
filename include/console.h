@@ -18,6 +18,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file	include/console.h
+ * @brief	CONSOLE header file.
+ *
+ * @addtogroup CONSOLE
+ * @{
+ */
+
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
@@ -81,4 +89,5 @@ msg_t gfxConsoleWrite(GConsole *console, const uint8_t *bp, size_t n);
 #endif /* GFX_USE_CONSOLE */
 
 #endif /* CONSOLE_H */
+/** @} */
 

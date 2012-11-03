@@ -19,7 +19,7 @@
 */
 
 /**
- * @file	touchpad_lld.h
+ * @file	include/touchpad_lld.h
  * @brief	TOUCHPAD Driver subsystem low level driver header.
  *
  * @addtogroup TOUCHPAD

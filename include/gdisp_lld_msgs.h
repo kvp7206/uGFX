@@ -17,8 +17,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /**
- * @file    gdisp_lld_msgs.h
+ * @file    include/gdisp_lld_msgs.h
  * @brief   GDISP Graphic Driver subsystem low level driver message structures.
  *
  * @addtogroup GDISP
@@ -191,3 +192,4 @@ typedef union gdisp_lld_msg {
 #endif	/* GFX_USE_GDISP */
 #endif	/* _GDISP_LLD_MSGS_H */
 /** @} */
+

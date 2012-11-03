@@ -1,4 +1,4 @@
-/* ChibiOS/GFX - Copyright (C) 2012
+/*	ChibiOS/GFX - Copyright (C) 2012
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -18,12 +18,13 @@
 */
 
 /**
- * @file	touchpad.c
+ * @file	src/touchpad.c
  * @brief	Touchpad Driver code.
  *
  * @addtogroup TOUCHPAD
  * @{
  */
+
 #include "ch.h"
 #include "hal.h"
 #include "gdisp.h"

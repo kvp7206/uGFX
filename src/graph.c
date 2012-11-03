@@ -19,7 +19,7 @@
 */
 
 /**
- * @file	graph.c
+ * @file	src/graph.c
  * @brief	GRAPH module code.
  *
  * @addtogroup GRAPH

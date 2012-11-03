@@ -17,8 +17,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /**
- * @file    gdisp_lld.h
+ * @file    include/gdisp_lld.h
  * @brief   GDISP Graphic Driver subsystem low level driver header.
  *
  * @addtogroup GDISP
@@ -648,3 +649,4 @@ extern "C" {
 
 #endif	/* _GDISP_LLD_H */
 /** @} */
+

@@ -19,12 +19,13 @@
 */
 
 /**
- * @file	touchpad.h
+ * @file	include/touchpad.h
  * @brief	TOUCHPAD Touchpad Driver subsystem header file.
  *
  * @addtogroup TOUCHPAD
  * @{
  */
+
 #ifndef _TOUCHPAD_H
 #define _TOUCHPAD_H
 

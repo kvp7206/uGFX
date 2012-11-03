@@ -18,11 +18,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file	src/console.c
+ * @brief	CONSOLE code.
+ *
+ * @addtogroup CONSOLE
+ * @{
+ */
+
 #include "ch.h"
 #include "hal.h"
 #include "console.h"
 
-#if GFX_USE_CONSOLE
+#if GFX_USE_CONSOLE || defined(__DOXYGEN__)
 
 /*
  * Interface implementation. The interface is write only
@@ -86,6 +94,18 @@ static const struct GConsoleVMT vmt = {
 	putt, gett, writet, readt
 };
 
+/**
+ * @brief	Initializes a console.
+ *
+ * @param[in] console			The console driver struct
+ * @param[in] x0,y0				The location of the upper left corner of the resulting window
+ * @param[in] width, height		The width and height of the window
+ * @param[in] font				The font to be used when printing to the console
+ * @param[in] bkcolor			The background color
+ * @param[in] color				The foreground / font color
+ *
+ * @return						RDY_OK if done
+ */
 msg_t gfxConsoleInit(GConsole *console, coord_t x0, coord_t y0, coord_t width, coord_t height, font_t font, pixel_t bkcolor, pixel_t color) {
 	console->vmt = &vmt;
 	/* read font, get height & padding */
@@ -110,6 +130,14 @@ msg_t gfxConsoleInit(GConsole *console, coord_t x0, coord_t y0, coord_t width, c
 	return RDY_OK;
 }
 
+/**
+ * @brief	Write a single character to the console.
+ *
+ * @param[in] console	The console driver struct
+ * @param[in] c			The char to be written
+ *
+ * @return				RDY_OK if done
+ */
 msg_t gfxConsolePut(GConsole *console, char c) {
 	uint8_t width;
 
@@ -164,6 +192,17 @@ msg_t gfxConsolePut(GConsole *console, char c) {
 	return RDY_OK;
 }
 
+/**
+ * @brief	Write a string to the console.
+ *
+ * @param[in] console	The console driver struct
+ * @param[in] bp		The buffer / string
+ * @param[in] n			The size of the buffer
+ *
+ * @return				RDY_OK if done
+ *
+ * @api
+ */
 msg_t gfxConsoleWrite(GConsole *console, const uint8_t *bp, size_t n) {
 	size_t i;
 	for(i = 0; i < n; i++)
@@ -172,5 +211,6 @@ msg_t gfxConsoleWrite(GConsole *console, const uint8_t *bp, size_t n) {
 	return RDY_OK;
 }
 
-#endif 
+#endif /* GFX_USE_CONSOLE */
+/** @} */
 
