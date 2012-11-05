@@ -33,15 +33,6 @@
 
 #if GFX_USE_GRAPH || defined(__DOXYGEN__)
 
-/**
- * @brief	Draw a horizontal dot line.
- *
- * @param[in] x0,y0,x1	The coordinates where the dot line will be drawn
- * @param[in] space		The distance from one dot to the other in pixels
- * @param[in] color		The color of the dots
- *
- * @notapi
- */
 static void _horizontalDotLine(coord_t x0, coord_t y0, coord_t x1, uint16_t space, color_t color) {
 	uint16_t offset = x0;
 	uint16_t count = ((x1 - x0) / space);
@@ -52,15 +43,6 @@ static void _horizontalDotLine(coord_t x0, coord_t y0, coord_t x1, uint16_t spac
 	} while(count--);
 }
 
-/*
- * @brief	Draw a vertical dot line.
- * 
- * @param[in] x0,y0,y1	The coordinates where the dot line will be drawn
- * @param[in] space		The distance from one dot to the other in pixels
- * @param[in] color		The color of the dots
- *
- * @notapi
- */
 static void _verticalDotLine(coord_t x0, coord_t y0, coord_t y1, uint16_t space, color_t color) {
 	uint16_t offset = y0;
 	uint16_t count = ((y1 - y0) / space);
@@ -71,7 +53,7 @@ static void _verticalDotLine(coord_t x0, coord_t y0, coord_t y1, uint16_t space,
 	} while(count--);
 }
 
-/*
+/**
  * @brief	Draws a graph system
  * @details	Draws a graph system with two axis, X and Y.
  *			Different optinal parameters like grid size, grid color,
