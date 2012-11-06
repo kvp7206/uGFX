@@ -54,11 +54,6 @@ static struct cal_t *cal;
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
-/**
- * @brief	returns the uncalibrated readout of the X direction from the controller
- *
- * @noapi
- */
 static uint16_t _tpReadRealX(void) {
     uint32_t results = 0;
     uint16_t i, x;
@@ -74,11 +69,6 @@ static uint16_t _tpReadRealX(void) {
     return x;
 }
 
-/**
- * @brief	return the uncalibrated readout of the Y-direction from the controller
- *
- * @noapi
- */
 static uint16_t _tpReadRealY(void) {
     uint32_t results = 0;
     uint16_t i, y;
@@ -94,11 +84,6 @@ static uint16_t _tpReadRealY(void) {
     return y;
 }
 
-/**
- * @brief	draws a cross. Used for calibration.
- *
- * @noapi
- */
 static void _tpDrawCross(uint16_t x, uint16_t y) {
     gdispDrawLine(x-15, y, x-2, y, 0xffff);
     gdispDrawLine(x+2, y, x+15, y, 0xffff);
@@ -217,6 +202,33 @@ uint16_t tpReadY(void) {
 	return 0;
 }
 
+/**
+ * @brief	Get the pressure.
+ *
+ * @return	The pressure.
+ *
+ * @api
+ */
+#if TOUCHPAD_HAS_PRESSURE || defined(__DOXYGEN__)
+	uint16_t tpReadZ(void) {
+		/* ToDo */
+		return (tp_lld_read_z());
+	}
+#endif
+
+/**
+ * @brief	returns if touchpad is pressed or not
+ *
+ * @return	1 if pressed, 0 otherwise
+ *
+ * @api
+ */
+#if TOUCHPAD_HAS_IRQ || defined(__DOXYGEN__)
+	uint8_t tpIRQ(void) {
+		return tp_lld_irq();
+	}
+#endif
+
 void tpCalibrate(void) {
 	const uint16_t h = gdispGetHeight();
 	const uint16_t w = gdispGetWidth();
@@ -248,33 +260,6 @@ void tpCalibrate(void) {
 		tp_store_calibration_lld(cal);
 	#endif
 }
-
-/**
- * @brief	returns if touchpad is pressed or not
- *
- * @return	1 if pressed, 0 otherwise
- *
- * @api
- */
-#if TOUCHPAD_HAS_IRQ || defined(__DOXYGEN__)
-	uint8_t tpIRQ(void) {
-		return tp_lld_irq();
-	}
-#endif
-
-/**
- * @brief	Get the pressure.
- *
- * @return	The pressure.
- *
- * @api
- */
-#if TOUCHPAD_HAS_PRESSURE || defined(__DOXYGEN__)
-	uint16_t tpReadZ(void) {
-		/* ToDo */
-		return (tp_lld_read_z());
-	}
-#endif
 
 #endif /* GFX_USE_TOUCHPAD */
 /** @} */
