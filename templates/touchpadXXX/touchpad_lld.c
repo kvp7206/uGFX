@@ -22,7 +22,8 @@
  * @file    templates/touchpadXXX/touchpad_lld.c
  * @brief   Touchpad Driver subsystem low level driver source.
  *
- * @addtogroup TOUCHPAD
+ * @defgroup touchpadXXX
+ * @ingroup DRIVERS
  * @{
  */
 
