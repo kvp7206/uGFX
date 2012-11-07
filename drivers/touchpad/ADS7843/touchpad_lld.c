@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    drivers/touchpad/XPT2046/touchpad_lld.c
+ * @file    drivers/touchpad/ADS7843/touchpad_lld.c
  * @brief   Touchpad Driver subsystem low level driver source.
  *
  * @addtogroup TOUCHPAD
