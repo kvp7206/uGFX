@@ -22,8 +22,7 @@
  * @file	drivers/touchpad/ADS7843/touchpad_lld_config.h
  * @brief   Touchpad Driver subsystem low level driver.
  *
- * @defgroup ADS7843
- * @ingroup DRIVERS
+ * @addtogroup TOUCHPAD
  * @{
  */
 

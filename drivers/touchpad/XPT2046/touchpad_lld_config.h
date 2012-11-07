@@ -22,8 +22,7 @@
  * @file	drivers/touchpad/XPT2046/touchpad_lld_config.h
  * @brief   Touchppad Driver subsystem low level driver.
  *
- * @defgroup XPT2046
- * @ingroup DRIVERS
+ * @addtogroup TOUCHPAD
  * @{
  */
 

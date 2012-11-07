@@ -22,8 +22,7 @@
  * @file    drivers/touchpad/XPT2046/touchpad_lld.c
  * @brief   Touchpad Driver subsystem low level driver source.
  *
- * @defgroup XPT2046
- * @ingroup DRIVERS
+ * @addtogroup TOUCHPAD
  * @{
  */
 
@@ -108,7 +107,8 @@ uint16_t tp_lld_read_value(uint8_t cmd) {
 
 /**
  * @brief   7-point median filtering code for touchpad samples
- * @note    This is an internally used routine only
+ *
+ * @note    This is an internally used routine only.
  *
  * @notapi
  */
@@ -129,10 +129,9 @@ static void tp_lld_filter(void) {
 }
 
 /**
- * @brief   Reads out the X value.
- * @note    The samples are median filtered for greater noise reduction
+ * @brief   Reads out the X direction.
  *
- * @return	The uncalibrated but filtered X value
+ * @note    The samples are median filtered for greater noise reduction
  *
  * @notapi
  */
@@ -171,11 +170,8 @@ uint16_t tp_lld_read_x(void) {
 	return sampleBuf[3];
 }
 
-/**
- * @brief	Reads out the Y value.
- * @note	The samples are median filtered for greated noise reduction
- *
- * @return	The uncalibrated but filtered Y value
+/*
+ * @brief	Reads out the Y direction.
  *
  * @notapi
  */
@@ -216,7 +212,7 @@ uint16_t tp_lld_read_y(void) {
 
 /* ---- Optional Routines ---- */
 #if TOUCHPAD_HAS_IRQ || defined(__DOXYGEN__)
-	/**
+	/*
 	 * @brief	for checking if touchpad is pressed or not.
 	 *
 	 * @return	1 if pressed / 0 if not pressed
@@ -229,10 +225,8 @@ uint16_t tp_lld_read_y(void) {
 #endif
 
 #if TOUCHPAD_HAS_PRESSURE || defined(__DOXYGEN__)
-	/**
+	/*
 	 * @brief	Reads out the Z direction / pressure.
-	 *
-	 * @return	The mount of preasure
 	 *
 	 * @notapi
 	 */
