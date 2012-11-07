@@ -76,7 +76,7 @@
 /**
  * @brief	Structure representing a Touchpad driver.
  */
-typedef struct _TOUCHPADDriver {
+typedef struct TOUCHPADDriver {
     /*
      * @brief   Pointer to SPI driver.
      * @note    SPI driver must be enabled in mcuconf.h and halconf.h
