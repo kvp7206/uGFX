@@ -23,6 +23,6 @@
  * @details The CONSOLE module provides a BaseSequentialStream abstraction.
  *			It allows to easily use an LCD to output any generic data, for
  *			example by using the chprintf() provided by ChibiOS/RT.
- *			Read more here: http://chibios-gfx.com/documentation/console
+ * @details	Read more here: http://chibios-gfx.com/documentation/console
  */
 

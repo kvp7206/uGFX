@@ -20,6 +20,8 @@
 
 /**
  * @addtogroup GWIN
- * @details The GWIN module provides simple window management.
+ * @details	The GWIN module provides simple window management.
+ * @details	Please note that GWIN is a module ontop of GDISP. Therefore, GDISP
+ *			has to be set up correctly.
  */
 
