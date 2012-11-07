@@ -30,7 +30,7 @@
 #include "hal.h"
 #include "touchpad.h"
 
-#if GFX_USE_TOUCHPAD || defined(__DOXYGEN__)
+#if GFX_USE_TOUCHPAD /*|| defined(__DOXYGEN__)*/
 
 /*===========================================================================*/
 /* Driver local definitions.                                                 */

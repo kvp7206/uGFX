@@ -29,7 +29,7 @@
 #ifndef _GDISP_LLD_CONFIG_H
 #define _GDISP_LLD_CONFIG_H
 
-#if GFX_USE_GDISP
+#if GFX_USE_GDISP 
 
 /*===========================================================================*/
 /* Driver hardware support.                                                  */

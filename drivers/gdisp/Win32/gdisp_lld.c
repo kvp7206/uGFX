@@ -30,7 +30,7 @@
 #include "hal.h"
 #include "gdisp.h"
 
-#if GFX_USE_GDISP || defined(__DOXYGEN__)
+#if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
 /* Include the emulation code for things we don't support */
 #include "gdisp_emulation.c"

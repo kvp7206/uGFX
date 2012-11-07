@@ -30,7 +30,7 @@
 #include "hal.h"
 #include "touchpad.h"
 
-#if GFX_USE_TOUCHPAD || defined(__DOXYGEN__)
+#if GFX_USE_TOUCHPAD /*|| defined(__DOXYGEN__)*/
 
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
@@ -46,9 +46,7 @@
 /* Driver exported variables.                                                */
 /*===========================================================================*/
 
-#if !defined(__DOXYGEN__)
 	TOUCHPADDriver Touchpad;
-#endif
 
 /*===========================================================================*/
 /* Driver local variables.                                                   */
@@ -118,8 +116,8 @@ uint16_t tp_lld_read_y(void) {
 }
 
 /* ---- Optional Routines ---- */
-#if TOUCHPAD_HAS_IRQ || defined(__DOXYGEN__)
-	/*
+#if TOCHPAD_HAS_IRQ || defined(__DOXYGEN)
+	/* 
 	 * @brief	for checking if touchpad is pressed or not.
 	 *
 	 * @return	1 if pressed / 0 if not pressed

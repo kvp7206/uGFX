@@ -29,7 +29,7 @@
 #include "ch.h"
 #include "hal.h"
 
-#if GFX_USE_GDISP || defined(__DOXYGEN__)
+#if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
 #define CONFIGFILE()	<../GDISP_VMT_NAME1()/gdisp_lld_config.h>
 #define DRIVERFILE()	<../GDISP_VMT_NAME1()/gdisp_lld.c>
