@@ -49,6 +49,9 @@
 /* Include the low level driver information */
 #include "touchpad_lld.h"
 
+/* For definitions of coord_t, we require gdisp.h */
+#include "gdisp.h"
+
 /*===========================================================================*/
 /* Type definitions                                                          */
 /*===========================================================================*/
@@ -57,10 +60,12 @@
  * @brief	Struct used for calibration
  */
 typedef struct cal_t {
-    float xm; 
-    float ym; 
-    float xn; 
-    float yn; 
+    float ax;
+    float bx;
+    float cx;
+    float ay;
+    float by;
+    float cy;
 } cal_t;
 
 /*===========================================================================*/
@@ -72,12 +77,12 @@ extern "C" {
 #endif
 
 void tpInit(const TOUCHPADDriver *tp);
-uint16_t tpReadX(void);
-uint16_t tpReadY(void);
+coord_t tpReadX(void);
+coord_t tpReadY(void);
 void tpCalibrate(void);
 
 #if TOUCHPAD_HAS_IRQ
-	uint8_t tpIRQ(void);
+	bool_t tpIRQ(void);
 #endif
 
 #if TOUCHPAD_HAS_PRESSURE
