@@ -1,5 +1,5 @@
-/*	
-	ChibiOS/GFX - Copyright (C) 2012
+/*
+    ChibiOS/GFX - Copyright (C) 2012
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -19,8 +19,27 @@
 */
 
 /**
- * @addtogroup TOUCHPAD
- * @details The TOUCHPAD module provides high level abstraction to interface
- * 			touchscreens.
+ * @file	drivers/touchscreen/ADS7843/touchscreen_lld_config.h
+ * @brief   Touchscreen Driver subsystem low level driver.
+ *
+ * @addtogroup TOUCHSCREEN
+ * @{
  */
+
+#ifndef TOUCHSCREEN_LLD_CONFIG_H
+#define TOUCHSCREEN_LLD_CONFIG_H
+
+#if GFX_USE_TOUCHSCREEN /*|| defined(__DOXYGEN__)*/
+
+/*===========================================================================*/
+/* Driver hardware support.                                                  */
+/*===========================================================================*/
+
+#define TOUCHSCREEN_HAS_IRQ				TRUE
+#define TOUCHSCREEN_HAS_PRESSURE			FALSE
+
+#endif	/* GFX_USE_TOUCHSCREEN */
+
+#endif	/* TOUCHSCREEN_LLD_CONFIG_H */
+/** @} */
 

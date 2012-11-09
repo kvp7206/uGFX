@@ -19,18 +19,18 @@
 */
 
 /**
- * @file    drivers/touchpad/ADS7843/touchpad_lld.c
- * @brief   Touchpad Driver subsystem low level driver source.
+ * @file    drivers/touchscreen/XPT2046/touchscreen_lld.c
+ * @brief   Touchscreen Driver subsystem low level driver source.
  *
- * @addtogroup TOUCHPAD
+ * @addtogroup TOUCHSCREEN
  * @{
  */
 
 #include "ch.h"
 #include "hal.h"
-#include "touchpad.h"
+#include "touchscreen.h"
 
-#if GFX_USE_TOUCHPAD /*|| defined(__DOXYGEN__)*/
+#if GFX_USE_TOUCHSCREEN /*|| defined(__DOXYGEN__)*/
 
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
@@ -45,7 +45,7 @@
 /*===========================================================================*/
 #if !defined(__DOXYGEN__)
     /* Local copy of the current touchpad driver */
-    static const TOUCHPADDriver *tpDriver;
+    static const TouchscreenDriver *tsDriver;
 
     static uint16_t sampleBuf[7];
 #endif
@@ -65,24 +65,24 @@
 /* ---- Required Routines ---- */
 
 /**
- * @brief   Low level Touchpad driver initialization.
+ * @brief   Low level Touchscreen driver initialization.
  *
- * @param[in] tp	The touchpad driver
+ * @param[in] ts	The touchscreen driver struct
  *
  * @notapi
  */
-void tp_lld_init(const TOUCHPADDriver *tp) {
-	tpDriver = tp;
+void ts_lld_init(const TouchscreenDriver *ts) {
+	tsDriver = ts;
 
-	if(tpDriver->direct_init)
-		spiStart(tpDriver->spip, tpDriver->spicfg);
+	if(tsDriver->direct_init)
+		spiStart(tsDriver->spip, tsDriver->spicfg);
 }
 
 
 /**
- * @brief   Reads a conversion from the touchpad
+ * @brief   Reads a conversion from the touchscreen
  *
- * @param[in] cmd    The command bits to send to the touchpad
+ * @param[in] cmd    The command bits to send to the touchscreen
  *
  * @return  The read value 12-bit right-justified
  *
@@ -91,14 +91,14 @@ void tp_lld_init(const TOUCHPADDriver *tp) {
  *
  * @notapi
  */
-uint16_t tp_lld_read_value(uint8_t cmd) {
+uint16_t ts_lld_read_value(uint8_t cmd) {
 	static uint8_t txbuf[3] = {0};
 	static uint8_t rxbuf[3] = {0};
 	uint16_t ret;
 
 	txbuf[0] = cmd;
 
-	spiExchange(tpDriver->spip, 3, txbuf, rxbuf);
+	spiExchange(tsDriver->spip, 3, txbuf, rxbuf);
 
 	ret = (rxbuf[1] << 5) | (rxbuf[2] >> 3);
 
@@ -106,18 +106,18 @@ uint16_t tp_lld_read_value(uint8_t cmd) {
 }
 
 /**
- * @brief   7-point median filtering code for touchpad samples
+ * @brief   7-point median filtering code for touchscreen samples
  *
  * @note    This is an internally used routine only.
  *
  * @notapi
  */
-static void tp_lld_filter(void) {
+static void ts_lld_filter(void) {
 	uint16_t temp;
 	int i,j;
 
 	for(i = 0; i < 4; i++) {
-		for(j=i; j < 7; j++) {
+		for(j = i; j < 7; j++) {
 			if(sampleBuf[i] > sampleBuf[j]) {
 				/* Swap the values */
 				temp = sampleBuf[i];
@@ -135,37 +135,37 @@ static void tp_lld_filter(void) {
  *
  * @notapi
  */
-uint16_t tp_lld_read_x(void) {
+uint16_t ts_lld_read_x(void) {
 	int i;
 
 #if defined(SPI_USE_MUTUAL_EXCLUSION)
-	spiAcquireBus(tpDriver->spip);
+	spiAcquireBus(tsDriver->spip);
 #endif
 
-	TOUCHPAD_SPI_PROLOGUE();
-	palClearPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
+	TOUCHSCREEN_SPI_PROLOGUE();
+	palClearPad(tsDriver->spicfg->ssport, tsDriver->spicfg->sspad);
 
 	/* Discard the first conversion - very noisy and keep the ADC on hereafter
 	 * till we are done with the sampling. Note that PENIRQ is disabled.
  	 */
-	tp_lld_read_value(0xD1);
+	ts_lld_read_value(0xD1);
 
 	for(i = 0; i < 7; i++) {
-		sampleBuf[i]=tp_lld_read_value(0xD1);
+		sampleBuf[i] = ts_lld_read_value(0xD1);
 	}
 
 	/* Switch on PENIRQ once again - perform a dummy read */
-	tp_lld_read_value(0xD0);
+	ts_lld_read_value(0xD0);
 
-	palSetPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
-	TOUCHPAD_SPI_EPILOGUE();
+	palSetPad(tsDriver->spicfg->ssport, tsDriver->spicfg->sspad);
+	TOUCHSCREEN_SPI_EPILOGUE();
 
 #if defined(SPI_USE_MUTUAL_EXCLUSION)
-	spiReleaseBus(tpDriver->spip);
+	spiReleaseBus(tsDriver->spip);
 #endif
 
 	/* Find the median - use selection sort */
-	tp_lld_filter();
+	ts_lld_filter();
 
 	return sampleBuf[3];
 }
@@ -175,67 +175,67 @@ uint16_t tp_lld_read_x(void) {
  *
  * @notapi
  */
-uint16_t tp_lld_read_y(void) {
+uint16_t ts_lld_read_y(void) {
 	int i;
 
 #if defined(SPI_USE_MUTUAL_EXCLUSION)
-	spiAcquireBus(tpDriver->spip);
+	spiAcquireBus(tsDriver->spip);
 #endif
 
-	TOUCHPAD_SPI_PROLOGUE();
-	palClearPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
+	TOUCHSCREEN_SPI_PROLOGUE();
+	palClearPad(tsDriver->spicfg->ssport, tsDriver->spicfg->sspad);
 
 	/* Discard the first conversion - very noisy and keep the ADC on hereafter
 	 * till we are done with the sampling. Note that PENIRQ is disabled.
 	 */
-	tp_lld_read_value(0x91);
+	ts_lld_read_value(0x91);
 
 	for(i = 0; i < 7; i++) {
-		sampleBuf[i] = tp_lld_read_value(0x91);
+		sampleBuf[i] = ts_lld_read_value(0x91);
 	}
 
 	/* Switch on PENIRQ once again - perform a dummy read */
-	tp_lld_read_value(0x90);
+	ts_lld_read_value(0x90);
 
-	palSetPad(tpDriver->spicfg->ssport, tpDriver->spicfg->sspad);
-	TOUCHPAD_SPI_EPILOGUE();
+	palSetPad(tsDriver->spicfg->ssport, tsDriver->spicfg->sspad);
+	TOUCHSCREEN_SPI_EPILOGUE();
 
 #ifdef SPI_USE_MUTUAL_EXCLUSION
-	spiReleaseBus(tpDriver->spip);
+	spiReleaseBus(tsDriver->spip);
 #endif
 
 	/* Find the median - use selection sort */
-	tp_lld_filter();
+	ts_lld_filter();
 
 	return sampleBuf[3];
 }
 
 /* ---- Optional Routines ---- */
-#if TOUCHPAD_HAS_IRQ || defined(__DOXYGEN__)
+#if TOUCHSCREEN_HAS_IRQ || defined(__DOXYGEN__)
 	/*
-	 * @brief	for checking if touchpad is pressed or not.
+	 * @brief	for checking if touchscreen is pressed or not.
 	 *
 	 * @return	1 if pressed / 0 if not pressed
 	 *
 	 * @notapi
 	 */
-	uint8_t tp_lld_irq(void) {
-		return (!palReadPad(tpDriver->tpIRQPort, tpDriver->tpIRQPin));
+	uint8_t ts_lld_irq(void) {
+		return (!palReadPad(tsDriver->tsIRQPort, tsDriver->tsIRQPin));
 	}
 #endif
 
-#if TOUCHPAD_HAS_PRESSURE || defined(__DOXYGEN__)
+#if TOUCHSCREEN_HAS_PRESSURE || defined(__DOXYGEN__)
 	/*
 	 * @brief	Reads out the Z direction / pressure.
 	 *
 	 * @notapi
 	 */
-	uint16_t tp_lld_read_z(void) {
+	uint16_t ts_lld_read_z(void) {
 		/* ToDo */
 		return 42;
 	}
 #endif
 
-#endif /* GFX_USE_TOUCHPAD */
+#endif /* GFX_USE_TOUCHSCREEN */
 /** @} */
 
