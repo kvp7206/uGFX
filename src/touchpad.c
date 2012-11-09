@@ -303,7 +303,7 @@ void tpCalibrate(void) {
 
     gdispFillStringBox(0, 5, gdispGetWidth(), 30, "Calibration", &fontUI2Double,  White, Blue, justifyCenter);
 
-#if defined(TOUCHPAD_VERIFY_CALIBRATION)
+#if TOUCHPAD_VERIFY_CALIBRATION
 calibrate:
     for(i = 0; i < 4; i++) {
 #else
@@ -345,7 +345,7 @@ calibrate:
     /* Apply 3 point calibration algorithm */
     _tpDo3PointCalibration(cross, points, cal);
 
-#if defined(TOUCHPAD_VERIFY_CALIBRATION)
+#if TOUCHPAD_VERIFY_CALIBRATION
     /* Verification of correctness of calibration (optional) :
      *  See if the 4th point (Middle of the screen) coincides with the calibrated
      *  result. If point is with +/- 2 pixel margin, then successful calibration
