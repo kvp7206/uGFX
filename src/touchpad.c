@@ -108,9 +108,7 @@ static void _tpTransform(coord_t *x, coord_t *y) {
   *y = (coord_t) (cal->ay * (*x) + cal->by * (*y) + cal->cy);
 }
 
-static void _tpDo3PointCalibration(const coord_t (*cross)[2], coord_t (*points)[2],
-                                   cal_t *c)
-{
+static void _tpDo3PointCalibration(const coord_t (*cross)[2], coord_t (*points)[2], cal_t *c) {
   float dx, dx0, dx1, dx2, dy0, dy1, dy2;
 
   /* Compute all the required determinants */
@@ -281,7 +279,8 @@ coord_t tpReadY(void) {
 #define MAX_CAL_SAMPLES     10
 
 /**
- * @brief   This function interactively performs calibration of the touchscreen
+ * @brief	Function to calibrate touchscreen
+ * @details   This function interactively performs calibration of the touchscreen
  *          using 3-point calibration algorithm. Optionally, it also verifies
  *          the accuracy of the calibration coefficients obtained if the symbol
  *          TOUCHPAD_VERIFY_CALIBRATION is defined in the configuration.
