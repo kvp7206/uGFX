@@ -29,6 +29,7 @@
 #include "ch.h"
 #include "hal.h"
 #include "gdisp.h"
+#include "touchscreen.h"
 
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
@@ -56,6 +57,8 @@ static HDC dcBuffer = NULL;
 static HBITMAP dcBitmap = NULL;
 static HBITMAP dcOldBitmap;
 static volatile bool_t isReady = FALSE;
+static coord_t	mousex, mousey;
+static bool_t	mousedn;
 
 static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 {
@@ -65,9 +68,20 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 	switch (Msg) {
 	case WM_CREATE:
 		break;
-	case WM_MOUSEMOVE:
 	case WM_LBUTTONDOWN:
+		mousedn = TRUE;
+		mousex = (coord_t)LOWORD(lParam); 
+		mousey = (coord_t)HIWORD(lParam); 
+		break;
 	case WM_LBUTTONUP:
+		mousedn = FALSE;
+		mousex = (coord_t)LOWORD(lParam); 
+		mousey = (coord_t)HIWORD(lParam); 
+		break;
+	case WM_MOUSEMOVE:
+		mousex = (coord_t)LOWORD(lParam); 
+		mousey = (coord_t)HIWORD(lParam); 
+		break;
 	case WM_LBUTTONDBLCLK:
 	case WM_MBUTTONDOWN:
 	case WM_MBUTTONUP:
@@ -129,13 +143,18 @@ static DWORD WINAPI WindowThread(LPVOID lpParameter) {
 	wc.lpszClassName   = APP_NAME;
 	RegisterClass(&wc);
 
+	rect.top = 0; rect.bottom = GDISP.Height;
+	rect.left = 0; rect.right = GDISP.Width;
+	AdjustWindowRect(&rect, WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU, 0);
 	winRootWindow = CreateWindow(APP_NAME, "", WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU, 0, 0,
-			GDISP.Width, GDISP.Height, 0, 0, hInstance, NULL);
+			rect.right-rect.left, rect.bottom-rect.top, 0, 0, hInstance, NULL);
 	assert(winRootWindow != NULL);
 
 	HDC dc = GetDC(winRootWindow);
 
 	GetClientRect(winRootWindow, &rect);
+	GDISP.Width = rect.right-rect.left;
+	GDISP.Height = rect.bottom - rect.top;
 	dcBitmap = CreateCompatibleBitmap(dc, GDISP.Width, GDISP.Height);
 	dcBuffer = CreateCompatibleDC(dc);
 	dcOldBitmap = SelectObject(dcBuffer, dcBitmap);
@@ -430,6 +449,9 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void GDISP_LLD(verticalscroll)(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
+		RECT	rect, frect;
+		HBRUSH	hbr;
+		
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; x = GDISP.clipx0; }
 			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; y = GDISP.clipy0; }
@@ -437,9 +459,98 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			if (x+cx > GDISP.clipx1)	cx = GDISP.clipx1 - x;
 			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
-		/* NOT IMPLEMENTED YET */
+
+		rect.bottom = y+cy;
+		rect.top = y;
+		rect.left = x;
+		rect.right = x+cx;
+		if (cy > lines && cy > -lines)
+			ScrollDC(dcBuffer, 0, -lines, &rect, 0, 0, 0);
+		bgcolor = COLOR2BGR(bgcolor);
+		hbr = CreateSolidBrush(bgcolor);
+		if (hbr) {
+			if (lines > 0) {
+				if (lines > cy) lines = cy;
+				frect.bottom = y+cy;
+				frect.top = y+cy-lines;
+			} else {
+				if (-lines > cy) lines = -cy;
+				frect.top = y;
+				frect.bottom = y-lines;
+			}
+			frect.left = x;
+			frect.right = x+cx;
+			FillRect(dcBuffer, &frect, hbr);
+		}
+		InvalidateRect(winRootWindow, &rect, FALSE);
+		UpdateWindow(winRootWindow);
 	}
 #endif
+
+#if GFX_USE_TOUCHSCREEN /*|| defined(__DOXYGEN__)*/
+
+void ts_store_calibration_lld(struct cal_t *cal) {
+	(void) cal;
+	// Just ignore the calibration data - we implicitly know the calibration
+}
+
+struct cal_t *ts_restore_calibration_lld(void) {
+	static struct cal_t cal = { 1.0, 0.0, 0.0, 0.0, 1.0, 0.0 };
+	// Our x,y is always already calibrated.
+	return &cal;
+}
+
+/**
+ * @brief   Low level touchscreen driver initialization.
+ *
+ * @param[in] ts	The touchscreen driver
+ *
+ * @notapi
+ */
+void ts_lld_init(const TouchscreenDriver *ts) {
+	(void) ts;
+	// Just ignore everything
+}
+
+/**
+ * @brief   Reads out the X direction.
+ *
+ * @notapi
+ */
+uint16_t ts_lld_read_x(void) {
+	return mousex;
+}
+
+/**
+ * @brief   Reads out the Y direction.
+ *
+ * @notapi
+ */
+uint16_t ts_lld_read_y(void) {
+	return mousey;
+}
+
+/**
+ * @brief   Reads out the Z direction.
+ *
+ * @notapi
+ */
+uint16_t ts_lld_read_z(void) {
+	return 0;
+}
+
+/*
+ * @brief	for checking if touchpad is pressed or not.
+ *
+ * @return	1 if pressed / 0 if not pressed
+ *
+ * @notapi
+ */
+uint8_t ts_lld_irq(void) {
+	return (uint8_t)mousedn;
+}
+
+#endif /* GFX_USE_TOUCHSCREEN */
 
 #endif /* GFX_USE_GDISP */
 /** @} */

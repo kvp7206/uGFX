@@ -66,7 +66,7 @@
 /* Low Level Driver details and error checks.                                */
 /*===========================================================================*/
 
-#if !defined(GFX_USE_GDISP)
+#if !defined(GFX_USE_GDISP) || !GFX_USE_GDISP
 	#error "GWIN: GFX_USE_GDISP must also be defined"
 #endif
 #include "gdisp.h"
