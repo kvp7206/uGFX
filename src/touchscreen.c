@@ -159,7 +159,6 @@ static void _tsDo3PointCalibration(const coord_t (*cross)[2], coord_t (*points)[
  * @api
  */
 void tsInit(const TouchscreenDriver *ts) {
-
 	/* Initialise Mutex */
 	//MUTEX_INIT
 
@@ -177,6 +176,7 @@ void tsInit(const TouchscreenDriver *ts) {
 	cal = (struct cal_t*)chHeapAlloc(NULL, sizeof(struct cal_t));
 	if(cal == NULL)
 		return;
+
 	tsCalibrate();
 }
 
@@ -206,9 +206,9 @@ coord_t tsReadX(void) {
         case GDISP_ROTATE_90:
             return y;
         case GDISP_ROTATE_180:
-            return gdispGetWidth() - x - 1;
+            return GDISP_SCREEN_WIDTH - x - 1;
         case GDISP_ROTATE_270:
-            return gdispGetHeight() - y - 1;
+            return GDISP_SCREEN_HEIGHT - y - 1;
     }
 
     return 0;
@@ -238,9 +238,9 @@ coord_t tsReadY(void) {
         case GDISP_ROTATE_0:
             return y;
         case GDISP_ROTATE_90:
-            return gdispGetWidth() - x - 1;
+            return GDISP_SCREEN_WIDTH - x - 1;
         case GDISP_ROTATE_180:
-            return gdispGetHeight() - y - 1;
+            return GDISP_SCREEN_HEIGHT - y - 1;
         case GDISP_ROTATE_270:
             return x;
     }

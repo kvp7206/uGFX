@@ -53,8 +53,6 @@ TouchscreenDriver TOUCHPADD1 = {
 
 void drawScreen(void) {
 	char *msg = "ChibiOS/GFX";
-	uint16_t colorsize = COLOR_SIZE;
-	uint16_t pensize = PEN_SIZE;
 
 	gdispSetOrientation(GDISP_ROTATE_90);
 	gdispClear(White);
@@ -86,7 +84,6 @@ int main(void) {
 
 	gdispInit();
 	tsInit(&TOUCHPADD1);
-	tsCalibrate();
 
 	drawScreen();
 
