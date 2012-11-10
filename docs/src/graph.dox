@@ -1,5 +1,5 @@
-/*
-    ChibiOS/RT - Copyright (C) 2012
+/*	
+	ChibiOS/GFX - Copyright (C) 2012
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -19,34 +19,10 @@
 */
 
 /**
- * @file    drivers/gdisp/VMT/gdisp_lld_driver1.c
- * @brief   GDISP Graphics Driver subsystem low level driver source for VMT.
- *
- * @addtogroup GDISP
- * @{
+ * @addtogroup GRAPH
+ * @details The GRAPH module provides high level HAL independed routines
+ *			to draw graphs on a graphic display. The graph is highly
+ *			configurable. There are many options to controll the look
+ *			of the graph.
  */
-
-#include "ch.h"
-#include "hal.h"
-
-#if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
-
-#define CONFIGFILE()	<../GDISP_VMT_NAME1()/gdisp_lld_config.h>
-#define DRIVERFILE()	<../GDISP_VMT_NAME1()/gdisp_lld.c>
-
-/* We don't need these in our VMT referenced driver */
-#undef GDISP_NEED_MSGAPI
-#define GDISP_NEED_MSGAPI	FALSE
-
-/* Include the specific config file we want */
-#include CONFIGFILE()
-
-/* Bring in our API */
-#include "gdisp.h"
-
-/* Add the low level driver */
-#include DRIVERFILE()
-
-#endif /* GFX_USE_GDISP */
-/** @} */
 

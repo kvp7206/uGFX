@@ -19,26 +19,27 @@
 */
 
 /**
- * @file   touchpadADS7843/touchpad_lld_config.h
- * @brief   Touchpad Driver subsystem low level driver.
+ * @file	drivers/touchscreen/XPT2046/touchscreen_lld_config.h
+ * @brief   Touchscreen Driver subsystem low level driver.
  *
- * @addtogroup TOUCHPAD
+ * @addtogroup TOUCHSCREEN
  * @{
  */
 
-#ifndef _TOUCHPAD_LLD_CONFIG_H
-#define _TOUCHPAD_LLD_CONFIG_H
+#ifndef TOUCHSCREEN_LLD_CONFIG_H
+#define TOUCHSCREEN_LLD_CONFIG_H
 
-#if GFX_USE_TOUCHPAD || defined(__DOXYGEN__)
+#if GFX_USE_TOUCHSCREEN /*|| defined(__DOXYGEN__)*/
 
 /*===========================================================================*/
 /* Driver hardware support.                                                  */
 /*===========================================================================*/
 
-#define TOUCHPAD_HAS_IRQ				TRUE
-#define TOUCHPAD_HAS_PRESSURE			FALSE
+#define TOUCHSCREEN_HAS_IRQ				TRUE
+#define TOUCHSCREEN_HAS_PRESSURE			TRUE
 
-#endif	/* GFX_USE_TOUCHPAD */
+#endif	/* GFX_USE_TOUCHSCREEN */
 
-#endif	/* _TOUCHPAD_LLD_CONFIG_H */
+#endif	/* TOUCHSCREEN_LLD_CONFIG_H */
 /** @} */
+

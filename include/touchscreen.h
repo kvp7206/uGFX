@@ -19,16 +19,17 @@
 */
 
 /**
- * @file	touchpad.h
- * @brief	TOUCHPAD Touchpad Driver subsystem header file.
+ * @file	include/touchscreen.h
+ * @brief	TOUCHSCREEN Touchscreen driver subsystem header file.
  *
- * @addgroup TOUCHPAD
+ * @addtogroup TOUCHSCREEN
  * @{
  */
-#ifndef _TOUCHPAD_H
-#define _TOUCHPAD_H
 
-#if GFX_USE_TOUCHPAD || defined(__DOXYGEN__)
+#ifndef TOUCHSCREEN_H
+#define TOUCHSCREEN_H
+
+#if GFX_USE_TOUCHSCREEN || defined(__DOXYGEN__)
 
 /**
  * @brief	specifies how many conversions are made for a readout.
@@ -46,7 +47,10 @@
 /*===========================================================================*/
 
 /* Include the low level driver information */
-#include "touchpad_lld.h"
+#include "touchscreen_lld.h"
+
+/* For definitions of coord_t, we require gdisp.h */
+#include "gdisp.h"
 
 /*===========================================================================*/
 /* Type definitions                                                          */
@@ -56,10 +60,12 @@
  * @brief	Struct used for calibration
  */
 typedef struct cal_t {
-    float xm; 
-    float ym; 
-    float xn; 
-    float yn; 
+    float ax;
+    float bx;
+    float cx;
+    float ay;
+    float by;
+    float cy;
 } cal_t;
 
 /*===========================================================================*/
@@ -70,25 +76,25 @@ typedef struct cal_t {
 extern "C" {
 #endif
 
-void tpInit(const TOUCHPADDriver *tp);
-uint16_t tpReadX(void);
-uint16_t tpReadY(void);
-void tpCalibrate(void);
+void tsInit(const TouchscreenDriver *ts);
+coord_t tsReadX(void);
+coord_t tsReadY(void);
+void tsCalibrate(void);
 
-#if TOUCHPAD_HAS_IRQ
-	uint8_t tpIRQ(void);
+#if TOUCHSCREEN_HAS_IRQ
+	bool_t tsIRQ(void);
 #endif
 
-#if TOUCHPAD_HAS_PRESSURE
-	uint16_t tpReadZ(void);
+#if TOUCHSCREEN_HAS_PRESSURE
+	uint16_t tsReadZ(void);
 #endif
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* GFX_USE_TOUCHPAD */
+#endif /* GFX_USE_TOUCHSCREEN */
 
-#endif /* _TOUCHPAD_H */
+#endif /* TOUCHSCREEN_H */
 /** @} */
 

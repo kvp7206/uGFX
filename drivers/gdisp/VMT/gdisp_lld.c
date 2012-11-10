@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    gdispVMT/gdisp_lld.c
+ * @file    drivers/gdisp/VMT/gdisp_lld.c
  * @brief   GDISP Graphics Driver subsystem low level driver source for VMT.
  *
  * @addtogroup GDISP
@@ -30,7 +30,7 @@
 #include "hal.h"
 #include "gdisp.h"
 
-#if GFX_USE_GDISP || defined(__DOXYGEN__)
+#if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
 #define GDISP_LLD_NO_STRUCT
 
@@ -279,3 +279,4 @@ bool_t	gdisp_lld_init_VMT(void) {
 
 #endif /* GFX_USE_GDISP */
 /** @} */
+

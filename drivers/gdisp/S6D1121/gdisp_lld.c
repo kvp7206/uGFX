@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    gdispS6d1121/gdisp_lld.c
+ * @file    drivers/gdisp/S6D1121/gdisp_lld.c
  * @brief   GDISP Graphics Driver subsystem low level driver source for the S6d1121 display.
  *
  * @addtogroup GDISP
@@ -30,7 +30,7 @@
 #include "hal.h"
 #include "gdisp.h"
 
-#if GFX_USE_GDISP || defined(__DOXYGEN__)
+#if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
 /* Include the emulation code for things we don't support */
 #include "gdisp_emulation.c"
@@ -411,7 +411,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 #if GDISP_HARDWARE_CONTROL || defined(__DOXYGEN__)
 	/**
 	 * @brief   Driver Control
-	 * @detail	Unsupported control codes are ignored.
+	 * @details	Unsupported control codes are ignored.
 	 * @note	The value parameter should always be typecast to (void *).
 	 * @note	There are some predefined and some specific to the low level driver.
 	 * @note	GDISP_CONTROL_POWER			- Takes a gdisp_powermode_t
@@ -501,3 +501,4 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 
 #endif /* GFX_USE_GDISP */
 /** @} */
+

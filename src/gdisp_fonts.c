@@ -17,6 +17,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /*
 	Font tables included into gdisp.c
 */
@@ -653,3 +654,4 @@
 #endif /* GDISP_NEED_TEXT */
 
 #endif /* GFX_USE_GDISP */
+

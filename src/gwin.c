@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    gwin.c
+ * @file    src/gwin.c
  * @brief   GWIN Driver code.
  *
  * @addtogroup GWIN
@@ -166,6 +166,7 @@ void gwinClear(GHandle gh) {
  * @note	May leave GDISP clipping to this window's dimensions
  *
  * @param[in] gh		The window handle
+ * @param[in] x,y		The coordinates of the pixel
  *
  * @api
  */
@@ -887,3 +888,4 @@ void gwinButtonDraw(GHandle gh) {
 
 #endif /* _GWIN_C */
 /** @} */
+

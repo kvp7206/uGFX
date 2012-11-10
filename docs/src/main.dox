@@ -1,5 +1,5 @@
-/*
-    ChibiOS/RT - Copyright (C) 2012
+/*	
+	ChibiOS/GFX - Copyright (C) 2012
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -19,34 +19,19 @@
 */
 
 /**
- * @file    drivers/gdisp/VMT/gdisp_lld_driver1.c
- * @brief   GDISP Graphics Driver subsystem low level driver source for VMT.
+ * @mainpage ChibiOS/GFX
+ * @author Joel Bodenmann (joel@unormal.org).
  *
- * @addtogroup GDISP
- * @{
+ * <h2>ChibiOS/GFX</h2>
+ * ChibiOS/GFX is an official add-on library for ChibiOS/RT to
+ * interface all different types of LCDs and touchscreens. 
+ *
+ * <h2>Features</h2>
+ * - Modular design to reduce memory footprint
+ * - HAL abstractions allows it to easily write new drivers
+ * - Completely written in C, usable in C++ without any modifications
+ * - Supports hardware accelerated drawing by LCDs
+ * - Very flexible interfaces for calibration storage and more
+ * - We are having our own homepage:  http://chibios-gfx.com
  */
-
-#include "ch.h"
-#include "hal.h"
-
-#if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
-
-#define CONFIGFILE()	<../GDISP_VMT_NAME1()/gdisp_lld_config.h>
-#define DRIVERFILE()	<../GDISP_VMT_NAME1()/gdisp_lld.c>
-
-/* We don't need these in our VMT referenced driver */
-#undef GDISP_NEED_MSGAPI
-#define GDISP_NEED_MSGAPI	FALSE
-
-/* Include the specific config file we want */
-#include CONFIGFILE()
-
-/* Bring in our API */
-#include "gdisp.h"
-
-/* Add the low level driver */
-#include DRIVERFILE()
-
-#endif /* GFX_USE_GDISP */
-/** @} */
 

@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    gdispVMT/gdisp_lld_config.h
+ * @file    drivers/gdisp/VMT/gdisp_lld_config.h
  * @brief   GDISP Graphic Driver subsystem low level driver header template.
  *
  * @addtogroup GDISP
@@ -68,3 +68,4 @@
 
 #endif	/* _GDISP_LLD_CONFIG_H */
 /** @} */
+

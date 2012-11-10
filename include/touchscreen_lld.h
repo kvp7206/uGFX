@@ -19,54 +19,58 @@
 */
 
 /**
- * @file	touchpad_lld.h
- * @brief	TOUCHPAD Driver subsystem low level driver header.
+ * @file	include/touchscreen_lld.h
+ * @brief	TOUCHSCREEN Driver subsystem low level driver header.
  *
- * @addgroup TOUCHPAD
+ * @addtogroup TOUCHSCREEN
  * @{
  */
 
-#ifndef _TOUCHPAD_LLD_H
-#define _TOUCHPAD_LLD_H
+#ifndef TOUCHSCREEN_LLD_H
+#define TOUCHSCREEN_LLD_H
 
-#if GFX_USE_TOUCHPAD || defined(__DOXYGEN__)
+#if GFX_USE_TOUCHSCREEN || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Include the low level driver configuration information                    */
 /*===========================================================================*/
 
-#include "touchpad_lld_config.h"
+#include "touchscreen_lld_config.h"
 
 /*===========================================================================*/
 /* Error checks.                                                             */
 /*===========================================================================*/
 
-#ifndef TOUCHPAD_NEED_MULTITHREAD
-	#define TOUCHPAD_NEED_MULTITHREAD	FALSE
+#ifndef TOUCHSCREEN_NEED_MULTITHREAD
+	#define TOUCHSCREEN_NEED_MULTITHREAD	FALSE
 #endif
 
-#ifndef TOUCHPAD_XY_INVERTED
-	#define TOUCHPAD_XY_INVERTED	FALSE
+#ifndef TOUCHSCREEN_XY_INVERTED
+	#define TOUCHSCREEN_XY_INVERTED	FALSE
 #endif
 
-#ifndef TOUCHPAD_STORE_CALIBRATION
-	#define TOUCHPAD_STORE_CALIBRATION FALSE
+#ifndef TOUCHSCREEN_STORE_CALIBRATION
+	#define TOUCHSCREEN_STORE_CALIBRATION FALSE
 #endif 
 
-#ifndef TOUCHPAD_HAS_IRQ
-	#define TOUCHPAD_HAS_IRQ	FALSE
+#ifndef TOUCHSCREEN_VERIFY_CALIBRATION
+	#define TOUCHSCREEN_VERIFY_CALIBRATION FALSE
 #endif
 
-#ifndef TOUCHPAD_HAS_PRESSURE
-	#define TOUCHPAD_HAS_PRESSURE	FALSE
+#ifndef TOUCHSCREEN_HAS_IRQ
+	#define TOUCHSCREEN_HAS_IRQ	FALSE
 #endif
 
-#ifndef TOUCHPAD_SPI_PROLOGUE
-    #define TOUCHPAD_SPI_PROLOGUE()
+#ifndef TOUCHSCREEN_HAS_PRESSURE
+	#define TOUCHSCREEN_HAS_PRESSURE	FALSE
 #endif
 
-#ifndef TOUCHPAD_SPI_EPILOGUE
-    #define TOUCHPAD_SPI_EPILOGUE()
+#ifndef TOUCHSCREEN_SPI_PROLOGUE
+    #define TOUCHSCREEN_SPI_PROLOGUE()
+#endif
+
+#ifndef TOUCHSCREEN_SPI_EPILOGUE
+    #define TOUCHSCREEN_SPI_EPILOGUE()
 #endif
 
 /*===========================================================================*/
@@ -74,9 +78,9 @@
 /*===========================================================================*/
 
 /**
- * @brief	Structure representing a Touchpad driver.
+ * @brief	Structure representing a touchscreen driver.
  */
-typedef struct _TOUCHPADDriver {
+typedef struct TouchscreenDriver {
     /*
      * @brief   Pointer to SPI driver.
      * @note    SPI driver must be enabled in mcuconf.h and halconf.h
@@ -93,27 +97,27 @@ typedef struct _TOUCHPADDriver {
     /*
      * @brief   Touchscreen controller TPIRQ pin GPIO port
      */
-    ioportid_t      tpIRQPort;
+    ioportid_t      tsIRQPort;
 
     /*
      * @brief   Touchscreen controller TPIRQ GPIO pin
      * @note    The interface is polled as of now, interrupt support is
      *          to be implemented in the future.
      */
-    ioportmask_t    tpIRQPin;
+    ioportmask_t    tsIRQPin;
 
     /*
      * @brief   Initialize the SPI with the configuration struct given or not
      *          If TRUE, spiStart is called by the init, otherwise not
      * @note    This is provided in such a case when SPI port is being shared
      *          across multiple peripherals, so not to disturb the SPI bus.
-     *          You can use TOUCHPAD_SPI_PROLOGUE() and TOUCHPAD_SPI_EPILOGUE()
+     *          You can use TOUCHSCREEN_SPI_PROLOGUE() and TOUCHSCREEN_SPI_EPILOGUE()
      *          macros to change the SPI configuration or speed before and
      *          after using the touchpad. An example case would be sharing the
      *          bus with a fast flash memory chip.
      */
     bool_t          direct_init;
-} TOUCHPADDriver;
+} TouchscreenDriver;
 
 
 /*===========================================================================*/
@@ -126,26 +130,26 @@ extern "C" {
 #endif
 
 	/* Core functions */
-	void tp_lld_init(const TOUCHPADDriver *tp);
+	void ts_lld_init(const TouchscreenDriver *ts);
 
-	uint16_t tp_lld_read_value(uint8_t cmd);
-	uint16_t tp_lld_read_x(void);
-	uint16_t tp_lld_read_y(void);
+	uint16_t ts_lld_read_value(uint8_t cmd);
+	uint16_t ts_lld_read_x(void);
+	uint16_t ts_lld_read_y(void);
 
-	#if TOUCHPAD_HAS_IRQ
-	uint8_t tp_lld_irq(void);
+	#if TOUCHSCREEN_HAS_IRQ
+	uint8_t ts_lld_irq(void);
 	#endif
 
-	#if TOUCHPAD_HAS_PRESSURE
-	uint16_t tp_lld_read_z(void);
+	#if TOUCHSCREEN_HAS_PRESSURE
+	uint16_t ts_lld_read_z(void);
 	#endif
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* GFX_USE_TOUCHPAD */
+#endif /* GFX_USE_TOUCHSCREEN */
 
-#endif /* _TOUCHPAD_LLD_H */
+#endif /* _TOUCHSCREEN_LLD_H */
 /** @} */
 

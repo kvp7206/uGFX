@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -251,3 +251,4 @@ static void lld_lcdResetViewPort(void) {
 }
 
 #endif /* S6D1121_H */
+

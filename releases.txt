@@ -2,7 +2,12 @@
 *** Releases                                                              ***
 *****************************************************************************
 
-current stable: 1.3
+current stable: 1.4
+
+
+*** changes after 1.4 ***
+FEATURE:	Added three point calibration
+FIX:		Touchpad renamed into Touchscreen
 
 
 *** changes after 1.3 ***
@@ -14,6 +19,7 @@ FIX:		Fix axis orientation for Arc routines
 FEATURE:	new gdisp rounded box routines
 FEATURE:	new gdispDrawStringBox()
 FEATURE:	GWIN infrastructure
+FEATURE:	now we fully support doxygen
 
 
 *** changes after 1.2 ***

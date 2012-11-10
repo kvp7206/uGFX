@@ -1,5 +1,5 @@
 /*
-    ChibiOS/GFX Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -19,35 +19,27 @@
 */
 
 /**
- * @file    drivers/gdisp/SSD1963/gdisp_lld_config.h
- * @brief   GDISP Graphic Driver subsystem low level driver header.
+ * @file	drivers/touchscreen/ADS7843/touchscreen_lld_config.h
+ * @brief   Touchscreen Driver subsystem low level driver.
  *
- * @addtogroup GDISP
+ * @addtogroup TOUCHSCREEN
  * @{
  */
 
-#ifndef _GDISP_LLD_CONFIG_H
-#define _GDISP_LLD_CONFIG_H
+#ifndef TOUCHSCREEN_LLD_CONFIG_H
+#define TOUCHSCREEN_LLD_CONFIG_H
 
-#if GFX_USE_GDISP
+#if GFX_USE_TOUCHSCREEN /*|| defined(__DOXYGEN__)*/
 
 /*===========================================================================*/
 /* Driver hardware support.                                                  */
 /*===========================================================================*/
 
-#define GDISP_DRIVER_NAME				"SSD1963"
-#define GDISP_LLD(x)					gdisp_lld_##x##_SSD1963
+#define TOUCHSCREEN_HAS_IRQ				TRUE
+#define TOUCHSCREEN_HAS_PRESSURE			FALSE
 
-#define GDISP_HARDWARE_FILLS			TRUE
-#define GDISP_HARDWARE_BITFILLS		TRUE
-/* Maybe someday soon */
-#define GDISP_HARDWARE_SCROLL			FALSE
-#define GDISP_HARDWARE_CONTROL		FALSE
+#endif	/* GFX_USE_TOUCHSCREEN */
 
-#define GDISP_PIXELFORMAT				GDISP_PIXELFORMAT_RGB565
-
-#endif	/* GFX_USE_GDISP */
-
-#endif	/* _GDISP_LLD_CONFIG_H */
+#endif	/* TOUCHSCREEN_LLD_CONFIG_H */
 /** @} */
 

@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    gdisp.c
+ * @file    src/gdisp.c
  * @brief   GDISP Driver code.
  *
  * @addtogroup GDISP
@@ -144,6 +144,8 @@
 	 * @note    This function is NOT currently implicitly invoked by @p halInit().
 	 *			It must be called manually.
 	 *
+	 * @return	True if succeeded, False otherwise
+	 *
 	 * @init
 	 */
 	bool_t gdispInit(void) {
@@ -192,7 +194,9 @@
 	/**
 	 * @brief   Test if the GDISP engine is currently drawing.
 	 * @note    This function will always return FALSE if
-	 * 			 GDISP_NEED_ASYNC is not defined.
+	 * 			GDISP_NEED_ASYNC is not defined.
+	 *
+	 * @return	TRUE if gdisp is busy, FALSE otherwise
 	 *
 	 * @init
 	 */
@@ -208,7 +212,6 @@
 #if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
 	/**
 	 * @brief   Clear the display to the specified color.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
 	 * @param[in] color The color to use when clearing the screen
 	 *
@@ -230,7 +233,6 @@
 #if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
 	/**
 	 * @brief   Set a pixel in the specified color.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
 	 * @param[in] x,y   The position to set the pixel.
 	 * @param[in] color The color to use
@@ -255,7 +257,6 @@
 #if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
 	/**
 	 * @brief   Draw a line.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
 	 * @param[in] x0,y0		The start position
 	 * @param[in] x1,y1 	The end position
@@ -280,24 +281,11 @@
 	}
 #endif
 
-	/**
-	 * @brief	Draw a dashed line.
-	 * @pre		The GDISP unit must be in powerOn or powerSleep mode.
-	 *
-	 * @param[in] x0,y0		The start position
-	 * @param[in] x1,y1		The end position
-	 * @param[in] length	The length of the dash
-	 * @param[in] color		The color of the dashed line
-	 *
-	 * @api
-	 */
-	
 #if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
 	/**
 	 * @brief   Fill an area with a color.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x0,y0   The start position
+	 * @param[in] x,y   The start position
 	 * @param[in] cx,cy   The size of the box (outside dimensions)
 	 * @param[in] color   The color to use
 	 *
@@ -323,7 +311,6 @@
 #if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
 	/**
 	 * @brief   Fill an area using the supplied bitmap.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 * @details The bitmap is in the pixel format specified by the low level driver
 	 * @note	If a packed pixel format is used and the width doesn't
 	 *			match a whole number of bytes, the next line will start on a
@@ -332,9 +319,11 @@
 	 * 			or at least retained until this call has finished the blit. You can
 	 * 			tell when all graphics drawing is finished by @p gdispIsBusy() going FALSE.
 	 *
-	 * @param[in] x,y     The start position
-	 * @param[in] cx,cy   The size of the filled area
-	 * @param[in] buffer  The bitmap in the driver's pixel format.
+	 * @param[in] x,y		The start position
+	 * @param[in] cx,cy		The size of the filled area
+	 * @param[in] srcx,srcy	I've no idea
+	 * @param[in] srccx		Really, I've no fucking idea
+	 * @param[in] buffer	The bitmap in the driver's pixel format
 	 *
 	 * @api
 	 */
@@ -361,7 +350,6 @@
 #if (GDISP_NEED_CLIP && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
 	/**
 	 * @brief   Clip all drawing to the defined area.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
 	 * @param[in] x,y     The start position
 	 * @param[in] cx,cy   The size of the clip area
@@ -387,9 +375,8 @@
 #if (GDISP_NEED_CIRCLE && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
 	/**
 	 * @brief   Draw a circle.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x0,y0   The center of the circle
+	 * @param[in] x,y   The center of the circle
 	 * @param[in] radius  The radius of the circle
 	 * @param[in] color   The color to use
 	 *
@@ -414,9 +401,8 @@
 #if (GDISP_NEED_CIRCLE && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
 	/**
 	 * @brief   Draw a filled circle.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x0,y0   The center of the circle
+	 * @param[in] x,y   The center of the circle
 	 * @param[in] radius  The radius of the circle
 	 * @param[in] color   The color to use
 	 *
@@ -441,9 +427,8 @@
 #if (GDISP_NEED_ELLIPSE && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
 	/**
 	 * @brief   Draw an ellipse.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x0,y0   The center of the ellipse
+	 * @param[in] x,y   The center of the ellipse
 	 * @param[in] a,b     The dimensions of the ellipse
 	 * @param[in] color   The color to use
 	 *
@@ -469,9 +454,8 @@
 #if (GDISP_NEED_ELLIPSE && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
 	/**
 	 * @brief   Draw a filled ellipse.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x0,y0   The center of the ellipse
+	 * @param[in] x,y   The center of the ellipse
 	 * @param[in] a,b     The dimensions of the ellipse
 	 * @param[in] color   The color to use
 	 *
@@ -497,7 +481,6 @@
 #if (GDISP_NEED_ARC && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
 	/*
 	 * @brief	Draw an arc.
-	 * @pre		The GDISP must be in powerOn or powerSleep mode.
 	 *
 	 * @param[in] x0,y0		The center point
 	 * @param[in] radius	The radius of the arc
@@ -528,7 +511,6 @@
 #if (GDISP_NEED_ARC && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
 	/*
 	 * @brief	Draw a filled arc.
-	 * @pre		The GDISP must be in powerOn or powerSleep mode.
 	 * @note				Not very efficient currently - does lots of overdrawing
 	 *
 	 * @param[in] x0,y0		The center point
@@ -560,7 +542,6 @@
 #if GDISP_NEED_ARC || defined(__DOXYGEN__)
 /**
  * @brief   Draw a rectangular box with rounded corners
- * @pre     The GDISP unit must be in powerOn or powerSleep mode.
  *
  * @param[in] x,y		The start position
  * @param[in] cx,cy		The size of the box (outside dimensions)
@@ -588,7 +569,6 @@ void gdispDrawRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 #if GDISP_NEED_ARC || defined(__DOXYGEN__)
 /**
  * @brief   Draw a filled rectangular box with rounded corners
- * @pre     The GDISP unit must be in powerOn or powerSleep mode.
  *
  * @param[in] x,y		The start position
  * @param[in] cx,cy		The size of the box (outside dimensions)
@@ -618,11 +598,11 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 #if (GDISP_NEED_TEXT && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
 	/**
 	 * @brief   Draw a text character.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x,y     The position for the text
-	 * @param[in] c       The character to draw
-	 * @param[in] color   The color to use
+	 * @param[in] x,y		The position for the text
+	 * @param[in] c			The character to draw
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color to use
 	 *
 	 * @api
 	 */
@@ -646,12 +626,12 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 #if (GDISP_NEED_TEXT && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
 	/**
 	 * @brief   Draw a text character with a filled background.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x,y     The position for the text
-	 * @param[in] c       The character to draw
-	 * @param[in] color   The color to use
-	 * @param[in] bgcolor The background color to use
+	 * @param[in] x,y		The position for the text
+	 * @param[in] c			The character to draw
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color to use
+	 * @param[in] bgcolor	The background color to use
 	 *
 	 * @api
 	 */
@@ -697,6 +677,7 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 #if (GDISP_NEED_SCROLL && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
 	/**
 	 * @brief   Scroll vertically a section of the screen.
+	 * @pre		GDISP_NEED_SCROLL must be set to TRUE in halconf.h
 	 * @note    Optional.
 	 * @note    If lines is >= cy, it is equivelent to a area fill with bgcolor.
 	 *
@@ -732,7 +713,8 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 	 * @note    Depending on the hardware implementation this function may not
 	 *          support some codes. They will be ignored.
 	 *
-	 * @param[in] powerMode The power mode to use
+	 * @param[in] what		what you want to control
+	 * @param[in] value		The value to be assigned
 	 *
 	 * @api
 	 */
@@ -779,7 +761,6 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 
 /**
  * @brief   Draw a rectangular box.
- * @pre     The GDISP unit must be in powerOn or powerSleep mode.
  *
  * @param[in] x,y		The start position
  * @param[in] cx,cy		The size of the box (outside dimensions)
@@ -817,11 +798,11 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 #if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 	/**
 	 * @brief   Draw a text string.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x,y     The position for the text
-	 * @param[in] str     The string to draw
-	 * @param[in] color   The color to use
+	 * @param[in] x,y		The position for the text
+	 * @param[in] font		The font to use
+	 * @param[in] str		The string to draw
+	 * @param[in] color		The color to use
 	 *
 	 * @api
 	 */
@@ -859,12 +840,12 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 #if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 	/**
 	 * @brief   Draw a text string.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x,y     The position for the text
-	 * @param[in] str     The string to draw
-	 * @param[in] color   The color to use
-	 * @param[in] bgcolor The background color to use
+	 * @param[in] x,y		The position for the text
+	 * @param[in] str		The string to draw
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color to use
+	 * @param[in] bgcolor	The background color to use
 	 *
 	 * @api
 	 */
@@ -904,12 +885,13 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 #if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 	/**
 	 * @brief   Draw a text string verticly centered within the specified box.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 *
-	 * @param[in] x,y     The position for the text (need to define top-right or base-line - check code)
-	 * @param[in] str     The string to draw
-	 * @param[in] color   The color to use
-	 * @param[in] justify Justify the text left, center or right within the box
+	 * @param[in] x,y		The position for the text (need to define top-right or base-line - check code)
+	 * @param[in] cx,cy		The width and height of the box
+	 * @param[in] str		The string to draw
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color to use
+	 * @param[in] justify	Justify the text left, center or right within the box
 	 *
 	 * @api
 	 */
@@ -1035,14 +1017,15 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 #if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 	/**
 	 * @brief   Draw a text string verticly centered within the specified box. The box background is filled with the specified background color.
-	 * @pre     The GDISP unit must be in powerOn or powerSleep mode.
 	 * @note    The entire box is filled
 	 *
-	 * @param[in] x,y     The position for the text (need to define top-right or base-line - check code)
-	 * @param[in] str     The string to draw
-	 * @param[in] color   The color to use
-	 * @param[in] bgcolor The background color to use
-	 * @param[in] justify Justify the text left, center or right within the box
+	 * @param[in] x,y		The position for the text (need to define top-right or base-line - check code)
+	 * @param[in] cx,cy		The width and height of the box
+	 * @param[in] str		The string to draw
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color to use
+	 * @param[in] bgcolor	The background color to use
+	 * @param[in] justify	Justify the text left, center or right within the box
 	 *
 	 * @api
 	 */

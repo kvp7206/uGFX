@@ -767,3 +767,4 @@ void *GDISP_LLD(query)(unsigned what) {
 
 #endif  /* GFX_USE_GDISP */
 #endif	/* GDISP_EMULATION_C */
+

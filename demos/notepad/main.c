@@ -21,7 +21,7 @@
 #include "ch.h"
 #include "hal.h"
 #include "gdisp.h"
-#include "touchpad.h"
+#include "touchscreen.h"
 
 #define COLOR_SIZE	20
 #define PEN_SIZE	20
@@ -43,7 +43,7 @@ static const SPIConfig spicfg = {
     /* SPI_CR1_BR_2 | */ SPI_CR1_BR_1 | SPI_CR1_BR_0,
 };
 
-TOUCHPADDriver TOUCHPADD1 = {
+TouchscreenDriver TOUCHPADD1 = {
 	&SPID1,
 	&spicfg,
 	TP_IRQ_PORT,
@@ -85,14 +85,14 @@ int main(void) {
 	chSysInit();
 
 	gdispInit();
-	tpInit(&TOUCHPADD1);
-	tpCalibrate();
+	tsInit(&TOUCHPADD1);
+	tsCalibrate();
 
 	drawScreen();
 
 	while (TRUE) {
-		x = tpReadX();
-		y = tpReadY();
+		x = tsReadX();
+		y = tsReadY();
 
 		/* inside color box ? */
 		if(y >= OFFSET && y <= COLOR_SIZE) {	 
