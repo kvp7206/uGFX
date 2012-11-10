@@ -151,8 +151,7 @@ static void _tsDo3PointCalibration(const coord_t (*cross)[2], coord_t (*points)[
 
 /**
  * @brief	Touchscreen Driver initialization.
- * @note    This function is NOT currently implicitly invoked by @p halInit().
- *          It must be called manually.
+ * @note	Calling this function automatically invokes a tsCalibration()
  *
  * @param[in] ts	The touchscreen driver struct
  *
@@ -284,6 +283,8 @@ coord_t tsReadY(void) {
  *          using 3-point calibration algorithm. Optionally, it also verifies
  *          the accuracy of the calibration coefficients obtained if the symbol
  *          TOUCHSCREEN_VERIFY_CALIBRATION is defined in the configuration.
+ *
+ * @note	You don't have to call this function manually. It gets invoked by tsInit()
  *
  * @api
  */
