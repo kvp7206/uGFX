@@ -324,9 +324,14 @@ calibrate:
       while(j < MAX_CAL_SAMPLES) {
         if(tsPressed()) {
           /* We have valid pointer data */
+          
+#if TOUCHSCREEN_XY_INVERTED == TRUE
+          py += _tsReadRealX();
+          px += _tsReadRealY();
+#else
           px += _tsReadRealX();
           py += _tsReadRealY();
-
+#endif
           j++;
         }
       }
