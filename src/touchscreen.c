@@ -85,22 +85,22 @@ static coord_t _tsReadRealY(void) {
 }
 
 static void _tsDrawCross(uint16_t x, uint16_t y) {
-    gdispDrawLine(x-15, y, x-2, y, 0xffff);
-    gdispDrawLine(x+2, y, x+15, y, 0xffff);
-    gdispDrawLine(x, y-15, x, y-2, 0xffff);
-    gdispDrawLine(x, y+2, x, y+15, 0xffff);
+    gdispDrawLine(x-15, y, x-2, y, White);
+    gdispDrawLine(x+2, y, x+15, y, White);
+    gdispDrawLine(x, y-15, x, y-2, White);
+    gdispDrawLine(x, y+2, x, y+15, White);
   
-    gdispDrawLine(x-15, y+15, x-7, y+15, RGB565CONVERT(184,158,131));
-    gdispDrawLine(x-15, y+7, x-15, y+15, RGB565CONVERT(184,158,131));
+    gdispDrawLine(x-15, y+15, x-7, y+15, RGB2COLOR(184,158,131));
+    gdispDrawLine(x-15, y+7, x-15, y+15, RGB2COLOR(184,158,131));
 
-    gdispDrawLine(x-15, y-15, x-7, y-15, RGB565CONVERT(184,158,131));
-    gdispDrawLine(x-15, y-7, x-15, y-15, RGB565CONVERT(184,158,131));
+    gdispDrawLine(x-15, y-15, x-7, y-15, RGB2COLOR(184,158,131));
+    gdispDrawLine(x-15, y-7, x-15, y-15, RGB2COLOR(184,158,131));
 
-    gdispDrawLine(x+7, y+15, x+15, y+15, RGB565CONVERT(184,158,131));
-    gdispDrawLine(x+15, y+7, x+15, y+15, RGB565CONVERT(184,158,131));
+    gdispDrawLine(x+7, y+15, x+15, y+15, RGB2COLOR(184,158,131));
+    gdispDrawLine(x+15, y+7, x+15, y+15, RGB2COLOR(184,158,131));
 
-    gdispDrawLine(x+7, y-15, x+15, y-15, RGB565CONVERT(184,158,131));
-    gdispDrawLine(x+15, y-15, x+15, y-7, RGB565CONVERT(184,158,131));    
+    gdispDrawLine(x+7, y-15, x+15, y-15, RGB2COLOR(184,158,131));
+    gdispDrawLine(x+15, y-15, x+15, y-7, RGB2COLOR(184,158,131));    
 }
 
 static void _tsTransform(coord_t *x, coord_t *y) {
@@ -159,9 +159,6 @@ static void _tsDo3PointCalibration(const coord_t (*cross)[2], coord_t (*points)[
  * @api
  */
 void tsInit(const TouchscreenDriver *ts) {
-	cal = (struct cal_t*)chHeapAlloc(NULL, sizeof(struct cal_t));
-	if(cal == NULL)
-		return;
 
 	/* Initialise Mutex */
 	//MUTEX_INIT
@@ -173,11 +170,14 @@ void tsInit(const TouchscreenDriver *ts) {
 
 	#if TOUCHSCREEN_STORE_CALIBRATION
 		cal = ts_restore_calibration_lld();
-		if(cal == NULL) {
-			cal = (struct cal_t*)chHeapAlloc(NULL, sizeof(struct cal_t));
-			tsCalibrate();
-		}
+		if(cal != NULL)
+			return;		// All done
 	#endif
+
+	cal = (struct cal_t*)chHeapAlloc(NULL, sizeof(struct cal_t));
+	if(cal == NULL)
+		return;
+	tsCalibrate();
 }
 
 /**
@@ -206,9 +206,9 @@ coord_t tsReadX(void) {
         case GDISP_ROTATE_90:
             return y;
         case GDISP_ROTATE_180:
-            return GDISP_SCREEN_WIDTH - x - 1;
+            return gdispGetWidth() - x - 1;
         case GDISP_ROTATE_270:
-            return GDISP_SCREEN_HEIGHT - y - 1;
+            return gdispGetHeight() - y - 1;
     }
 
     return 0;
@@ -238,9 +238,9 @@ coord_t tsReadY(void) {
         case GDISP_ROTATE_0:
             return y;
         case GDISP_ROTATE_90:
-            return GDISP_SCREEN_WIDTH - x - 1;
+            return gdispGetWidth() - x - 1;
         case GDISP_ROTATE_180:
-            return GDISP_SCREEN_HEIGHT - y - 1;
+            return gdispGetHeight() - y - 1;
         case GDISP_ROTATE_270:
             return x;
     }
