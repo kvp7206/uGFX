@@ -85,64 +85,64 @@ static coord_t _tsReadRealY(void) {
 }
 
 static void _tsDrawCross(uint16_t x, uint16_t y) {
-    gdispDrawLine(x-15, y, x-2, y, White);
-    gdispDrawLine(x+2, y, x+15, y, White);
-    gdispDrawLine(x, y-15, x, y-2, White);
-    gdispDrawLine(x, y+2, x, y+15, White);
+	gdispDrawLine(x-15, y, x-2, y, White);
+	gdispDrawLine(x+2, y, x+15, y, White);
+	gdispDrawLine(x, y-15, x, y-2, White);
+	gdispDrawLine(x, y+2, x, y+15, White);
   
-    gdispDrawLine(x-15, y+15, x-7, y+15, RGB2COLOR(184,158,131));
-    gdispDrawLine(x-15, y+7, x-15, y+15, RGB2COLOR(184,158,131));
+	gdispDrawLine(x-15, y+15, x-7, y+15, RGB2COLOR(184,158,131));
+	gdispDrawLine(x-15, y+7, x-15, y+15, RGB2COLOR(184,158,131));
 
-    gdispDrawLine(x-15, y-15, x-7, y-15, RGB2COLOR(184,158,131));
-    gdispDrawLine(x-15, y-7, x-15, y-15, RGB2COLOR(184,158,131));
+	gdispDrawLine(x-15, y-15, x-7, y-15, RGB2COLOR(184,158,131));
+	gdispDrawLine(x-15, y-7, x-15, y-15, RGB2COLOR(184,158,131));
 
-    gdispDrawLine(x+7, y+15, x+15, y+15, RGB2COLOR(184,158,131));
-    gdispDrawLine(x+15, y+7, x+15, y+15, RGB2COLOR(184,158,131));
+	gdispDrawLine(x+7, y+15, x+15, y+15, RGB2COLOR(184,158,131));
+	gdispDrawLine(x+15, y+7, x+15, y+15, RGB2COLOR(184,158,131));
 
-    gdispDrawLine(x+7, y-15, x+15, y-15, RGB2COLOR(184,158,131));
-    gdispDrawLine(x+15, y-15, x+15, y-7, RGB2COLOR(184,158,131));    
+	gdispDrawLine(x+7, y-15, x+15, y-15, RGB2COLOR(184,158,131));
+	gdispDrawLine(x+15, y-15, x+15, y-7, RGB2COLOR(184,158,131));    
 }
 
 static void _tsTransform(coord_t *x, coord_t *y) {
-  *x = (coord_t) (cal->ax * (*x) + cal->bx * (*y) + cal->cx);
-  *y = (coord_t) (cal->ay * (*x) + cal->by * (*y) + cal->cy);
+	*x = (coord_t) (cal->ax * (*x) + cal->bx * (*y) + cal->cx);
+	*y = (coord_t) (cal->ay * (*x) + cal->by * (*y) + cal->cy);
 }
 
 static void _tsDo3PointCalibration(const coord_t (*cross)[2], coord_t (*points)[2], cal_t *c) {
-  float dx, dx0, dx1, dx2, dy0, dy1, dy2;
+	float dx, dx0, dx1, dx2, dy0, dy1, dy2;
 
-  /* Compute all the required determinants */
-  dx = ((float)(points[0][0] - points[2][0])) * ((float)(points[1][1] - points[2][1]))
-          - ((float)(points[1][0] - points[2][0])) * ((float)(points[0][1] - points[2][1]));
+	/* Compute all the required determinants */
+	dx = ((float)(points[0][0] - points[2][0])) * ((float)(points[1][1] - points[2][1]))
+		- ((float)(points[1][0] - points[2][0])) * ((float)(points[0][1] - points[2][1]));
 
-  dx0 = ((float)(cross[0][0] - cross[2][0])) * ((float)(points[1][1] - points[2][1]))
-          - ((float)(cross[1][0] - cross[2][0])) * ((float)(points[0][1] - points[2][1]));
+	dx0 = ((float)(cross[0][0] - cross[2][0])) * ((float)(points[1][1] - points[2][1]))
+		- ((float)(cross[1][0] - cross[2][0])) * ((float)(points[0][1] - points[2][1]));
 
-  dx1 = ((float)(points[0][0] - points[2][0])) * ((float)(cross[1][0] - cross[2][0]))
-          - ((float)(points[1][0] - points[2][0])) * ((float)(cross[0][0] - cross[2][0]));
+	dx1 = ((float)(points[0][0] - points[2][0])) * ((float)(cross[1][0] - cross[2][0]))
+		- ((float)(points[1][0] - points[2][0])) * ((float)(cross[0][0] - cross[2][0]));
 
-  dx2 = cross[0][0] * ((float)points[1][0] * (float)points[2][1] - (float)points[2][0] * (float)points[1][1]) -
-        cross[1][0] * ((float)points[0][0] * (float)points[2][1] - (float)points[2][0] * (float)points[0][1]) +
-        cross[2][0] * ((float)points[0][0] * (float)points[1][1] - (float)points[1][0] * (float)points[0][1]);
+	dx2 = cross[0][0] * ((float)points[1][0] * (float)points[2][1] - (float)points[2][0] * (float)points[1][1]) -
+		cross[1][0] * ((float)points[0][0] * (float)points[2][1] - (float)points[2][0] * (float)points[0][1]) +
+		cross[2][0] * ((float)points[0][0] * (float)points[1][1] - (float)points[1][0] * (float)points[0][1]);
 
-  dy0 = ((float)(cross[0][1] - cross[2][1]))  *  ((float)(points[1][1] - points[2][1]))
-          - ((float)(cross[1][1] - cross[2][1]))  *  ((float)(points[0][1] - points[2][1]));
+	dy0 = ((float)(cross[0][1] - cross[2][1]))  *  ((float)(points[1][1] - points[2][1]))
+		- ((float)(cross[1][1] - cross[2][1]))  *  ((float)(points[0][1] - points[2][1]));
 
-  dy1  = ((float)(points[0][0] - points[2][0]))  *  ((float)(cross[1][1] - cross[2][1]))
-          - ((float)(points[1][0] - points[2][0]))  *  ((float)(cross[0][1] - cross[2][1]));
+	dy1  = ((float)(points[0][0] - points[2][0]))  *  ((float)(cross[1][1] - cross[2][1]))
+		- ((float)(points[1][0] - points[2][0]))  *  ((float)(cross[0][1] - cross[2][1]));
 
-  dy2  = cross[0][1] * ((float)points[1][0] * (float)points[2][1] - (float)points[2][0] * (float)points[1][1]) -
-         cross[1][1] * ((float)points[0][0] * (float)points[2][1] - (float)points[2][0] * (float)points[0][1]) +
-         cross[2][1] * ((float)points[0][0] * (float)points[1][1] - (float)points[1][0] * (float)points[0][1]);
+	dy2  = cross[0][1] * ((float)points[1][0] * (float)points[2][1] - (float)points[2][0] * (float)points[1][1]) -
+		cross[1][1] * ((float)points[0][0] * (float)points[2][1] - (float)points[2][0] * (float)points[0][1]) +
+		cross[2][1] * ((float)points[0][0] * (float)points[1][1] - (float)points[1][0] * (float)points[0][1]);
 
-  /* Now, calculate all the required coefficients */
-  c->ax = dx0 / dx;
-  c->bx = dx1 / dx;
-  c->cx = dx2 / dx;
+	/* Now, calculate all the required coefficients */
+	c->ax = dx0 / dx;
+	c->bx = dx1 / dx;
+	c->cx = dx2 / dx;
 
-  c->ay = dy0 / dx;
-  c->by = dy1 / dx;
-  c->cy = dy2 / dx;
+	c->ay = dy0 / dx;
+	c->by = dy1 / dx;
+	c->cy = dy2 / dx;
 }
 
 /*===========================================================================*/
@@ -187,17 +187,17 @@ void tsInit(const TouchscreenDriver *ts) {
  * @api
  */
 coord_t tsReadX(void) {
-    coord_t x, y;
+	coord_t x, y;
 
-#if TOUCHSCREEN_XY_INVERTED == TRUE
-    x = _tsReadRealY();
-    y = _tsReadRealX();
+#if TOUCHSCREEN_XY_INVERTED
+	x = _tsReadRealY();
+	y = _tsReadRealX();
 #else
-    x = _tsReadRealX();
-    y = _tsReadRealY();
+	x = _tsReadRealX();
+	y = _tsReadRealY();
 #endif
 
-    _tsTransform(&x, &y);
+	_tsTransform(&x, &y);
 
     switch(gdispGetOrientation()) {
         case GDISP_ROTATE_0:
@@ -223,7 +223,7 @@ coord_t tsReadX(void) {
 coord_t tsReadY(void) {
     coord_t x, y;
 
-#if TOUCHSCREEN_XY_INVERTED == TRUE
+#if TOUCHSCREEN_XY_INVERTED
     x = _tsReadRealY();
     y = _tsReadRealX();
 #else
@@ -289,90 +289,89 @@ coord_t tsReadY(void) {
  * @api
  */
 void tsCalibrate(void) {
-    const uint16_t height  =  gdispGetHeight();
-    const uint16_t width  =  gdispGetWidth();
-    const coord_t cross[][2]  =  {{(width / 4), (height / 4)},
+	const uint16_t height  =  gdispGetHeight();
+	const uint16_t width  =  gdispGetWidth();
+	const coord_t cross[][2]  =  {{(width / 4), (height / 4)},
                                     {(width - (width / 4)) , (height / 4)},
                                     {(width - (width / 4)) , (height - (height / 4))},
                                     {(width / 2), (height / 2)}}; /* Check point */
-    coord_t points[4][2];
-    int32_t px, py;
-    uint8_t i, j;
+	coord_t points[4][2];
+	int32_t px, py;
+	uint8_t i, j;
 
-    gdispSetOrientation(GDISP_ROTATE_0);
-    gdispClear(Blue);
+	gdispSetOrientation(GDISP_ROTATE_0);
+	gdispClear(Blue);
 
-    gdispFillStringBox(0, 5, gdispGetWidth(), 30, "Calibration", &fontUI2Double,  White, Blue, justifyCenter);
+	gdispFillStringBox(0, 5, gdispGetWidth(), 30, "Calibration", &fontUI2Double,  White, Blue, justifyCenter);
 
 #if TOUCHSCREEN_VERIFY_CALIBRATION
 calibrate:
-    for(i = 0; i < 4; i++) {
+	for(i = 0; i < 4; i++) {
 #else
-    for(i = 0; i < 3; i++) {
+	for(i = 0; i < 3; i++) {
 #endif
-      _tsDrawCross(cross[i][0], cross[i][1]);
+		_tsDrawCross(cross[i][0], cross[i][1]);
 
-      while(!tsPressed())
-        chThdSleepMilliseconds(2);        /* Be nice to other threads*/
+		while(!tsPressed())
+			chThdSleepMilliseconds(2);        /* Be nice to other threads*/
+	
+		chThdSleepMilliseconds(20);         /* Allow screen to settle */
 
-      chThdSleepMilliseconds(20);         /* Allow screen to settle */
+		/* Take a little more samples per point and their average
+		 * for precise calibration */
+		px = py = 0;
+		j = 0;
 
-      /* Take a little more samples per point and their average
-       * for precise calibration */
-      px = py = 0;
+		while(j < MAX_CAL_SAMPLES) {
+			if(tsPressed()) {	/* We have valid pointer data */    
+				#if TOUCHSCREEN_XY_INVERTED
+				py += _tsReadRealX();
+				px += _tsReadRealY();
+				#else
+				px += _tsReadRealX();
+				py += _tsReadRealY();
+				#endif
 
-      j = 0;
-      while(j < MAX_CAL_SAMPLES) {
-        if(tsPressed()) {
-          /* We have valid pointer data */
-          
-#if TOUCHSCREEN_XY_INVERTED == TRUE
-          py += _tsReadRealX();
-          px += _tsReadRealY();
-#else
-          px += _tsReadRealX();
-          py += _tsReadRealY();
-#endif
-          j++;
-        }
-      }
+				j++;
+			}
+		}
+	
+		points[i][0] = px / j;
+		points[i][1] = py / j;
 
-      points[i][0] = px / j;
-      points[i][1] = py / j;
+		chThdSleepMilliseconds(100);
 
-      chThdSleepMilliseconds(100);
+		while(tsPressed())
+			chThdSleepMilliseconds(2);	/* Be nice to other threads*/
 
-      while(tsPressed())
-        chThdSleepMilliseconds(2);        /* Be nice to other threads*/
+		gdispFillArea(cross[i][0] - 15, cross[i][1] - 15, 42, 42, Blue);
+	}
 
-      gdispFillArea(cross[i][0] - 15, cross[i][1] - 15, 42, 42, Blue);
-    }
+	/* Apply 3 point calibration algorithm */
+	_tsDo3PointCalibration(cross, points, cal);
 
-    /* Apply 3 point calibration algorithm */
-    _tsDo3PointCalibration(cross, points, cal);
+	#if TOUCHSCREEN_VERIFY_CALIBRATION
+	 /* Verification of correctness of calibration (optional) :
+	 *  See if the 4th point (Middle of the screen) coincides with the calibrated
+	 *  result. If point is with +/- 2 pixel margin, then successful calibration
+	 *  Else, start from the beginning.
+	 */
 
-#if TOUCHSCREEN_VERIFY_CALIBRATION
-    /* Verification of correctness of calibration (optional) :
-     *  See if the 4th point (Middle of the screen) coincides with the calibrated
-     *  result. If point is with +/- 2 pixel margin, then successful calibration
-     *  Else, start from the beginning.
-     */
+	/* Transform the co-ordinates */
+	_tpTransform(&points[3][0], &points[3][1]);
 
-    /* Transform the co-ordinates */
-    _tpTransform(&points[3][0], &points[3][1]);
+	/* Calculate the delta */
+	px = (points[3][0] - cross[3][0]) * (points[3][0] - cross[3][0]) +
+		(points[3][1] - cross[3][1]) * (points[3][1] - cross[3][1]);
 
-    /* Calculate the delta */
-    px = (points[3][0] - cross[3][0]) * (points[3][0] - cross[3][0]) +
-         (points[3][1] - cross[3][1]) * (points[3][1] - cross[3][1]);
+	if(px > 4)
+		goto calibrate;
+	#endif
 
-    if(px > 4)
-      goto calibrate;
-#endif
-
-    /* If enabled, serialize the calibration values for storage */
-      #if TOUCHSCREEN_STORE_CALIBRATION
-        ts_store_calibration_lld(cal);
-      #endif
+	/* If enabled, serialize the calibration values for storage */
+	#if TOUCHSCREEN_STORE_CALIBRATION
+	ts_store_calibration_lld(cal);
+	#endif
 }
 
 #endif /* GFX_USE_TOUCHSCREEN */
