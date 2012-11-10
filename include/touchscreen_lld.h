@@ -137,7 +137,7 @@ extern "C" {
 	uint16_t ts_lld_read_y(void);
 
 	#if TOUCHSCREEN_HAS_IRQ
-	uint8_t ts_lld_irq(void);
+	uint8_t ts_lld_pressed(void);
 	#endif
 
 	#if TOUCHSCREEN_HAS_PRESSURE

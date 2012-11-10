@@ -546,7 +546,7 @@ uint16_t ts_lld_read_z(void) {
  *
  * @notapi
  */
-uint8_t ts_lld_irq(void) {
+uint8_t ts_lld_pressed(void) {
 	return (uint8_t)mousedn;
 }
 

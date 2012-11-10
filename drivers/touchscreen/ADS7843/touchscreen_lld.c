@@ -213,13 +213,13 @@ uint16_t ts_lld_read_y(void) {
 /* ---- Optional Routines ---- */
 #if TOUCHSCREEN_HAS_IRQ || defined(__DOXYGEN__)
 	/*
-	 * @brief	for checking if touchpad is pressed or not.
+	 * @brief	for checking if touchscreen is pressed or not.
 	 *
 	 * @return	1 if pressed / 0 if not pressed
 	 *
 	 * @notapi
 	 */
-	uint8_t ts_lld_irq(void) {
+	uint8_t ts_lld_pressed(void) {
 		return (!palReadPad(tsDriver->tsIRQPort, tsDriver->tsIRQPin));
 	}
 #endif

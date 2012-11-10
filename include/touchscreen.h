@@ -82,7 +82,7 @@ coord_t tsReadY(void);
 void tsCalibrate(void);
 
 #if TOUCHSCREEN_HAS_IRQ
-	bool_t tsIRQ(void);
+	bool_t tsPressed(void);
 #endif
 
 #if TOUCHSCREEN_HAS_PRESSURE

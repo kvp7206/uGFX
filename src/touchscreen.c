@@ -270,8 +270,8 @@ coord_t tsReadY(void) {
  * @api
  */
 #if TOUCHSCREEN_HAS_IRQ || defined(__DOXYGEN__)
-	bool_t tsIRQ(void) {
-		return ts_lld_irq();
+	bool_t tsPressed(void) {
+		return ts_lld_pressed();
 	}
 #endif
 
@@ -311,7 +311,7 @@ calibrate:
 #endif
       _tsDrawCross(cross[i][0], cross[i][1]);
 
-      while(!tsIRQ())
+      while(!tsPressed())
         chThdSleepMilliseconds(2);        /* Be nice to other threads*/
 
       chThdSleepMilliseconds(20);         /* Allow screen to settle */
@@ -321,8 +321,8 @@ calibrate:
       px = py = 0;
 
       j = 0;
-      while (j < MAX_CAL_SAMPLES) {
-        if (tsIRQ()) {
+      while(j < MAX_CAL_SAMPLES) {
+        if(tsPressed()) {
           /* We have valid pointer data */
           px += _tsReadRealX();
           py += _tsReadRealY();
@@ -336,7 +336,7 @@ calibrate:
 
       chThdSleepMilliseconds(100);
 
-      while(tsIRQ())
+      while(tsPressed())
         chThdSleepMilliseconds(2);        /* Be nice to other threads*/
 
       gdispFillArea(cross[i][0] - 15, cross[i][1] - 15, 42, 42, Blue);
