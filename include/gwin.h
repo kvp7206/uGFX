@@ -47,14 +47,14 @@
  */
 	/**
 	 * @brief   Should console functions be included.
-	 * @details	Defaults to TRUE
+	 * @details	Defaults to FALSE
 	 */
 	#ifndef GWIN_NEED_CONSOLE
-		#define GWIN_NEED_CONSOLE	TRUE
+		#define GWIN_NEED_CONSOLE	FALSE
 	#endif
 	/**
 	 * @brief   Should button functions be included.
-	 * @details	Defaults to FALSE for now as implementation is not complete
+	 * @details	Defaults to FALSE
 	 */
 	#ifndef GWIN_NEED_BUTTON
 		#define GWIN_NEED_BUTTON	FALSE
