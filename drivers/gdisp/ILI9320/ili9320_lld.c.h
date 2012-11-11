@@ -102,16 +102,41 @@ static void lld_lcdSetCursor(uint16_t x, uint16_t y) {
 
     addr = y * 0x100 + x;
 
-    lld_lcdWriteReg(0x0020, addr & 0xff);   /* low addr */
-    lld_lcdWriteReg(0x0021, (addr >> 8) & 0x1ff); /* high addr */
-    GDISP_REG = 0x0022;      /* data reg in IR */
+	switch(GDISP.Orientation) {
+		case GDISP_ROTATE_0:
+    		lld_lcdWriteReg(0x0020, addr & 0xff);   /* low addr */
+    		lld_lcdWriteReg(0x0021, (addr >> 8) & 0x1ff); /* high addr */
+    		//GDISP_REG = 0x0022;      /* data reg in IR */
+		case GDISP_ROTATE_90:
+			break;
+
+		case GDISP_ROTATE_180:
+			break;
+
+		case GDISP_ROTATE_270:
+			break;
+	}
 }
 
 static void lld_lcdSetViewPort(uint16_t x, uint16_t y, uint16_t cx, uint16_t cy) {
-	lld_lcdWriteReg(0x0050, x - 1);
-	lld_lcdWriteReg(0x0051, x + cx - 2);
-	lld_lcdWriteReg(0x0052, y - 1);
-	lld_lcdWriteReg(0x0053, y + cy - 2);
+	switch(GDISP.Orientation) {
+		case GDISP_ROTATE_0:
+			lld_lcdWriteReg(0x0050, x - 1);
+			lld_lcdWriteReg(0x0051, x + cx - 2);
+			lld_lcdWriteReg(0x0052, y - 1);
+			lld_lcdWriteReg(0x0053, y + cy - 2);
+			break;
+
+		case GDISP_ROTATE_90:
+			break;
+
+		case GDISP_ROTATE_180:
+			break;
+
+		case GDISP_ROTATE_270:
+			break;
+
+	}
 
 	lld_lcdSetCursor(x, y);
 }
