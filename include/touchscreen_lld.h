@@ -49,8 +49,8 @@
 	#define TOUCHSCREEN_XY_INVERTED	FALSE
 #endif
 
-#ifndef TOUCHSCREEN_HAS_IRQ
-	#define TOUCHSCREEN_HAS_IRQ	FALSE
+#ifndef TOUCHSCREEN_HAS_PRESSED
+	#define TOUCHSCREEN_HAS_PRESSED	FALSE
 #endif
 
 #ifndef TOUCHSCREEN_HAS_PRESSURE
@@ -65,52 +65,29 @@
     #define TOUCHSCREEN_SPI_EPILOGUE()
 #endif
 
+#ifndef TOUCHSCREEN_STORE_CALIBRATION
+	#define TOUCHSCREEN_STORE_CALIBRATION FALSE
+#endif
+
+#ifndef TOUCHSCREEN_VERIFY_CALIBRATION
+	#define TOUCHSCREEN_VERIFY_CALIBRATION FALSE
+#endif
+
+#ifndef TOUCHSCREEN_CONVERSIONS
+	#define	TOUCHSCREEN_CONVERSIONS 3
+#endif
+
 /*===========================================================================*/
 /* Driver types.                                                             */
 /*===========================================================================*/
 
 /**
- * @brief	Structure representing a touchscreen driver.
+ * @brief	Structure representing a touchscreen driver. Hardware dependant.
  */
-typedef struct TouchscreenDriver {
-    /*
-     * @brief   Pointer to SPI driver.
-     * @note    SPI driver must be enabled in mcuconf.h and halconf.h
-     */
-    SPIDriver       *spip;
+typedef struct TouchscreenDriver TouchscreenDriver;
 
-    /*
-     * @brief   Pointer to the SPI configuration structure.
-     * @note    The lowest possible speed ~ 1-2MHz is to be used, otherwise
-     *          will result in a lot of noise
-     */
-    const SPIConfig  *spicfg;
-
-    /*
-     * @brief   Touchscreen controller TPIRQ pin GPIO port
-     */
-    ioportid_t      tsIRQPort;
-
-    /*
-     * @brief   Touchscreen controller TPIRQ GPIO pin
-     * @note    The interface is polled as of now, interrupt support is
-     *          to be implemented in the future.
-     */
-    ioportmask_t    tsIRQPin;
-
-    /*
-     * @brief   Initialize the SPI with the configuration struct given or not
-     *          If TRUE, spiStart is called by the init, otherwise not
-     * @note    This is provided in such a case when SPI port is being shared
-     *          across multiple peripherals, so not to disturb the SPI bus.
-     *          You can use TOUCHSCREEN_SPI_PROLOGUE() and TOUCHSCREEN_SPI_EPILOGUE()
-     *          macros to change the SPI configuration or speed before and
-     *          after using the touchpad. An example case would be sharing the
-     *          bus with a fast flash memory chip.
-     */
-    bool_t          direct_init;
-} TouchscreenDriver;
-
+// Forward declaration
+struct cal_t;
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -128,12 +105,18 @@ extern "C" {
 	uint16_t ts_lld_read_x(void);
 	uint16_t ts_lld_read_y(void);
 
-	#if TOUCHSCREEN_HAS_IRQ
+	#if TOUCHSCREEN_HAS_PRESSED
 	uint8_t ts_lld_pressed(void);
 	#endif
 
 	#if TOUCHSCREEN_HAS_PRESSURE
 	uint16_t ts_lld_read_z(void);
+	#endif
+
+	#if TOUCHSCREEN_STORE_CALIBRATION
+	// These may be defined by the low level driver or by the application
+	void ts_store_calibration_lld(struct cal_t *cal);
+	struct cal_t *ts_restore_calibration_lld(void);
 	#endif
 
 #ifdef __cplusplus

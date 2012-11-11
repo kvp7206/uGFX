@@ -32,11 +32,6 @@
 
 #if GFX_USE_TOUCHSCREEN || defined(__DOXYGEN__)
 
-#if TOUCHSCREEN_STORE_CALIBRATION
-extern void ts_store_calibration_lld(struct cal_t *cal);
-extern struct cal_t *ts_restore_calibration_lld(void);
-#endif
-
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
@@ -59,12 +54,12 @@ static coord_t _tsReadRealX(void) {
     int16_t i;
     coord_t x;
 
-    for(i = 0; i < CONVERSIONS; i++) {
+    for(i = 0; i < TOUCHSCREEN_CONVERSIONS; i++) {
         results += ts_lld_read_x();
     }
 
     /* Take the average of the readings */
-    x = results / CONVERSIONS;
+    x = results / TOUCHSCREEN_CONVERSIONS;
 
     return x;
 }
@@ -74,12 +69,12 @@ static coord_t _tsReadRealY(void) {
     int16_t i;
     coord_t y;
 
-    for(i = 0; i < CONVERSIONS; i++) {
+    for(i = 0; i < TOUCHSCREEN_CONVERSIONS; i++) {
         results += ts_lld_read_y();
     }
 
     /* Take the average of the readings */
-    y = results / CONVERSIONS;
+    y = results / TOUCHSCREEN_CONVERSIONS;
 
     return y;
 }
@@ -237,9 +232,9 @@ coord_t tsReadY(void) {
         case GDISP_ROTATE_0:
             return y;
         case GDISP_ROTATE_90:
-            return GDISP_SCREEN_WIDTH - x - 1;
+            return gdispGetWidth() - x - 1;
         case GDISP_ROTATE_180:
-            return GDISP_SCREEN_HEIGHT - y - 1;
+            return gdispGetHeight() - y - 1;
         case GDISP_ROTATE_270:
             return x;
     }
@@ -268,7 +263,7 @@ coord_t tsReadY(void) {
  *
  * @api
  */
-#if TOUCHSCREEN_HAS_IRQ || defined(__DOXYGEN__)
+#if TOUCHSCREEN_HAS_PRESSED || defined(__DOXYGEN__)
 	bool_t tsPressed(void) {
 		return ts_lld_pressed();
 	}

@@ -35,8 +35,47 @@
 /* Driver hardware support.                                                  */
 /*===========================================================================*/
 
-#define TOUCHSCREEN_HAS_IRQ				TRUE
+#define TOUCHSCREEN_HAS_PRESSED				TRUE
 #define TOUCHSCREEN_HAS_PRESSURE			TRUE
+
+struct TouchscreenDriver {
+    /*
+     * @brief   Pointer to SPI driver.
+     * @note    SPI driver must be enabled in mcuconf.h and halconf.h
+     */
+    SPIDriver       *spip;
+
+    /*
+     * @brief   Pointer to the SPI configuration structure.
+     * @note    The lowest possible speed ~ 1-2MHz is to be used, otherwise
+     *          will result in a lot of noise
+     */
+    const SPIConfig  *spicfg;
+
+    /*
+     * @brief   Touchscreen controller TPIRQ pin GPIO port
+     */
+    ioportid_t      tsIRQPort;
+
+    /*
+     * @brief   Touchscreen controller TPIRQ GPIO pin
+     * @note    The interface is polled as of now, interrupt support is
+     *          to be implemented in the future.
+     */
+    ioportmask_t    tsIRQPin;
+
+    /*
+     * @brief   Initialize the SPI with the configuration struct given or not
+     *          If TRUE, spiStart is called by the init, otherwise not
+     * @note    This is provided in such a case when SPI port is being shared
+     *          across multiple peripherals, so not to disturb the SPI bus.
+     *          You can use TOUCHSCREEN_SPI_PROLOGUE() and TOUCHSCREEN_SPI_EPILOGUE()
+     *          macros to change the SPI configuration or speed before and
+     *          after using the touchpad. An example case would be sharing the
+     *          bus with a fast flash memory chip.
+     */
+    bool_t          direct_init;
+};
 
 #endif	/* GFX_USE_TOUCHSCREEN */
 

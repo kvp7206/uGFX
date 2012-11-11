@@ -19,7 +19,7 @@
 */
 
 /**
- * @file	drivers/touchscreen/ADS7843/touchscreen_lld_config.h
+ * @file	drivers/gdisp/Win32/touchscreen_lld_config.h
  * @brief   Touchscreen Driver subsystem low level driver.
  *
  * @addtogroup TOUCHSCREEN
@@ -35,14 +35,13 @@
 /* Driver hardware support.                                                  */
 /*===========================================================================*/
 
-#define TOUCHSCREEN_HAS_IRQ				TRUE
+#define TOUCHSCREEN_HAS_PRESSED			TRUE
 #define TOUCHSCREEN_HAS_PRESSURE		FALSE
 #define TOUCHSCREEN_XY_INVERTED			FALSE
 #define TOUCHSCREEN_STORE_CALIBRATION	TRUE
+#define TOUCHSCREEN_CONVERSIONS			1
 
-/* Nasty stuff to fix SPI dependancy in driver structure (which doesn't exist in Win32) */
-typedef struct SPIDriver_t {} SPIDriver;
-typedef struct SPIConfig_t {} SPIConfig;
+struct TouchscreenDriver {};
 
 #endif	/* GFX_USE_TOUCHSCREEN */
 
