@@ -200,9 +200,9 @@ coord_t tsReadX(void) {
         case GDISP_ROTATE_90:
             return y;
         case GDISP_ROTATE_180:
-            return GDISP_SCREEN_WIDTH - x - 1;
+            return gdispGetWidth() - x - 1;
         case GDISP_ROTATE_270:
-            return GDISP_SCREEN_HEIGHT - y - 1;
+            return gdispGetWidth() - y - 1;
     }
 
     return 0;
@@ -232,7 +232,7 @@ coord_t tsReadY(void) {
         case GDISP_ROTATE_0:
             return y;
         case GDISP_ROTATE_90:
-            return gdispGetWidth() - x - 1;
+            return gdispGetHeight() - x - 1;
         case GDISP_ROTATE_180:
             return gdispGetHeight() - y - 1;
         case GDISP_ROTATE_270:
