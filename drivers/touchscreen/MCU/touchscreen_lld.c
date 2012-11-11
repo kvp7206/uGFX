@@ -56,7 +56,7 @@ void ts_lld_init(const TouchscreenDriver *ts) {
 	/* set pins to analog input */
 	palSetPadMode(ts->ts_yd_port, ts->ts_yd_pin, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(ts->ts_yu_port, ts->ts_yu_pin, PAL_MODE_INPUT_ANALOG);
-	palSetPadMode(ts->ts_xl_port, ts->ts_yl_pin, PAL_MODE_INPUT_ANALOG);
+	palSetPadMode(ts->ts_xl_port, ts->ts_xl_pin, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(ts->ts_xr_port, ts->ts_xr_pin, PAL_MODE_INPUT_ANALOG);
 }
 
