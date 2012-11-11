@@ -293,7 +293,6 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
  
 /* Now obsolete functions */
 #define gdispBlitArea(x, y, cx, cy, buffer)						gdispBlitAreaEx(x, y, cx, cy, 0, 0, cx, buffer)
-#define RGB565CONVERT(r,g,b) 									RGB2COLOR(r,g,b)
 
 /* Macro definitions for common gets and sets */
 #define gdispSetPowerMode(powerMode)			gdispControl(GDISP_CONTROL_POWER, (void *)(unsigned)(powerMode))

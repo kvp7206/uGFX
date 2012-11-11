@@ -49,14 +49,6 @@
 	#define TOUCHSCREEN_XY_INVERTED	FALSE
 #endif
 
-#ifndef TOUCHSCREEN_STORE_CALIBRATION
-	#define TOUCHSCREEN_STORE_CALIBRATION FALSE
-#endif 
-
-#ifndef TOUCHSCREEN_VERIFY_CALIBRATION
-	#define TOUCHSCREEN_VERIFY_CALIBRATION FALSE
-#endif
-
 #ifndef TOUCHSCREEN_HAS_IRQ
 	#define TOUCHSCREEN_HAS_IRQ	FALSE
 #endif
@@ -137,7 +129,7 @@ extern "C" {
 	uint16_t ts_lld_read_y(void);
 
 	#if TOUCHSCREEN_HAS_IRQ
-	uint8_t ts_lld_irq(void);
+	uint8_t ts_lld_pressed(void);
 	#endif
 
 	#if TOUCHSCREEN_HAS_PRESSURE

@@ -321,8 +321,8 @@
 	 *
 	 * @param[in] x,y		The start position
 	 * @param[in] cx,cy		The size of the filled area
-	 * @param[in] srcx,srcy	I've no idea
-	 * @param[in] srccx		Really, I've no fucking idea
+	 * @param[in] srcx,srcy The bitmap position to start the fill form	
+	 * @param[in] srccx		The width of a line in the bitmap
 	 * @param[in] buffer	The bitmap in the driver's pixel format
 	 *
 	 * @api

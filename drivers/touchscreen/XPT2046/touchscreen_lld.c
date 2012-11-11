@@ -219,7 +219,7 @@ uint16_t ts_lld_read_y(void) {
 	 *
 	 * @notapi
 	 */
-	uint8_t ts_lld_irq(void) {
+	uint8_t ts_lld_pressed(void) {
 		return (!palReadPad(tsDriver->tsIRQPort, tsDriver->tsIRQPin));
 	}
 #endif

@@ -8,6 +8,7 @@ current stable: 1.4
 *** changes after 1.4 ***
 FEATURE:	Added three point calibration
 FIX:		Touchpad renamed into Touchscreen
+FIX:		tsIRQ() renamed into tsPressed()
 
 
 *** changes after 1.3 ***

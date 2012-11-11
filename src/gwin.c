@@ -125,7 +125,7 @@ void gwinDestroyWindow(GHandle gh) {
 	}
 }
 
-#if GDISP_NEED_TEXT
+#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 /**
  * @brief   Set the current font for this window.
  *
@@ -255,7 +255,7 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 	gdispBlitAreaEx(gh->x+x, gh->y+y, cx, cy, srcx, srcy, srccx, buffer);
 }
 
-#if GDISP_NEED_CIRCLE
+#if GDISP_NEED_CIRCLE || defined(__DOXYGEN__)
 /**
  * @brief   Draw a circle in the window.
  * @note	Uses the current foreground color to draw the circle
@@ -275,7 +275,7 @@ void gwinDrawCircle(GHandle gh, coord_t x, coord_t y, coord_t radius) {
 }
 #endif
 
-#if GDISP_NEED_CIRCLE
+#if GDISP_NEED_CIRCLE || defined(__DOXYGEN__)
 /**
  * @brief   Draw a filled circle in the window.
  * @note	Uses the current foreground color to draw the filled circle
@@ -295,7 +295,7 @@ void gwinFillCircle(GHandle gh, coord_t x, coord_t y, coord_t radius) {
 }
 #endif
 
-#if GDISP_NEED_ELLIPSE
+#if GDISP_NEED_ELLIPSE || defined(__DOXYGEN__)
 /**
  * @brief   Draw an ellipse.
  * @note	Uses the current foreground color to draw the ellipse
@@ -315,7 +315,7 @@ void gwinDrawEllipse(GHandle gh, coord_t x, coord_t y, coord_t a, coord_t b) {
 }
 #endif
 
-#if GDISP_NEED_ELLIPSE
+#if GDISP_NEED_ELLIPSE || defined(__DOXYGEN__)
 /**
  * @brief   Draw an filled ellipse.
  * @note	Uses the current foreground color to draw the filled ellipse
@@ -335,7 +335,7 @@ void gwinFillEllipse(GHandle gh, coord_t x, coord_t y, coord_t a, coord_t b) {
 }
 #endif
 
-#if GDISP_NEED_ARC
+#if GDISP_NEED_ARC || defined(__DOXYGEN__)
 /*
  * @brief	Draw an arc in the window.
  * @note	Uses the current foreground color to draw the arc
@@ -357,7 +357,7 @@ void gwinDrawArc(GHandle gh, coord_t x, coord_t y, coord_t radius, coord_t start
 }
 #endif
 
-#if GDISP_NEED_ARC
+#if GDISP_NEED_ARC || defined(__DOXYGEN__)
 /*
  * @brief	Draw a filled arc in the window.
  * @note	Uses the current foreground color to draw the filled arc
@@ -379,7 +379,7 @@ void gwinFillArc(GHandle gh, coord_t x, coord_t y, coord_t radius, coord_t start
 }
 #endif
 
-#if GDISP_NEED_PIXELREAD
+#if GDISP_NEED_PIXELREAD || defined(__DOXYGEN__)
 /**
  * @brief   Get the color of a pixel in the window.
  * @return  The color of the pixel.
@@ -398,7 +398,7 @@ color_t gwinGetPixelColor(GHandle gh, coord_t x, coord_t y) {
 }
 #endif
 
-#if GDISP_NEED_TEXT
+#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 /**
  * @brief   Draw a text character at the specified position in the window.
  * @pre		The font must have been set.
@@ -420,7 +420,7 @@ void gwinDrawChar(GHandle gh, coord_t x, coord_t y, char c) {
 }
 #endif
 
-#if GDISP_NEED_TEXT
+#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 /**
  * @brief   Draw a text character with a filled background at the specified position in the window.
  * @pre		The font must have been set.
@@ -442,7 +442,7 @@ void gwinFillChar(GHandle gh, coord_t x, coord_t y, char c) {
 }
 #endif
 
-#if GDISP_NEED_TEXT
+#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 /**
  * @brief   Draw a text string in the window
  * @pre		The font must have been set.
@@ -464,7 +464,7 @@ void gwinDrawString(GHandle gh, coord_t x, coord_t y, const char *str) {
 }
 #endif
 
-#if GDISP_NEED_TEXT
+#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 /**
  * @brief   Draw a text string with a filled background in the window
  * @pre		The font must have been set.
@@ -486,7 +486,7 @@ void gwinFillString(GHandle gh, coord_t x, coord_t y, const char *str) {
 }
 #endif
 
-#if GDISP_NEED_TEXT
+#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 /**
  * @brief   Draw a text string verticly centered within the specified box.
  * @pre		The font must have been set.
@@ -496,6 +496,7 @@ void gwinFillString(GHandle gh, coord_t x, coord_t y, const char *str) {
  *
  * @param[in] gh		The window handle
  * @param[in] x,y		The position for the text (need to define top-right or base-line - check code)
+ * @param[in] cx,cy		The width and height of the box
  * @param[in] str		The string to draw
  * @param[in] justify	Justify the text left, center or right within the box
  *
@@ -510,7 +511,7 @@ void gwinDrawStringBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy,
 }
 #endif
 
-#if GDISP_NEED_TEXT
+#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 /**
  * @brief   Draw a text string verticly centered within the specified filled box.
  * @pre		The font must have been set.
@@ -520,6 +521,7 @@ void gwinDrawStringBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy,
  *
  * @param[in] gh		The window handle
  * @param[in] x,y		The position for the text (need to define top-right or base-line - check code)
+ * @param[in] cx,cy		The width and height of the box
  * @param[in] str		The string to draw
  * @param[in] justify	Justify the text left, center or right within the box
  *
@@ -536,7 +538,7 @@ void gwinFillStringBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy,
 
 /*------------------------------------------------------------------------------------------------------------------------*/
 
-#if GWIN_NEED_CONSOLE
+#if GWIN_NEED_CONSOLE || defined(__DOXYGEN__)
 
 /*
  * Stream interface implementation. The interface is write only
@@ -704,7 +706,7 @@ void gwinPutCharArray(GHandle gh, const char *str, size_t n) {
 
 /*------------------------------------------------------------------------------------------------------------------------*/
 
-#if GWIN_NEED_BUTTON
+#if GWIN_NEED_BUTTON || defined(__DOXYGEN__)
 
 static const GButtonStyle GButtonDefaultStyle = {
 	GBTN_3D,
@@ -720,7 +722,7 @@ static const GButtonStyle GButtonDefaultStyle = {
  * @brief   Create a button window.
  * @return  NULL if there is no resultant drawing area, otherwise a window handle.
  *
- * @param[in] gb		The GConsoleWindow structure to initialise
+ * @param[in] gb		The GConsoleWindow structure to initialise. If this is NULL the structure is dynamically allocated.
  * @param[in] x,y		The screen co-ordinates for the bottom left corner of the window
  * @param[in] width		The width of the window
  * @param[in] height	The height of the window

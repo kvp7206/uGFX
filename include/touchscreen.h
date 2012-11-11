@@ -31,6 +31,14 @@
 
 #if GFX_USE_TOUCHSCREEN || defined(__DOXYGEN__)
 
+#ifndef TOUCHSCREEN_STORE_CALIBRATION
+	#define TOUCHSCREEN_STORE_CALIBRATION FALSE
+#endif
+
+#ifndef TOUCHSCREEN_VERIFY_CALIBRATION
+	#define TOUCHSCREEN_VERIFY_CALIBRATION FALSE
+#endif
+
 /**
  * @brief	specifies how many conversions are made for a readout.
  *
@@ -82,7 +90,7 @@ coord_t tsReadY(void);
 void tsCalibrate(void);
 
 #if TOUCHSCREEN_HAS_IRQ
-	bool_t tsIRQ(void);
+	bool_t tsPressed(void);
 #endif
 
 #if TOUCHSCREEN_HAS_PRESSURE
