@@ -31,21 +31,6 @@
 
 #if GFX_USE_TOUCHSCREEN || defined(__DOXYGEN__)
 
-#ifndef TOUCHSCREEN_STORE_CALIBRATION
-	#define TOUCHSCREEN_STORE_CALIBRATION FALSE
-#endif
-
-#ifndef TOUCHSCREEN_VERIFY_CALIBRATION
-	#define TOUCHSCREEN_VERIFY_CALIBRATION FALSE
-#endif
-
-/**
- * @brief	specifies how many conversions are made for a readout.
- *
- * @note	higher is more accurate, but takes more time
- */
-#define	CONVERSIONS 3
-
 /*===========================================================================*/
 /* Driver constants.                                                         */
 /*===========================================================================*/
@@ -89,7 +74,7 @@ coord_t tsReadX(void);
 coord_t tsReadY(void);
 void tsCalibrate(void);
 
-#if TOUCHSCREEN_HAS_IRQ
+#if TOUCHSCREEN_HAS_PRESSED
 	bool_t tsPressed(void);
 #endif
 

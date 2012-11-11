@@ -7,7 +7,6 @@ GFXSRC +=   $(GFXLIB)/src/gdisp.c \
             $(GFXLIB)/src/gdisp_fonts.c \
             $(GFXLIB)/src/gwin.c \
             $(GFXLIB)/src/touchscreen.c \
-			$(GFXLIB)/src/console.c \
 			$(GFXLIB)/src/graph.c \
 
 GFXINC +=   $(GFXLIB)/include

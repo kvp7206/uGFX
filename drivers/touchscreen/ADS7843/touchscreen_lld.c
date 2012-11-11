@@ -211,7 +211,7 @@ uint16_t ts_lld_read_y(void) {
 }
 
 /* ---- Optional Routines ---- */
-#if TOUCHSCREEN_HAS_IRQ || defined(__DOXYGEN__)
+#if TOUCHSCREEN_HAS_PRESSED || defined(__DOXYGEN__)
 	/*
 	 * @brief	for checking if touchscreen is pressed or not.
 	 *
