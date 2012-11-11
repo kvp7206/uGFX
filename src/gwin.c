@@ -722,7 +722,7 @@ static const GButtonStyle GButtonDefaultStyle = {
  * @brief   Create a button window.
  * @return  NULL if there is no resultant drawing area, otherwise a window handle.
  *
- * @param[in] gb		The GConsoleWindow structure to initialise
+ * @param[in] gb		The GConsoleWindow structure to initialise. If this is NULL the structure is dynamically allocated.
  * @param[in] x,y		The screen co-ordinates for the bottom left corner of the window
  * @param[in] width		The width of the window
  * @param[in] height	The height of the window
