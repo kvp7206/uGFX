@@ -408,76 +408,121 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 */
 	void GDISP_LLD(control)(unsigned what, void *value) {
 		switch(what) {
-		case GDISP_CONTROL_POWER:
-			if (GDISP.Powermode == (gdisp_powermode_t)value)
+			case GDISP_CONTROL_POWER:
+				if(GDISP.Powermode == (gdisp_powermode_t)value)
+					return;
+
+				switch((gdisp_powermode_t)value) {
+					case powerOff:
+						lld_lcdWriteReg(0x0007, 0x0000);
+						lld_lcdWriteReg(0x0010, 0x0000);
+						lld_lcdWriteReg(0x0011, 0x0000);
+						lld_lcdWriteReg(0x0012, 0x0000);
+						lld_lcdWriteReg(0x0013, 0x0000);
+						break;
+			
+					case powerOn:
+						//*************Power On sequence ******************//
+						lld_lcdWriteReg(0x0010, 0x0000); /* SAP, BT[3:0], AP, DSTB, SLP, STB */
+						lld_lcdWriteReg(0x0011, 0x0000); /* DC1[2:0], DC0[2:0], VC[2:0] */
+						lld_lcdWriteReg(0x0012, 0x0000); /* VREG1OUT voltage */
+						lld_lcdWriteReg(0x0013, 0x0000); /* VDV[4:0] for VCOM amplitude */
+						lld_lcdDelay(2000);            /* Dis-charge capacitor power voltage */
+						lld_lcdWriteReg(0x0010, 0x17B0); /* SAP, BT[3:0], AP, DSTB, SLP, STB */
+						lld_lcdWriteReg(0x0011, 0x0147); /* DC1[2:0], DC0[2:0], VC[2:0] */
+						lld_lcdDelay(500);
+						lld_lcdWriteReg(0x0012, 0x013C); /* VREG1OUT voltage */
+						lld_lcdDelay(500);
+						lld_lcdWriteReg(0x0013, 0x0E00); /* VDV[4:0] for VCOM amplitude */
+						lld_lcdWriteReg(0x0029, 0x0009); /* VCM[4:0] for VCOMH */
+						lld_lcdDelay(500);
+						lld_lcdWriteReg(0x0007, 0x0173); /* 262K color and display ON */						
+						if(GDISP.Powermode != powerSleep || GDISP.Powermode != powerDeepSleep)
+							GDISP_LLD(init)();
+						break;
+			
+					case powerSleep:
+                        lld_lcdWriteReg(0x0007, 0x0000); /* display OFF */
+                        lld_lcdWriteReg(0x0010, 0x0000); /* SAP, BT[3:0], APE, AP, DSTB, SLP */
+                        lld_lcdWriteReg(0x0011, 0x0000); /* DC1[2:0], DC0[2:0], VC[2:0] */
+                        lld_lcdWriteReg(0x0012, 0x0000); /* VREG1OUT voltage */
+                        lld_lcdWriteReg(0x0013, 0x0000); /* VDV[4:0] for VCOM amplitude */
+                        lld_lcdDelay(2000); /* Dis-charge capacitor power voltage */
+                        lld_lcdWriteReg(0x0010, 0x0002); /* SAP, BT[3:0], APE, AP, DSTB, SLP */						
+						break;
+
+					case powerDeepSleep:
+					    lld_lcdWriteReg(0x0007, 0x0000); /* display OFF */
+					    lld_lcdWriteReg(0x0010, 0x0000); /* SAP, BT[3:0], APE, AP, DSTB, SLP */
+					    lld_lcdWriteReg(0x0011, 0x0000); /* DC1[2:0], DC0[2:0], VC[2:0] */
+   						lld_lcdWriteReg(0x0012, 0x0000); /* VREG1OUT voltage */
+   						lld_lcdWriteReg(0x0013, 0x0000); /* VDV[4:0] for VCOM amplitude */
+   						lld_lcdDelay(2000); /* Dis-charge capacitor power voltage */
+  						lld_lcdWriteReg(0x0010, 0x0004); /* SAP, BT[3:0], APE, AP, DSTB, SLP */
+						break;
+
+					default:
+						return;
+				}
+				GDISP.Powermode = (gdisp_powermode_t)value;
 				return;
-			switch((gdisp_powermode_t)value) {
-			case powerOff:
-				lld_lcdWriteReg(0x0010, 0x0000);	// leave sleep mode
-				lld_lcdWriteReg(0x0007, 0x0000);	// halt operation
-				lld_lcdWriteReg(0x0000, 0x0000);	// turn off oszillator
-				lld_lcdWriteReg(0x0010, 0x0001);	// enter sleepmode
-				break;
-			case powerOn:
-				lld_lcdWriteReg(0x0010, 0x0000);	// leave sleep mode
-				if (GDISP.Powermode != powerSleep)
-					GDISP_LLD(init)();
-				break;
-			case powerSleep:
-				lld_lcdWriteReg(0x0010, 0x0001);	// enter sleep mode
-				break;
-			default:
-				return;
-			}
-			GDISP.Powermode = (gdisp_powermode_t)value;
-			return;
-		case GDISP_CONTROL_ORIENTATION:
-			if (GDISP.Orientation == (gdisp_orientation_t)value)
-				return;
-			switch((gdisp_orientation_t)value) {
-			case GDISP_ROTATE_0:
-				lld_lcdWriteReg(0x0001, 0x2B3F);
-				/* ID = 11 AM = 0 */
-				lld_lcdWriteReg(0x0011, 0x6070);
-				GDISP.Height = GDISP_SCREEN_HEIGHT;
-				GDISP.Width = GDISP_SCREEN_WIDTH;
-				break;
-			case GDISP_ROTATE_90:
-				lld_lcdWriteReg(0x0001, 0x293F);
-				/* ID = 11 AM = 1 */
-				lld_lcdWriteReg(0x0011, 0x6078);
-				GDISP.Height = GDISP_SCREEN_WIDTH;
-				GDISP.Width = GDISP_SCREEN_HEIGHT;
-				break;
-			case GDISP_ROTATE_180:
-				lld_lcdWriteReg(0x0001, 0x2B3F);
-				/* ID = 01 AM = 0 */
-				lld_lcdWriteReg(0x0011, 0x6040);
-				GDISP.Height = GDISP_SCREEN_HEIGHT;
-				GDISP.Width = GDISP_SCREEN_WIDTH;
-				break;
-			case GDISP_ROTATE_270:
-				lld_lcdWriteReg(0x0001, 0x293F);
-				/* ID = 01 AM = 1 */
-				lld_lcdWriteReg(0x0011, 0x6048);
-				GDISP.Height = GDISP_SCREEN_WIDTH;
-				GDISP.Width = GDISP_SCREEN_HEIGHT;
-				break;
-			default:
-				return;
-			}
-			#if GDISP_NEED_CLIP || GDISP_NEED_VALIDATION
+
+			case GDISP_CONTROL_ORIENTATION:
+				if(GDISP.Orientation == (gdisp_orientation_t)value)
+					return;
+					switch((gdisp_orientation_t)value) {
+						case GDISP_ROTATE_0:
+							lld_lcdWriteReg(0x0001, 0x2B3F);
+							/* ID = 11 AM = 0 */
+							lld_lcdWriteReg(0x0011, 0x6070);
+							GDISP.Height = GDISP_SCREEN_HEIGHT;
+							GDISP.Width = GDISP_SCREEN_WIDTH;
+							break;
+
+						case GDISP_ROTATE_90:
+							lld_lcdWriteReg(0x0001, 0x293F);
+							/* ID = 11 AM = 1 */
+							lld_lcdWriteReg(0x0011, 0x6078);
+							GDISP.Height = GDISP_SCREEN_WIDTH;
+							GDISP.Width = GDISP_SCREEN_HEIGHT;
+							break;
+			
+						case GDISP_ROTATE_180:
+							lld_lcdWriteReg(0x0001, 0x2B3F);
+							/* ID = 01 AM = 0 */
+							lld_lcdWriteReg(0x0011, 0x6040);
+							GDISP.Height = GDISP_SCREEN_HEIGHT;
+							GDISP.Width = GDISP_SCREEN_WIDTH;
+							break;
+		
+						case GDISP_ROTATE_270:
+							lld_lcdWriteReg(0x0001, 0x293F);
+							/* ID = 01 AM = 1 */
+							lld_lcdWriteReg(0x0011, 0x6048);
+							GDISP.Height = GDISP_SCREEN_WIDTH;
+							GDISP.Width = GDISP_SCREEN_HEIGHT;
+							break;
+			
+						default:
+							return;
+					}
+			
+				#if GDISP_NEED_CLIP || GDISP_NEED_VALIDATION
 				GDISP.clipx0 = 0;
 				GDISP.clipy0 = 0;
 				GDISP.clipx1 = GDISP.Width;
 				GDISP.clipy1 = GDISP.Height;
-			#endif
-			GDISP.Orientation = (gdisp_orientation_t)value;
-			return;
-/*
-		case GDISP_CONTROL_BACKLIGHT:
-		case GDISP_CONTROL_CONTRAST:
-*/
+				#endif
+				GDISP.Orientation = (gdisp_orientation_t)value;
+				return;
+
+			case GDISP_CONTROL_BACKLIGHT:
+				/* ToDo */
+				break;
+			
+			case GDISP_CONTROL_CONTRAST:
+				/* ToDo */
+				break;
 		}
 	}
 
