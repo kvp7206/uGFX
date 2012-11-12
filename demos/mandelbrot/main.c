@@ -42,8 +42,8 @@ void mandelbrot(float x1, float y1, float x2, float y2) {
 				y = 2.0f*x*y + cy;
 				x = xx - yy + cx;
 			}
-			color = ((iter << 8) | (iter&0xFF));
-			//color = RGB565CONVERT(iter*4, iter*13, iter*10);
+			//color = ((iter << 8) | (iter&0xFF));
+			color = RGB2COLOR(iter<<7, iter<<4, iter);
 			gdispDrawPixel(i, j, color);
 		}
 	}
