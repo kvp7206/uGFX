@@ -85,8 +85,24 @@ static __inline void lld_lcdWriteReg(uint16_t lcdReg, uint16_t lcdRegValue) {
 	GDISP_LLD(write_data)(lcdRegValue);
 }
 
+static __inline uint16_t lld_lcdReadData(void) {
+	/* fix this! */
+	//return GDISP_LLD(read_data);
+	return GDISP_RAM;
+}
+
+static __inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
+    volatile uint16_t dummy;
+
+    GDISP_LLD(write_index)(lcdReg);
+    dummy = lld_lcdReadData();
+    (void)dummy;
+
+    return lld_lcdReadData();
+}
+
 static __inline void lld_lcdWriteStreamStart(void) {
-	GDISP_REG = 0x0022; 
+	lld_lcdWriteIndex(0x0022);
 }
 	
 static __inline void lld_lcdWriteStreamStop(void) {
@@ -97,11 +113,11 @@ static __inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
 	uint16_t i;
 
 	for(i = 0; i < size; i++)
-		GDISP_RAM = buffer[i];
+		lld_lcdWriteData(buffer[i]);
 }
 
 static __inline void lld_lcdReadStreamStart(void) {
-	GDISP_REG = 0x0022;
+	lld_lcdWriteIndex(0x0022);
 }
 
 static __inline void lld_lcdReadStreamStop(void) {
@@ -112,26 +128,11 @@ static __inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
 	uint16_t i;
 	volatile uint16_t dummy;
 
-	dummy = GDISP_RAM; /* throw away first value read */
+	dummy = lld_lcdReadData();
 	(void)dummy;
 
 	for(i = 0; i < size; i++)
-		buffer[i] = GDISP_RAM;
-}
-
-static __inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
-	volatile uint16_t dummy;
-
-	GDISP_LLD(write_index)(lcdReg);
-
-	/* fix this! */
-	//dummy = GDISP_LLD(read_data);
-	dummy = GDISP_RAM;
-	(void)dummy;
-
-	/* fix this! */
-	//return GDISP_LLD(read_data);
-	return GDISP_RAM;
+		buffer[i] = lld_lcdReadData();
 }
 
 bool_t GDISP_LLD(init)(void) {
