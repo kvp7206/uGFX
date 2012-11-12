@@ -23,18 +23,24 @@
 #include "gdisp.h"
 
 void mandelbrot(float x1, float y1, float x2, float y2) {
-	unsigned int i,j;
+	unsigned int i,j, width, height;
 	uint16_t iter;
 	color_t color;
+	float fwidth, fheight;
 	
 	float sy = y2 - y1;
 	float sx = x2 - x1;
 	const int MAX = 512;
 	
-	for(i = 0; i < 320; i++) {
-		for(j = 0; j < 240; j++) {
-			float cy = j * sy / 240.0f + y1;
-			float cx = i * sx / 320.0f + x1;
+	width = (unsigned int)gdispGetWidth();
+	height = (unsigned int)gdispGetHeight();
+	fwidth = width;
+	fheight = height;
+	
+	for(i = 0; i < width; i++) {
+		for(j = 0; j < height; j++) {
+			float cy = j * sy / fheight + y1;
+			float cx = i * sx / fwidth + x1;
 			float x=0.0f, y=0.0f, xx=0.0f, yy=0.0f;
 			for(iter=0; iter <= MAX && xx+yy<4.0f; iter++) {
 				xx = x*x;
@@ -42,8 +48,8 @@ void mandelbrot(float x1, float y1, float x2, float y2) {
 				y = 2.0f*x*y + cy;
 				x = xx - yy + cx;
 			}
-			color = ((iter << 8) | (iter&0xFF));
-			//color = RGB565CONVERT(iter*4, iter*13, iter*10);
+			//color = ((iter << 8) | (iter&0xFF));
+			color = RGB2COLOR(iter<<7, iter<<4, iter);
 			gdispDrawPixel(i, j, color);
 		}
 	}

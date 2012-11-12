@@ -47,6 +47,8 @@
 /* Driver local routines    .                                                */
 /*===========================================================================*/
 
+#define WIN32_USE_MSG_REDRAW	FALSE
+
 #define APP_NAME "GDISP"
 
 #define COLOR2BGR(c)	((((c) & 0xFF)<<16)|((c) & 0xFF00)|(((c)>>16) & 0xFF))
@@ -128,6 +130,7 @@ static DWORD WINAPI WindowThread(LPVOID lpParameter) {
 	HANDLE hInstance;
 	WNDCLASS wc;
 	RECT	rect;
+	HDC		dc;
 
 	hInstance = GetModuleHandle(NULL);
 
@@ -150,15 +153,16 @@ static DWORD WINAPI WindowThread(LPVOID lpParameter) {
 			rect.right-rect.left, rect.bottom-rect.top, 0, 0, hInstance, NULL);
 	assert(winRootWindow != NULL);
 
-	HDC dc = GetDC(winRootWindow);
 
 	GetClientRect(winRootWindow, &rect);
 	GDISP.Width = rect.right-rect.left;
 	GDISP.Height = rect.bottom - rect.top;
+
+	dc = GetDC(winRootWindow);
 	dcBitmap = CreateCompatibleBitmap(dc, GDISP.Width, GDISP.Height);
 	dcBuffer = CreateCompatibleDC(dc);
-	dcOldBitmap = SelectObject(dcBuffer, dcBitmap);
 	ReleaseDC(winRootWindow, dc);
+	dcOldBitmap = SelectObject(dcBuffer, dcBitmap);
 
 	ShowWindow(winRootWindow, SW_SHOW);
 	UpdateWindow(winRootWindow);
@@ -230,20 +234,55 @@ bool_t GDISP_LLD(init)(void) {
  */
 void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	HDC dc;
+	#if WIN32_USE_MSG_REDRAW
+		RECT	rect;
+	#endif
+	#if GDISP_NEED_CONTROL
+		coord_t	t;
+	#endif
 
 	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+		// Clip pre orientation change
 		if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
 	#endif
 
+	#if GDISP_NEED_CONTROL
+		switch(GDISP.Orientation) {
+		case GDISP_ROTATE_0:
+			break;
+		case GDISP_ROTATE_90:
+			t = GDISP.Height - 1 - y;
+			y = x;
+			x = t;
+			break;
+		case GDISP_ROTATE_180:
+			x = GDISP.Width - 1 - x;
+			y = GDISP.Height - 1 - y;
+			break;
+		case GDISP_ROTATE_270:
+			t = GDISP.Width - 1 - x;
+			x = y;
+			y = t;
+			break;
+		}
+	#endif
+	
 	// Draw the pixel in the buffer
 	color = COLOR2BGR(color);
 	SetPixel(dcBuffer, x, y, color);
 	
-	// Draw the pixel again directly on the screen.
-	// This is cheaper than invalidating a single pixel in the window
-	dc = GetDC(winRootWindow);
-	SetPixel(dc, x, y, color);
-	ReleaseDC(winRootWindow, dc);
+	#if WIN32_USE_MSG_REDRAW
+		rect.left = x; rect.right = x+1;
+		rect.top = y; rect.bottom = y+1;
+		InvalidateRect(winRootWindow, &rect, FALSE);
+		UpdateWindow(winRootWindow);
+	#else
+		// Draw the pixel again directly on the screen.
+		// This is cheaper than invalidating a single pixel in the window
+		dc = GetDC(winRootWindow);
+		SetPixel(dc, x, y, color);
+		ReleaseDC(winRootWindow, dc);
+	#endif
 }
 
 /* ---- Optional Routines ---- */
@@ -264,14 +303,75 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		HPEN pen;
 		HDC dc;
 		HGDIOBJ old;
-		HRGN	clip;
+		#if GDISP_NEED_CLIP
+			HRGN	clip;
+		#endif
+		#if WIN32_USE_MSG_REDRAW
+			RECT	rect;
+		#endif
+		#if GDISP_NEED_CONTROL
+			coord_t	t;
+		#endif
 
 		#if GDISP_NEED_CLIP
 			clip = NULL;
-			if (GDISP.clipx0 != 0 || GDISP.clipy0 != 0 || GDISP.clipx1 != GDISP.Width || GDISP.clipy1 != GDISP.Height)
-				clip = CreateRectRgn(GDISP.clipx0, GDISP.clipy0, GDISP.clipx1, GDISP.clipy1);
 		#endif
 
+		#if GDISP_NEED_CONTROL
+			switch(GDISP.Orientation) {
+			case GDISP_ROTATE_0:
+				#if GDISP_NEED_CLIP
+					// Clip post orientation change
+					if (GDISP.clipx0 != 0 || GDISP.clipy0 != 0 || GDISP.clipx1 != GDISP.Width || GDISP.clipy1 != GDISP.Height)
+						clip = CreateRectRgn(GDISP.clipx0, GDISP.clipy0, GDISP.clipx1, GDISP.clipy1);
+				#endif
+				break;
+			case GDISP_ROTATE_90:
+				t = GDISP.Height - 1 - y0;
+				y0 = x0;
+				x0 = t;
+				t = GDISP.Height - 1 - y1;
+				y1 = x1;
+				x1 = t;
+				#if GDISP_NEED_CLIP
+					// Clip post orientation change
+					if (GDISP.clipx0 != 0 || GDISP.clipy0 != 0 || GDISP.clipx1 != GDISP.Width || GDISP.clipy1 != GDISP.Height)
+						clip = CreateRectRgn(GDISP.Height-1-GDISP.clipy1, GDISP.clipx0, GDISP.Height-1-GDISP.clipy0, GDISP.clipx1);
+				#endif
+				break;
+			case GDISP_ROTATE_180:
+				x0 = GDISP.Width - 1 - x0;
+				y0 = GDISP.Height - 1 - y0;
+				x1 = GDISP.Width - 1 - x1;
+				y1 = GDISP.Height - 1 - y1;
+				#if GDISP_NEED_CLIP
+					// Clip post orientation change
+					if (GDISP.clipx0 != 0 || GDISP.clipy0 != 0 || GDISP.clipx1 != GDISP.Width || GDISP.clipy1 != GDISP.Height)
+						clip = CreateRectRgn(GDISP.Width-1-GDISP.clipx1, GDISP.Height-1-GDISP.clipy1, GDISP.Width-1-GDISP.clipx0, GDISP.Height-1-GDISP.clipy0);
+				#endif
+				break;
+			case GDISP_ROTATE_270:
+				t = GDISP.Width - 1 - x0;
+				x0 = y0;
+				y0 = t;
+				t = GDISP.Width - 1 - x1;
+				x1 = y1;
+				y1 = t;
+				#if GDISP_NEED_CLIP
+					// Clip post orientation change
+					if (GDISP.clipx0 != 0 || GDISP.clipy0 != 0 || GDISP.clipx1 != GDISP.Width || GDISP.clipy1 != GDISP.Height)
+						clip = CreateRectRgn(GDISP.clipy0, GDISP.Width-1-GDISP.clipx1, GDISP.clipy1, GDISP.Width-1-GDISP.clipx0);
+				#endif
+				break;
+			}
+		#else
+			#if GDISP_NEED_CLIP
+				clip = NULL;
+				if (GDISP.clipx0 != 0 || GDISP.clipy0 != 0 || GDISP.clipx1 != GDISP.Width || GDISP.clipy1 != GDISP.Height)
+					clip = CreateRectRgn(GDISP.clipx0, GDISP.clipy0, GDISP.clipx1, GDISP.clipy1);
+			#endif
+		#endif
+	
 		color = COLOR2BGR(color);
 		pen = CreatePen(PS_SOLID, 1, color);
 		if (pen) {
@@ -288,20 +388,27 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				if (clip) SelectClipRgn(dcBuffer, NULL);
 			#endif
 
-			// Redrawing the line on the screen is cheaper than invalidating the whole rectangular area
-			dc = GetDC(winRootWindow);
-			#if GDISP_NEED_CLIP
-				if (clip) SelectClipRgn(dc, clip);
+			#if WIN32_USE_MSG_REDRAW
+				rect.left = x0; rect.right = x1+1;
+				rect.top = y0; rect.bottom = y1+1;
+				InvalidateRect(winRootWindow, &rect, FALSE);
+				UpdateWindow(winRootWindow);
+			#else
+				// Redrawing the line on the screen is cheaper than invalidating the whole rectangular area
+				dc = GetDC(winRootWindow);
+				#if GDISP_NEED_CLIP
+					if (clip) SelectClipRgn(dc, clip);
+				#endif
+				old = SelectObject(dc, pen);
+				MoveToEx(dc, x0, y0, &p);
+				LineTo(dc, x1, y1);
+				SelectObject(dc, old);
+				SetPixel(dc, x1, y1, color);
+				#if GDISP_NEED_CLIP
+					if (clip) SelectClipRgn(dc, NULL);
+				#endif
+				ReleaseDC(winRootWindow, dc);
 			#endif
-			old = SelectObject(dc, pen);
-			MoveToEx(dc, x0, y0, &p);
-			LineTo(dc, x1, y1);
-			SelectObject(dc, old);
-			SetPixel(dc, x1, y1, color);
-			#if GDISP_NEED_CLIP
-				if (clip) SelectClipRgn(dc, NULL);
-			#endif
-			ReleaseDC(winRootWindow, dc);
 
 			DeleteObject(pen);
 		}
@@ -325,6 +432,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		HBRUSH hbr;
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+			// Clip pre orientation change
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; x = GDISP.clipx0; }
 			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; y = GDISP.clipy0; }
 			if (cx <= 0 || cy <= 0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
@@ -332,22 +440,56 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
 
+		#if GDISP_NEED_CONTROL
+			switch(GDISP.Orientation) {
+			case GDISP_ROTATE_0:
+				rect.top = y;
+				rect.bottom = rect.top+cy;
+				rect.left = x;
+				rect.right = rect.left+cx;
+				break;
+			case GDISP_ROTATE_90:
+				rect.top = x;
+				rect.bottom = rect.top+cx;
+				rect.right = GDISP.Height - y;
+				rect.left = rect.right-cy;
+				break;
+			case GDISP_ROTATE_180:
+				rect.bottom = GDISP.Height - y;
+				rect.top = rect.bottom-cy;
+				rect.right = GDISP.Width - x;
+				rect.left = rect.right-cx;
+				break;
+			case GDISP_ROTATE_270:
+				rect.bottom = GDISP.Width - x;
+				rect.top = rect.bottom-cx;
+				rect.left = y;
+				rect.right = rect.left+cy;
+				break;
+			}
+		#else
+			rect.top = y;
+			rect.bottom = rect.top+cy;
+			rect.left = x;
+			rect.right = rect.left+cx;
+		#endif
+
 		color = COLOR2BGR(color);
 		hbr = CreateSolidBrush(color);
 
 		if (hbr) {
-			rect.bottom = y+cy;
-			rect.top = y;
-			rect.left = x;
-			rect.right = x+cx;
-			
 			// Fill the area
 			FillRect(dcBuffer, &rect, hbr);
 
-			// Filling the area directly on the screen is likely to be cheaper than invalidating it
-			dc = GetDC(winRootWindow);
-			FillRect(dc, &rect, hbr);
-			ReleaseDC(winRootWindow, dc);
+			#if WIN32_USE_MSG_REDRAW
+				InvalidateRect(winRootWindow, &rect, FALSE);
+				UpdateWindow(winRootWindow);
+			#else
+				// Filling the area directly on the screen is likely to be cheaper than invalidating it
+				dc = GetDC(winRootWindow);
+				FillRect(dc, &rect, hbr);
+				ReleaseDC(winRootWindow, dc);
+			#endif
 
 			DeleteObject(hbr);
 		}
@@ -355,6 +497,52 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 #endif
 
 #if GDISP_HARDWARE_BITFILLS || defined(__DOXYGEN__)
+	static pixel_t *rotateimg(coord_t cx, coord_t cy, coord_t srcx, coord_t srccx, const pixel_t *buffer) {
+		pixel_t	*dstbuf;
+		pixel_t	*dst;
+		const pixel_t	*src;
+		size_t	sz;
+		coord_t	i, j;
+
+		// Shortcut.
+		if (GDISP.Orientation == GDISP_ROTATE_0 && srcx == 0 && cx == srccx)
+			return (pixel_t *)buffer;
+		
+		// Allocate the destination buffer
+		sz = (size_t)cx * (size_t)cy;
+		if (!(dstbuf = (pixel_t *)malloc(sz * sizeof(pixel_t))))
+			return 0;
+		
+		// Copy the bits we need
+		switch(GDISP.Orientation) {
+		case GDISP_ROTATE_0:
+			for(dst = dstbuf, src = buffer+srcx, j = 0; j < cy; j++)
+				for(i = 0; i < cx; i++, src += srccx - cx)
+					*dst++ = *src++;
+			break;
+		case GDISP_ROTATE_90:
+			for(src = buffer+srcx, j = 0; j < cy; j++) {
+				dst = dstbuf+cy-j-1;
+				for(i = 0; i < cx; i++, src += srccx - cx, dst += cy)
+					*dst = *src++;
+			}
+			break;
+		case GDISP_ROTATE_180:
+			for(dst = dstbuf+sz, src = buffer+srcx, j = 0; j < cy; j++)
+				for(i = 0; i < cx; i++, src += srccx - cx)
+					*--dst = *src++;
+			break;
+		case GDISP_ROTATE_270:
+			for(src = buffer+srcx, j = 0; j < cy; j++) {
+				dst = dstbuf+sz-cy+j;
+				for(i = 0; i < cx; i++, src += srccx - cx, dst -= cy)
+					*dst = *src++;
+			}
+			break;
+		}
+		return dstbuf;
+	}
+	
 	/**
 	 * @brief   Fill an area with a bitmap.
 	 * @note    Optional - The high level driver can emulate using software.
@@ -370,8 +558,12 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	void GDISP_LLD(blitareaex)(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
 		BITMAPV4HEADER bmpInfo;
 		RECT	rect;
+		#if GDISP_NEED_CONTROL
+			pixel_t	*srcimg;
+		#endif
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+			// Clip pre orientation change
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; srcx += GDISP.clipx0 - x; x = GDISP.clipx0; }
 			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; srcy += GDISP.clipy0 - y; y = GDISP.clipy0; }
 			if (srcx+cx > srccx)		cx = srccx - srcx;
@@ -380,13 +572,14 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
 
+		// Make everything relative to the start of the line
+		buffer += srccx*srcy;
+		srcy = 0;
+		
 		memset(&bmpInfo, 0, sizeof(bmpInfo));
 		bmpInfo.bV4Size = sizeof(bmpInfo);
-		bmpInfo.bV4Width = srccx;
-		bmpInfo.bV4Height = -(srcy+cy); /* top-down image */
 		bmpInfo.bV4Planes = 1;
 		bmpInfo.bV4BitCount = 32;
-		bmpInfo.bV4SizeImage = ((srcy+cy)*srccx * 32)/8;
 		bmpInfo.bV4AlphaMask = 0;
 		bmpInfo.bV4RedMask		= RGB2COLOR(255,0,0);
 		bmpInfo.bV4GreenMask	= RGB2COLOR(0,255,0);
@@ -398,14 +591,61 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		bmpInfo.bV4ClrImportant = 0;
 		bmpInfo.bV4CSType = 0; //LCS_sRGB;
 
-		// Draw the bitmap
-		SetDIBitsToDevice(dcBuffer, x, y, cx, cy, srcx, srcy, 0, cy+srcy, buffer, (BITMAPINFO*)&bmpInfo, DIB_RGB_COLORS);
+		#if GDISP_NEED_CONTROL
+			bmpInfo.bV4SizeImage = (cy*cx) * sizeof(pixel_t);
+			srcimg = rotateimg(cx, cy, srcx, srccx, buffer);
+			if (!srcimg) return;
+			
+			switch(GDISP.Orientation) {
+			case GDISP_ROTATE_0:
+				bmpInfo.bV4Width = cx;
+				bmpInfo.bV4Height = -cy; /* top-down image */
+				rect.top = y;
+				rect.bottom = rect.top+cy;
+				rect.left = x;
+				rect.right = rect.left+cx;
+				break;
+			case GDISP_ROTATE_90:
+				bmpInfo.bV4Width = cy;
+				bmpInfo.bV4Height = -cx; /* top-down image */
+				rect.top = x;
+				rect.bottom = rect.top+cx;
+				rect.right = GDISP.Height - y;
+				rect.left = rect.right-cy;
+				break;
+			case GDISP_ROTATE_180:
+				bmpInfo.bV4Width = cx;
+				bmpInfo.bV4Height = -cy; /* top-down image */
+				rect.bottom = GDISP.Height - y;
+				rect.top = rect.bottom-cy;
+				rect.right = GDISP.Width - x;
+				rect.left = rect.right-cx;
+				break;
+			case GDISP_ROTATE_270:
+				bmpInfo.bV4Width = cy;
+				bmpInfo.bV4Height = -cx; /* top-down image */
+				rect.bottom = GDISP.Width - x;
+				rect.top = rect.bottom-cx;
+				rect.left = y;
+				rect.right = rect.left+cy;
+				break;
+			}
+			SetDIBitsToDevice(dcBuffer, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, 0, 0, 0, rect.bottom-rect.top, srcimg, (BITMAPINFO*)&bmpInfo, DIB_RGB_COLORS);
+			if (srcimg != (pixel_t *)buffer)
+				free(srcimg);
+			
+		#else
+			bmpInfo.bV4Width = srccx;
+			bmpInfo.bV4Height = -cy; /* top-down image */
+			bmpInfo.bV4SizeImage = (cy*srccx) * sizeof(pixel_t);
+			rect.top = y;
+			rect.bottom = rect.top+cy;
+			rect.left = x;
+			rect.right = rect.left+cx;
+			SetDIBitsToDevice(dcBuffer, x, y, cx, cy, srcx, 0, 0, cy, buffer, (BITMAPINFO*)&bmpInfo, DIB_RGB_COLORS);
+		#endif
 
 		// Invalidate the region to get it on the screen.
-		rect.bottom = y+cy;
-		rect.top = y;
-		rect.left = x;
-		rect.right = x+cx;
 		InvalidateRect(winRootWindow, &rect, FALSE);
 		UpdateWindow(winRootWindow);
 	}
@@ -426,9 +666,29 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		color_t color;
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+			// Clip pre orientation change
 			if (x < 0 || x >= GDISP.Width || y < 0 || y >= GDISP.Height) return 0;
 		#endif
 
+		#if GDISP_NEED_CONTROL
+			switch(GDISP.Orientation) {
+			case GDISP_ROTATE_90:
+				t = GDISP.Height - 1 - y;
+				y = x;
+				x = t;
+				break;
+			case GDISP_ROTATE_180:
+				x = GDISP.Width - 1 - x;
+				y = GDISP.Height - 1 - y;
+				break;
+			case GDISP_ROTATE_270:
+				t = GDISP.Width - 1 - x;
+				x = y;
+				y = t;
+				break;
+			}
+		#endif
+		
 		color = GetPixel(dcBuffer, x, y);
 		return BGR2COLOR(color);
 	}
@@ -449,41 +709,176 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void GDISP_LLD(verticalscroll)(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
-		RECT	rect, frect;
+		RECT	rect, frect, srect;
 		HBRUSH	hbr;
 		
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
+			// Clip pre orientation change
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; x = GDISP.clipx0; }
 			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; y = GDISP.clipy0; }
 			if (!lines || cx <= 0 || cy <= 0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
 			if (x+cx > GDISP.clipx1)	cx = GDISP.clipx1 - x;
 			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
+		
+		if (lines > cy) lines = cy;
+		else if (-lines > cy) lines = -cy;
 
-		rect.bottom = y+cy;
-		rect.top = y;
-		rect.left = x;
-		rect.right = x+cx;
-		if (cy > lines && cy > -lines)
-			ScrollDC(dcBuffer, 0, -lines, &rect, 0, 0, 0);
 		bgcolor = COLOR2BGR(bgcolor);
 		hbr = CreateSolidBrush(bgcolor);
-		if (hbr) {
-			if (lines > 0) {
-				if (lines > cy) lines = cy;
-				frect.bottom = y+cy;
-				frect.top = y+cy-lines;
-			} else {
-				if (-lines > cy) lines = -cy;
-				frect.top = y;
-				frect.bottom = y-lines;
+
+		#if GDISP_NEED_CONTROL
+			switch(GDISP.Orientation) {
+			case GDISP_ROTATE_0:
+				rect.top = y;
+				rect.bottom = rect.top+cy;
+				rect.left = x;
+				rect.right = rect.left+cx;
+				lines = -lines;
+				goto vertical_scroll;
+			case GDISP_ROTATE_90:
+				rect.top = x;
+				rect.bottom = rect.top+cx;
+				rect.right = GDISP.Height - y;
+				rect.left = rect.right-cy;
+				goto horizontal_scroll;
+			case GDISP_ROTATE_180:
+				rect.bottom = GDISP.Height - y;
+				rect.top = rect.bottom-cy;
+				rect.right = GDISP.Width - x;
+				rect.left = rect.right-cx;
+			vertical_scroll:
+				srect.left = frect.left = rect.left;
+				srect.right = frect.right = rect.right;
+				if (lines > 0) {
+					srect.top = frect.top = rect.top;
+					frect.bottom = rect.top+lines;
+					srect.bottom = rect.bottom-lines;
+				} else {
+					srect.bottom = frect.bottom = rect.bottom;
+					frect.top = rect.bottom+lines;
+					srect.top = rect.top-lines;
+				}
+				if (cy >= lines && cy >= -lines)
+					ScrollDC(dcBuffer, 0, lines, &srect, 0, 0, 0);
+				break;
+			case GDISP_ROTATE_270:
+				rect.bottom = GDISP.Width - x;
+				rect.top = rect.bottom-cx;
+				rect.left = y;
+				rect.right = rect.left+cy;
+				lines = -lines;
+			horizontal_scroll:
+				srect.top = frect.top = rect.top;
+				srect.bottom = frect.bottom = rect.bottom;
+				if (lines > 0) {
+					srect.left = frect.left = rect.left;
+					frect.right = rect.left+lines;
+					srect.right = rect.right-lines;
+				} else {
+					srect.right = frect.right = rect.right;
+					frect.left = rect.right+lines;
+					srect.left = rect.left-lines;
+				}
+				if (cy >= lines && cy >= -lines)
+					ScrollDC(dcBuffer, lines, 0, &srect, 0, 0, 0);
+				break;
 			}
-			frect.left = x;
-			frect.right = x+cx;
+		#else
+			rect.top = y;
+			rect.bottom = rect.top+cy;
+			rect.left = x;
+			rect.right = rect.left+cx;
+			lines = -lines;
+			srect.left = frect.left = rect.left;
+			srect.right = frect.right = rect.right;
+			if (lines > 0) {
+				srect.top = frect.top = rect.top;
+				frect.bottom = rect.top+lines;
+				srect.bottom = rect.bottom-lines;
+			} else {
+				srect.bottom = frect.bottom = rect.bottom;
+				frect.top = rect.bottom+lines;
+				srect.top = rect.top-lines;
+			}
+			if (cy >= lines && cy >= -lines)
+				ScrollDC(dcBuffer, 0, lines, &srect, 0, 0, 0);
+		#endif
+		
+		if (hbr)
 			FillRect(dcBuffer, &frect, hbr);
-		}
 		InvalidateRect(winRootWindow, &rect, FALSE);
 		UpdateWindow(winRootWindow);
+	}
+#endif
+
+#if (GDISP_NEED_CONTROL && GDISP_HARDWARE_CONTROL) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Driver Control
+	 * @detail	Unsupported control codes are ignored.
+	 * @note	The value parameter should always be typecast to (void *).
+	 * @note	There are some predefined and some specific to the low level driver.
+	 * @note	GDISP_CONTROL_POWER			- Takes a gdisp_powermode_t
+	 * 			GDISP_CONTROL_ORIENTATION	- Takes a gdisp_orientation_t
+	 * 			GDISP_CONTROL_BACKLIGHT -	 Takes an int from 0 to 100. For a driver
+	 * 											that only supports off/on anything other
+	 * 											than zero is on.
+	 * 			GDISP_CONTROL_CONTRAST		- Takes an int from 0 to 100.
+	 * 			GDISP_CONTROL_LLD			- Low level driver control constants start at
+	 * 											this value.
+	 *
+	 * @param[in] what		What to do.
+	 * @param[in] value		The value to use (always cast to a void *).
+	 *
+	 * @notapi
+	 */
+	void GDISP_LLD(control)(unsigned what, void *value) {
+		RECT	rect;
+		
+		switch(what) {
+		case GDISP_CONTROL_ORIENTATION:
+			if (GDISP.Orientation == (gdisp_orientation_t)value)
+				return;
+			GetClientRect(winRootWindow, &rect);
+			switch((gdisp_orientation_t)value) {
+				case GDISP_ROTATE_0:
+					/* 	Code here */
+					GDISP.Width = rect.right-rect.left;
+					GDISP.Height = rect.bottom - rect.top;
+					break;
+				case GDISP_ROTATE_90:
+					/* 	Code here */
+					GDISP.Height = rect.right-rect.left;
+					GDISP.Width = rect.bottom - rect.top;
+					break;
+				case GDISP_ROTATE_180:
+					/* 	Code here */
+					GDISP.Width = rect.right-rect.left;
+					GDISP.Height = rect.bottom - rect.top;
+					break;
+				case GDISP_ROTATE_270:
+					/* 	Code here */
+					GDISP.Height = rect.right-rect.left;
+					GDISP.Width = rect.bottom - rect.top;
+					break;
+				default:
+					return;
+			}
+
+			#if GDISP_NEED_CLIP || GDISP_NEED_VALIDATION
+				GDISP.clipx0 = 0;
+				GDISP.clipy0 = 0;
+				GDISP.clipx1 = GDISP.Width;
+				GDISP.clipy1 = GDISP.Height;
+			#endif
+			GDISP.Orientation = (gdisp_orientation_t)value;
+			return;
+/*
+		case GDISP_CONTROL_POWER:
+		case GDISP_CONTROL_BACKLIGHT:
+		case GDISP_CONTROL_CONTRAST:
+*/
+		}
 	}
 #endif
 
