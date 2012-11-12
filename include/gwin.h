@@ -47,14 +47,14 @@
  */
 	/**
 	 * @brief   Should console functions be included.
-	 * @details	Defaults to TRUE
+	 * @details	Defaults to FALSE
 	 */
 	#ifndef GWIN_NEED_CONSOLE
-		#define GWIN_NEED_CONSOLE	TRUE
+		#define GWIN_NEED_CONSOLE	FALSE
 	#endif
 	/**
 	 * @brief   Should button functions be included.
-	 * @details	Defaults to FALSE for now as implementation is not complete
+	 * @details	Defaults to FALSE
 	 */
 	#ifndef GWIN_NEED_BUTTON
 		#define GWIN_NEED_BUTTON	FALSE
@@ -76,11 +76,11 @@
 #endif
 
 #if GWIN_NEED_CONSOLE && !GDISP_NEED_TEXT
-	#error "GWIN: Text support (GDISP_NEED_TEXT) is required if GWIN_NEED_CONSOLE is defined."
+	#define GDISP_NEED_TEXT TRUE
 #endif
 
 #if GWIN_NEED_BUTTON && !GDISP_NEED_TEXT
-	#error "GWIN: Text support (GDISP_NEED_TEXT) is required if GWIN_NEED_BUTTON is defined."
+	#define GDISP_NEED_TEXT TRUE
 #endif
 
 #if GWIN_NEED_BUTTON

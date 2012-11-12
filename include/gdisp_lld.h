@@ -556,7 +556,7 @@ typedef enum orientation {GDISP_ROTATE_0, GDISP_ROTATE_90, GDISP_ROTATE_180, GDI
 /**
  * @brief   Type for the available power modes for the screen.
  */
-typedef enum powermode {powerOff, powerSleep, powerOn} gdisp_powermode_t;
+typedef enum powermode {powerOff, powerSleep, powerDeepSleep, powerOn} gdisp_powermode_t;
 
 /*===========================================================================*/
 /* External declarations.                                                    */
