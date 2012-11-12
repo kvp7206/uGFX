@@ -13,6 +13,7 @@ FEATURE:	Touchscreen support added to gdisp Win32 driver
 FIX:		gdisp Win32 driver fixes
 DEPRECATE:	console deprecated - replaced with gwin functionality
 FEATURE:	ILI9320 GDISP driver
+FEATURE:	gdisp Win32 driver - full orientation support
 
 
 *** changes after 1.3 ***

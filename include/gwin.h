@@ -76,11 +76,11 @@
 #endif
 
 #if GWIN_NEED_CONSOLE && !GDISP_NEED_TEXT
-	#define GDISP_NEED_TEXT TRUE
+	#error "GWIN: Text support (GDISP_NEED_TEXT) is required if GWIN_NEED_CONSOLE is defined."
 #endif
 
 #if GWIN_NEED_BUTTON && !GDISP_NEED_TEXT
-	#define GDISP_NEED_TEXT TRUE
+	#error "GWIN: Text support (GDISP_NEED_TEXT) is required if GWIN_NEED_BUTTON is defined."
 #endif
 
 #if GWIN_NEED_BUTTON

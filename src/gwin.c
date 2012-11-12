@@ -36,6 +36,8 @@
 
 #include <string.h>
 
+#define GWIN_USE_FILLED_CHARS			FALSE
+
 #define GWIN_FLG_DYNAMIC				0x0001
 #define GWIN_FIRST_CONTROL_FLAG			0x0002
 #define GBTN_FLG_ALLOCTXT				(GWIN_FIRST_CONTROL_FLAG<<0)
@@ -666,7 +668,11 @@ void gwinPutChar(GHandle gh, char c) {
 #endif
 		}
 
+#if GWIN_USE_FILLED_CHARS
+		gdispFillChar(gh->x + gcw->cx, gh->y + gcw->cy, c, gh->font, gh->color, gh->bgcolor);
+#else
 		gdispDrawChar(gh->x + gcw->cx, gh->y + gcw->cy, c, gh->font, gh->color);
+#endif
 
 		/* update cursor */
 		gcw->cx += width;
