@@ -709,7 +709,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void GDISP_LLD(verticalscroll)(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
-		RECT	rect, frect;
+		RECT	rect, frect, srect;
 		HBRUSH	hbr;
 		
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
@@ -748,17 +748,19 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				rect.right = GDISP.Width - x;
 				rect.left = rect.right-cx;
 			vertical_scroll:
-				if (cy >= lines && cy >= -lines)
-					ScrollDC(dcBuffer, 0, lines, &rect, 0, 0, 0);
-				frect.left = rect.left;
-				frect.right = rect.right;
+				srect.left = frect.left = rect.left;
+				srect.right = frect.right = rect.right;
 				if (lines > 0) {
-					frect.top = rect.top;
-					frect.bottom = frect.top+lines;
+					srect.top = frect.top = rect.top;
+					frect.bottom = rect.top+lines;
+					srect.bottom = rect.bottom-lines;
 				} else {
-					frect.bottom = rect.bottom;
-					frect.top = frect.bottom+lines;
+					srect.bottom = frect.bottom = rect.bottom;
+					frect.top = rect.bottom+lines;
+					srect.top = rect.top-lines;
 				}
+				if (cy >= lines && cy >= -lines)
+					ScrollDC(dcBuffer, 0, lines, &srect, 0, 0, 0);
 				break;
 			case GDISP_ROTATE_270:
 				rect.bottom = GDISP.Width - x;
@@ -767,17 +769,19 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				rect.right = rect.left+cy;
 				lines = -lines;
 			horizontal_scroll:
-				if (cy >= lines && cy >= -lines)
-					ScrollDC(dcBuffer, lines, 0, &rect, 0, 0, 0);
-				frect.top = rect.top;
-				frect.bottom = rect.bottom;
+				srect.top = frect.top = rect.top;
+				srect.bottom = frect.bottom = rect.bottom;
 				if (lines > 0) {
-					frect.left = rect.left;
-					frect.right = frect.left+lines;
+					srect.left = frect.left = rect.left;
+					frect.right = rect.left+lines;
+					srect.right = rect.right-lines;
 				} else {
-					frect.right = rect.right;
-					frect.left = frect.right+lines;
+					srect.right = frect.right = rect.right;
+					frect.left = rect.right+lines;
+					srect.left = rect.left-lines;
 				}
+				if (cy >= lines && cy >= -lines)
+					ScrollDC(dcBuffer, lines, 0, &srect, 0, 0, 0);
 				break;
 			}
 		#else
@@ -786,17 +790,19 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			rect.left = x;
 			rect.right = rect.left+cx;
 			lines = -lines;
-			if (cy >= lines && cy >= -lines)
-				ScrollDC(dcBuffer, 0, lines, &rect, 0, 0, 0);
-			frect.left = rect.left;
-			frect.right = rect.right;
+			srect.left = frect.left = rect.left;
+			srect.right = frect.right = rect.right;
 			if (lines > 0) {
-				frect.top = rect.top;
-				frect.bottom = frect.top+lines;
+				srect.top = frect.top = rect.top;
+				frect.bottom = rect.top+lines;
+				srect.bottom = rect.bottom-lines;
 			} else {
-				frect.bottom = rect.bottom;
-				frect.top = frect.bottom+lines;
+				srect.bottom = frect.bottom = rect.bottom;
+				frect.top = rect.bottom+lines;
+				srect.top = rect.top-lines;
 			}
+			if (cy >= lines && cy >= -lines)
+				ScrollDC(dcBuffer, 0, lines, &srect, 0, 0, 0);
 		#endif
 		
 		if (hbr)

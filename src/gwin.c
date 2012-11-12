@@ -36,7 +36,8 @@
 
 #include <string.h>
 
-#define GWIN_USE_FILLED_CHARS			FALSE
+#define GWIN_CONSOLE_USE_CLEAR_LINES			TRUE
+#define GWIN_CONSOLE_USE_FILLED_CHARS			FALSE
 
 #define GWIN_FLG_DYNAMIC				0x0001
 #define GWIN_FIRST_CONTROL_FLAG			0x0002
@@ -635,19 +636,14 @@ void gwinPutChar(GHandle gh, char c) {
 	#endif
 	
 	if (c == '\n') {
-		/* clear the text at the end of the line */
-		if (gcw->cx < gh->width)
-			gdispFillArea(gh->x + gcw->cx, gh->y + gcw->cy, gh->width - gcw->cx, gcw->fy, gh->bgcolor);
 		gcw->cx = 0;
 		gcw->cy += gcw->fy;
+		// We use lazy scrolling here and only scroll when the next char arrives
 	} else if (c == '\r') {
 		// gcw->cx = 0;
 	} else {
 		width = gdispGetCharWidth(c, gh->font) + gcw->fp;
 		if (gcw->cx + width >= gh->width) {
-			/* clear the text at the end of the line */
-			if (gcw->cy + gcw->fy <= gh->height)
-				gdispFillArea(gh->x + gcw->cx, gh->y + gcw->cy, gh->width - (gcw->cx + width), gcw->fy, gh->bgcolor);
 			gcw->cx = 0;
 			gcw->cy += gcw->fy;
 		}
@@ -668,7 +664,12 @@ void gwinPutChar(GHandle gh, char c) {
 #endif
 		}
 
-#if GWIN_USE_FILLED_CHARS
+#if GWIN_CONSOLE_USE_CLEAR_LINES
+		/* clear to the end of the line */
+		if (gcw->cx == 0)
+			gdispFillArea(gh->x, gh->y + gcw->cy, gh->width, gcw->fy, gh->bgcolor);
+#endif
+#if GWIN_CONSOLE_USE_FILLED_CHARS
 		gdispFillChar(gh->x + gcw->cx, gh->y + gcw->cy, c, gh->font, gh->color, gh->bgcolor);
 #else
 		gdispDrawChar(gh->x + gcw->cx, gh->y + gcw->cy, c, gh->font, gh->color);
