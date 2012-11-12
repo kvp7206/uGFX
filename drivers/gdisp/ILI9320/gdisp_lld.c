@@ -472,33 +472,25 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 					return;
 					switch((gdisp_orientation_t)value) {
 						case GDISP_ROTATE_0:
-							lld_lcdWriteReg(0x0001, 0x2B3F);
-							/* ID = 11 AM = 0 */
-							lld_lcdWriteReg(0x0011, 0x6070);
+							/* ToDo */
 							GDISP.Height = GDISP_SCREEN_HEIGHT;
 							GDISP.Width = GDISP_SCREEN_WIDTH;
 							break;
 
 						case GDISP_ROTATE_90:
-							lld_lcdWriteReg(0x0001, 0x293F);
-							/* ID = 11 AM = 1 */
-							lld_lcdWriteReg(0x0011, 0x6078);
+							/* ToDo */
 							GDISP.Height = GDISP_SCREEN_WIDTH;
 							GDISP.Width = GDISP_SCREEN_HEIGHT;
 							break;
 			
 						case GDISP_ROTATE_180:
-							lld_lcdWriteReg(0x0001, 0x2B3F);
-							/* ID = 01 AM = 0 */
-							lld_lcdWriteReg(0x0011, 0x6040);
+							/* ToDo */
 							GDISP.Height = GDISP_SCREEN_HEIGHT;
 							GDISP.Width = GDISP_SCREEN_WIDTH;
 							break;
 		
 						case GDISP_ROTATE_270:
-							lld_lcdWriteReg(0x0001, 0x293F);
-							/* ID = 01 AM = 1 */
-							lld_lcdWriteReg(0x0011, 0x6048);
+							/* ToDo */
 							GDISP.Height = GDISP_SCREEN_WIDTH;
 							GDISP.Width = GDISP_SCREEN_HEIGHT;
 							break;
@@ -523,6 +515,9 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			case GDISP_CONTROL_CONTRAST:
 				/* ToDo */
 				break;
+
+			default:
+				return;
 		}
 	}
 
