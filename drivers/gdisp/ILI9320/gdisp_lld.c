@@ -508,10 +508,9 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				return;
 
 			case GDISP_CONTROL_BACKLIGHT:
-				if(GDISP.Backlight == (*(uint8_t*)value))
-					return;
-				GDISP_LLD(set_backlight)(*(uint8_t*)value);
-				GDISP.Backlight = (*(uint8_t*)value);
+				if((unsigned)value > 100) value = (void *)100;
+				GDISP_LLD(set_backlight)((unsigned)value);
+				GDISP.Backlight = (unsigned)value;
 				break;
 			
 			default:

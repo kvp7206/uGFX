@@ -287,8 +287,6 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 	void gdispPackPixels(const pixel_t *buf, coord_t cx, coord_t x, coord_t y, color_t color);
 #endif
 
-void gdispSetBacklight(uint8_t percentage);
-void gdispSetContrast(uint8_t percentage);
 /* 
  * Macro definitions
  */
@@ -298,6 +296,8 @@ void gdispSetContrast(uint8_t percentage);
 /* Macro definitions for common gets and sets */
 #define gdispSetPowerMode(powerMode)			gdispControl(GDISP_CONTROL_POWER, (void *)(unsigned)(powerMode))
 #define gdispSetOrientation(newOrientation)		gdispControl(GDISP_CONTROL_ORIENTATION, (void *)(unsigned)(newOrientation))
+#define gdispSetBacklight(percent)				gdispControl(GDISP_CONTROL_BACKLIGHT, (void *)(unsigned)(percent))
+#define gdispSetContrast(percent)				gdispControl(GDISP_CONTROL_CONTRAST, (void *)(unsigned)(percent))
 
 #define gdispGetWidth()							((coord_t)(unsigned)gdispQuery(GDISP_QUERY_WIDTH))
 #define gdispGetHeight()						((coord_t)(unsigned)gdispQuery(GDISP_QUERY_HEIGHT))

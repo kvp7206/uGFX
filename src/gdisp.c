@@ -1267,24 +1267,6 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	}
 #endif
 
-/**
- * @brief	Control backlight brightness
- *
- * @param[in] percentage	The percentage of the brightness (0 to 100)
- */
-void gdispSetBacklight(uint8_t percentage) {
-	gdispControl(GDISP_CONTROL_BACKLIGHT, (void*)&percentage);
-}
-
-/**
- * @brief	Control display contrast
- *
- * @param[in] percentage	The percentage of the contrast
- */
-void gdispSetPercentage(uint8_t percentage){
-	gdispControl(GDISP_CONTROL_CONTRAST, (void*)&percentage);
-}
-
 #endif /* GFX_USE_GDISP */
 
 #endif /* _GDISP_C */
