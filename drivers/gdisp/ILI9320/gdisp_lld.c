@@ -211,7 +211,7 @@ bool_t GDISP_LLD(init)(void) {
     GDISP.Height = GDISP_SCREEN_HEIGHT;
     GDISP.Orientation = GDISP_ROTATE_0;
     GDISP.Powermode = powerOn;
-    GDISP.Backlight = 100;
+    GDISP.Backlight = 0;
     GDISP.Contrast = 50;
     #if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 	GDISP.clipx0 = 0;
@@ -411,7 +411,6 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			case GDISP_CONTROL_POWER:
 				if(GDISP.Powermode == (gdisp_powermode_t)value)
 					return;
-
 				switch((gdisp_powermode_t)value) {
 					case powerOff:
 						lld_lcdWriteReg(0x0007, 0x0000);
@@ -440,25 +439,25 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 						if(GDISP.Powermode != powerSleep || GDISP.Powermode != powerDeepSleep)
 							GDISP_LLD(init)();
 						break;
-			
+	
 					case powerSleep:
-                        lld_lcdWriteReg(0x0007, 0x0000); /* display OFF */
-                        lld_lcdWriteReg(0x0010, 0x0000); /* SAP, BT[3:0], APE, AP, DSTB, SLP */
-                        lld_lcdWriteReg(0x0011, 0x0000); /* DC1[2:0], DC0[2:0], VC[2:0] */
-                        lld_lcdWriteReg(0x0012, 0x0000); /* VREG1OUT voltage */
-                        lld_lcdWriteReg(0x0013, 0x0000); /* VDV[4:0] for VCOM amplitude */
-                        lld_lcdDelay(2000); /* Dis-charge capacitor power voltage */
-                        lld_lcdWriteReg(0x0010, 0x0002); /* SAP, BT[3:0], APE, AP, DSTB, SLP */				
+	             		lld_lcdWriteReg(0x0007, 0x0000); /* display OFF */
+	                   	lld_lcdWriteReg(0x0010, 0x0000); /* SAP, BT[3:0], APE, AP, DSTB, SLP */
+	                  	lld_lcdWriteReg(0x0011, 0x0000); /* DC1[2:0], DC0[2:0], VC[2:0] */
+	                  	lld_lcdWriteReg(0x0012, 0x0000); /* VREG1OUT voltage */
+	                  	lld_lcdWriteReg(0x0013, 0x0000); /* VDV[4:0] for VCOM amplitude */
+	                  	lld_lcdDelay(2000); /* Dis-charge capacitor power voltage */
+	                   	lld_lcdWriteReg(0x0010, 0x0002); /* SAP, BT[3:0], APE, AP, DSTB, SLP */				
 						break;
 
 					case powerDeepSleep:
 					    lld_lcdWriteReg(0x0007, 0x0000); /* display OFF */
 					    lld_lcdWriteReg(0x0010, 0x0000); /* SAP, BT[3:0], APE, AP, DSTB, SLP */
 					    lld_lcdWriteReg(0x0011, 0x0000); /* DC1[2:0], DC0[2:0], VC[2:0] */
-   						lld_lcdWriteReg(0x0012, 0x0000); /* VREG1OUT voltage */
-   						lld_lcdWriteReg(0x0013, 0x0000); /* VDV[4:0] for VCOM amplitude */
-   						lld_lcdDelay(2000); /* Dis-charge capacitor power voltage */
-  						lld_lcdWriteReg(0x0010, 0x0004); /* SAP, BT[3:0], APE, AP, DSTB, SLP */
+	   					lld_lcdWriteReg(0x0012, 0x0000); /* VREG1OUT voltage */
+	   					lld_lcdWriteReg(0x0013, 0x0000); /* VDV[4:0] for VCOM amplitude */
+	   					lld_lcdDelay(2000); /* Dis-charge capacitor power voltage */
+	  					lld_lcdWriteReg(0x0010, 0x0004); /* SAP, BT[3:0], APE, AP, DSTB, SLP */
 						break;
 
 					default:
@@ -470,34 +469,34 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			case GDISP_CONTROL_ORIENTATION:
 				if(GDISP.Orientation == (gdisp_orientation_t)value)
 					return;
-					switch((gdisp_orientation_t)value) {
-						case GDISP_ROTATE_0:
-							/* ToDo */
-							GDISP.Height = GDISP_SCREEN_HEIGHT;
-							GDISP.Width = GDISP_SCREEN_WIDTH;
-							break;
+				switch((gdisp_orientation_t)value) {
+					case GDISP_ROTATE_0:
+						/* ToDo */
+						GDISP.Height = GDISP_SCREEN_HEIGHT;
+						GDISP.Width = GDISP_SCREEN_WIDTH;
+						break;
 
-						case GDISP_ROTATE_90:
-							/* ToDo */
-							GDISP.Height = GDISP_SCREEN_WIDTH;
-							GDISP.Width = GDISP_SCREEN_HEIGHT;
-							break;
+					case GDISP_ROTATE_90:
+						/* ToDo */
+						GDISP.Height = GDISP_SCREEN_WIDTH;
+						GDISP.Width = GDISP_SCREEN_HEIGHT;
+						break;
 			
-						case GDISP_ROTATE_180:
-							/* ToDo */
-							GDISP.Height = GDISP_SCREEN_HEIGHT;
-							GDISP.Width = GDISP_SCREEN_WIDTH;
-							break;
+					case GDISP_ROTATE_180:
+						/* ToDo */
+						GDISP.Height = GDISP_SCREEN_HEIGHT;
+						GDISP.Width = GDISP_SCREEN_WIDTH;
+						break;
 		
-						case GDISP_ROTATE_270:
-							/* ToDo */
-							GDISP.Height = GDISP_SCREEN_WIDTH;
-							GDISP.Width = GDISP_SCREEN_HEIGHT;
-							break;
+					case GDISP_ROTATE_270:
+						/* ToDo */
+						GDISP.Height = GDISP_SCREEN_WIDTH;
+						GDISP.Width = GDISP_SCREEN_HEIGHT;
+						break;
 			
-						default:
-							return;
-					}
+					default:
+						return;
+				}
 			
 				#if GDISP_NEED_CLIP || GDISP_NEED_VALIDATION
 				GDISP.clipx0 = 0;
@@ -509,13 +508,12 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				return;
 
 			case GDISP_CONTROL_BACKLIGHT:
-				/* ToDo */
+				if(GDISP.Backlight == (*(uint8_t*)value))
+					return;
+				GDISP_LLD(set_backlight)(*(uint8_t*)value);
+				GDISP.Backlight == (*(uint8_t*)value);
 				break;
 			
-			case GDISP_CONTROL_CONTRAST:
-				/* ToDo */
-				break;
-
 			default:
 				return;
 		}

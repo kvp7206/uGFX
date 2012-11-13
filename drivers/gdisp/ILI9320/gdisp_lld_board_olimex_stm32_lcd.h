@@ -42,6 +42,7 @@ static __inline void GDISP_LLD(init_board)(void) {
     palSetBusMode(&busD, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
     palSetBusMode(&busE, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
 	palSetPadMode(GPIOE, GPIOE_TFT_RST, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOD, GPIOD_TFT_LIGHT, PAL_MODE_OUTPUT_PUSHPULL);
 
     /* const unsigned char FSMC_Bank = 0; */
     const unsigned char FSMC_Bank = 6;
@@ -71,6 +72,13 @@ static __inline void GDISP_LLD(write_data)(uint16_t data) {
 
 static __inline uint16_t GDISP_LLD(read_data)(void) {
 	return GDISP_RAM;
+}
+
+static __inline void GDISP_LLD(set_backlight)(uint8_t percent) {
+	if(percent == 100)
+		palClearPad(GPIOD, GPIOD_TFT_LIGHT);
+	else
+		palSetPad(GPIOD, GPIOD_TFT_LIGHT);
 }
 
 #endif /* GDISP_LLD_BOARD_H */
