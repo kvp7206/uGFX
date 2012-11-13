@@ -49,6 +49,11 @@ static __inline uint16_t GDISP_LLD(read_data)(void) {
 	#error "ILI9320: You must implement read_data routine for your board"
 }
 
+/* if not available, just ignore the argument and return */
+static __inline uint16_t GDISP_LLD(set_backlight)(uint8_t percentage) {
+	#error "ILI9320: You must implement set_backlight routine for your board"
+}
+
 #endif /* GDISP_LLD_BOARD_H */
 /** @} */
 
