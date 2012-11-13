@@ -511,7 +511,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				if(GDISP.Backlight == (*(uint8_t*)value))
 					return;
 				GDISP_LLD(set_backlight)(*(uint8_t*)value);
-				GDISP.Backlight == (*(uint8_t*)value);
+				GDISP.Backlight = (*(uint8_t*)value);
 				break;
 			
 			default:
