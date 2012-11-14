@@ -156,14 +156,17 @@ static __inline void GDISP_LLD(setpin_reset)(bool_t state) {
 }
 
 /**
- * @brief   Set or clear the lcd back-light pin.
+ * @brief   Set the lcd back-light level.
+ * @note	For now 0% turns the backlight off, anything else the backlight is on.
+ *			While the hardware supports PWM backlight control, we are not using it
+ *			yet.
  *
- * @param[in] state		TRUE = lcd back-light on, FALSE = lcd back-light off
+ * @param[in] percent		0 to 100%
  * 
  * @notapi
  */
-static __inline void GDISP_LLD(setpin_backlight)(bool_t state) {
-	if (state)
+static __inline void GDISP_LLD(set_backlight)(uint8_t percent) {
+	if (percent)
 		palSetPad(IOPORT2, PIOB_LCD_BL);
 //		pPIOB->PIO_SODR = PIOB_LCD_BL_MASK;
 	else

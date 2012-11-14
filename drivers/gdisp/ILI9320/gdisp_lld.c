@@ -56,6 +56,9 @@
 #define GDISP_SCREEN_WIDTH		240
 #define GDISP_SCREEN_HEIGHT		320
 
+#define GDISP_INITIAL_CONTRAST	50
+#define GDISP_INITIAL_BACKLIGHT	100
+
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
@@ -206,13 +209,16 @@ bool_t GDISP_LLD(init)(void) {
     lld_lcdWriteReg(0x0098, 0x0110); //
     lld_lcdWriteReg(0x0007, 0x0173); //display On
 
+	// Turn on the backlight
+	GDISP_LLD(set_backlight)(GDISP_INITIAL_BACKLIGHT);
+	
     /* Initialise the GDISP structure */
     GDISP.Width = GDISP_SCREEN_WIDTH;
     GDISP.Height = GDISP_SCREEN_HEIGHT;
     GDISP.Orientation = GDISP_ROTATE_0;
     GDISP.Powermode = powerOn;
-    GDISP.Backlight = 0;
-    GDISP.Contrast = 50;
+    GDISP.Backlight = GDISP_INITIAL_BACKLIGHT;
+    GDISP.Contrast = GDISP_INITIAL_CONTRAST;
     #if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 	GDISP.clipx0 = 0;
 	GDISP.clipy0 = 0;
@@ -418,6 +424,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 						lld_lcdWriteReg(0x0011, 0x0000);
 						lld_lcdWriteReg(0x0012, 0x0000);
 						lld_lcdWriteReg(0x0013, 0x0000);
+						GDISP_LLD(set_backlight)(0);
 						break;
 			
 					case powerOn:
@@ -436,6 +443,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 						lld_lcdWriteReg(0x0029, 0x0009); /* VCM[4:0] for VCOMH */
 						lld_lcdDelay(500);
 						lld_lcdWriteReg(0x0007, 0x0173); /* 262K color and display ON */	
+						GDISP_LLD(set_backlight)(GDISP.Backlight);
 						if(GDISP.Powermode != powerSleep || GDISP.Powermode != powerDeepSleep)
 							GDISP_LLD(init)();
 						break;
@@ -448,6 +456,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	                  	lld_lcdWriteReg(0x0013, 0x0000); /* VDV[4:0] for VCOM amplitude */
 	                  	lld_lcdDelay(2000); /* Dis-charge capacitor power voltage */
 	                   	lld_lcdWriteReg(0x0010, 0x0002); /* SAP, BT[3:0], APE, AP, DSTB, SLP */				
+						GDISP_LLD(set_backlight)(0);
 						break;
 
 					case powerDeepSleep:
@@ -458,6 +467,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	   					lld_lcdWriteReg(0x0013, 0x0000); /* VDV[4:0] for VCOM amplitude */
 	   					lld_lcdDelay(2000); /* Dis-charge capacitor power voltage */
 	  					lld_lcdWriteReg(0x0010, 0x0004); /* SAP, BT[3:0], APE, AP, DSTB, SLP */
+						GDISP_LLD(set_backlight)(0);
 						break;
 
 					default:
@@ -466,6 +476,8 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				GDISP.Powermode = (gdisp_powermode_t)value;
 				return;
 
+#if 0
+			// NOT IMPLEMENTED YET
 			case GDISP_CONTROL_ORIENTATION:
 				if(GDISP.Orientation == (gdisp_orientation_t)value)
 					return;
@@ -506,6 +518,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				#endif
 				GDISP.Orientation = (gdisp_orientation_t)value;
 				return;
+#endif
 
 			case GDISP_CONTROL_BACKLIGHT:
 				if((unsigned)value > 100) value = (void *)100;

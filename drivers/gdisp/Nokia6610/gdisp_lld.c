@@ -57,7 +57,9 @@
 #endif
 #define GDISP_SCREEN_HEIGHT		132
 #define GDISP_SCREEN_WIDTH		132
+
 #define GDISP_INITIAL_CONTRAST	38
+#define GDISP_INITIAL_BACKLIGHT	100
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -214,14 +216,14 @@ bool_t GDISP_LLD(init)(void) {
 	#endif
 
 	/* Turn on the back-light */
-	GDISP_LLD(setpin_backlight)(TRUE);
+	GDISP_LLD(set_backlight)(GDISP_INITIAL_BACKLIGHT);
 
 	/* Initialise the GDISP structure to match */
 	GDISP.Width = GDISP_SCREEN_WIDTH;
 	GDISP.Height = GDISP_SCREEN_HEIGHT;
 	GDISP.Orientation = GDISP_ROTATE_0;
 	GDISP.Powermode = powerOn;
-	GDISP.Backlight = 100;
+	GDISP.Backlight = GDISP_INITIAL_BACKLIGHT;
 	GDISP.Contrast = GDISP_INITIAL_CONTRAST;
 	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 		GDISP.clipx0 = 0;
@@ -466,28 +468,28 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void GDISP_LLD(control)(unsigned what, void *value) {
-		/* NOT IMPLEMENTED YET */
 		/* The hardware is capable of supporting...
-		 * 	GDISP_CONTROL_POWER
-		 * 	GDISP_CONTROL_ORIENTATION
-		 * 	GDISP_CONTROL_BACKLIGHT (at least on the Olimex board)
-		 * 	GDISP_CONTROL_CONTRAST
-		 * We don't currently implement any of it.
+		 * 	GDISP_CONTROL_POWER				- not implemented yet
+		 * 	GDISP_CONTROL_ORIENTATION		- not implemented yet
+		 * 	GDISP_CONTROL_BACKLIGHT			- supported (the OlimexSAM7EX256 board.h currently only implements off/on although PWM is supported by the hardware)
+		 * 	GDISP_CONTROL_CONTRAST			- supported
 		 */
 		switch(what) {
+#if 0
+		// NOT IMPLEMENTED YET
 		case GDISP_CONTROL_POWER:
 			if (GDISP.Powermode == (gdisp_powermode_t)value)
 				return;
 			switch((gdisp_powermode_t)value) {
 				case powerOff:
-					/* 	Code here */
+					// 	Code here
 					break;
 				case powerOn:
-					/* 	Code here */
+					// 	Code here
 					/* You may need this ---
-						if (GDISP.Powermode != powerSleep)
-							GDISP_LLD(init)();
-					*/
+					 *	if (GDISP.Powermode != powerSleep)
+					 *		GDISP_LLD(init)();
+					 */
 					break;
 				case powerSleep:
 					/* 	Code here */
@@ -497,6 +499,9 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			}
 			GDISP.Powermode = (gdisp_powermode_t)value;
 			return;
+#endif
+#if 0
+		// NOT IMPLEMENTED YET
 		case GDISP_CONTROL_ORIENTATION:
 			if (GDISP.Orientation == (gdisp_orientation_t)value)
 				return;
@@ -504,22 +509,22 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	//		WriteSpiData(0xC8); // restore to (mirror x and y, reverse rgb)
 			switch((gdisp_orientation_t)value) {
 				case GDISP_ROTATE_0:
-					/* 	Code here */
+					// 	Code here
 					GDISP.Height = GDISP_SCREEN_HEIGHT;
 					GDISP.Width = GDISP_SCREEN_WIDTH;
 					break;
 				case GDISP_ROTATE_90:
-					/* 	Code here */
+					// 	Code here
 					GDISP.Height = GDISP_SCREEN_WIDTH;
 					GDISP.Width = GDISP_SCREEN_HEIGHT;
 					break;
 				case GDISP_ROTATE_180:
-					/* 	Code here */
+					// 	Code here
 					GDISP.Height = GDISP_SCREEN_HEIGHT;
 					GDISP.Width = GDISP_SCREEN_WIDTH;
 					break;
 				case GDISP_ROTATE_270:
-					/* 	Code here */
+					// 	Code here
 					GDISP.Height = GDISP_SCREEN_WIDTH;
 					GDISP.Width = GDISP_SCREEN_HEIGHT;
 					break;
@@ -534,9 +539,12 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			#endif
 			GDISP.Orientation = (gdisp_orientation_t)value;
 			return;
-/*
+#endif
 		case GDISP_CONTROL_BACKLIGHT:
-*/
+			if ((unsigned)value > 100) value = (void *)100;
+			GDISP_LLD(set_backlight)((uint8_t)(unsigned)value);
+			GDISP.Backlight = (unsigned)value;
+			return;
 		case GDISP_CONTROL_CONTRAST:
 			if ((unsigned)value > 100) value = (void *)100;
 #if defined(GDISP_USE_GE8)

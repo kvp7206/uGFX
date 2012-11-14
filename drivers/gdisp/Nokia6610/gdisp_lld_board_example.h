@@ -57,6 +57,21 @@ static __inline void GDISP_LLD(setpin_reset)(bool_t state) {
 }
 
 /**
+ * @brief   Set the lcd back-light level.
+ * @note	For now 0% turns the backlight off, anything else the backlight is on.
+ *			While the hardware supports PWM backlight control, we are not using it
+ *			yet.
+ *
+ * @param[in] percent		0 to 100%
+ * 
+ * @notapi
+ */
+static __inline void GDISP_LLD(set_backlight)(uint8_t percent) {
+	/* Code here */
+#error "gdispNokia6610: You must supply a definition for set_backlight for your board"
+}
+
+/**
  * @brief   Send an 8 bit command to the lcd.
  *
  * @param[in] data		The command to send
