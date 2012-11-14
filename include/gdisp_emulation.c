@@ -39,8 +39,8 @@
 		coord_t				Height;
 		gdisp_orientation_t	Orientation;
 		gdisp_powermode_t	Powermode;
-		coord_t				Backlight;
-		coord_t				Contrast;
+		uint8_t				Backlight;
+		uint8_t				Contrast;
 		#if GDISP_NEED_CLIP || GDISP_NEED_VALIDATION
 			coord_t				clipx0, clipy0;
 			coord_t				clipx1, clipy1;		/* not inclusive */

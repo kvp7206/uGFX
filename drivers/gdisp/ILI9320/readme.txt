@@ -4,16 +4,12 @@ To use this driver:
 	a) #define GFX_USE_GDISP	TRUE
 
 	b) Any optional high level driver defines (see gdisp.h) eg: GDISP_NEED_MULTITHREAD
-
-	c) One (only) of:
-		#define GDISP_USE_GPIO
-		#define GDISP_USE_SPI
-		#define GDISP_USE_FSMC
-
-	d) All of the following (with appropriate values):
-		#define GDISP_SCREEN_WIDTH	320
-		#define GDISP_SCREEN_HEIGHT	240
+	
+	d) If you are not using a known board then create a gdisp_lld_board.h file
+		and ensure it is on your include path.
+		Use the gdisp_lld_board_example.h file as a basis.
+		Currently known boards are:
+		 	Olimex STM32-LCD
 
 2. To your makefile add the following lines:
 	include $(GFXLIB)/drivers/gdisp/ILI9320/gdisp_lld.mk
-

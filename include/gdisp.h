@@ -287,10 +287,9 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 	void gdispPackPixels(const pixel_t *buf, coord_t cx, coord_t x, coord_t y, color_t color);
 #endif
 
-/* Macro definitions
- *
+/* 
+ * Macro definitions
  */
- 
 /* Now obsolete functions */
 #define gdispBlitArea(x, y, cx, cy, buffer)						gdispBlitAreaEx(x, y, cx, cy, 0, 0, cx, buffer)
 
