@@ -72,13 +72,31 @@ static __inline void GDISP_LLD(set_backlight)(uint8_t percent) {
 }
 
 /**
- * @brief   Send an 8 bit command to the lcd.
- *
- * @param[in] data		The command to send
+ * @brief   Take exclusive control of the bus
  *
  * @notapi
  */
-static __inline void GDISP_LLD(write_cmd)(uint16_t data) {
+static __inline void GDISP_LLD(get_bus)(void) {
+#error "gdispNokia6610: You must supply a definition for get_bus for your board"
+}
+
+/**
+ * @brief   Release exclusive control of the bus
+ *
+ * @notapi
+ */
+static __inline void GDISP_LLD(release_bus)(void) {
+#error "gdispNokia6610: You must supply a definition for release_bus for your board"
+}
+
+/**
+ * @brief   Send an 8 bit command to the lcd.
+ *
+ * @param[in] cmd		The command to send
+ *
+ * @notapi
+ */
+static __inline void GDISP_LLD(write_cmd)(uint16_t cmd) {
 	/* Code here */
 #error "gdispNokia6610: You must supply a definition for write_cmd for your board"
 }
