@@ -175,13 +175,31 @@ static __inline void GDISP_LLD(set_backlight)(uint8_t percent) {
 }
 
 /**
- * @brief   Send an 8 bit command to the lcd.
- *
- * @param[in] data		The command to send
+ * @brief   Take exclusive control of the bus
  *
  * @notapi
  */
-static __inline void GDISP_LLD(write_cmd)(uint16_t data) {
+static __inline void GDISP_LLD(get_bus)(void) {
+	// Nothing to do for this board as the LCD is the only device on the SPI port
+}
+
+/**
+ * @brief   Release exclusive control of the bus
+ *
+ * @notapi
+ */
+static __inline void GDISP_LLD(release_bus)(void) {
+	// Nothing to do for this board as the LCD is the only device on the SPI port
+}
+
+/**
+ * @brief   Send an 8 bit command to the lcd.
+ *
+ * @param[in] cmd		The command to send
+ *
+ * @notapi
+ */
+static __inline void GDISP_LLD(write_cmd)(uint16_t cmd) {
 	// wait for the previous transfer to complete
 	while((pSPI->SPI_SR & AT91C_SPI_TXEMPTY) == 0);
 	// send the command

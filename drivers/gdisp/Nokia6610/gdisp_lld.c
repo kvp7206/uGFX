@@ -80,13 +80,21 @@
 	#include "gdisp_lld_board.h"
 #endif
 
-static __inline void gdisp_lld_setviewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
-	GDISP_LLD(write_cmd)(CASET);			// Column address set
-	GDISP_LLD(write_data)(x);
-	GDISP_LLD(write_data)(x+cx-1);
-	GDISP_LLD(write_cmd)(PASET);			// Page address set
-	GDISP_LLD(write_data)(y);
-	GDISP_LLD(write_data)(y+cy-1);
+// Some macros just to make reading the code easier
+#define write_data(d1)				GDISP_LLD(write_data)(d1)
+#define write_data2(d1, d2)			{ write_data(d1); write_data(d2); }
+#define write_data3(d1, d2, d3)		{ write_data(d1); write_data(d2); write_data(d3); }
+
+#define write_cmd(cmd)				GDISP_LLD(write_cmd)(cmd)
+#define write_cmd1(cmd, d1)			{ write_cmd(cmd); write_data(d1); }
+#define write_cmd2(cmd, d1, d2)		{ write_cmd(cmd); write_data2(d1, d2); }
+#define write_cmd3(cmd, d1, d2, d3)	{ write_cmd(cmd); write_data3(d1, d2, d3); }
+
+// A very common thing to do.
+// An inline function has been used here incase the parameters have side effects with the internal calculations.
+static __inline void setviewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
+	write_cmd2(CASET, x, x+cx-1);			// Column address set
+	write_cmd2(PASET, y, y+cy-1);			// Page address set
 }
 
 /*===========================================================================*/
@@ -118,103 +126,95 @@ bool_t GDISP_LLD(init)(void) {
 	GDISP_LLD(setpin_reset)(FALSE);
 	chThdSleepMilliseconds(20);
 
+	// Get the bus for the following initialisation commands
+	GDISP_LLD(get_bus);
+	
 	#if defined(GDISP_USE_GE8)
-			GDISP_LLD(write_cmd)(DISCTL);		// Display control
-			GDISP_LLD(write_data)(0x00);					// P1: 0x00 = 2 divisions, switching period=8 (default)
-			GDISP_LLD(write_data)(0x20);					// P2: 0x20 = nlines/4 - 1 = 132/4 - 1 = 32)
-			GDISP_LLD(write_data)(0x00);					// P3: 0x00 = no inversely highlighted lines
-			GDISP_LLD(write_cmd)(COMSCN);		// COM scan
-			GDISP_LLD(write_data)(1);					// P1: 0x01 = Scan 1->80, 160<-81
-			GDISP_LLD(write_cmd)(OSCON);			// Internal oscilator ON
-			GDISP_LLD(write_cmd)(SLPOUT);		// Sleep out
-			GDISP_LLD(write_cmd)(PWRCTR);		// Power control
-			GDISP_LLD(write_data)(0x0f);					// reference voltage regulator on, circuit voltage follower on, BOOST ON
-			GDISP_LLD(write_cmd)(DATCTL);		// Data control
-			GDISP_LLD(write_data)(0x48);					// P1: 0x01 = page address inverted, column address normal, address scan in column direction
-			GDISP_LLD(write_data)(0x00);					// P2: 0x00 = RGB sequence (default value)
-			GDISP_LLD(write_data)(0x02);					// P3: 0x02 = Grayscale -> 16 (selects 12-bit color, type A)
-			GDISP_LLD(write_cmd)(VOLCTR);		// Voltage control (contrast setting)
-			GDISP_LLD(write_data)(GDISP_INITIAL_CONTRAST);	// P1 = Contrast
-			GDISP_LLD(write_data)(3);					// P2 = 3 resistance ratio (only value that works)
-			chThdSleepMilliseconds(100);			// allow power supply to stabilize
-			GDISP_LLD(write_cmd)(DISON);			// Turn on the display
+			write_cmd3(DISCTL, 0x00, 0x20, 0x00);				// Display control
+																	// P1: 0x00 = 2 divisions, switching period=8 (default)
+																	// P2: 0x20 = nlines/4 - 1 = 132/4 - 1 = 32)
+																	// P3: 0x00 = no inversely highlighted lines
+			write_cmd1(COMSCN, 0x01);							// COM scan		P1: 0x01 = Scan 1->80, 160<-81
+			write_cmd(OSCON);									// Internal oscilator ON
+			write_cmd(SLPOUT);									// Sleep out
+			write_cmd1(PWRCTR, 0x0F);							// Power control - reference voltage regulator on, circuit voltage follower on, BOOST ON
+			write_cmd3(DATCTL, 0x48, 0x00, 0x02);				// Data control
+																	// P1: 0x01 = page address inverted, column address normal, address scan in column direction
+																	// P2: 0x00 = RGB sequence (default value)
+																	// P3: 0x02 = Grayscale -> 16 (selects 12-bit color, type A)
+			write_cmd2(VOLCTR, GDISP_INITIAL_CONTRAST, 0x03);	// Voltage control (contrast setting)
+																	// P1 = Contrast
+																	// P2 = 3 resistance ratio (only value that works)
+			chThdSleepMilliseconds(100);						// allow power supply to stabilize
+			write_cmd(DISON);									// Turn on the display
 
 	#elif defined(GDISP_USE_GE12)
+		// UNTESTED
 		#if 1
-			GDISP_LLD(write_cmd)(SLEEPOUT);		// Sleep out
-			GDISP_LLD(write_cmd)(INVON);			// Inversion on: seems to be required for this controller
-			GDISP_LLD(write_cmd)(COLMOD);		// Color Interface Pixel Format
-			GDISP_LLD(write_data)(0x03);				// 0x03 = 12 bits-per-pixel
-			GDISP_LLD(write_cmd)(MADCTL);		// Memory access controler
-			GDISP_LLD(write_data)(0xC8);				// 0xC0 = mirror x and y, reverse rgb
-			GDISP_LLD(write_cmd)(SETCON);		// Write contrast
-			GDISP_LLD(write_data)(GDISP_INITIAL_CONTRAST);	// contrast - experiental value
+			write_cmd(SLEEPOUT);								// Sleep out
+			write_cmd(INVON);									// Inversion on: seems to be required for this controller
+			write_cmd1(COLMOD, 0x03);							// Color Interface Pixel Format - 0x03 = 12 bits-per-pixel
+			write_cmd1(MADCTL, 0xC8);							// Memory access controler - 0xC0 = mirror x and y, reverse rgb
+			write_cmd1(SETCON, GDISP_INITIAL_CONTRAST);			// Write contrast
 			chThdSleepMilliseconds(20);
-			GDISP_LLD(write_cmd)(DISPON);		// Display On
+			write_cmd(DISPON);									// Display On
 		#else
 			// Alternative
-			// Hardware reset commented out
-			GDISP_LLD(write_cmd)(SOFTRST);		// Software Reset
+			write_cmd(SOFTRST);								// Software Reset
 			chThdSleepMilliseconds(20);
-			GDISP_LLD(write_cmd)(INITESC);		// Initial escape
+			write_cmd(INITESC);								// Initial escape
 			chThdSleepMilliseconds(20);
-			GDISP_LLD(write_cmd)(REFSET);		// Refresh set
-			GDISP_LLD(write_data)(0);
-			GDISP_LLD(write_cmd)(DISPCTRL);		// Set Display control
-			GDISP_LLD(write_data)(128);					// Set the lenght of one selection term
-			GDISP_LLD(write_data)(128);					// Set N inversion -> no N inversion
-			GDISP_LLD(write_data)(134);					// Set frame frequence and bias rate -> 2 devision of frequency and 1/8 bias, 1/67 duty, 96x67 size
-			GDISP_LLD(write_data)(84);					// Set duty parameter
-			GDISP_LLD(write_data)(69);					// Set duty parameter
-			GDISP_LLD(write_data)(82);					// Set duty parameter
-			GDISP_LLD(write_data)(67);					// Set duty parameter
-			GDISP_LLD(write_cmd)(GRAYSCALE0);	// Grey scale 0 position set - 15 parameters
-			GDISP_LLD(write_data)(1);					// GCP1 - gray lavel to be output when the RAM data is "0001"
-			GDISP_LLD(write_data)(2);					// GCP2 - gray lavel to be output when the RAM data is "0010"
-			GDISP_LLD(write_data)(4);					// GCP3 - gray lavel to be output when the RAM data is "0011"
-			GDISP_LLD(write_data)(8);					// GCP4 - gray lavel to be output when the RAM data is "0100"
-			GDISP_LLD(write_data)(16);					// GCP5 - gray lavel to be output when the RAM data is "0101"
-			GDISP_LLD(write_data)(30);					// GCP6 - gray lavel to be output when the RAM data is "0110"
-			GDISP_LLD(write_data)(40);					// GCP7 - gray lavel to be output when the RAM data is "0111"
-			GDISP_LLD(write_data)(50);					// GCP8 - gray lavel to be output when the RAM data is "1000"
-			GDISP_LLD(write_data)(60);					// GCP9 - gray lavel to be output when the RAM data is "1001"
-			GDISP_LLD(write_data)(70);					// GCP10 - gray lavel to be output when the RAM data is "1010"
-			GDISP_LLD(write_data)(80);					// GCP11 - gray lavel to be output when the RAM data is "1011"
-			GDISP_LLD(write_data)(90);					// GCP12 - gray lavel to be output when the RAM data is "1100"
-			GDISP_LLD(write_data)(100);					// GCP13 - gray lavel to be output when the RAM data is "1101"
-			GDISP_LLD(write_data)(110);					// GCP14 - gray lavel to be output when the RAM data is "1110"
-			GDISP_LLD(write_data)(127);					// GCP15 - gray lavel to be output when the RAM data is "1111"
-			GDISP_LLD(write_cmd)(GAMMA);				// Gamma curve set - select gray scale - GRAYSCALE 0 or GREYSCALE 1
-			GDISP_LLD(write_data)(1);						// Select grey scale 0
-			GDISP_LLD(write_cmd)(COMMONDRV);			// Command driver output
-			GDISP_LLD(write_data)(0);						// Set COM1-COM41 side come first, normal mod
-			GDISP_LLD(write_cmd)(NORMALMODE);		// Set Normal mode (my)
-			// GDISP_LLD(write_cmd)(INVERSIONOFF);	// Inversion off
-			GDISP_LLD(write_cmd)(COLADDRSET);		// Column address set
-			GDISP_LLD(write_data)(0);
-			GDISP_LLD(write_data)(131);
-			GDISP_LLD(write_cmd)(PAGEADDRSET);		// Page address set
-			GDISP_LLD(write_data)(0);
-			GDISP_LLD(write_data)(131);
-			GDISP_LLD(write_cmd)(ACCESSCTRL);		// Memory access controler
-			GDISP_LLD(write_data)(0x40);						// horizontal
-			//GDISP_LLD(write_data)(0x20);					// vertical
-			GDISP_LLD(write_cmd)(PWRCTRL);			// Power control
-			GDISP_LLD(write_data)(4);						// Internal resistance, V1OUT -> high power mode, oscilator devision rate
-			GDISP_LLD(write_cmd)(SLEEPOUT);			// Sleep out
-			GDISP_LLD(write_cmd)(VOLTCTRL);			// Voltage control - voltage control and write contrast define LCD electronic volume
-			//GDISP_LLD(write_data)(0x7f);					//  full voltage control
-			//GDISP_LLD(write_data)(0x03);					//  must be "1"
-			GDISP_LLD(write_cmd)(CONTRAST);			// Write contrast
-			GDISP_LLD(write_data)(GDISP_INITIAL_CONTRAST);						// contrast
+			write_cmd1(REFSET, 0x00);						// Refresh set
+			write_cmd(DISPCTRL);							// Set Display control - really 7 bytes of data
+				write_data(128);								// Set the lenght of one selection term
+				write_data(128);								// Set N inversion -> no N inversion
+				write_data(134);								// Set frame frequence and bias rate -> 2 devision of frequency and 1/8 bias, 1/67 duty, 96x67 size
+				write_data(84);									// Set duty parameter
+				write_data(69);									// Set duty parameter
+				write_data(82);									// Set duty parameter
+				write_data(67);									// Set duty parameter
+			write_cmd(GRAYSCALE0);							// Grey scale 0 position set - really 15 bytes of data
+				write_data(1);									// GCP1 - gray lavel to be output when the RAM data is "0001"
+				write_data(2);									// GCP2 - gray lavel to be output when the RAM data is "0010"
+				write_data(4);									// GCP3 - gray lavel to be output when the RAM data is "0011"
+				write_data(8);									// GCP4 - gray lavel to be output when the RAM data is "0100"
+				write_data(16);									// GCP5 - gray lavel to be output when the RAM data is "0101"
+				write_data(30);									// GCP6 - gray lavel to be output when the RAM data is "0110"
+				write_data(40);									// GCP7 - gray lavel to be output when the RAM data is "0111"
+				write_data(50);									// GCP8 - gray lavel to be output when the RAM data is "1000"
+				write_data(60);									// GCP9 - gray lavel to be output when the RAM data is "1001"
+				write_data(70);									// GCP10 - gray lavel to be output when the RAM data is "1010"
+				write_data(80);									// GCP11 - gray lavel to be output when the RAM data is "1011"
+				write_data(90);									// GCP12 - gray lavel to be output when the RAM data is "1100"
+				write_data(100);								// GCP13 - gray lavel to be output when the RAM data is "1101"
+				write_data(110);								// GCP14 - gray lavel to be output when the RAM data is "1110"
+				write_data(127);								// GCP15 - gray lavel to be output when the RAM data is "1111"
+			write_cmd1(GAMMA, 0x01);						// Gamma curve set - select gray scale - GRAYSCALE 0 or GREYSCALE 1 - Select grey scale 0
+			write_cmd1(COMMONDRV, 0x00);					// Command driver output - Set COM1-COM41 side come first, normal mod
+			write_cmd(NORMALMODE);							// Set Normal mode (my)
+			// write_cmd(INVERSIONOFF);						// Inversion off
+			write_cmd2(COLADDRSET, 0, 131);					// Column address set
+			write_cmd2(PAGEADDRSET, 0, 131);				// Page address set
+			write_cmd1(ACCESSCTRL, 0x40);					// Memory access controler - 0x40 horizontal
+			// write_data(0x20);								// vertical
+			write_cmd1(PWRCTRL, 0x04);						// Power control - Internal resistance, V1OUT -> high power mode, oscilator devision rate
+			write_cmd(SLEEPOUT);							// Sleep out
+			write_cmd(VOLTCTRL);							// Voltage control - voltage control and write contrast define LCD electronic volume
+			// write_data(0x7f);								//  full voltage control
+			// write_data(0x03);								//  must be "1"
+			write_cmd1(CONTRAST, GDISP_INITIAL_CONTRAST);	// Write contrast
 			chThdSleepMilliseconds(20);
-			GDISP_LLD(write_cmd)(TEMPGRADIENT);		// Temperature gradient
-			for(i=0; i<14; i++) GDISP_LLD(write_data)(0);
-			GDISP_LLD(write_cmd)(BOOSTVON);			// Booster voltage ON
-			GDISP_LLD(write_cmd)(DISPLAYON);			// Finally - Display On
+			write_cmd(TEMPGRADIENT);						// Temperature gradient - really 14 bytes of data
+			for(i=0; i<14; i++)
+				write_data(0);
+			write_cmd(BOOSTVON);							// Booster voltage ON
+			write_cmd(DISPLAYON);							// Finally - Display On
 		#endif
 	#endif
 
+	// Release the bus
+	GDISP_LLD(release_bus);
+	
 	/* Turn on the back-light */
 	GDISP_LLD(set_backlight)(GDISP_INITIAL_BACKLIGHT);
 
@@ -247,11 +247,10 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 		if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
 	#endif
-	gdisp_lld_setviewport(x, y, 1, 1);
-	GDISP_LLD(write_cmd)(RAMWR);
-	GDISP_LLD(write_data)(0);
-	GDISP_LLD(write_data)((color>>8) & 0x0F);
-	GDISP_LLD(write_data)(color & 0xFF);
+	GDISP_LLD(get_bus);
+	setviewport(x, y, 1, 1);
+	write_cmd3(RAMWR, 0, (color>>8) & 0x0F, color & 0xFF);
+	GDISP_LLD(release_bus);
 }
 
 /* ---- Optional Routines ---- */
@@ -280,13 +279,12 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		tuples = (cx*cy+1)/2;				// With an odd sized area we over-print by one pixel.
 											// This extra pixel is ignored by the controller.
 
-		gdisp_lld_setviewport(x, y, cx, cy);
-		GDISP_LLD(write_cmd)(RAMWR);
-		for(i=0; i < tuples; i++) {
-			GDISP_LLD(write_data)((color >> 4) & 0xFF);
-			GDISP_LLD(write_data)(((color << 4) & 0xF0)|((color >> 8) & 0x0F));
-			GDISP_LLD(write_data)(color & 0xFF);
-		}
+		GDISP_LLD(get_bus);
+		setviewport(x, y, cx, cy);
+		write_cmd(RAMWR);
+		for(i=0; i < tuples; i++)
+			write_data3(((color >> 4) & 0xFF), (((color << 4) & 0xF0)|((color >> 8) & 0x0F)), (color & 0xFF));
+		GDISP_LLD(release_bus);
 	}
 #endif
 
@@ -323,8 +321,9 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		endx = srcx + cx;
 		endy = y + cy;
 
-		gdisp_lld_setviewport(x, y, cx, cy);
-		GDISP_LLD(write_cmd)(RAMWR);
+		GDISP_LLD(get_bus);
+		setviewport(x, y, cx, cy);
+		write_cmd(RAMWR);
 
 		#if !GDISP_PACKED_PIXELS
 			// Although this controller uses packed pixels we support unpacked pixel
@@ -338,9 +337,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				if (++x >= endx) {
 					if (++y >= endy) {
 						/* Odd pixel at end */
-						GDISP_LLD(write_data)(0);
-						GDISP_LLD(write_data)((c1 >> 8) & 0x0F);
-						GDISP_LLD(write_data)(c1 & 0xFF);
+						write_data3(0, ((c1 >> 8) & 0x0F), (c1 & 0xFF));
 						break;
 					}
 					x = srcx;
@@ -348,9 +345,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				}
 				/* Get the next pixel */
 				c2 = *buffer++;
-				GDISP_LLD(write_data)((c1 >> 4) & 0xFF);
-				GDISP_LLD(write_data)(((c1 << 4) & 0xF0)|((c2 >> 8) & 0x0F));
-				GDISP_LLD(write_data)(c2 & 0xFF);
+				write_data3(((c1 >> 4) & 0xFF), (((c1 << 4) & 0xF0)|((c2 >> 8) & 0x0F)), (c2 & 0xFF));
 				if (++x >= endx) {
 					if (++y >= endy)
 						break;
@@ -380,9 +375,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				if (++x >= endx) {
 					if (++y >= endy) {
 						/* Odd pixel at end */
-						GDISP_LLD(write_data)(0);
-						GDISP_LLD(write_data)((c1 >> 8) & 0x0F);
-						GDISP_LLD(write_data)(c1 & 0xFF);
+						write_data3(0, ((c1 >> 8) & 0x0F), (c1 & 0xFF));
 						break;
 					}
 					x = srcx;
@@ -394,9 +387,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				case 0:		c2 = (((color_t)p[0]) << 4)|(((color_t)p[1])>>4);	break;
 				case 1:		c2 = (((color_t)p[1]&0x0F) << 8)|((color_t)p[1]);	break;
 				}
-				GDISP_LLD(write_data)((c1 >> 4) & 0xFF);
-				GDISP_LLD(write_data)(((c1 << 4) & 0xF0)|((c2 >> 8) & 0x0F));
-				GDISP_LLD(write_data)(c2 & 0xFF);
+				write_data3(((c1 >> 4) & 0xFF), (((c1 << 4) & 0xF0)|((c2 >> 8) & 0x0F)), (c2 & 0xFF));
 				if (++x >= endx) {
 					if (++y >= endy)
 						break;
@@ -406,6 +397,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				}
 			}
 		#endif
+		GDISP_LLD(release_bus);
 	}
 #endif
 
@@ -547,14 +539,13 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			return;
 		case GDISP_CONTROL_CONTRAST:
 			if ((unsigned)value > 100) value = (void *)100;
+			GDISP_LLD(get_bus);
 #if defined(GDISP_USE_GE8)
-			GDISP_LLD(write_cmd)(VOLCTR);
-			GDISP_LLD(write_data)((unsigned)value);
-			GDISP_LLD(write_data)(3);
+			write_cmd2(VOLCTR, (unsigned)value, 0x03);
 #elif defined(GDISP_USE_GE12)
-			GDISP_LLD(write_cmd)(CONTRAST);
-			GDISP_LLD(write_data)((unsigned)value);
+			write_cmd1(CONTRAST,(unsigned)value);
 #endif
+			GDISP_LLD(release_bus);
 			GDISP.Contrast = (unsigned)value;
 			return;
 		}
