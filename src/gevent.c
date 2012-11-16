@@ -1,0 +1,216 @@
+/*
+    ChibiOS/GFX - Copyright (C) 2012
+                 Joel Bodenmann aka Tectu <joel@unormal.org>
+
+    This file is part of ChibiOS/GFX.
+
+    ChibiOS/GFX is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    ChibiOS/GFX is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/**
+ * @file    src/gevent.c
+ * @brief   GEVENT Driver code.
+ *
+ * @addtogroup GEVENT
+ * @{
+ */
+#include "ch.h"
+#include "hal.h"
+#include "gevent.h"
+
+#ifndef _GEVENT_C
+#define _GEVENT_C
+
+#if GFX_USE_GEVENT || defined(__DOXYGEN__)
+
+#if GEVENT_ASSERT_NO_RESOURCE
+	#define GEVENT_ASSERT(x)		assert(x)
+#else
+	#define GEVENT_ASSERT(x)
+#endif
+
+// This mutex protects access to our tables
+static MUTEX_DECL(geventMutex);
+
+// Our table of listener/source pairs
+static GSourceListener		Assignments[MAX_SOURCE_LISTENERS];
+
+// Loop through the assignment table deleting this listener/source pair.
+//	Null is treated as a wildcard.
+static void deleteAssignments(GListener *pl, GSourceHandle gsh) {
+	GSourceListener *psl;
+
+	for(psl = Assignments; psl < Assignments+MAX_SOURCE_LISTENERS; psl++) {
+		if ((!pl || psl->pListener == pl) && (!gsh || psl->pSource == gsh)) {
+			if (chSemGetCounterI(&psl->pListener->waitqueue) < 0) {
+				chBSemWait(&psl->pListener->eventlock);			// Obtain the buffer lock
+				psl->pListener->event.type = GEVENT_EXIT;		// Set up the EXIT event
+				chSemSignal(&psl->pListener->waitqueue);			// Wake up the listener
+				chBSemSignal(&psl->pListener->eventlock);		// Release the buffer lock
+			}
+			psl->pListener = 0;
+		}
+	}
+}
+
+/* Create a Listener.
+ *	If insufficient resources are available it will either assert or return NULL
+ *	depending on the value of GEVENT_ASSERT_NO_RESOURCE.
+ */
+void geventListenerInit(GListener *pl) {
+	chSemInit(&pl->waitqueue, 0);			// Next wait'er will block
+	chBSemInit(&pl->eventlock, FALSE);		// Only one thread at a time looking at the event buffer
+	pl->event.type = GEVENT_NULL;			// Always safety
+}
+
+/* Attach a source to a listener.
+ *	Flags are interpreted by the source when generating events for each listener.
+ *	If this source is already assigned to the listener it will update the flags.
+ *	If insufficient resources are available it will either assert or return FALSE
+ *	depending on the value of GEVENT_ASSERT_NO_RESOURCE.
+ */
+bool_t geventAttachSource(GListener *pl, GSourceHandle gsh, unsigned flags) {
+	GSourceListener *psl, *pslfree;
+
+	// Safety first
+	if (!pl || !gsh) {
+		GEVENT_ASSERT(FALSE);
+		return FALSE;
+	}
+
+	chMtxLock(&geventMutex);
+
+	// Check if this pair is already in the table (scan for a free slot at the same time)
+	pslfree = 0;
+	for(psl = Assignments; psl < Assignments+MAX_SOURCE_LISTENERS; psl++) {
+		
+		if (pl == psl->pListener && gsh == psl->pSource) {
+			// Just update the flags
+			chBSemWait(&pl->eventlock);				// Safety first - just in case a source is using it
+			psl->listenflags = flags;
+			chBSemSignal(&pl->eventlock);			// Release this lock
+			chMtxUnlock();
+			return TRUE;
+		}
+		if (!pslfree && !psl->pListener)
+			pslfree = psl;
+	}
+	
+	// A free slot was found - allocate it
+	if (pslfree) {
+		pslfree->pListener = pl;
+		pslfree->pSource = gsh;
+		pslfree->listenflags = flags;
+		pslfree->srcflags = 0;
+	}
+	chMtxUnlock();
+	GEVENT_ASSERT(pslfree != 0);
+	return pslfree != 0;
+}
+
+/* Detach a source from a listener
+ *	If gsh is NULL detach all sources from this listener and if there is still
+ *		a thread waiting for events on this listener, it is sent the exit event.
+ */
+void geventDetachSource(GListener *pl, GSourceHandle gsh) {
+	if (pl && gsh) {
+		chMtxLock(&geventMutex);
+		deleteAssignments(pl, gsh);
+		if (!gsh && chSemGetCounterI(&pl->waitqueue) < 0) {
+			chBSemWait(&pl->eventlock);				// Obtain the buffer lock
+			pl->event.type = GEVENT_EXIT;			// Set up the EXIT event
+			chSemSignal(&pl->waitqueue);			// Wake up the listener
+			chBSemSignal(&pl->eventlock);			// Release the buffer lock
+		}
+		chMtxUnlock();
+	}
+}
+
+/* Wait for an event on a listener from an assigned source.
+ *		The type of the event should be checked (pevent->type) and then pevent should be typecast to the
+ *		actual event type if it needs to be processed.
+ * timeout specifies the time to wait in system ticks.
+ *		TIME_INFINITE means no timeout - wait forever for an event.
+ *		TIME_IMMEDIATE means return immediately
+ * Returns NULL on timeout.
+ * Note: The GEvent buffer is staticly allocated within the GListener so the event does not
+ *			need to be dynamicly freed however it will get overwritten by the next call to
+ *			this routine.
+ */
+GEvent *geventEventWait(GListener *pl, systime_t timeout) {
+	return chSemWaitTimeout(&pl->waitqueue, timeout) == RDY_OK ? &pl->event : 0;
+}
+
+/* Called by a source with a possible event to get a listener record.
+ *	'lastlr' should be NULL on the first call and thereafter the result of the previous call.
+ *	It will return NULL when there are no more listeners for this source.
+ */
+GSourceListener *geventGetSourceListener(GSourceHandle gsh, GSourceListener *lastlr) {
+	GSourceListener *psl;
+
+	// Safety first
+	if (!gsh)
+		return 0;
+
+	chMtxLock(&geventMutex);
+
+	// Unlock the last listener event buffer
+	if (lastlr)
+		chBSemSignal(&lastlr->pListener->eventlock);
+		
+	// Loop through the table looking for attachments to this source
+	for(psl = lastlr ? (lastlr+1) : Assignments; psl < Assignments+MAX_SOURCE_LISTENERS; psl++) {
+		if (gsh == psl->pSource) {
+			chBSemWait(&psl->pListener->eventlock);		// Obtain a lock on the listener event buffer
+			chMtxUnlock();
+			return psl;
+		}
+	}
+	chMtxUnlock();
+	return 0;
+}
+
+/* Get the event buffer from the GSourceListener.
+ *	Returns NULL if the listener is not currently listening.
+ *	A NULL return allows the source to record (perhaps in glr->scrflags) that the listener has missed events.
+ *	This can then be notified as part of the next event for the listener.
+ *	The buffer can only be accessed untill the next call to geventGetSourceListener or geventSendEvent
+ */
+GEvent *geventGetEventBuffer(GSourceListener *psl) {
+	// We already know we have the event lock
+	return chSemGetCounterI(&psl->pListener->waitqueue) < 0 ? &psl->pListener->event : 0;
+}
+
+/* Called by a source to indicate the listener's event buffer has been filled.
+ *	After calling this function the source must not reference in fields in the GSourceListener or the event buffer.
+ */
+void geventSendEvent(GSourceListener *psl) {
+	chMtxLock(&geventMutex);
+	// Wake up the listener
+	if (chSemGetCounterI(&psl->pListener->waitqueue) < 0)
+		chSemSignal(&psl->pListener->waitqueue);
+	chMtxUnlock();
+}
+
+/* Detach any listener that has this source attached */
+void geventDetachSourceListeners(GSourceHandle gsh) {
+	chMtxLock(&geventMutex);
+	deleteAssignments(0, gsh);
+	chMtxUnlock();
+}
+
+#endif /* GFX_USE_GEVENT */
+
+#endif /* _GEVENT_C */
+/** @} */
