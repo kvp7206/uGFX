@@ -18,10 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if !defined(GDISP_USE_SPI)
-	#error "GDISP_USE_SPI must be defined for the board"
-#endif
-
 /**
  * @file    drivers/gdisp/Nokia6610/gdisp_lld_board_olimexsam7ex256.h
  * @brief   GDISP Graphic Driver subsystem board interface for the Olimex SAM7-EX256 board.
