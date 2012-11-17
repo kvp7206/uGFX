@@ -45,8 +45,7 @@
  * @notapi
  */
 static __inline void init_board(void) {
-	/* set pin modes in case of defaults by board files have been overwritten */
-	palSetBusMode(GDISP_DATA_PORT, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetGroupMode(GDISP_DATA_PORT, PAL_WHOLE_PORT, 0, PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GDISP_CMD_PORT, GDISP_CS, PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GDISP_CMD_PORT, GDISP_RS, PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GDISP_CMD_PORT, GDISP_WR, PAL_MODE_OUTPUT_PUSHPULL);
