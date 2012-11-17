@@ -58,7 +58,7 @@ static GHandle gwinInit(GWindowObject *gw, coord_t x, coord_t y, coord_t width, 
 	
 	// Allocate the structure if necessary
 	if (!gw) {
-		if (!(gw = (GWindowObject *)malloc(size)))
+		if (!(gw = (GWindowObject *)chHeapAlloc(NULL, size)))
 			return 0;
 		gw->flags = GWIN_FLG_DYNAMIC;
 	} else
@@ -113,7 +113,7 @@ void gwinDestroyWindow(GHandle gh) {
 	case GW_BUTTON:
 		if ((gh->flags & GBTN_FLG_ALLOCTXT)) {
 			gh->flags &= ~GBTN_FLG_ALLOCTXT;		// To be sure, to be sure
-			free((char *)((GButtonObject *)gh)->txt);
+			chHeapFree(((GButtonObject *)gh)->txt);
 		}
 		break;
 #endif
@@ -124,7 +124,7 @@ void gwinDestroyWindow(GHandle gh) {
 	// Clean up the structure
 	if (gh->flags & GWIN_FLG_DYNAMIC) {
 		gh->flags = 0;							// To be sure, to be sure
-		free(gh);
+		chHeapFree(gh);
 	}
 }
 
@@ -799,7 +799,7 @@ void gwinSetButtonText(GHandle gh, const char *txt, bool_t useAlloc) {
 	if ((gh->flags & GBTN_FLG_ALLOCTXT)) {
 		gh->flags &= ~GBTN_FLG_ALLOCTXT;
 		if (gbw->txt) {
-			free((char *)gbw->txt);
+			chHeapFree(gbw->txt);
 			gbw->txt = "";
 		}
 	}
@@ -807,7 +807,7 @@ void gwinSetButtonText(GHandle gh, const char *txt, bool_t useAlloc) {
 	if (txt && useAlloc) {
 		char *str;
 		
-		if ((str = (char *)malloc(strlen(txt)+1))) {
+		if ((str = (char *)chHeapAlloc(NULL, strlen(txt)+1))) {
 			gh->flags |= GBTN_FLG_ALLOCTXT;
 			strcpy(str, txt);
 		}
