@@ -48,7 +48,7 @@ static __inline void init_board(void) {
 	// This should set the GPIO port up for the correct hardware config here
 	
 	// Configure the pins to a well know state
-	SET_RS; SET_RD; SET_RW; CLR_CS;
+	SET_RS; SET_RD; SET_WR; CLR_CS;
 }
 
 

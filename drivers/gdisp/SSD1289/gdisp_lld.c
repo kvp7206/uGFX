@@ -62,7 +62,7 @@
 
 // Some common routines and macros
 #define write_reg(reg, data)		{ write_index(reg); write_data(data); }
-#define stream_start()				write_reg(0x0022);
+#define stream_start()				write_index(0x0022);
 #define stream_stop()
 #define delay(us)					chThdSleepMicroseconds(us)
 #define delayms(ms)					chThdSleepMilliseconds(ms)
