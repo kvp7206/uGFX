@@ -45,10 +45,18 @@
  * @notapi
  */
 static __inline void init_board(void) {
-	// This should set the GPIO port up for the correct hardware config here
+	/* set pin modes in case of defaults by board files have been overwritten */
+	palSetBusMode(GDISP_DATA_PORT, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GDISP_CMD_PORT, GDISP_CS, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GDISP_CMD_PORT, GDISP_RS, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GDISP_CMD_PORT, GDISP_WR, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GDISP_CMD_PORT, GDISP_RD, PAL_MODE_OUTPUT_PUSHPULL);
 	
 	// Configure the pins to a well know state
-	SET_RS; SET_RD; SET_WR; CLR_CS;
+	SET_RS;
+	SET_RD;
+	SET_WR;
+	CLR_CS;
 }
 
 
