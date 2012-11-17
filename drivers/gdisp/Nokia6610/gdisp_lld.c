@@ -81,11 +81,9 @@
 #endif
 
 // Some macros just to make reading the code easier
-#define write_data(d1)				GDISP_LLD(write_data)(d1)
+#define delayms(ms)					chThdSleepMilliseconds(ms)
 #define write_data2(d1, d2)			{ write_data(d1); write_data(d2); }
 #define write_data3(d1, d2, d3)		{ write_data(d1); write_data(d2); write_data(d3); }
-
-#define write_cmd(cmd)				GDISP_LLD(write_cmd)(cmd)
 #define write_cmd1(cmd, d1)			{ write_cmd(cmd); write_data(d1); }
 #define write_cmd2(cmd, d1, d2)		{ write_cmd(cmd); write_data2(d1, d2); }
 #define write_cmd3(cmd, d1, d2, d3)	{ write_cmd(cmd); write_data3(d1, d2, d3); }
@@ -118,16 +116,16 @@ static __inline void setviewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
  */
 bool_t GDISP_LLD(init)(void) {
 	/* Initialise your display */
-	GDISP_LLD(init_board)();
+	init_board();
 
 	// Hardware reset
-	GDISP_LLD(setpin_reset)(TRUE);
-	chThdSleepMilliseconds(20);
-	GDISP_LLD(setpin_reset)(FALSE);
-	chThdSleepMilliseconds(20);
+	setpin_reset(TRUE);
+	delayms(20);
+	setpin_reset(FALSE);
+	delayms(20);
 
 	// Get the bus for the following initialisation commands
-	GDISP_LLD(get_bus);
+	get_bus();
 	
 	#if defined(GDISP_USE_GE8)
 			write_cmd3(DISCTL, 0x00, 0x20, 0x00);				// Display control
@@ -145,7 +143,7 @@ bool_t GDISP_LLD(init)(void) {
 			write_cmd2(VOLCTR, GDISP_INITIAL_CONTRAST, 0x03);	// Voltage control (contrast setting)
 																	// P1 = Contrast
 																	// P2 = 3 resistance ratio (only value that works)
-			chThdSleepMilliseconds(100);						// allow power supply to stabilize
+			delayms(100);						// allow power supply to stabilize
 			write_cmd(DISON);									// Turn on the display
 
 	#elif defined(GDISP_USE_GE12)
@@ -156,14 +154,14 @@ bool_t GDISP_LLD(init)(void) {
 			write_cmd1(COLMOD, 0x03);							// Color Interface Pixel Format - 0x03 = 12 bits-per-pixel
 			write_cmd1(MADCTL, 0xC8);							// Memory access controler - 0xC0 = mirror x and y, reverse rgb
 			write_cmd1(SETCON, GDISP_INITIAL_CONTRAST);			// Write contrast
-			chThdSleepMilliseconds(20);
+			delayms(20);
 			write_cmd(DISPON);									// Display On
 		#else
 			// Alternative
 			write_cmd(SOFTRST);								// Software Reset
-			chThdSleepMilliseconds(20);
+			delayms(20);
 			write_cmd(INITESC);								// Initial escape
-			chThdSleepMilliseconds(20);
+			delayms(20);
 			write_cmd1(REFSET, 0x00);						// Refresh set
 			write_cmd(DISPCTRL);							// Set Display control - really 7 bytes of data
 				write_data(128);								// Set the lenght of one selection term
@@ -203,7 +201,7 @@ bool_t GDISP_LLD(init)(void) {
 			// write_data(0x7f);								//  full voltage control
 			// write_data(0x03);								//  must be "1"
 			write_cmd1(CONTRAST, GDISP_INITIAL_CONTRAST);	// Write contrast
-			chThdSleepMilliseconds(20);
+			delayms(20);
 			write_cmd(TEMPGRADIENT);						// Temperature gradient - really 14 bytes of data
 			for(i=0; i<14; i++)
 				write_data(0);
@@ -213,10 +211,10 @@ bool_t GDISP_LLD(init)(void) {
 	#endif
 
 	// Release the bus
-	GDISP_LLD(release_bus);
+	release_bus();
 	
 	/* Turn on the back-light */
-	GDISP_LLD(set_backlight)(GDISP_INITIAL_BACKLIGHT);
+	set_backlight(GDISP_INITIAL_BACKLIGHT);
 
 	/* Initialise the GDISP structure to match */
 	GDISP.Width = GDISP_SCREEN_WIDTH;
@@ -247,10 +245,10 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 		if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
 	#endif
-	GDISP_LLD(get_bus);
+	get_bus();
 	setviewport(x, y, 1, 1);
 	write_cmd3(RAMWR, 0, (color>>8) & 0x0F, color & 0xFF);
-	GDISP_LLD(release_bus);
+	release_bus();
 }
 
 /* ---- Optional Routines ---- */
@@ -279,12 +277,12 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		tuples = (cx*cy+1)/2;				// With an odd sized area we over-print by one pixel.
 											// This extra pixel is ignored by the controller.
 
-		GDISP_LLD(get_bus);
+		get_bus();
 		setviewport(x, y, cx, cy);
 		write_cmd(RAMWR);
 		for(i=0; i < tuples; i++)
 			write_data3(((color >> 4) & 0xFF), (((color << 4) & 0xF0)|((color >> 8) & 0x0F)), (color & 0xFF));
-		GDISP_LLD(release_bus);
+		release_bus();
 	}
 #endif
 
@@ -321,7 +319,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		endx = srcx + cx;
 		endy = y + cy;
 
-		GDISP_LLD(get_bus);
+		get_bus();
 		setviewport(x, y, cx, cy);
 		write_cmd(RAMWR);
 
@@ -397,7 +395,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				}
 			}
 		#endif
-		GDISP_LLD(release_bus);
+		release_bus();
 	}
 #endif
 
@@ -534,18 +532,18 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 #endif
 		case GDISP_CONTROL_BACKLIGHT:
 			if ((unsigned)value > 100) value = (void *)100;
-			GDISP_LLD(set_backlight)((uint8_t)(unsigned)value);
+			set_backlight((unsigned)value);
 			GDISP.Backlight = (unsigned)value;
 			return;
 		case GDISP_CONTROL_CONTRAST:
 			if ((unsigned)value > 100) value = (void *)100;
-			GDISP_LLD(get_bus);
+			get_bus();
 #if defined(GDISP_USE_GE8)
 			write_cmd2(VOLCTR, (unsigned)value, 0x03);
 #elif defined(GDISP_USE_GE12)
 			write_cmd1(CONTRAST,(unsigned)value);
 #endif
-			GDISP_LLD(release_bus);
+			release_bus();
 			GDISP.Contrast = (unsigned)value;
 			return;
 		}

@@ -19,8 +19,8 @@
 */
 
 /**
- * @file    drivers/gdisp/Nokia6610/gdisp_lld_board_example.h
- * @brief   GDISP Graphic Driver subsystem board interface for the Nokia6610 display.
+ * @file    drivers/gdisp/SSD1289/gdisp_lld_board_example.h
+ * @brief   GDISP Graphic Driver subsystem board interface for the SSD1289 display.
  *
  * @addtogroup GDISP
  * @{
@@ -31,17 +31,12 @@
 
 /**
  * @brief   Initialise the board for the display.
- * @notes	Performs the following functions:
- *			1. initialise the spi port used by your display
- *			2. initialise the reset pin (initial state not-in-reset)
- *			3. initialise the chip select pin (initial state not-active)
- *			4. initialise the backlight pin (initial state back-light off)
  *
  * @notapi
  */
 static __inline void init_board(void) {
 	/* Code here */
-#error "gdispNokia6610: You must supply a definition for init_board for your board"
+#error "SSD1289: You must supply a definition for init_board for your board"
 }
 
 /**
@@ -53,14 +48,11 @@ static __inline void init_board(void) {
  */
 static __inline void setpin_reset(bool_t state) {
 	/* Code here */
-#error "gdispNokia6610: You must supply a definition for setpin_reset for your board"
+#error "SSD1289: You must supply a definition for setpin_reset for your board"
 }
 
 /**
  * @brief   Set the lcd back-light level.
- * @note	For now 0% turns the backlight off, anything else the backlight is on.
- *			While the hardware supports PWM backlight control, we are not using it
- *			yet.
  *
  * @param[in] percent		0 to 100%
  * 
@@ -68,7 +60,7 @@ static __inline void setpin_reset(bool_t state) {
  */
 static __inline void set_backlight(uint8_t percent) {
 	/* Code here */
-#error "gdispNokia6610: You must supply a definition for set_backlight for your board"
+#error "SSD1289: You must supply a definition for set_backlight for your board"
 }
 
 /**
@@ -77,7 +69,7 @@ static __inline void set_backlight(uint8_t percent) {
  * @notapi
  */
 static __inline void get_bus(void) {
-#error "gdispNokia6610: You must supply a definition for get_bus for your board"
+#error "SSD1289: You must supply a definition for get_bus for your board"
 }
 
 /**
@@ -86,23 +78,23 @@ static __inline void get_bus(void) {
  * @notapi
  */
 static __inline void release_bus(void) {
-#error "gdispNokia6610: You must supply a definition for release_bus for your board"
+#error "SSD1289: You must supply a definition for release_bus for your board"
 }
 
 /**
- * @brief   Send an 8 bit command to the lcd.
+ * @brief   Send data to the index register.
  *
- * @param[in] cmd		The command to send
+ * @param[in] index		The index register to set
  *
  * @notapi
  */
-static __inline void write_cmd(uint16_t cmd) {
+static __inline void write_index(uint16_t index) {
 	/* Code here */
-#error "gdispNokia6610: You must supply a definition for write_cmd for your board"
+#error "SSD1289: You must supply a definition for write_index for your board"
 }
 
 /**
- * @brief   Send an 8 bit data to the lcd.
+ * @brief   Send data to the lcd.
  *
  * @param[in] data		The data to send
  * 
@@ -110,7 +102,7 @@ static __inline void write_cmd(uint16_t cmd) {
  */
 static __inline void write_data(uint16_t data) {
 	/* Code here */
-#error "gdispNokia6610: You must supply a definition for write_data for your board"
+#error "SSD1289: You must supply a definition for write_data for your board"
 }
 
 #if GDISP_HARDWARE_READPIXEL || GDISP_HARDWARE_SCROLL || defined(__DOXYGEN__)
@@ -125,7 +117,7 @@ static __inline void write_data(uint16_t data) {
  */
 static __inline uint16_t read_data(void) {
 	/* Code here */
-#error "gdispNokia6610: You must supply a definition for read_data for your board"
+#error "SSD1289: You must supply a definition for read_data for your board"
 }
 #endif
 
