@@ -113,7 +113,7 @@ void gwinDestroyWindow(GHandle gh) {
 	case GW_BUTTON:
 		if ((gh->flags & GBTN_FLG_ALLOCTXT)) {
 			gh->flags &= ~GBTN_FLG_ALLOCTXT;		// To be sure, to be sure
-			chHeapFree(((GButtonObject *)gh)->txt);
+			chHeapFree((void *)((GButtonObject *)gh)->txt);
 		}
 		break;
 #endif
@@ -124,7 +124,7 @@ void gwinDestroyWindow(GHandle gh) {
 	// Clean up the structure
 	if (gh->flags & GWIN_FLG_DYNAMIC) {
 		gh->flags = 0;							// To be sure, to be sure
-		chHeapFree(gh);
+		chHeapFree((void *)gh);
 	}
 }
 
@@ -799,7 +799,7 @@ void gwinSetButtonText(GHandle gh, const char *txt, bool_t useAlloc) {
 	if ((gh->flags & GBTN_FLG_ALLOCTXT)) {
 		gh->flags &= ~GBTN_FLG_ALLOCTXT;
 		if (gbw->txt) {
-			chHeapFree(gbw->txt);
+			chHeapFree((void *)gbw->txt);
 			gbw->txt = "";
 		}
 	}
