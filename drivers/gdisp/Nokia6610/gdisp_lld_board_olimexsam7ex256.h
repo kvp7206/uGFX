@@ -29,40 +29,6 @@
 #ifndef _GDISP_LLD_BOARD_H
 #define _GDISP_LLD_BOARD_H
 
-// mask definitions
-#define BIT0 0x00000001
-#define BIT1 0x00000002
-#define BIT2 0x00000004
-#define BIT3 0x00000008
-#define BIT4 0x00000010
-#define BIT5 0x00000020
-#define BIT6 0x00000040
-#define BIT7 0x00000080
-#define BIT8 0x00000100
-#define BIT9 0x00000200
-#define BIT10 0x00000400
-#define BIT11 0x00000800
-#define BIT12 0x00001000
-#define BIT13 0x00002000
-#define BIT14 0x00004000
-#define BIT15 0x00008000
-#define BIT16 0x00010000
-#define BIT17 0x00020000
-#define BIT18 0x00040000
-#define BIT19 0x00080000
-#define BIT20 0x00100000
-#define BIT21 0x00200000
-#define BIT22 0x00400000
-#define BIT23 0x00800000
-#define BIT24 0x01000000
-#define BIT25 0x02000000
-#define BIT26 0x04000000
-#define BIT27 0x08000000
-#define BIT28 0x10000000
-#define BIT29 0x20000000
-#define BIT30 0x40000000
-#define BIT31 0x80000000
-
 // ******************************************************
 // Pointers to AT91SAM7X256 peripheral data structures
 // ******************************************************
@@ -82,7 +48,7 @@ volatile AT91PS_PDC pPDC = AT91C_BASE_PDC_SPI0;
  *
  * @notapi
  */
-static __inline void GDISP_LLD(init_board)(void) {
+static __inline void init_board(void) {
 	// *********************************************************************************************
 	// InitSpi( )
 	//
@@ -108,8 +74,8 @@ static __inline void GDISP_LLD(init_board)(void) {
 	pPIOA->PIO_OER    = PIOA_LCD_RESET_MASK;     // Configure PA2 as output
 
 	// CS pin - this seems to be ignored
-	// pPIOA->PIO_SODR   = BIT12;     // Set PA2 to HIGH
-	// pPIOA->PIO_OER    = BIT12;     // Configure PA2 as output
+	// pPIOA->PIO_SODR   = 1<<12;     // Set PA2 to HIGH
+	// pPIOA->PIO_OER    = 1<<12;     // Configure PA2 as output
 
 	// Init SPI0
 	// Disable the following pins from PIO control (will be used instead by the SPI0 peripheral)
@@ -117,8 +83,8 @@ static __inline void GDISP_LLD(init_board)(void) {
 	// BIT16 = PA16 -> SPI0_MISO Master In - Slave Out (not used in LCD interface)
 	// BIT17 = PA17 -> SPI0_MOSI Master Out - Slave In pin (Serial Data to LCD slave)
 	// BIT18 = PA18 -> SPI0_SPCK Serial Clock (to LCD slave)
-	pPIOA->PIO_PDR = BIT12 | BIT16 | BIT17 | BIT18;
-	pPIOA->PIO_ASR = BIT12 | BIT16 | BIT17 | BIT18;
+	pPIOA->PIO_PDR = (1<<12) | (1<<16) | (1<<17) | (1<<18);
+	pPIOA->PIO_ASR = (1<<12) | (1<<16) | (1<<17) | (1<<18);
 	pPIOA->PIO_BSR = 0;
 
 	//enable the clock of SPI
@@ -142,13 +108,11 @@ static __inline void GDISP_LLD(init_board)(void) {
  * 
  * @notapi
  */
-static __inline void GDISP_LLD(setpin_reset)(bool_t state) {
+static __inline void setpin_reset(bool_t state) {
 	if (state)
 		palClearPad(IOPORT1, PIOA_LCD_RESET);
-//		pPIOA->PIO_CODR = PIOA_LCD_RESET_MASK;
 	else
 		palSetPad(IOPORT1, PIOA_LCD_RESET);
-//		pPIOA->PIO_SODR = PIOA_LCD_RESET_MASK;
 }
 
 /**
@@ -161,13 +125,11 @@ static __inline void GDISP_LLD(setpin_reset)(bool_t state) {
  * 
  * @notapi
  */
-static __inline void GDISP_LLD(set_backlight)(uint8_t percent) {
+static __inline void set_backlight(uint8_t percent) {
 	if (percent)
 		palSetPad(IOPORT2, PIOB_LCD_BL);
-//		pPIOB->PIO_SODR = PIOB_LCD_BL_MASK;
 	else
 		palClearPad(IOPORT2, PIOB_LCD_BL);
-//		pPIOB->PIO_CODR = PIOB_LCD_BL_MASK;
 }
 
 /**
@@ -175,7 +137,7 @@ static __inline void GDISP_LLD(set_backlight)(uint8_t percent) {
  *
  * @notapi
  */
-static __inline void GDISP_LLD(get_bus)(void) {
+static __inline void get_bus(void) {
 	// Nothing to do for this board as the LCD is the only device on the SPI port
 }
 
@@ -184,7 +146,7 @@ static __inline void GDISP_LLD(get_bus)(void) {
  *
  * @notapi
  */
-static __inline void GDISP_LLD(release_bus)(void) {
+static __inline void release_bus(void) {
 	// Nothing to do for this board as the LCD is the only device on the SPI port
 }
 
@@ -195,11 +157,11 @@ static __inline void GDISP_LLD(release_bus)(void) {
  *
  * @notapi
  */
-static __inline void GDISP_LLD(write_cmd)(uint16_t cmd) {
+static __inline void write_cmd(uint16_t cmd) {
 	// wait for the previous transfer to complete
 	while((pSPI->SPI_SR & AT91C_SPI_TXEMPTY) == 0);
 	// send the command
-	pSPI->SPI_TDR = data & 0xFF;
+	pSPI->SPI_TDR = cmd & 0xFF;
 }
 
 /**
@@ -209,7 +171,7 @@ static __inline void GDISP_LLD(write_cmd)(uint16_t cmd) {
  * 
  * @notapi
  */
-static __inline void GDISP_LLD(write_data)(uint16_t data) {
+static __inline void write_data(uint16_t data) {
 	// wait for the previous transfer to complete
 	while((pSPI->SPI_SR & AT91C_SPI_TXEMPTY) == 0);
 	// send the data
@@ -224,7 +186,7 @@ static __inline void GDISP_LLD(write_data)(uint16_t data) {
  * 
  * @notapi
  */
-static __inline uint16_t GDISP_LLD(read_data)(void) {
+static __inline uint16_t read_data(void) {
 	#error "gdispNokia6610: GDISP_HARDWARE_READPIXEL and GDISP_HARDWARE_SCROLL are not supported on this board"
 	return 0;
 }

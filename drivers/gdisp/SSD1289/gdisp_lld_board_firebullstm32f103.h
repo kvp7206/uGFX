@@ -19,8 +19,8 @@
 */
 
 /**
- * @file    drivers/gdisp/Nokia6610/gdisp_lld_board_example.h
- * @brief   GDISP Graphic Driver subsystem board interface for the Nokia6610 display.
+ * @file    drivers/gdisp/SSD1289/gdisp_lld_board_firebullstm32f103.h
+ * @brief   GDISP Graphic Driver subsystem board interface for the SSD1289 display.
  *
  * @addtogroup GDISP
  * @{
@@ -29,20 +29,28 @@
 #ifndef _GDISP_LLD_BOARD_H
 #define _GDISP_LLD_BOARD_H
 
+#define SET_CS		palSetPad(GDISP_CMD_PORT, GDISP_CS);
+#define CLR_CS		palClearPad(GDISP_CMD_PORT, GDISP_CS);
+#define SET_RS		palSetPad(GDISP_CMD_PORT, GDISP_RS);
+#define CLR_RS		palClearPad(GDISP_CMD_PORT, GDISP_RS);
+#define SET_WR		palSetPad(GDISP_CMD_PORT, GDISP_WR);
+#define CLR_WR		palClearPad(GDISP_CMD_PORT, GDISP_WR);
+#define SET_RD		palSetPad(GDISP_CMD_PORT, GDISP_RD);
+#define CLR_RD		palClearPad(GDISP_CMD_PORT, GDISP_RD);
+
 /**
  * @brief   Initialise the board for the display.
- * @notes	Performs the following functions:
- *			1. initialise the spi port used by your display
- *			2. initialise the reset pin (initial state not-in-reset)
- *			3. initialise the chip select pin (initial state not-active)
- *			4. initialise the backlight pin (initial state back-light off)
+ * @notes	This board definition uses GPIO and assumes exclusive access to these GPIO pins
  *
  * @notapi
  */
 static __inline void init_board(void) {
-	/* Code here */
-#error "gdispNokia6610: You must supply a definition for init_board for your board"
+	// This should set the GPIO port up for the correct hardware config here
+	
+	// Configure the pins to a well know state
+	SET_RS; SET_RD; SET_RW; CLR_CS;
 }
+
 
 /**
  * @brief   Set or clear the lcd reset pin.
@@ -52,23 +60,20 @@ static __inline void init_board(void) {
  * @notapi
  */
 static __inline void setpin_reset(bool_t state) {
-	/* Code here */
-#error "gdispNokia6610: You must supply a definition for setpin_reset for your board"
+	(void) state;
+	/* Nothing to do here */
 }
 
 /**
  * @brief   Set the lcd back-light level.
- * @note	For now 0% turns the backlight off, anything else the backlight is on.
- *			While the hardware supports PWM backlight control, we are not using it
- *			yet.
  *
  * @param[in] percent		0 to 100%
  * 
  * @notapi
  */
 static __inline void set_backlight(uint8_t percent) {
-	/* Code here */
-#error "gdispNokia6610: You must supply a definition for set_backlight for your board"
+	(void) percent;
+	/* Nothing to do here */
 }
 
 /**
@@ -77,7 +82,7 @@ static __inline void set_backlight(uint8_t percent) {
  * @notapi
  */
 static __inline void get_bus(void) {
-#error "gdispNokia6610: You must supply a definition for get_bus for your board"
+	/* Nothing to do here */
 }
 
 /**
@@ -86,31 +91,31 @@ static __inline void get_bus(void) {
  * @notapi
  */
 static __inline void release_bus(void) {
-#error "gdispNokia6610: You must supply a definition for release_bus for your board"
+	/* Nothing to do here */
 }
 
 /**
- * @brief   Send an 8 bit command to the lcd.
+ * @brief   Send data to the index register.
  *
- * @param[in] cmd		The command to send
+ * @param[in] index		The index register to set
  *
  * @notapi
  */
-static __inline void write_cmd(uint16_t cmd) {
-	/* Code here */
-#error "gdispNokia6610: You must supply a definition for write_cmd for your board"
+static __inline void write_index(uint16_t index) {
+	palWritePort(GDISP_DATA_PORT, index);
+	CLR_RS; CLR_WR; SET_WR; SET_RS;
 }
 
 /**
- * @brief   Send an 8 bit data to the lcd.
+ * @brief   Send data to the lcd.
  *
  * @param[in] data		The data to send
  * 
  * @notapi
  */
 static __inline void write_data(uint16_t data) {
-	/* Code here */
-#error "gdispNokia6610: You must supply a definition for write_data for your board"
+	palWritePort(GDISP_DATA_PORT, data);
+	CLR_WR; SET_WR;
 }
 
 #if GDISP_HARDWARE_READPIXEL || GDISP_HARDWARE_SCROLL || defined(__DOXYGEN__)
@@ -124,8 +129,20 @@ static __inline void write_data(uint16_t data) {
  * @notapi
  */
 static __inline uint16_t read_data(void) {
-	/* Code here */
-#error "gdispNokia6610: You must supply a definition for read_data for your board"
+	uint16_t	value;
+	
+	// change pin mode to digital input
+	GDISP_DATA_PORT->CRH = 0x44444444;
+	GDISP_DATA_PORT->CRL = 0x44444444;
+
+	CLR_RD;
+	value = palReadPort(GDISP_DATA_PORT);
+	SET_RD;
+
+	// change pin mode back to digital output
+	GDISP_DATA_PORT->CRH = 0x33333333;
+	GDISP_DATA_PORT->CRL = 0x33333333;
+	return value;
 }
 #endif
 
