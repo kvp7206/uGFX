@@ -161,7 +161,7 @@ bool_t GDISP_LLD(init)(void) {
 	delayms(20);
 
 	// Get the bus for the following initialisation commands
-	get_bus();
+	aquire_bus();
 	
 	write_reg(0x0000,0x0001);		delay(5);
     write_reg(0x0003,0xA8A4);    	delay(5);
@@ -241,7 +241,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
 	#endif
 	
-	get_bus();
+	aquire_bus();
 	set_cursor(x, y);
 	write_reg(0x0022, color);
 	release_bus();
@@ -276,7 +276,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	void GDISP_LLD(clear)(color_t color) {
 	    unsigned i;
 
-		get_bus();
+		aquire_bus();
 	    set_cursor(0, 0);
 	    stream_start();
 	    for(i = 0; i < GDISP_SCREEN_WIDTH * GDISP_SCREEN_HEIGHT; i++)
@@ -310,7 +310,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 
 		area = cx*cy;
 
-		get_bus();
+		aquire_bus();
 		set_viewport(x, y, cx, cy);
 		stream_start();
 		for(i = 0; i < area; i++)
@@ -346,7 +346,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
 
-		get_bus();
+		aquire_bus();
 		set_viewport(x, y, cx, cy);
 		stream_start();
 
@@ -379,7 +379,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			if (x < 0 || x >= GDISP.Width || y < 0 || y >= GDISP.Height) return 0;
 		#endif
 
-		get_bus();
+		aquire_bus();
 		set_cursor(x, y);
 		stream_start();
 		color = read_data();			// dummy read
@@ -419,7 +419,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 
 		abslines = lines < 0 ? -lines : lines;
 
-		get_bus();
+		aquire_bus();
 		if (abslines >= cy) {
 			abslines = cy;
 			gap = 0;
