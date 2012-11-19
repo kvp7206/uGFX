@@ -21,7 +21,7 @@
  * @file    gtimer.h
  * @brief   GTIMER GFX User Timer subsystem header file.
  *
- * @addtogroup GEVENT
+ * @addtogroup GTIMER
  * @{
  */
 #ifndef _GTIMER_H

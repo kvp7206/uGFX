@@ -286,6 +286,7 @@ void gtimerJab(GTimer *pt) {
  * @note				If the timer is not active this does nothing.
  * @note				Repeated Jabs before the callback function actually happens are ignored.
  *
+ * @iclass
  * @api
  */
 void gtimerJabI(GTimer *pt) {
