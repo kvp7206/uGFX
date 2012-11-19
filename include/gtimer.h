@@ -69,7 +69,9 @@
 // A callback function (executed in a thread context)
 typedef void (*GTimerFunction)(void *param);
 
-// A GTimer structure.
+/**
+ * @brief	 A GTimer structure
+ */
 typedef struct GTimer_t {
 	GTimerFunction		fn;
 	void				*param;
@@ -78,7 +80,7 @@ typedef struct GTimer_t {
 	uint16_t			flags;
 	struct GTimer_t		*next;
 	struct GTimer_t		*prev;
-	} GTimer;
+} GTimer;
 
 /*===========================================================================*/
 /* External declarations.                                                    */
