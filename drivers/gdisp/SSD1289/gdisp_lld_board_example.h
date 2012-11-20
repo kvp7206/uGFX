@@ -68,8 +68,8 @@ static __inline void set_backlight(uint8_t percent) {
  *
  * @notapi
  */
-static __inline void aquire_bus(void) {
-#error "SSD1289: You must supply a definition for aquire_bus for your board"
+static __inline void acquire_bus(void) {
+#error "SSD1289: You must supply a definition for acquire_bus for your board"
 }
 
 /**
