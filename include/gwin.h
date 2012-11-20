@@ -171,14 +171,55 @@ extern "C" {
 GHandle gwinCreateWindow(GWindowObject *gw, coord_t x, coord_t y, coord_t width, coord_t height);
 void gwinDestroyWindow(GHandle gh);
 
-/* Status Functions */
+/**
+ * @brief	Get the X coordinate of the window
+ * @details	Returns the X coordinate of the origin of the window.
+ *			The coordinate is relative to the physical screen zero point.
+ *
+ * @param[in] gh	The window
+ */
 #define gwinGetScreenX(gh)			((gh)->x)
+
+/**
+ * @brief	Get the Y coordinate of the window
+ * @details	Returns the Y coordinate of the origin of the window.
+ *			The coordinate is relative to the physical screen zero point.
+ *
+ * @param[in] gh	The window
+ */
 #define gwinGetScreenY(gh)			((gh)->y)
+
+/**
+ * @brief	Get the width of the window
+ *
+ * @param[in] gh	The window
+ */
 #define gwinGetWidth(gh)			((gh)->width)
+
+/**
+ * @brief	Get the height of the window
+ *
+ * @param[in] gh	The window
+ */
 #define gwinGetHeight(gh)			((gh)->height)
 
-/* Set up for drawing */
+/**
+ * @brief	Set foreground color
+ * @details Set the color which will be used to draw
+ *
+ * @param[in] gh	The window
+ * @param[in] clr	The color to be set
+ */
 #define gwinSetColor(gh, clr)		(gh)->color = (clr)
+
+/**
+ * @brief	Set background color
+ * @details	Set the color which will be used as background
+ * @note	gwinClear() must be called to set the background color
+ *
+ * @param[in] gh	The window
+ * @param[in] bgclr	The background color
+ */
 #define gwinSetBgColor(gh, bgclr)	(gh)->bgcolor = (bgclr)
 
 /* Set up for text */
