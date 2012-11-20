@@ -368,7 +368,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @note    Optional.
 	 * @note    If x,y is off the screen, the result is undefined.
 	 *
-	 * @param[in] x, y     The start of the text
+	 * @param[in] x, y     The pixel to be read
 	 *
 	 * @notapi
 	 */
@@ -386,6 +386,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		color = read_data();
 		stream_stop();
 		release_bus();
+
 		return color;
 	}
 #endif

@@ -139,16 +139,16 @@ static __inline uint16_t read_data(void) {
 	uint16_t	value;
 	
 	// change pin mode to digital input
-	GDISP_DATA_PORT->CRH = 0x44444444;
-	GDISP_DATA_PORT->CRL = 0x44444444;
+	palSetGroupMode(GDISP_DATA_PORT, PAL_WHOLE_PORT, 0, PAL_MODE_INPUT);
 
 	CLR_RD;
+	value = palReadPort(GDISP_DATA_PORT);
 	value = palReadPort(GDISP_DATA_PORT);
 	SET_RD;
 
 	// change pin mode back to digital output
-	GDISP_DATA_PORT->CRH = 0x33333333;
-	GDISP_DATA_PORT->CRL = 0x33333333;
+	palSetGroupMode(GDISP_DATA_PORT, PAL_WHOLE_PORT, 0, PAL_MODE_OUTPUT_PUSHPULL);
+	
 	return value;
 }
 #endif
