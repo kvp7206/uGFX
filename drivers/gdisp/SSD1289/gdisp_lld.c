@@ -40,10 +40,10 @@
 /*===========================================================================*/
 
 #ifndef GDISP_SCREEN_HEIGHT
-	#define GDISP_SCREEN_HEIGHT		240
+	#define GDISP_SCREEN_HEIGHT		320
 #endif
 #ifndef GDISP_SCREEN_WIDTH
-	#define GDISP_SCREEN_WIDTH		320
+	#define GDISP_SCREEN_WIDTH		240
 #endif
 
 #define GDISP_INITIAL_CONTRAST	50
