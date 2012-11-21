@@ -157,7 +157,7 @@ void gwinSetFont(GHandle gh, font_t font) {
  * @api
  */
 void gwinClear(GHandle gh) {
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispFillArea(gh->x, gh->y, gh->width, gh->height, gh->bgcolor);
@@ -174,7 +174,7 @@ void gwinClear(GHandle gh) {
  * @api
  */
 void gwinDrawPixel(GHandle gh, coord_t x, coord_t y) {
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispDrawPixel(gh->x+x, gh->y+y, gh->color);
@@ -192,7 +192,7 @@ void gwinDrawPixel(GHandle gh, coord_t x, coord_t y) {
  * @api
  */
 void gwinDrawLine(GHandle gh, coord_t x0, coord_t y0, coord_t x1, coord_t y1) {
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispDrawLine(gh->x+x0, gh->y+y0, gh->x+x1, gh->y+y1, gh->color);
@@ -210,7 +210,7 @@ void gwinDrawLine(GHandle gh, coord_t x0, coord_t y0, coord_t x1, coord_t y1) {
  * @api
  */
 void gwinDrawBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy) {
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispDrawBox(gh->x+x, gh->y+y, cx, cy, gh->color);
@@ -228,7 +228,7 @@ void gwinDrawBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy) {
  * @api
  */
 void gwinFillArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy) {
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispFillArea(gh->x+x, gh->y+y, cx, cy, gh->color);
@@ -252,7 +252,7 @@ void gwinFillArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy) {
  * @api
  */
 void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispBlitAreaEx(gh->x+x, gh->y+y, cx, cy, srcx, srcy, srccx, buffer);
@@ -271,7 +271,7 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
  * @api
  */
 void gwinDrawCircle(GHandle gh, coord_t x, coord_t y, coord_t radius) {
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispDrawCircle(gh->x+x, gh->y+y, radius, gh->color);
@@ -291,7 +291,7 @@ void gwinDrawCircle(GHandle gh, coord_t x, coord_t y, coord_t radius) {
  * @api
  */
 void gwinFillCircle(GHandle gh, coord_t x, coord_t y, coord_t radius) {
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispFillCircle(gh->x+x, gh->y+y, radius, gh->color);
@@ -311,7 +311,7 @@ void gwinFillCircle(GHandle gh, coord_t x, coord_t y, coord_t radius) {
  * @api
  */
 void gwinDrawEllipse(GHandle gh, coord_t x, coord_t y, coord_t a, coord_t b) {
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispDrawEllipse(gh->x+x, gh->y+y, a, b, gh->color);
@@ -331,7 +331,7 @@ void gwinDrawEllipse(GHandle gh, coord_t x, coord_t y, coord_t a, coord_t b) {
  * @api
  */
 void gwinFillEllipse(GHandle gh, coord_t x, coord_t y, coord_t a, coord_t b) {
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispFillEllipse(gh->x+x, gh->y+y, a, b, gh->color);
@@ -353,7 +353,7 @@ void gwinFillEllipse(GHandle gh, coord_t x, coord_t y, coord_t a, coord_t b) {
  * @api
  */
 void gwinDrawArc(GHandle gh, coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle) {
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispDrawArc(gh->x+x, gh->y+y, radius, startangle, endangle, gh->color);
@@ -375,7 +375,7 @@ void gwinDrawArc(GHandle gh, coord_t x, coord_t y, coord_t radius, coord_t start
  * @api
  */
 void gwinFillArc(GHandle gh, coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle) {
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispFillArc(gh->x+x, gh->y+y, radius, startangle, endangle, gh->color);
@@ -394,7 +394,7 @@ void gwinFillArc(GHandle gh, coord_t x, coord_t y, coord_t radius, coord_t start
  * @api
  */
 color_t gwinGetPixelColor(GHandle gh, coord_t x, coord_t y) {
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	return gdispGetPixelColor(gh->x+x, gh->y+y);
@@ -416,7 +416,7 @@ color_t gwinGetPixelColor(GHandle gh, coord_t x, coord_t y) {
  */
 void gwinDrawChar(GHandle gh, coord_t x, coord_t y, char c) {
 	if (!gh->font) return;
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispDrawChar(gh->x+x, gh->y+y, c, gh->font, gh->color);
@@ -438,7 +438,7 @@ void gwinDrawChar(GHandle gh, coord_t x, coord_t y, char c) {
  */
 void gwinFillChar(GHandle gh, coord_t x, coord_t y, char c) {
 	if (!gh->font) return;
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispFillChar(gh->x+x, gh->y+y, c, gh->font, gh->color, gh->bgcolor);
@@ -460,7 +460,7 @@ void gwinFillChar(GHandle gh, coord_t x, coord_t y, char c) {
  */
 void gwinDrawString(GHandle gh, coord_t x, coord_t y, const char *str) {
 	if (!gh->font) return;
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispDrawString(gh->x+x, gh->y+y, str, gh->font, gh->color);
@@ -482,7 +482,7 @@ void gwinDrawString(GHandle gh, coord_t x, coord_t y, const char *str) {
  */
 void gwinFillString(GHandle gh, coord_t x, coord_t y, const char *str) {
 	if (!gh->font) return;
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispFillString(gh->x+x, gh->y+y, str, gh->font, gh->color, gh->bgcolor);
@@ -507,7 +507,7 @@ void gwinFillString(GHandle gh, coord_t x, coord_t y, const char *str) {
  */
 void gwinDrawStringBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, justify_t justify) {
 	if (!gh->font) return;
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispDrawStringBox(gh->x+x, gh->y+y, cx, cy, str, gh->font, gh->color, justify);
@@ -532,7 +532,7 @@ void gwinDrawStringBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy,
  */
 void gwinFillStringBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, justify_t justify) {
 	if (!gh->font) return;
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispFillStringBox(gh->x+x, gh->y+y, cx, cy, str, gh->font, gh->color, gh->bgcolor, justify);
@@ -631,7 +631,7 @@ void gwinPutChar(GHandle gh, char c) {
 
 	if (gh->type != GW_CONSOLE || !gh->font) return;
 
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	
@@ -836,7 +836,7 @@ void gwinButtonDraw(GHandle gh) {
 	if (gh->type != GW_BUTTON)
 		return;
 
-	#if GDISP_SET_CLIP
+	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	
