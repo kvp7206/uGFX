@@ -29,9 +29,6 @@
 #include "hal.h"
 #include "gevent.h"
 
-#ifndef _GEVENT_C
-#define _GEVENT_C
-
 #if GFX_USE_GEVENT || defined(__DOXYGEN__)
 
 #if GEVENT_ASSERT_NO_RESOURCE
@@ -247,6 +244,4 @@ void geventDetachSourceListeners(GSourceHandle gsh) {
 }
 
 #endif /* GFX_USE_GEVENT */
-
-#endif /* _GEVENT_C */
 /** @} */

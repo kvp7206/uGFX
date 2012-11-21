@@ -29,9 +29,6 @@
 #include "hal.h"
 #include "gwin.h"
 
-#ifndef _GWIN_C
-#define _GWIN_C
-
 #if GFX_USE_GWIN || defined(__DOXYGEN__)
 
 #include <string.h>
@@ -894,7 +891,5 @@ void gwinButtonDraw(GHandle gh) {
 #endif
 
 #endif /* GFX_USE_GWIN */
-
-#endif /* _GWIN_C */
 /** @} */
 

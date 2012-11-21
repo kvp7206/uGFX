@@ -29,14 +29,9 @@
 #include "hal.h"
 #include "ginput.h"
 
-#ifndef _GINPUT_C
-#define _GINPUT_C
-
 #if GFX_USE_GINPUT || defined(__DOXYGEN__)
 
 #error "GINPUT: Not Implemented Yet"
 
 #endif /* GFX_USE_GINPUT */
-
-#endif /* _GINPUT_C */
 /** @} */
