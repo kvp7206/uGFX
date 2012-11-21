@@ -1244,7 +1244,7 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	/**
 	 * @brief   Pack a pixel into a pixel buffer.
 	 * @note    This function performs no buffer boundary checking
-	 *			regardless of whether GDISP_NEED_CLIPPING has been specified.
+	 *			regardless of whether GDISP_NEED_CLIP has been specified.
 	 *
 	 * @param[in] buf		The buffer to put the pixel in
 	 * @param[in] cx		The width of a pixel line
