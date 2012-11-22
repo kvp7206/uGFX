@@ -20,7 +20,7 @@
 
 /**
  * @file    drivers/gdisp/S6D1121/gdisp_lld_config.h
- * @brief   GDISP Graphic Driver subsystem low level driver header for the S6d1121 display.
+ * @brief   GDISP Graphic Driver subsystem low level driver header for the S6D1121 display.
  *
  * @addtogroup GDISP
  * @{

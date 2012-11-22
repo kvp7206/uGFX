@@ -35,147 +35,192 @@
 /* Include the emulation code for things we don't support */
 #include "gdisp_emulation.c"
 
-#include "s6d1121_lld.c.h"
-
 /*===========================================================================*/
-/* Driver interrupt handlers.                                                */
+/* Driver local definitions.                                                 */
 /*===========================================================================*/
 
+#ifndef	GDISP_SCREEN_HEIGHT
+	#define GDISP_SCREEN_HEIGHT		320
+#endif
+#ifndef GDISP_SCREEN_WIDTH
+	#define GDISP_SCREEN_WIDTH		240
+#endif
+
+#define GDISP_INITIAL_CONTRAST 		50
+#define GDISP_INITIAL_BACKLIGHT 	100
+
 /*===========================================================================*/
-/* Driver exported functions.                                                */
+/* Driver local definitions.                                                 */
 /*===========================================================================*/
 
-/* ---- Required Routines ---- */
-/*
-	The following 2 routines are required.
-	All other routines are optional.
-*/
+#if defined(BOARD_OLIMEX_STM32_E407)
+	#include "gdisp_lld_board_olimex_e407.h"
+#else
+	#include "gdisp_lld_board.h"
+#endif
 
-/**
- * @brief   Low level GDISP driver initialization.
- *
- * @notapi
- */
+/* Some common routines and macros */
+#define write_reg(reg, data)        { write_index(reg); write_data(data); }
+#define stream_start()              write_index(0x0022);
+#define stream_stop()
+#define delay(us)                   chThdSleepMicroseconds(us)
+#define delayms(ms)                 chThdSleepMilliseconds(ms)
+
+static __inline void set_cursor(coord_t x, coord_t y) {
+    /* R20h - 8 bit
+     * R21h - 9 bit
+     */
+    switch(GDISP.Orientation) {
+        case GDISP_ROTATE_0:
+            write_reg(0x0020, x & 0x00FF);
+            write_reg(0x0021, y & 0x01FF);
+            break;
+        case GDISP_ROTATE_90:
+            /* Note X has already been mirrored, so we do it directly */
+            write_reg(0x0020, y & 0x00FF);
+            write_reg(0x0021, x & 0x01FF);
+            break;
+        case GDISP_ROTATE_180:
+            write_reg(0x0020, (GDISP_SCREEN_WIDTH - 1 - x) & 0x00FF);
+            write_reg(0x0021, (GDISP_SCREEN_HEIGHT - 1 - y) & 0x01FF);
+            break;
+        case GDISP_ROTATE_270:
+            write_reg(0x0020, (GDISP_SCREEN_WIDTH - 1 - y) & 0x00FF);
+            write_reg(0x0021, (GDISP_SCREEN_HEIGHT - 1 - x) & 0x01FF);
+            break;
+    } 
+}
+
+static __inline void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
+    /* HSA / HEA are 8 bit
+     * VSA / VEA are 9 bit
+     * use masks 0x00FF and 0x01FF to enforce this
+     */
+
+    switch(GDISP.Orientation) {
+        case GDISP_ROTATE_0:
+            write_reg(0x46, (((x + cx - 1) << 8) & 0xFF00 ) | 
+                                      (x & 0x00FF));
+
+            write_reg(0x48, y & 0x01FF);
+            write_reg(0x47, (y + cy - 1) & 0x01FF);
+            break;
+        case GDISP_ROTATE_90:
+            write_reg(0x46, (((y + cy - 1) << 8) & 0xFF00) |
+                                      (y & 0x00FF));
+
+            write_reg(0x48, x & 0x01FF);
+            write_reg(0x47, (x + cx - 1) & 0x01FF);
+            break;
+        case GDISP_ROTATE_180:
+            write_reg(0x46, (((GDISP_SCREEN_WIDTH - x - 1) & 0x00FF) << 8) |
+                                      ((GDISP_SCREEN_WIDTH - (x + cx)) & 0x00FF));
+            write_reg(0x48, (GDISP_SCREEN_HEIGHT - (y + cy)) & 0x01FF);
+            write_reg(0x47, (GDISP_SCREEN_HEIGHT- y - 1) & 0x01FF);
+            break;
+        case GDISP_ROTATE_270:
+            write_reg(0x46, (((GDISP_SCREEN_WIDTH - y - 1) & 0x00FF) << 8) |
+                                      ((GDISP_SCREEN_WIDTH - (y + cy)) & 0x00FF));
+            write_reg(0x48, (GDISP_SCREEN_HEIGHT - (x + cx)) & 0x01FF);
+            write_reg(0x47, (GDISP_SCREEN_HEIGHT - x - 1) & 0x01FF);
+            break;
+    }   
+
+    set_cursor(x, y);
+}
+
+static __inline void reset_viewport(void) {
+	switch(GDISP.Orientation) {
+		case GDISP_ROTATE_0:
+		case GDISP_ROTATE_180:
+			set_viewport(0, 0, GDISP_SCREEN_WIDTH, GDISP_SCREEN_HEIGHT);
+			break;
+		case GDISP_ROTATE_90:
+		case GDISP_ROTATE_270:
+			set_viewport(0, 0, GDISP_SCREEN_HEIGHT, GDISP_SCREEN_WIDTH);
+			break;
+	}
+}
+
 bool_t GDISP_LLD(init)(void) {
-	palSetPadMode(GDISP_RST_GPIO, GDISP_RST_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
-	// A Good idea to reset the module before using
-	GDISP_RST_LOW;
-	s6d1121_delay(2);
-	GDISP_RST_HIGH;         // Hardware Reset
-	s6d1121_delay(2);
+	/* initialize the hardware */
+	init_board();
 
-	#ifdef GDISP_USE_GPIO
-		// IO Default Configurations
-		palSetPadMode(GDISP_CS_GPIO, GDISP_CS_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
-		palSetPadMode(GDISP_WR_GPIO, GDISP_WR_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
-		palSetPadMode(GDISP_RD_GPIO, GDISP_RD_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
-		palSetPadMode(GDISP_RS_GPIO, GDISP_RS_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
-		palSetPadMode(GDISP_BL_GPIO, GDISP_BL_PIN, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+	/* Hardware reset */
+	setpin_reset(TRUE);
+	delayms(20);
+	setpin_reset(TRUE);
+	delayms(20);
 
-		palSetGroupMode(GDISP_D0_GPIO, 0x0000000F, 0, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
-		palSetGroupMode(GDISP_D4_GPIO, 0x0000FFF0, 0, PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
+	/* Get the bus for the following initialisation commands */
+	acquire_bus();
 
-		GDISP_CS_HIGH;
-		GDISP_RD_HIGH;
-		GDISP_WR_HIGH;
-		GDISP_BL_LOW;
+	write_reg(0x11,0x2004);
+	write_reg(0x13,0xCC00);
+	write_reg(0x15,0x2600);
+	write_reg(0x14,0x252A);
+	write_reg(0x12,0x0033);
+	write_reg(0x13,0xCC04);
 
-	#elif defined(GDISP_USE_FSMC)
-		#if defined(STM32F1XX)
-			/* FSMC setup. TODO: this only works for STM32F1 */
-			rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
+	delayms(1);
 
-			/* TODO: pin setup */
-		#elif defined(STM32F4XX)
-			/* STM32F4 FSMC init */
-			rccEnableAHB3(RCC_AHB3ENR_FSMCEN, 0);
+	write_reg(0x13,0xCC06);
 
-			/* set pins to FSMC mode */
-			IOBus busD = {GPIOD, (1 << 0) | (1 << 1) | (1 << 4) | (1 << 5) | (1 << 7) | (1 << 8) |
-									(1 << 9) | (1 << 10) | (1 << 11) | (1 << 14) | (1 << 15), 0};
+	delayms(1);
 
-			IOBus busE = {GPIOE, (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10) | (1 << 11) | (1 << 12) |
-								(1 << 13) | (1 << 14) | (1 << 15), 0};
+	write_reg(0x13,0xCC4F);
 
-			palSetBusMode(&busD, PAL_MODE_ALTERNATE(12));
-			palSetBusMode(&busE, PAL_MODE_ALTERNATE(12));
-		#else
-			#error "FSMC not implemented for this device"
-		#endif
+	delayms(1);
 
-		int FSMC_Bank = 0;
-		/* FSMC timing */
-		FSMC_Bank1->BTCR[FSMC_Bank+1] = (6) | (10 << 8) | (10 << 16);
+	write_reg(0x13,0x674F);
+	write_reg(0x11,0x2003);
 
-		/* Bank1 NOR/SRAM control register configuration */
-		FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
-	#endif
-
-	lld_lcdWriteReg(0x11,0x2004);
-	lld_lcdWriteReg(0x13,0xCC00);
-	lld_lcdWriteReg(0x15,0x2600);
-	lld_lcdWriteReg(0x14,0x252A);
-	lld_lcdWriteReg(0x12,0x0033);
-	lld_lcdWriteReg(0x13,0xCC04);
-
-	s6d1121_delay(1);
-
-	lld_lcdWriteReg(0x13,0xCC06);
-
-	s6d1121_delay(1);
-
-	lld_lcdWriteReg(0x13,0xCC4F);
-
-	s6d1121_delay(1);
-
-	lld_lcdWriteReg(0x13,0x674F);
-	lld_lcdWriteReg(0x11,0x2003);
-
-	s6d1121_delay(1);
+	delayms(1);
 
 	// Gamma Setting
-	lld_lcdWriteReg(0x30,0x2609);
-	lld_lcdWriteReg(0x31,0x242C);
-	lld_lcdWriteReg(0x32,0x1F23);
-	lld_lcdWriteReg(0x33,0x2425);
-	lld_lcdWriteReg(0x34,0x2226);
-	lld_lcdWriteReg(0x35,0x2523);
-	lld_lcdWriteReg(0x36,0x1C1A);
-	lld_lcdWriteReg(0x37,0x131D);
-	lld_lcdWriteReg(0x38,0x0B11);
-	lld_lcdWriteReg(0x39,0x1210);
-	lld_lcdWriteReg(0x3A,0x1315);
-	lld_lcdWriteReg(0x3B,0x3619);
-	lld_lcdWriteReg(0x3C,0x0D00);
-	lld_lcdWriteReg(0x3D,0x000D);
+	write_reg(0x30,0x2609);
+	write_reg(0x31,0x242C);
+	write_reg(0x32,0x1F23);
+	write_reg(0x33,0x2425);
+	write_reg(0x34,0x2226);
+	write_reg(0x35,0x2523);
+	write_reg(0x36,0x1C1A);
+	write_reg(0x37,0x131D);
+	write_reg(0x38,0x0B11);
+	write_reg(0x39,0x1210);
+	write_reg(0x3A,0x1315);
+	write_reg(0x3B,0x3619);
+	write_reg(0x3C,0x0D00);
+	write_reg(0x3D,0x000D);
 
-	lld_lcdWriteReg(0x16,0x0007);
-	lld_lcdWriteReg(0x02,0x0013);
-	lld_lcdWriteReg(0x03,0x0003);
-	lld_lcdWriteReg(0x01,0x0127);
+	write_reg(0x16,0x0007);
+	write_reg(0x02,0x0013);
+	write_reg(0x03,0x0003);
+	write_reg(0x01,0x0127);
 
-	s6d1121_delay(1);
+	delayms(1);
 
-	lld_lcdWriteReg(0x08,0x0303);
-	lld_lcdWriteReg(0x0A,0x000B);
-	lld_lcdWriteReg(0x0B,0x0003);
-	lld_lcdWriteReg(0x0C,0x0000);
-	lld_lcdWriteReg(0x41,0x0000);
-	lld_lcdWriteReg(0x50,0x0000);
-	lld_lcdWriteReg(0x60,0x0005);
-	lld_lcdWriteReg(0x70,0x000B);
-	lld_lcdWriteReg(0x71,0x0000);
-	lld_lcdWriteReg(0x78,0x0000);
-	lld_lcdWriteReg(0x7A,0x0000);
-	lld_lcdWriteReg(0x79,0x0007);
-	lld_lcdWriteReg(0x07,0x0051);
+	write_reg(0x08,0x0303);
+	write_reg(0x0A,0x000B);
+	write_reg(0x0B,0x0003);
+	write_reg(0x0C,0x0000);
+	write_reg(0x41,0x0000);
+	write_reg(0x50,0x0000);
+	write_reg(0x60,0x0005);
+	write_reg(0x70,0x000B);
+	write_reg(0x71,0x0000);
+	write_reg(0x78,0x0000);
+	write_reg(0x7A,0x0000);
+	write_reg(0x79,0x0007);
+	write_reg(0x07,0x0051);
 
-	s6d1121_delay(1);
+	delayms(1);
 
-	lld_lcdWriteReg(0x07,0x0053);
-	lld_lcdWriteReg(0x79,0x0000);
+	write_reg(0x07,0x0053);
+	write_reg(0x79,0x0000);
 
-	lld_lcdResetViewPort();
+	reset_viewport();
+	set_backlight(GDISP_INITIAL_BACKLIGHT);
 
 	/* Now initialise the GDISP structure */
 	GDISP.Width = GDISP_SCREEN_WIDTH;
@@ -206,8 +251,11 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 		if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
 	#endif
-	lld_lcdSetCursor(x, y);
-	lld_lcdWriteReg(0x0022, color);
+
+	acquire_bus();
+	set_cursor(x, y);
+	write_reg(0x0022, color);
+	release_bus();
 }
 
 /* ---- Optional Routines ---- */
@@ -224,13 +272,15 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	void GDISP_LLD(clear)(color_t color) {
 	    unsigned i;
 
-	    lld_lcdSetCursor(0, 0);
-	    lld_lcdWriteStreamStart();
+		acquire_bus();
+	    set_cursor(0, 0);
+	    stream_start();
 
 	    for(i = 0; i < GDISP_SCREEN_WIDTH * GDISP_SCREEN_HEIGHT; i++)
-	    	lld_lcdWriteData(color);
+	    	write_data(color);
 
-	    lld_lcdWriteStreamStop();
+	    stream_stop();
+		release_bus();
 	}
 #endif
 
@@ -257,12 +307,14 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		#endif
 
 		area = cx*cy;
-		lld_lcdSetViewPort(x, y, cx, cy);
-		lld_lcdWriteStreamStart();
+		acquire_bus();
+		set_viewport(x, y, cx, cy);
+		stream_start();
 		for(i = 0; i < area; i++)
-			lld_lcdWriteData(color);
-		lld_lcdWriteStreamStop();
-		lld_lcdResetViewPort();
+			write_data(color);
+		stream_stop();
+		reset_viewport();
+		release_bus();
 	}
 #endif
 
@@ -292,8 +344,9 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
 
-		lld_lcdSetViewPort(x, y, cx, cy);
-		lld_lcdWriteStreamStart();
+		acquire_bus();
+		set_viewport(x, y, cx, cy);
+		stream_start();
 
 		endx = srcx + cx;
 		endy = y + cy;
@@ -301,9 +354,10 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		buffer += srcx + srcy * srccx;
 		for(; y < endy; y++, buffer += lg)
 			for(x=srcx; x < endx; x++)
-				lld_lcdWriteData(*buffer++);
-		lld_lcdWriteStreamStop();
-		lld_lcdResetViewPort();
+				write_data(*buffer++);
+		stream_stop();
+		reset_viewport();
+		release_bus();
 	}
 #endif
 
@@ -328,13 +382,15 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			if (x < 0 || x >= GDISP.Width || y < 0 || y >= GDISP.Height) return 0;
 		#endif
 
-		lld_lcdSetCursor(x, y);
-		lld_lcdWriteStreamStart();
+		aquire_bus();
+		set_cursor(x, y);
+		stream_start();
 
 		color = lld_lcdReadData();
 		color = lld_lcdReadData();
 
-		lld_lcdWriteStreamStop();
+		stream_stop();
+		release_bus();
 
 		return color;
 	}
@@ -371,6 +427,8 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		#endif
 
 		abslines = lines < 0 ? -lines : lines;
+
+		acquire_bus();
 		if (abslines >= cy) {
 			abslines = cy;
 			gap = 0;
@@ -386,25 +444,26 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				}
 
 				/* read row0 into the buffer and then write at row1*/
-				lld_lcdSetViewPort(x, row0, cx, 1);
+				set_viewport(x, row0, cx, 1);
 				lld_lcdReadStreamStart();
 				lld_lcdReadStream(buf, cx);
 				lld_lcdReadStreamStop();
 
-				lld_lcdSetViewPort(x, row1, cx, 1);
-				lld_lcdWriteStreamStart();
-				lld_lcdWriteStream(buf, cx);
-				lld_lcdWriteStreamStop();
+				set_viewport(x, row1, cx, 1);
+				stream_start();
+				write_data(buf, cx);
+				stream_stop();
 			}
 		}
 
 		/* fill the remaining gap */
-		lld_lcdSetViewPort(x, lines > 0 ? (y+gap) : y, cx, abslines);
-		lld_lcdWriteStreamStart();
+		set_viewport(x, lines > 0 ? (y+gap) : y, cx, abslines);
+		stream_start();
 		gap = cx*abslines;
-		for(i = 0; i < gap; i++) lld_lcdWriteData(bgcolor);
-		lld_lcdWriteStreamStop();
-		lld_lcdResetViewPort();
+		for(i = 0; i < gap; i++) write_data(bgcolor);
+		stream_stop();
+		reset_viewport();
+		release_bus();
 	}
 #endif
 
@@ -457,26 +516,26 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				return;
 			switch((gdisp_orientation_t)value) {
 			case GDISP_ROTATE_0:
-				lld_lcdWriteReg(0x0001,0x0127);
-				lld_lcdWriteReg(0x03, 0b0011);
+				write_reg(0x0001,0x0127);
+				write_reg(0x03, 0b0011);
 				GDISP.Height = GDISP_SCREEN_HEIGHT;
 				GDISP.Width = GDISP_SCREEN_WIDTH;
 				break;
 			case GDISP_ROTATE_90:
-				lld_lcdWriteReg(0x0001,0x0027);
-				lld_lcdWriteReg(0x0003, 0b1011);
+				write_reg(0x0001,0x0027);
+				write_reg(0x0003, 0b1011);
 				GDISP.Height = GDISP_SCREEN_WIDTH;
 				GDISP.Width = GDISP_SCREEN_HEIGHT;
 				break;
 			case GDISP_ROTATE_180:
-				lld_lcdWriteReg(0x0001,0x0127);
-				lld_lcdWriteReg(0x0003, 0b0000);
+				write_reg(0x0001,0x0127);
+				write_reg(0x0003, 0b0000);
 				GDISP.Height = GDISP_SCREEN_HEIGHT;
 				GDISP.Width = GDISP_SCREEN_WIDTH;
 				break;
 			case GDISP_ROTATE_270:
-				lld_lcdWriteReg(0x0001,0x0027);
-				lld_lcdWriteReg(0x0003, 0b1000);
+				write_reg(0x0001,0x0027);
+				write_reg(0x0003, 0b1000);
 				GDISP.Height = GDISP_SCREEN_WIDTH;
 				GDISP.Width = GDISP_SCREEN_HEIGHT;
 				break;
