@@ -23,7 +23,7 @@
  *
  *				#define GFX_USE_GDISP		TRUE
  *				#define GFX_USE_GWIN		TRUE
- *				#define GDISP_NEED_SCROLL	TRUE
+ *				#define GDISP_NEED_SCROLL	TRUE	(optional but recommended)
  *				#define GDISP_NEED_CLIP		TRUE	(optional but recommended)
  *				#define GWIN_NEED_CONSOLE 	TRUE
  */
