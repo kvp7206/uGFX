@@ -39,12 +39,15 @@
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
 
-#ifndef	GDISP_SCREEN_HEIGHT
-	#define GDISP_SCREEN_HEIGHT		320
+#if defined(GDISP_SCREEN_HEIGHT)
+	#undef GISP_SCREEN_HEIGHT
 #endif
-#ifndef GDISP_SCREEN_WIDTH
-	#define GDISP_SCREEN_WIDTH		240
+#if defined(GDISP_SCREEN_WIDTH)
+	#undef GDISP_SCREEN_WIDTH
 #endif
+
+#define GDISP_SCREEN_HEIGHT		320
+#define GDISP_SCREEN_WIDTH		240
 
 #define GDISP_INITIAL_CONTRAST 		50
 #define GDISP_INITIAL_BACKLIGHT 	100
