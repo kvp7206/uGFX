@@ -68,7 +68,7 @@ static __inline void init_board(void) {
  */
 static __inline void setpin_reset(bool_t state) {
 	(void) state;
-	/* Nothing to do here */
+	/* Nothing to do here - reset pin tied to Vcc */
 }
 
 /**
@@ -80,7 +80,7 @@ static __inline void setpin_reset(bool_t state) {
  */
 static __inline void set_backlight(uint8_t percent) {
 	(void) percent;
-	/* Nothing to do here */
+	/* Nothing to do here - Backlight always on */
 }
 
 /**
@@ -89,7 +89,7 @@ static __inline void set_backlight(uint8_t percent) {
  * @notapi
  */
 static __inline void acquire_bus(void) {
-	/* Nothing to do here */
+	/* Nothing to do here since LCD is the only device on that bus */
 }
 
 /**
@@ -98,7 +98,7 @@ static __inline void acquire_bus(void) {
  * @notapi
  */
 static __inline void release_bus(void) {
-	/* Nothing to do here */
+	/* Nothing to do here since LCD is the only device on that bus */
 }
 
 /**
