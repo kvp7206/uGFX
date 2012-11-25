@@ -109,13 +109,13 @@ uint16_t ts_lld_read_x(void) {
     palSetPad(ts->xl_port, ts->xl_pin);
     palClearPad(ts->xr_port, ts->xr_pin);
     chThdSleepMilliseconds(1);
-    adcConvert(&ADCD1, &adc_x_config, samples, ADC_BUF_DEPTH);  
+    adcConvert(ts->adc_driver, &adc_x_config, samples, ADC_BUF_DEPTH);  
     val1 = ((samples[0] + samples[1])/2);
 
-    palClearPad(ts->xr_port, ts->xr_pin);
-    palSetPad(ts->xl_port, ts->xl_pin);
+    palClearPad(ts->xl_port, ts->xl_pin);
+    palSetPad(ts->xr_port, ts->xr_pin);
     chThdSleepMilliseconds(1);
-    adcConvert(&ADCD1, &adc_x_config, samples, ADC_BUF_DEPTH);
+    adcConvert(ts->adc_driver, &adc_x_config, samples, ADC_BUF_DEPTH);
     val2 = ((samples[0] + samples[1])/2);
     
 	return ((val1+((1<<12)-val2))/4);
@@ -138,13 +138,13 @@ uint16_t ts_lld_read_y(void) {
 	palSetPad(ts->yu_port, ts->yu_pin);
 	palClearPad(ts->yd_port, ts->yd_pin);
 	chThdSleepMilliseconds(1);
-	adcConvert(&ADCD1, &adc_y_config, samples, ADC_BUF_DEPTH);	
+	adcConvert(ts->adc_driver, &adc_y_config, samples, ADC_BUF_DEPTH);	
 	val1 = ((samples[0] + samples[1])/2);
 
 	palClearPad(ts->yu_port, ts->yu_pin);
 	palSetPad(ts->yd_port, ts->yd_pin);
 	chThdSleepMilliseconds(1);
-	adcConvert(&ADCD1, &adc_y_config, samples, ADC_BUF_DEPTH);
+	adcConvert(ts->adc_driver, &adc_y_config, samples, ADC_BUF_DEPTH);
 	val2 = ((samples[0] + samples[1])/2);
 
 	return ((val1+((1<<12)-val2))/4);
