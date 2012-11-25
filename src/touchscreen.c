@@ -184,7 +184,7 @@ coord_t tsReadX(void) {
 	y = _tsReadRealY();
 #endif
 
-	_tsTransform(&x, &y);
+	//_tsTransform(&x, &y);
 
     switch(gdispGetOrientation()) {
         case GDISP_ROTATE_0:
@@ -218,7 +218,7 @@ coord_t tsReadY(void) {
     y = _tsReadRealY();
 #endif
 
-    _tsTransform(&x, &y);
+    //_tsTransform(&x, &y);
 
     switch(gdispGetOrientation()) {
         case GDISP_ROTATE_0:
@@ -276,6 +276,9 @@ coord_t tsReadY(void) {
  * @api
  */
 void tsCalibrate(void) {
+#if 0
+	
+	
 	const uint16_t height  =  gdispGetHeight();
 	const uint16_t width  =  gdispGetWidth();
 	const coord_t cross[][2]  =  {{(width / 4), (height / 4)},
@@ -362,6 +365,7 @@ calibrate:
 	#if TOUCHSCREEN_STORE_CALIBRATION
 	ts_store_calibration_lld(cal);
 	#endif
+#endif
 }
 
 #endif /* GFX_USE_TOUCHSCREEN */

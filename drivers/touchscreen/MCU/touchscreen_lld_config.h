@@ -38,15 +38,20 @@
 #define TOUCHSCREEN_HAS_PRESSED				TRUE
 #define TOUCHSCREEN_HAS_PRESSURE			FALSE
 
+/**
+ * @brief	The touchscreen driver struct
+ * @details	Pointer to this will be passed to tsInit()
+ */
 struct TouchscreenDriver {
-	ioportid_t 		ts_yd_port;
-	ioportmask_t	ts_yd_pin;
-	ioportid_t 		ts_yu_port;
-	ioportmask_t	ts_yu_pin;
-	ioportid_t 		ts_xl_port;
-	ioportmask_t	ts_xl_pin;
-	ioportid_t 		ts_xr_port;
-	ioportmask_t	ts_xr_pin;
+	ADCDriver		*adc_driver;
+	ioportid_t 		yd_port;
+	ioportmask_t	yd_pin;
+	ioportid_t 		yu_port;
+	ioportmask_t	yu_pin;
+	ioportid_t 		xl_port;
+	ioportmask_t	xl_pin;
+	ioportid_t 		xr_port;
+	ioportmask_t	xr_pin;
 };
 
 #endif	/* GFX_USE_TOUCHSCREEN */
