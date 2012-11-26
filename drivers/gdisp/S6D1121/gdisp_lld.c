@@ -33,7 +33,7 @@
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
 /* Include the emulation code for things we don't support */
-#include "gdisp_emulation.c"
+#include "lld/gdisp/emulation.c"
 
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
@@ -56,7 +56,10 @@
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
 
-#if defined(BOARD_OLIMEX_STM32_E407)
+#if defined(GDISP_USE_CUSTOM_BOARD) && GDISP_USE_CUSTOM_BOARD
+	/* Include the user supplied board definitions */
+	#include "gdisp_lld_board.h"
+#elif defined(BOARD_OLIMEX_STM32_E407)
 	#include "gdisp_lld_board_olimex_e407.h"
 #else
 	#include "gdisp_lld_board.h"

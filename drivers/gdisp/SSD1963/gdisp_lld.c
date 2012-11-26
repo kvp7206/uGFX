@@ -33,7 +33,7 @@
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
 /* Include the emulation code for things we don't support */
-#include "gdisp_emulation.c"
+#include "lld/gdisp/emulation.c"
 
 /* All the board specific code should go in these include file so the driver
  * can be ported to another board just by creating a suitable file.

@@ -29,12 +29,14 @@
 #include "ch.h"
 #include "hal.h"
 #include "gdisp.h"
-#include "touchscreen.h"
 
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
+/* Include mouse support code */
+#include "lld/ginput/mouse.h"
+
 /* Include the emulation code for things we don't support */
-#include "gdisp_emulation.c"
+#include "lld/gdisp/emulation.c"
 
 #include <stdio.h>
 #include <string.h>
@@ -60,7 +62,7 @@ static HBITMAP dcBitmap = NULL;
 static HBITMAP dcOldBitmap;
 static volatile bool_t isReady = FALSE;
 static coord_t	mousex, mousey;
-static bool_t	mousedn;
+static uint16_t	mousebuttons;
 
 static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 {
@@ -70,28 +72,34 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 	switch (Msg) {
 	case WM_CREATE:
 		break;
+#if GINPUT_NEED_MOUSE
 	case WM_LBUTTONDOWN:
-		mousedn = TRUE;
-		mousex = (coord_t)LOWORD(lParam); 
-		mousey = (coord_t)HIWORD(lParam); 
-		break;
+		mousebuttons = 0x0001;
+		goto mousemove;
 	case WM_LBUTTONUP:
-		mousedn = FALSE;
-		mousex = (coord_t)LOWORD(lParam); 
-		mousey = (coord_t)HIWORD(lParam); 
-		break;
-	case WM_MOUSEMOVE:
-		mousex = (coord_t)LOWORD(lParam); 
-		mousey = (coord_t)HIWORD(lParam); 
-		break;
-	case WM_LBUTTONDBLCLK:
+		mousebuttons &= ~0x0001;
+		goto mousemove;
 	case WM_MBUTTONDOWN:
+		mousebuttons = 0x0004;
+		goto mousemove;
 	case WM_MBUTTONUP:
-	case WM_MBUTTONDBLCLK:
+		mousebuttons &= ~0x0004;
+		goto mousemove;
 	case WM_RBUTTONDOWN:
+		mousebuttons = 0x0002;
+		goto mousemove;
 	case WM_RBUTTONUP:
-	case WM_RBUTTONDBLCLK:
+		mousebuttons &= ~0x0002;
+		goto mousemove;
+	case WM_MOUSEMOVE:
+	mousemove:
+		mousex = (coord_t)LOWORD(lParam); 
+		mousey = (coord_t)HIWORD(lParam); 
+		#if GINPUT_MOUSE_POLL_PERIOD == TIME_INFINITE
+			ginputMouseWakeup();
+		#endif
 		break;
+#endif
 	case WM_SYSKEYDOWN:
 	case WM_KEYDOWN:
 	case WM_SYSKEYUP:
@@ -882,70 +890,20 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	}
 #endif
 
-#if GFX_USE_TOUCHSCREEN /*|| defined(__DOXYGEN__)*/
+#if GINPUT_NEED_MOUSE
 
-void ts_store_calibration_lld(struct cal_t *cal) {
-	(void) cal;
-	// Just ignore the calibration data - we implicitly know the calibration
+#include "lld/ginput/mouse.h"
+
+void ginput_lld_mouse_init(void) {}
+
+void ginput_lld_mouse_get_reading(MouseReading *pt) {
+	pt->x = mousex;
+	pt->y = mousey;
+	pt->z = (mousebuttons & 0x0001) ? 100 : 0;
+	pt->buttons = mousebuttons;		// We auto-magicaly know that the mousebutton bits match the MouseReading bits.
 }
 
-struct cal_t *ts_restore_calibration_lld(void) {
-	static struct cal_t cal = { 1.0, 0.0, 0.0, 0.0, 1.0, 0.0 };
-	// Our x,y is always already calibrated.
-	return &cal;
-}
-
-/**
- * @brief   Low level touchscreen driver initialization.
- *
- * @param[in] ts	The touchscreen driver
- *
- * @notapi
- */
-void ts_lld_init(const TouchscreenDriver *ts) {
-	(void) ts;
-	// Just ignore everything
-}
-
-/**
- * @brief   Reads out the X direction.
- *
- * @notapi
- */
-uint16_t ts_lld_read_x(void) {
-	return mousex;
-}
-
-/**
- * @brief   Reads out the Y direction.
- *
- * @notapi
- */
-uint16_t ts_lld_read_y(void) {
-	return mousey;
-}
-
-/**
- * @brief   Reads out the Z direction.
- *
- * @notapi
- */
-uint16_t ts_lld_read_z(void) {
-	return 0;
-}
-
-/*
- * @brief	for checking if touchpad is pressed or not.
- *
- * @return	1 if pressed / 0 if not pressed
- *
- * @notapi
- */
-uint8_t ts_lld_pressed(void) {
-	return (uint8_t)mousedn;
-}
-
-#endif /* GFX_USE_TOUCHSCREEN */
+#endif /* GINPUT_NEED_MOUSE */
 
 #endif /* GFX_USE_GDISP */
 /** @} */

@@ -33,7 +33,7 @@
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
 /* Include the emulation code for things we don't support */
-#include "gdisp_emulation.c"
+#include "lld/gdisp/emulation.c"
 
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
@@ -53,7 +53,10 @@
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
-#if defined(BOARD_FIREBULL_STM32_F103)
+#if defined(GDISP_USE_CUSTOM_BOARD) && GDISP_USE_CUSTOM_BOARD
+	/* Include the user supplied board definitions */
+	#include "gdisp_lld_board.h"
+#elif defined(BOARD_FIREBULL_STM32_F103)
 	#include "gdisp_lld_board_firebullstm32f103.h"
 #else
 	/* Include the user supplied board definitions */

@@ -100,11 +100,16 @@ typedef union GEvent_u {
 	char				pad[GEVENT_MAXIMUM_STATUS_SIZE];		// This is here to allow static initialisation of GEventObject's in the application.
 	} GEvent;
 
+// A special callback function
+typedef void (*GEventCallbackFn)(void *param, GEvent *pe);
+
 // The Listener Object
 typedef struct GListener {
-	Semaphore		waitqueue;			// Private: Semaphore for the listener to wait on.
-	BinarySemaphore	eventlock;			// Private: Protect against more than one sources trying to use this event lock at the same time
-	GEvent			event;				// Public:  The event object into which the event information is stored.
+	Semaphore			waitqueue;			// Private: Semaphore for the listener to wait on.
+	BinarySemaphore		eventlock;			// Private: Protect against more than one sources trying to use this event lock at the same time
+	GEventCallbackFn	callback;			// Private: Call back Function
+	void				*param;				// Private: Parameter for the callback function.
+	GEvent				event;				// Public:  The event object into which the event information is stored.
 	} GListener;
 
 // The Source Object
@@ -177,12 +182,28 @@ void geventDetachSource(GListener *pl, GSourceHandle gsh);
  * timeout specifies the time to wait in system ticks.
  *		TIME_INFINITE means no timeout - wait forever for an event.
  *		TIME_IMMEDIATE means return immediately
- * Returns NULL on timeout.
+ * Returns NULL on timeout or if a callback function is already registered.
  * Note: The GEvent buffer is staticly allocated within the GListener so the event does not
  *			need to be dynamicly freed however it will get overwritten by the next call to
  *			this routine.
  */
 GEvent *geventEventWait(GListener *pl, systime_t timeout);
+
+/* Register a callback for an event on a listener from an assigned source.
+ *		The type of the event should be checked (pevent->type) and then pevent should be typecast to the
+ *		actual event type if it needs to be processed.
+ * Note: The GEvent buffer is valid only during the time of the callback. The callback MUST NOT save
+ * 		a pointer to the buffer for use outside the callback.
+ * Note: An existing callback function is de-registered by passing a NULL for 'fn'. Any existing
+ * 		callback function is replaced. Any thread currently waiting using geventEventWait will be sent the exit event.
+ * Note: Callbacks occur in a thread context but stack space must be kept to a minumum and
+ * 		the callback must process quickly as all other events are performed on a single thread.
+ * Note: In the callback function you should never call ANY event functions using your own GListener handle
+ * 		as it WILL create a deadlock and lock the system up.
+ * Note: Applications should not use this call - geventEventWait() is the preferred mechanism for an
+ * 		application. This call is provided for GUI objects that may not have their own thread.
+ */
+void geventRegisterCallback(GListener *pl, GEventCallbackFn fn, void *param);
 
 /*---------- Source Functions --------------------------------------------*/
 

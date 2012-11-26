@@ -481,7 +481,7 @@
 #endif
 
 #if GDISP_NEED_TEXT && !GDISP_HARDWARE_TEXT
-	#include "gdisp_fonts.h"
+	#include "gdisp/fonts.h"
 #endif
 
 #if GDISP_NEED_TEXT && !GDISP_HARDWARE_TEXT

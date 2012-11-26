@@ -29,7 +29,8 @@
 
 #if GDISP_NEED_TEXT
 
-#include "gdisp_fonts.h"
+#include "gdisp/fonts.h"
+
 
 /* fontSmall - for side buttons */
 #if 1

@@ -35,7 +35,7 @@
 #define GDISP_LLD_NO_STRUCT
 
 /* Include the emulation code for things we don't support */
-#include "gdisp_emulation.c"
+#include "lld/gdisp/emulation.c"
 
 /*===========================================================================*/
 /* Driver local definitions.                                                 */

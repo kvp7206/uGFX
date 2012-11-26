@@ -36,14 +36,14 @@
 #define GTIMER_FLG_JABBED		0x0004
 #define GTIMER_FLG_SCHEDULED	0x0008
 
-#define TimeIsWithin(time, start, end)	(end > start ? (time >= start && time <= end) : (time >= start || time <= end))
+/* Don't rework this macro to use a ternary operator - the gcc compiler stuffs it up */
+#define TimeIsWithin(x, start, end)	((end >= start && x >= start && x <= end) || (end < start && (x >= start || x <= end)))
 
 // This mutex protects access to our tables
 static MUTEX_DECL(mutex);
 static Thread 			*pThread = 0;
 static GTimer			*pTimerHead = 0;
-static systime_t		lastTime = 0;
-static SEMAPHORE_DECL(waitsem, 0);
+static BSEMAPHORE_DECL(waitsem, TRUE);
 static WORKING_AREA(waTimerThread, GTIMER_THREAD_STACK_SIZE);
 
 /*===========================================================================*/
@@ -55,7 +55,7 @@ static msg_t GTimerThreadHandler(void *arg) {
 	GTimer			*pt;
 	systime_t		tm;
 	systime_t		nxtTimeout;
-	systime_t		tmptime;
+	systime_t		lastTime;
 	GTimerFunction	fn;
 	void			*param;
 
@@ -64,9 +64,11 @@ static msg_t GTimerThreadHandler(void *arg) {
 	#endif
 
 	nxtTimeout = TIME_INFINITE;
+	lastTime = 0;
 	while(1) {
 		/* Wait for work to do. */
-		chSemWaitTimeout(&waitsem, nxtTimeout);
+		chThdYield();					// Give someone else a go no matter how busy we are
+		chBSemWaitTimeout(&waitsem, nxtTimeout);
 		
 	restartTimerChecks:
 	
@@ -87,11 +89,13 @@ static msg_t GTimerThreadHandler(void *arg) {
 					if ((pt->flags & GTIMER_FLG_PERIODIC) && pt->period != TIME_IMMEDIATE) {
 						// Yes - Update ready for the next period
 						if (!(pt->flags & GTIMER_FLG_INFINITE)) {
-							do {
-								pt->when += pt->period;							// We may have skipped a period
-							} while (TimeIsWithin(pt->when, lastTime, tm));
+							// We may have skipped a period.
+							// We use this complicated formulae rather than a loop
+							//	because the gcc compiler stuffs up the loop so that it
+							//	either loops forever or doesn't get executed at all.
+							pt->when += ((tm + pt->period - pt->when) / pt->period) * pt->period;
 						}
-						
+
 						// We are definitely no longer jabbed
 						pt->flags &= ~GTIMER_FLG_JABBED;
 						
@@ -120,10 +124,8 @@ static msg_t GTimerThreadHandler(void *arg) {
 				}
 				
 				// Find when we next need to wake up
-				if (!(pt->flags & GTIMER_FLG_INFINITE)) {
-					tmptime = pt->when - tm;
-					if (tmptime < nxtTimeout) nxtTimeout = tmptime;
-				}
+				if (!(pt->flags & GTIMER_FLG_INFINITE) && pt->when - tm < nxtTimeout)
+					nxtTimeout = pt->when - tm;
 				pt = pt->next;
 			} while(pt != pTimerHead);
 		}
@@ -201,11 +203,13 @@ void gtimerStart(GTimer *pt, GTimerFunction fn, void *param, bool_t periodic, sy
 	pt->flags = GTIMER_FLG_SCHEDULED;
 	if (periodic)
 		pt->flags |= GTIMER_FLG_PERIODIC;
-	if (millisec != TIME_INFINITE) {
+	if (millisec == TIME_INFINITE) {
+		pt->flags |= GTIMER_FLG_INFINITE;
+		pt->period = TIME_INFINITE;
+	} else {
 		pt->period = MS2ST(millisec);
 		pt->when = chTimeNow() + pt->period;
-	} else
-		pt->flags |= GTIMER_FLG_INFINITE;
+	}
 
 	// Just pop it on the end of the queue
 	if (pTimerHead) {
@@ -217,7 +221,8 @@ void gtimerStart(GTimer *pt, GTimerFunction fn, void *param, bool_t periodic, sy
 		pt->next = pt->prev = pTimerHead = pt;
 
 	// Bump the thread
-	chSemSignal(&waitsem);
+	if (!(pt->flags & GTIMER_FLG_INFINITE))
+		chBSemSignal(&waitsem);
 	chMtxUnlock();
 }
 
@@ -249,6 +254,17 @@ void gtimerStop(GTimer *pt) {
 }
 
 /**
+ * @brief   Test if a timer is currently active
+ *
+ * @param[in] pt		Pointer to a GTimer structure
+ *
+ * @api
+ */
+bool_t gtimerIsActive(GTimer *pt) {
+	return (pt->flags & GTIMER_FLG_SCHEDULED) ? TRUE : FALSE;
+}
+
+/**
  * @brief   			Jab a timer causing the current period to immediate expire
  * @details				The callback function will be called as soon as possible.
  *
@@ -268,7 +284,7 @@ void gtimerJab(GTimer *pt) {
 	pt->flags |= GTIMER_FLG_JABBED;
 
 	// Bump the thread
-	chSemSignal(&waitsem);
+	chBSemSignal(&waitsem);
 	chMtxUnlock();
 }
 
@@ -291,7 +307,7 @@ void gtimerJabI(GTimer *pt) {
 	pt->flags |= GTIMER_FLG_JABBED;
 
 	// Bump the thread
-	chSemSignalI(&waitsem);
+	chBSemSignalI(&waitsem);
 }
 
 #endif /* GFX_USE_GTIMER */
