@@ -52,16 +52,15 @@ static __inline void init_board(void) {
  * @notapi
  */
 static __inline bool_t getpin_pressed(void) {
-	return;
+	return (!palReadPad(GPIOC, 4));
 }
-
 /**
  * @brief   Aquire the bus ready for readings
  *
  * @notapi
  */
 static __inline void aquire_bus(void) {
-	return;
+	spiAcquireBus(&SPID1);
 }
 
 /**
@@ -70,7 +69,7 @@ static __inline void aquire_bus(void) {
  * @notapi
  */
 static __inline void release_bus(void) {
-	return;
+	spiReleaseBus(&SPID1);
 }
 
 /**
@@ -82,7 +81,17 @@ static __inline void release_bus(void) {
  * @notapi
  */
 static __inline uint16_t read_value(uint16_t port) {
-	(void)port;
+    static uint8_t txbuf[3] = {0};
+    static uint8_t rxbuf[3] = {0};
+    uint16_t ret;
+
+    txbuf[0] = port;
+
+    spiExchange(&SPID1, 3, txbuf, rxbuf);
+
+    ret = (rxbuf[1] << 5) | (rxbuf[2] >> 3); 
+
+    return ret;
 }
 
 #endif /* _GINPUT_LLD_MOUSE_BOARD_H */

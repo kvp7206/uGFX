@@ -32,9 +32,9 @@
 #if (GFX_USE_GINPUT && GINPUT_NEED_MOUSE) /*|| defined(__DOXYGEN__)*/
 
 #include "gdisp.h" /* for coord_t */
+#include "gevent.h"
 #include "ginput/ginput_mouse.h" /* for GINPUT_TOUCH_PRESSED */
 #include "lld/ginput/mouse.h"
-#include "gevent.h"
 
 #if defined(GINPUT_MOUSE_USE_CUSTOM_BOARD) && GINPUT_MOUSE_USE_CUSTOM_BOARD
 	#include "ginput_lld_mouse_board.h"
