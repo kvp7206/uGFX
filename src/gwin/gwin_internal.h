@@ -17,21 +17,37 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 /**
- * @file    src/ginput.c
- * @brief   GINPUT Driver code.
+ * @file    gwin_internal.h
+ * @brief   GWIN Graphic window subsystem header file.
  *
- * @addtogroup GINPUT
+ * @addtogroup GWIN
  * @{
  */
-#include "ch.h"
-#include "hal.h"
-#include "ginput.h"
+#ifndef _GWIN_INTERNAL_H
+#define _GWIN_INTERNAL_H
 
-#if GFX_USE_GINPUT || defined(__DOXYGEN__)
+#if GFX_USE_GWIN || defined(__DOXYGEN__)
 
-#error "GINPUT: Not Implemented Yet"
+/*===========================================================================*/
+/* Sub-system constants.													 */
+/*===========================================================================*/
 
-#endif /* GFX_USE_GINPUT */
+#define GWIN_FLG_DYNAMIC				0x0001
+#define GWIN_FIRST_CONTROL_FLAG			0x0002
+#define GBTN_FLG_ALLOCTXT				(GWIN_FIRST_CONTROL_FLAG<<0)
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+GHandle _gwinInit(GWindowObject *gw, coord_t x, coord_t y, coord_t width, coord_t height, size_t size);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* GFX_USE_GWIN */
+
+#endif /* _GWIN_INTERNAL_H */
 /** @} */

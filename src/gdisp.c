@@ -32,7 +32,7 @@
 #if GFX_USE_GDISP || defined(__DOXYGEN__)
 
 #ifdef GDISP_NEED_TEXT
-	#include "gdisp_fonts.h"
+	#include "gdisp/fonts.h"
 #endif
 
 /*===========================================================================*/
@@ -487,13 +487,13 @@
 	 *
 	 * @api
 	 */
-	void gdispDrawArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
+	void gdispDrawArc(coord_t x, coord_t y, coord_t radius, coord_t start, coord_t end, color_t color) {
 		chMtxLock(&gdispMutex);
 		GDISP_LLD(drawarc)(x, y, radius, start, end, color);
 		chMtxUnlock();
 	}
 #elif GDISP_NEED_ARC && GDISP_NEED_ASYNC
-	void gdispDrawArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
+	void gdispDrawArc(coord_t x, coord_t y, coord_t radius, coord_t start, coord_t end, color_t color) {
 		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_DRAWARC);
 		p->drawarc.x = x;
 		p->drawarc.y = y;
@@ -518,13 +518,13 @@
 	 *
 	 * @api
 	 */
-	void gdispFillArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
+	void gdispFillArc(coord_t x, coord_t y, coord_t radius, coord_t start, coord_t end, color_t color) {
 		chMtxLock(&gdispMutex);
 		GDISP_LLD(fillarc)(x, y, radius, start, end, color);
 		chMtxUnlock();
 	}
 #elif GDISP_NEED_ARC && GDISP_NEED_ASYNC
-	void gdispFillArc(coord_t x, coord_t y, coord_t radius, uint16_t start, uint16_t end, color_t color) {
+	void gdispFillArc(coord_t x, coord_t y, coord_t radius, coord_t start, coord_t end, color_t color) {
 		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_FILLARC);
 		p->fillarc.x = x;
 		p->fillarc.y = y;

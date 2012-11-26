@@ -18,69 +18,53 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
- * @file    gtimer.h
- * @brief   GTIMER GFX User Timer subsystem header file.
+ * @file    ginput/ginput_toggle.h
+ * @brief   GINPUT GFX User Input subsystem header file.
  *
- * @addtogroup GTIMER
+ * @addtogroup GINPUT
  * @{
  */
-#ifndef _GTIMER_H
-#define _GTIMER_H
-
-#ifndef GFX_USE_GTIMER
-	#define GFX_USE_GTIMER FALSE
-#endif
-
-#if GFX_USE_GTIMER || defined(__DOXYGEN__)
+#ifndef _GINPUT_TOGGLE_H
+#define _GINPUT_TOGGLE_H
 
 /**
- * @name    GTIMER macros and more complex functionality to be compiled
+ * @name    GINPUT more complex functionality to be compiled
  * @{
  */
 	/**
-	 * @brief   Data part of a static GTimer initializer.
+	 * @brief   Should hardware toggle/switch/button (pio) functions be included.
+	 * @details	Defaults to FALSE
 	 */
-	#define _GTIMER_DATA() {0,0,0,0,0,0,0}
-	/**
-	 * @brief   Static GTimer initializer.
-	 */
-	#define GTIMER_DECL(name) GTimer name = _GTIMER_DATA()
-	/**
-	 * @brief   Defines the size of the timer threads work area (stack+structures).
-	 * @details	Defaults to 512 bytes
-	 */
-	#ifndef GTIMER_THREAD_STACK_SIZE
-		#define GTIMER_THREAD_STACK_SIZE	512
+	#ifndef GINPUT_NEED_TOGGLE
+		#define GINPUT_NEED_TOGGLE	FALSE
 	#endif
 /** @} */
+
+#if GINPUT_NEED_TOGGLE || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Low Level Driver details and error checks.                                */
 /*===========================================================================*/
 
-#if !CH_USE_MUTEXES || !CH_USE_SEMAPHORES
-	#error "GTIMER: CH_USE_MUTEXES and CH_USE_SEMAPHORES must be defined in chconf.h"
-#endif
-
 /*===========================================================================*/
 /* Type definitions                                                          */
 /*===========================================================================*/
 
-// A callback function (executed in a thread context)
-typedef void (*GTimerFunction)(void *param);
+// Event types for various ginput sources
+#define GEVENT_TOGGLE		(GEVENT_GINPUT_FIRST+3)
 
-/**
- * @brief	 A GTimer structure
- */
-typedef struct GTimer_t {
-	GTimerFunction		fn;
-	void				*param;
-	systime_t			when;
-	systime_t			period;
-	uint16_t			flags;
-	struct GTimer_t		*next;
-	struct GTimer_t		*prev;
-	} GTimer;
+// Get the hardware definitions - Number of instances etc.
+#include "ginput_lld_toggle_config.h"
+
+typedef struct GEventToggle_t {
+	GEventType		type;				// The type of this event (GEVENT_TOGGLE)
+	uint16_t		instance;			// The toggle instance
+	bool_t			on;					// True if the toggle/button is on
+	} GEventToggle;
+
+// Toggle Listen Flags - passed to geventAddSourceToListener()
+#define GLISTEN_TOGGLE_ON		0x0001			// Return an event when the toggle turns on
+#define GLISTEN_TOGGLE_OFF		0x0002			// Return an event when the toggle turns off
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -90,19 +74,20 @@ typedef struct GTimer_t {
 extern "C" {
 #endif
 
-void gtimerInit(GTimer *pt);
-void gtimerStart(GTimer *pt, GTimerFunction fn, void *param, bool_t periodic, systime_t millisec);
-void gtimerStop(GTimer *pt);
-bool_t gtimerIsActive(GTimer *pt);
-void gtimerJab(GTimer *pt);
-void gtimerJabI(GTimer *pt);
+	/* Hardware Toggle/Switch/Button Functions */
+	GSourceHandle ginputGetToggle(uint16_t instance);					// Instance = 0 to n-1
+	void ginputInvertToggle(uint16_t instance, bool_t invert);			// If invert is true, invert the on/off sense for the toggle
+
+	/* Get the current toggle status.
+	 *	Returns FALSE on error (eg invalid instance)
+	 */
+	bool_t ginputGetToggleStatus(uint16_t instance, GEventToggle *ptoggle);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* GFX_USE_GTIMER */
+#endif /* GINPUT_NEED_TOGGLE */
 
-#endif /* _GTIMER_H */
+#endif /* _GINPUT_TOGGLE_H */
 /** @} */
-

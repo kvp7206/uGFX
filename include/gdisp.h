@@ -114,7 +114,7 @@
 /*===========================================================================*/
 
 /* Include the low level driver information */
-#include "gdisp_lld.h"
+#include "lld/gdisp/gdisp_lld.h"
 
 /*===========================================================================*/
 /* Type definitions                                                          */

@@ -17,49 +17,47 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 /**
- * @file	include/touchscreen.h
- * @brief	TOUCHSCREEN Touchscreen driver subsystem header file.
+ * @file    ginput/ginput_dial.h
+ * @brief   GINPUT GFX User Input subsystem header file.
  *
- * @addtogroup TOUCHSCREEN
+ * @addtogroup GINPUT
  * @{
  */
+#ifndef _GINPUT_DIAL_H
+#define _GINPUT_DIAL_H
 
-#ifndef TOUCHSCREEN_H
-#define TOUCHSCREEN_H
+/**
+ * @name    GINPUT more complex functionality to be compiled
+ * @{
+ */
+	/**
+	 * @brief   Should analog dial functions be included.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GINPUT_NEED_DIAL
+		#define GINPUT_NEED_DIAL	FALSE
+	#endif
+/** @} */
 
-#if GFX_USE_TOUCHSCREEN || defined(__DOXYGEN__)
-
-/*===========================================================================*/
-/* Driver constants.                                                         */
-/*===========================================================================*/
+#if GINPUT_NEED_DIAL || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Low Level Driver details and error checks.                                */
 /*===========================================================================*/
 
-/* Include the low level driver information */
-#include "lld/touchscreen/touchscreen_lld.h"
-
-/* For definitions of coord_t, we require gdisp.h */
-#include "gdisp.h"
-
 /*===========================================================================*/
 /* Type definitions                                                          */
 /*===========================================================================*/
 
-/**
- * @brief	Struct used for calibration
- */
-typedef struct cal_t {
-    float ax;
-    float bx;
-    float cx;
-    float ay;
-    float by;
-    float cy;
-} cal_t;
+// Event types for various ginput sources
+#define GEVENT_DIAL			(GEVENT_GINPUT_FIRST+4)
+
+typedef struct GEventDial_t {
+	GEventType		type;				// The type of this event (GEVENT_DIAL)
+	uint16_t		instance;			// The dial instance
+	uint16_t		value;				// The dial value
+	} GEventDial;
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -69,25 +67,23 @@ typedef struct cal_t {
 extern "C" {
 #endif
 
-void tsInit(const TouchscreenDriver *ts);
-coord_t tsReadX(void);
-coord_t tsReadY(void);
-void tsCalibrate(void);
-
-#if TOUCHSCREEN_HAS_PRESSED
-	bool_t tsPressed(void);
-#endif
-
-#if TOUCHSCREEN_HAS_PRESSURE
-	uint16_t tsReadZ(void);
-#endif
+	/* Dial Functions */
+	GSourceHandle ginputGetDial(uint16_t instance);						// Instance = 0 to n-1
+	void ginputResetDialRange(uint16_t instance);						// Reset the maximum value back to the hardware default.
+	uint16_t ginputGetDialRange(uint16_t instance);						// Get the maximum value. The readings are scaled to be 0...max-1. 0 means over the full uint16_t range.
+	void ginputSetDialRange(uint16_t instance, uint16_t max);			// Set the maximum value.
+	void ginputSetDialSensitivity(uint16_t instance, uint16_t diff);	// Set the level change required before a dial event is generated.
+																		//		- This is done after range scaling
+	/* Get the current keyboard button status.
+	 *	Returns FALSE on error (eg invalid instance)
+	 */
+	bool_t ginputGetDialStatus(uint16_t instance, GEventDial *pdial);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* GFX_USE_TOUCHSCREEN */
+#endif /* GINPUT_NEED_DIAL */
 
-#endif /* TOUCHSCREEN_H */
+#endif /* _GINPUT_DIAL_H */
 /** @} */
-

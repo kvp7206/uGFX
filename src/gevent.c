@@ -71,6 +71,7 @@ static void deleteAssignments(GListener *pl, GSourceHandle gsh) {
 void geventListenerInit(GListener *pl) {
 	chSemInit(&pl->waitqueue, 0);			// Next wait'er will block
 	chBSemInit(&pl->eventlock, FALSE);		// Only one thread at a time looking at the event buffer
+	pl->callback = 0;						// No callback active
 	pl->event.type = GEVENT_NULL;			// Always safety
 }
 
@@ -165,7 +166,43 @@ void geventDetachSource(GListener *pl, GSourceHandle gsh) {
  * @return	NULL on timeout
  */
 GEvent *geventEventWait(GListener *pl, systime_t timeout) {
+	if (pl->callback || chSemGetCounterI(&pl->waitqueue) < 0)
+		return 0;
 	return chSemWaitTimeout(&pl->waitqueue, timeout) == RDY_OK ? &pl->event : 0;
+}
+
+/* @brief	Register a callback for an event on a listener from an assigned source.
+ * @details	The type of the event should be checked (pevent->type) and then pevent should be typecast to the
+ *			actual event type if it needs to be processed.
+ *
+ * @params[in] pl		The Listener
+ * @params[in] fn		The function to call back
+ * @params[in] param	A parameter to pass the callback function
+ *
+ * @note	The GEvent buffer is valid only during the time of the callback. The callback MUST NOT save
+ * 			a pointer to the buffer for use outside the callback.
+ * @note	An existing callback function is de-registered by passing a NULL for 'fn'. Any existing
+ * 			callback function is replaced. Any thread currently waiting using geventEventWait will be sent the exit event.
+ * @note	Callbacks occur in a thread context but stack space must be kept to a minumum and
+ * 			the callback must process quickly as all other events are performed on a single thread.
+ * @note	In the callback function you should never call ANY event functions using your own GListener handle
+ * 			as it WILL create a deadlock and lock the system up.
+ * @note	Applications should not use this call - geventEventWait() is the preferred mechanism for an
+ * 			application. This call is provided for GUI objects that may not have their own thread.
+ */
+void geventRegisterCallback(GListener *pl, GEventCallbackFn fn, void *param) {
+	if (pl) {
+		chMtxLock(&geventMutex);
+		chBSemWait(&pl->eventlock);				// Obtain the buffer lock
+		pl->param = param;						// Set the param
+		pl->callback = fn;						// Set the callback function
+		if (chSemGetCounterI(&pl->waitqueue) < 0) {
+			pl->event.type = GEVENT_EXIT;			// Set up the EXIT event
+			chSemSignal(&pl->waitqueue);			// Wake up the listener
+		}
+		chBSemSignal(&pl->eventlock);			// Release the buffer lock
+		chMtxUnlock();
+	}
 }
 
 /**
@@ -215,7 +252,7 @@ GSourceListener *geventGetSourceListener(GSourceHandle gsh, GSourceListener *las
  */
 GEvent *geventGetEventBuffer(GSourceListener *psl) {
 	// We already know we have the event lock
-	return chSemGetCounterI(&psl->pListener->waitqueue) < 0 ? &psl->pListener->event : 0;
+	return &psl->pListener->callback || chSemGetCounterI(&psl->pListener->waitqueue) < 0 ? &psl->pListener->event : 0;
 }
 
 /** 
@@ -226,10 +263,17 @@ GEvent *geventGetEventBuffer(GSourceListener *psl) {
  */
 void geventSendEvent(GSourceListener *psl) {
 	chMtxLock(&geventMutex);
-	// Wake up the listener
-	if (chSemGetCounterI(&psl->pListener->waitqueue) < 0)
-		chSemSignal(&psl->pListener->waitqueue);
-	chMtxUnlock();
+	if (psl->pListener->callback) {				// This test needs to be taken inside the mutex
+		chMtxUnlock();
+		// We already know we have the event lock
+		psl->pListener->callback(psl->pListener->param, &psl->pListener->event);
+
+	} else {
+		// Wake up the listener
+		if (chSemGetCounterI(&psl->pListener->waitqueue) < 0)
+			chSemSignal(&psl->pListener->waitqueue);
+		chMtxUnlock();
+	}
 }
 
 /**
