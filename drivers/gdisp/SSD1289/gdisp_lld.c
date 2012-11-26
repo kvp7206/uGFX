@@ -40,10 +40,10 @@
 /*===========================================================================*/
 
 #ifndef GDISP_SCREEN_HEIGHT
-	#define GDISP_SCREEN_HEIGHT		240
+	#define GDISP_SCREEN_HEIGHT		320
 #endif
 #ifndef GDISP_SCREEN_WIDTH
-	#define GDISP_SCREEN_WIDTH		320
+	#define GDISP_SCREEN_WIDTH		240
 #endif
 
 #define GDISP_INITIAL_CONTRAST	50
@@ -62,7 +62,7 @@
 
 // Some common routines and macros
 #define write_reg(reg, data)		{ write_index(reg); write_data(data); }
-#define stream_start()				write_reg(0x0022);
+#define stream_start()				write_index(0x0022);
 #define stream_stop()
 #define delay(us)					chThdSleepMicroseconds(us)
 #define delayms(ms)					chThdSleepMilliseconds(ms)
@@ -161,7 +161,7 @@ bool_t GDISP_LLD(init)(void) {
 	delayms(20);
 
 	// Get the bus for the following initialisation commands
-	get_bus();
+	acquire_bus();
 	
 	write_reg(0x0000,0x0001);		delay(5);
     write_reg(0x0003,0xA8A4);    	delay(5);
@@ -241,7 +241,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
 	#endif
 	
-	get_bus();
+	acquire_bus();
 	set_cursor(x, y);
 	write_reg(0x0022, color);
 	release_bus();
@@ -276,7 +276,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	void GDISP_LLD(clear)(color_t color) {
 	    unsigned i;
 
-		get_bus();
+		acquire_bus();
 	    set_cursor(0, 0);
 	    stream_start();
 	    for(i = 0; i < GDISP_SCREEN_WIDTH * GDISP_SCREEN_HEIGHT; i++)
@@ -310,7 +310,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 
 		area = cx*cy;
 
-		get_bus();
+		acquire_bus();
 		set_viewport(x, y, cx, cy);
 		stream_start();
 		for(i = 0; i < area; i++)
@@ -346,7 +346,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
 
-		get_bus();
+		acquire_bus();
 		set_viewport(x, y, cx, cy);
 		stream_start();
 
@@ -368,7 +368,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @note    Optional.
 	 * @note    If x,y is off the screen, the result is undefined.
 	 *
-	 * @param[in] x, y     The start of the text
+	 * @param[in] x, y     The pixel to be read
 	 *
 	 * @notapi
 	 */
@@ -379,13 +379,14 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			if (x < 0 || x >= GDISP.Width || y < 0 || y >= GDISP.Height) return 0;
 		#endif
 
-		get_bus();
+		acquire_bus();
 		set_cursor(x, y);
 		stream_start();
 		color = read_data();			// dummy read
 		color = read_data();
 		stream_stop();
 		release_bus();
+
 		return color;
 	}
 #endif
@@ -419,7 +420,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 
 		abslines = lines < 0 ? -lines : lines;
 
-		get_bus();
+		acquire_bus();
 		if (abslines >= cy) {
 			abslines = cy;
 			gap = 0;

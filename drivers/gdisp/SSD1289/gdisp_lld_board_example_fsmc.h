@@ -116,7 +116,7 @@ static __inline void set_backlight(uint8_t percent) {
  *
  * @notapi
  */
-static __inline void get_bus(void) {
+static __inline void acquire_bus(void) {
 	/* Nothing to do here */
 }
 

@@ -125,7 +125,7 @@ bool_t GDISP_LLD(init)(void) {
 	delayms(20);
 
 	// Get the bus for the following initialisation commands
-	get_bus();
+	acquire_bus();
 	
 	#if defined(GDISP_USE_GE8)
 			write_cmd3(DISCTL, 0x00, 0x20, 0x00);				// Display control
@@ -245,7 +245,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 		if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
 	#endif
-	get_bus();
+	acquire_bus();
 	setviewport(x, y, 1, 1);
 	write_cmd3(RAMWR, 0, (color>>8) & 0x0F, color & 0xFF);
 	release_bus();
@@ -277,7 +277,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		tuples = (cx*cy+1)/2;				// With an odd sized area we over-print by one pixel.
 											// This extra pixel is ignored by the controller.
 
-		get_bus();
+		acquire_bus();
 		setviewport(x, y, cx, cy);
 		write_cmd(RAMWR);
 		for(i=0; i < tuples; i++)
@@ -319,7 +319,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		endx = srcx + cx;
 		endy = y + cy;
 
-		get_bus();
+		acquire_bus();
 		setviewport(x, y, cx, cy);
 		write_cmd(RAMWR);
 
@@ -537,7 +537,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 			return;
 		case GDISP_CONTROL_CONTRAST:
 			if ((unsigned)value > 100) value = (void *)100;
-			get_bus();
+			acquire_bus();
 #if defined(GDISP_USE_GE8)
 			write_cmd2(VOLCTR, (unsigned)value, 0x03);
 #elif defined(GDISP_USE_GE12)

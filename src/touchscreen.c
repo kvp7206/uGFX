@@ -33,14 +33,6 @@
 #if GFX_USE_TOUCHSCREEN || defined(__DOXYGEN__)
 
 /*===========================================================================*/
-/* Driver local definitions.                                                 */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* Driver exported variables.                                                */
-/*===========================================================================*/
-
-/*===========================================================================*/
 /* Driver local variables.                                                   */
 /*===========================================================================*/
 static struct cal_t *cal;
@@ -294,7 +286,10 @@ void tsCalibrate(void) {
 	int32_t px, py;
 	uint8_t i, j;
 
+	#if GDISP_NEED_CONTROL
 	gdispSetOrientation(GDISP_ROTATE_0);
+	#endif
+
 	gdispClear(Blue);
 
 	gdispFillStringBox(0, 5, gdispGetWidth(), 30, "Calibration", &fontUI2Double,  White, Blue, justifyCenter);

@@ -31,7 +31,6 @@
 
 #include "gdisp_fonts.h"
 
-
 /* fontSmall - for side buttons */
 #if 1
     /* Forward Declarations of internal arrays */

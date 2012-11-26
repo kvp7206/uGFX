@@ -76,8 +76,8 @@ static __inline void set_backlight(uint8_t percent) {
  *
  * @notapi
  */
-static __inline void get_bus(void) {
-#error "gdispNokia6610: You must supply a definition for get_bus for your board"
+static __inline void acquire_bus(void) {
+#error "gdispNokia6610: You must supply a definition for acquire_bus for your board"
 }
 
 /**

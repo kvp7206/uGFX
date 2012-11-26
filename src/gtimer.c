@@ -29,9 +29,6 @@
 #include "hal.h"
 #include "gtimer.h"
 
-#ifndef _GTIMER_C
-#define _GTIMER_C
-
 #if GFX_USE_GTIMER || defined(__DOXYGEN__)
 
 #define GTIMER_FLG_PERIODIC		0x0001
@@ -286,6 +283,7 @@ void gtimerJab(GTimer *pt) {
  * @note				If the timer is not active this does nothing.
  * @note				Repeated Jabs before the callback function actually happens are ignored.
  *
+ * @iclass
  * @api
  */
 void gtimerJabI(GTimer *pt) {
@@ -297,6 +295,4 @@ void gtimerJabI(GTimer *pt) {
 }
 
 #endif /* GFX_USE_GTIMER */
-
-#endif /* _GTIMER_C */
 /** @} */

@@ -137,8 +137,8 @@ static __inline void set_backlight(uint8_t percent) {
  *
  * @notapi
  */
-static __inline void get_bus(void) {
-	// Nothing to do for this board as the LCD is the only device on the SPI port
+static __inline void acquire_bus(void) {
+	/* Nothing to do for this board as the LCD is the only device on the SPI port */
 }
 
 /**

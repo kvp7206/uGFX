@@ -32,16 +32,38 @@
 
 #if GFX_USE_TOUCHSCREEN /*|| defined(__DOXYGEN__)*/
 
+#define ADC_NUM_CHANNELS   2
+#define ADC_BUF_DEPTH      1
 
 /*===========================================================================*/
 /* Driver local variables.                                                   */
 /*===========================================================================*/
 
-#if !defined(__DOXYGEN__)
-    /* Local copy of the current touchpad driver */
-    static const TouchscreenDriver *tsDriver;
+static const TouchscreenDriver *ts;
 
-#endif
+static const ADCConversionGroup adc_y_config = {
+    FALSE,
+    ADC_NUM_CHANNELS,
+    NULL,
+    NULL,
+    0, 0,                       
+    0, 0,                      
+    ADC_SQR1_NUM_CH(ADC_NUM_CHANNELS),
+    0,                        
+    ADC_SQR3_SQ2_N(ADC_CHANNEL_IN12) | ADC_SQR3_SQ1_N(ADC_CHANNEL_IN13)
+};
+
+static const ADCConversionGroup adc_x_config = {
+    FALSE,
+    ADC_NUM_CHANNELS,
+    NULL,
+    NULL,
+    0, 0,
+    0, 0,
+    ADC_SQR1_NUM_CH(ADC_NUM_CHANNELS),
+    0,
+    ADC_SQR3_SQ2_N(ADC_CHANNEL_IN10) | ADC_SQR3_SQ1_N(ADC_CHANNEL_IN11)
+};
 
 /**
  * @brief   Low level Touchscreen driver initialization.
@@ -50,31 +72,10 @@
  *
  * @notapi
  */
-void ts_lld_init(const TouchscreenDriver *ts) {
-	tsDriver = ts;
+void ts_lld_init(const TouchscreenDriver *ts_init) {
+	ts = ts_init;
 
-	/* set pins to analog input */
-	palSetPadMode(ts->ts_yd_port, ts->ts_yd_pin, PAL_MODE_INPUT_ANALOG);
-	palSetPadMode(ts->ts_yu_port, ts->ts_yu_pin, PAL_MODE_INPUT_ANALOG);
-	palSetPadMode(ts->ts_xl_port, ts->ts_xl_pin, PAL_MODE_INPUT_ANALOG);
-	palSetPadMode(ts->ts_xr_port, ts->ts_xr_pin, PAL_MODE_INPUT_ANALOG);
-}
-
-
-/**
- * @brief   Reads a conversion from the touchscreen
- *
- * @param[in] cmd    The command bits to send to the touchscreen
- *
- * @return  The read value 12-bit right-justified
- *
- * @note    This function only reads data, it is assumed that the pins are
- *          configured properly and the bus has been acquired beforehand
- *
- * @notapi
- */
-uint16_t ts_lld_read_value(uint8_t cmd) {
-	return 0;
+	adcStart(ts->adc_driver, NULL);
 }
 
 /**
@@ -85,6 +86,7 @@ uint16_t ts_lld_read_value(uint8_t cmd) {
  * @notapi
  */
 static void ts_lld_filter(void) {
+
 	return 0;
 }
 
@@ -96,7 +98,27 @@ static void ts_lld_filter(void) {
  * @notapi
  */
 uint16_t ts_lld_read_x(void) {
-	return 0;
+	uint16_t val1, val2;
+	adcsample_t samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
+
+    palSetPadMode(ts->yd_port, ts->yd_pin, PAL_MODE_INPUT_ANALOG);
+    palSetPadMode(ts->yu_port, ts->yu_pin, PAL_MODE_INPUT_ANALOG);
+    palSetPadMode(ts->xl_port, ts->xl_pin, PAL_MODE_OUTPUT_PUSHPULL);
+    palSetPadMode(ts->xr_port, ts->xr_pin, PAL_MODE_OUTPUT_PUSHPULL);
+    
+    palSetPad(ts->xl_port, ts->xl_pin);
+    palClearPad(ts->xr_port, ts->xr_pin);
+    chThdSleepMilliseconds(1);
+    adcConvert(ts->adc_driver, &adc_x_config, samples, ADC_BUF_DEPTH);  
+    val1 = ((samples[0] + samples[1])/2);
+
+    palClearPad(ts->xl_port, ts->xl_pin);
+    palSetPad(ts->xr_port, ts->xr_pin);
+    chThdSleepMilliseconds(1);
+    adcConvert(ts->adc_driver, &adc_x_config, samples, ADC_BUF_DEPTH);
+    val2 = ((samples[0] + samples[1])/2);
+    
+	return ((val1+((1<<12)-val2))/4);
 }
 
 /**
@@ -105,7 +127,27 @@ uint16_t ts_lld_read_x(void) {
  * @notapi
  */
 uint16_t ts_lld_read_y(void) {
-	return 0;
+	uint16_t val1, val2;
+	adcsample_t samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
+
+	palSetPadMode(ts->xl_port, ts->xl_pin, PAL_MODE_INPUT_ANALOG);
+	palSetPadMode(ts->xr_port, ts->xr_pin, PAL_MODE_INPUT_ANALOG);
+	palSetPadMode(ts->yd_port, ts->yd_pin, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(ts->yu_port, ts->yu_pin, PAL_MODE_OUTPUT_PUSHPULL);
+	
+	palSetPad(ts->yu_port, ts->yu_pin);
+	palClearPad(ts->yd_port, ts->yd_pin);
+	chThdSleepMilliseconds(1);
+	adcConvert(ts->adc_driver, &adc_y_config, samples, ADC_BUF_DEPTH);	
+	val1 = ((samples[0] + samples[1])/2);
+
+	palClearPad(ts->yu_port, ts->yu_pin);
+	palSetPad(ts->yd_port, ts->yd_pin);
+	chThdSleepMilliseconds(1);
+	adcConvert(ts->adc_driver, &adc_y_config, samples, ADC_BUF_DEPTH);
+	val2 = ((samples[0] + samples[1])/2);
+
+	return ((val1+((1<<12)-val2))/4);
 }
 
 /*
@@ -116,9 +158,14 @@ uint16_t ts_lld_read_y(void) {
  * @notapi
  */
 uint8_t ts_lld_pressed(void) {
-	return 0;
-}
+	palSetPadMode(ts->yd_port, ts->yd_pin, PAL_MODE_INPUT_PULLDOWN);
+	palSetPadMode(ts->yu_port, ts->yu_pin, PAL_MODE_INPUT);
+	palSetPadMode(ts->xl_port, ts->xl_pin, PAL_MODE_INPUT);
+	palSetPadMode(ts->xr_port, ts->xr_pin, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPad(ts->xr_port, ts->xr_pin);
 
+	return palReadPad(ts->yd_port, ts->yd_pin);
+}
 
 #endif /* GFX_USE_TOUCHSCREEN */
 /** @} */

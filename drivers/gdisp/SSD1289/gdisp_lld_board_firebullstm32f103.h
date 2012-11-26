@@ -29,14 +29,14 @@
 #ifndef _GDISP_LLD_BOARD_H
 #define _GDISP_LLD_BOARD_H
 
-#define SET_CS		palSetPad(GDISP_CMD_PORT, GDISP_CS);
-#define CLR_CS		palClearPad(GDISP_CMD_PORT, GDISP_CS);
-#define SET_RS		palSetPad(GDISP_CMD_PORT, GDISP_RS);
-#define CLR_RS		palClearPad(GDISP_CMD_PORT, GDISP_RS);
-#define SET_WR		palSetPad(GDISP_CMD_PORT, GDISP_WR);
-#define CLR_WR		palClearPad(GDISP_CMD_PORT, GDISP_WR);
-#define SET_RD		palSetPad(GDISP_CMD_PORT, GDISP_RD);
-#define CLR_RD		palClearPad(GDISP_CMD_PORT, GDISP_RD);
+#define SET_CS		palSetPad(GPIOD, 12);
+#define CLR_CS		palClearPad(GPIOD, 12);
+#define SET_RS		palSetPad(GPIOD, 13);
+#define CLR_RS		palClearPad(GPIOD, 13);
+#define SET_WR		palSetPad(GPIOD, 14);
+#define CLR_WR		palClearPad(GPIOD, 14);
+#define SET_RD		palSetPad(GPIOD, 15);
+#define CLR_RD		palClearPad(GPIOD, 15);
 
 /**
  * @brief   Initialise the board for the display.
@@ -45,10 +45,17 @@
  * @notapi
  */
 static __inline void init_board(void) {
-	// This should set the GPIO port up for the correct hardware config here
+	palSetGroupMode(GPIOE, PAL_WHOLE_PORT, 0, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOD, 12, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOD, 13, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOD, 14, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOD, 15, PAL_MODE_OUTPUT_PUSHPULL);
 	
 	// Configure the pins to a well know state
-	SET_RS; SET_RD; SET_RW; CLR_CS;
+	SET_RS;
+	SET_RD;
+	SET_WR;
+	CLR_CS;
 }
 
 
@@ -61,7 +68,7 @@ static __inline void init_board(void) {
  */
 static __inline void setpin_reset(bool_t state) {
 	(void) state;
-	/* Nothing to do here */
+	/* Nothing to do here - reset pin tied to Vcc */
 }
 
 /**
@@ -73,7 +80,7 @@ static __inline void setpin_reset(bool_t state) {
  */
 static __inline void set_backlight(uint8_t percent) {
 	(void) percent;
-	/* Nothing to do here */
+	/* Nothing to do here - Backlight always on */
 }
 
 /**
@@ -81,8 +88,8 @@ static __inline void set_backlight(uint8_t percent) {
  *
  * @notapi
  */
-static __inline void get_bus(void) {
-	/* Nothing to do here */
+static __inline void acquire_bus(void) {
+	/* Nothing to do here since LCD is the only device on that bus */
 }
 
 /**
@@ -91,7 +98,7 @@ static __inline void get_bus(void) {
  * @notapi
  */
 static __inline void release_bus(void) {
-	/* Nothing to do here */
+	/* Nothing to do here since LCD is the only device on that bus */
 }
 
 /**
@@ -102,7 +109,7 @@ static __inline void release_bus(void) {
  * @notapi
  */
 static __inline void write_index(uint16_t index) {
-	palWritePort(GDISP_DATA_PORT, index);
+	palWritePort(GPIOE, index);
 	CLR_RS; CLR_WR; SET_WR; SET_RS;
 }
 
@@ -114,7 +121,7 @@ static __inline void write_index(uint16_t index) {
  * @notapi
  */
 static __inline void write_data(uint16_t data) {
-	palWritePort(GDISP_DATA_PORT, data);
+	palWritePort(GPIOE, data);
 	CLR_WR; SET_WR;
 }
 
@@ -132,16 +139,16 @@ static __inline uint16_t read_data(void) {
 	uint16_t	value;
 	
 	// change pin mode to digital input
-	GDISP_DATA_PORT->CRH = 0x44444444;
-	GDISP_DATA_PORT->CRL = 0x44444444;
+	palSetGroupMode(GPIOE, PAL_WHOLE_PORT, 0, PAL_MODE_INPUT);
 
 	CLR_RD;
-	value = palReadPort(GDISP_DATA_PORT);
+	value = palReadPort(GPIOE);
+	value = palReadPort(GPIOE);
 	SET_RD;
 
 	// change pin mode back to digital output
-	GDISP_DATA_PORT->CRH = 0x33333333;
-	GDISP_DATA_PORT->CRL = 0x33333333;
+	palSetGroupMode(GPIOE, PAL_WHOLE_PORT, 0, PAL_MODE_OUTPUT_PUSHPULL);
+	
 	return value;
 }
 #endif
