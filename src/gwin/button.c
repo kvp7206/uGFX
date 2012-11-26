@@ -30,11 +30,11 @@
 #include "gwin.h"
 #include "ginput.h"
 
-#if !defined(GFX_USE_GINPUT) || !GFX_USE_GINPUT
+#if (GFX_USE_GWIN && GWIN_NEED_BUTTON) || defined(__DOXYGEN__)
+
+#if !GFX_USE_GINPUT
 	#error "GWIN Buttons require GFX_USE_GINPUT"
 #endif
-
-#if (GFX_USE_GWIN && GWIN_NEED_BUTTON) || defined(__DOXYGEN__)
 
 #include <string.h>
 #include "gwin_internal.h"
@@ -47,7 +47,7 @@ static const GButtonStyle GButtonDefaultStyle = {
 	HTML2COLOR(0x404040),		// color_dn_edge;
 	HTML2COLOR(0x808080),		// color_dn_fill;
 	HTML2COLOR(0x404040),		// color_dn_txt;
-	};
+};
 
 // Process an event callback
 static void gwinButtonCallback(void *param, GEvent *pe) {
