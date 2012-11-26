@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    include/gdisp_lld_msgs.h
+ * @file    include/lld/gdisp/gdisp_lld_msgs.h
  * @brief   GDISP Graphic Driver subsystem low level driver message structures.
  *
  * @addtogroup GDISP

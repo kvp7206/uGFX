@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    drivers/ginput/togglePal/ginput_lld_toggle_config.h
+ * @file    drivers/ginput/toggle/Pal/ginput_lld_toggle_config.h
  * @brief   GINPUT Toggle Driver configuration header.
  *
  * @addtogroup GDISP

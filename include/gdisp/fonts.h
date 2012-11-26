@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    include/gdisp_fonts.h
+ * @file    include/gdisp/fonts.h
  * @brief   GDISP internal font definitions.
  * @details	This is not generally needed by an application. It is used
  * 			by the low level drivers that need to understand a font.

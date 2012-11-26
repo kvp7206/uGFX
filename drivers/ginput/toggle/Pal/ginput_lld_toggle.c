@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    drivers/ginput/togglePal/ginput_lld_toggle.c
+ * @file    drivers/ginput/toggle/Pal/ginput_lld_toggle.c
  * @brief   GINPUT Toggle low level driver source for the ChibiOS PAL hardware.
  *
  * @addtogroup GINPUT_TOGGLE

@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    include/gdisp_lld.h
+ * @file    include/lld/gdisp/gdisp_lld.h
  * @brief   GDISP Graphic Driver subsystem low level driver header.
  *
  * @addtogroup GDISP

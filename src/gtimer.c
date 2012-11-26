@@ -258,6 +258,8 @@ void gtimerStop(GTimer *pt) {
  *
  * @param[in] pt		Pointer to a GTimer structure
  *
+ * @return	TRUE if active, FALSE otherwise
+ *
  * @api
  */
 bool_t gtimerIsActive(GTimer *pt) {

@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
- * @file    drivers/gdisp/Win32/ginput_lld_mouse_config.h
+ * @file    drivers/multiple/Win32/ginput_lld_mouse_config.h
  * @brief   GINPUT LLD header file for mouse/touch driver.
  *
  * @addtogroup GINPUT_LLD_MOUSE
