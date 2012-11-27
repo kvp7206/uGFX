@@ -244,10 +244,10 @@ static void lld_lcdSetCursor(uint16_t x, uint16_t y) {
 static void lld_lcdSetViewPort(uint16_t x, uint16_t y, uint16_t cx, uint16_t cy) {
 	switch(GDISP.Orientation) {
 		case GDISP_ROTATE_0:
-			lld_lcdWriteReg(0x0050, x - 1);
-			lld_lcdWriteReg(0x0051, x + cx - 2);
-			lld_lcdWriteReg(0x0052, y - 1);
-			lld_lcdWriteReg(0x0053, y + cy - 2);
+			lld_lcdWriteReg(0x0050, x);
+			lld_lcdWriteReg(0x0051, x + cx - 1);
+			lld_lcdWriteReg(0x0052, y);
+			lld_lcdWriteReg(0x0053, y + cy - 1);
 			break;
 
 		case GDISP_ROTATE_90:
