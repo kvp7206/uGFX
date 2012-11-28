@@ -61,6 +61,8 @@ static __inline bool_t getpin_pressed(void) {
  */
 static __inline void aquire_bus(void) {
 	spiAcquireBus(&SPID1);
+    //TOUCHSCREEN_SPI_PROLOGUE();
+    palClearPad(GPIOC, 6);
 }
 
 /**
@@ -69,7 +71,9 @@ static __inline void aquire_bus(void) {
  * @notapi
  */
 static __inline void release_bus(void) {
+	palSetPad(GPIOC, 6);
 	spiReleaseBus(&SPID1);
+    //TOUCHSCREEN_SPI_EPILOGUE();
 }
 
 /**
@@ -90,8 +94,8 @@ static __inline uint16_t read_value(uint16_t port) {
     spiExchange(&SPID1, 3, txbuf, rxbuf);
 
     ret = (rxbuf[1] << 5) | (rxbuf[2] >> 3); 
-return 42;
-    return ret;
+    
+	return ret;
 }
 
 #endif /* _GINPUT_LLD_MOUSE_BOARD_H */

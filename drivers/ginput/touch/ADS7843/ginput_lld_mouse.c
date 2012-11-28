@@ -119,7 +119,7 @@ void ginput_lld_mouse_get_reading(MouseReading *pt) {
 		sampleBuf[i] = read_value(0xD1);
 	read_value(0xD0);
 	filter();
-	lastx = 42;//(coord_t)sampleBuf[3];
+	lastx = (coord_t)sampleBuf[3];
 
 	/* Get the Y value using the same process as above */
 	read_value(0x91);
@@ -127,7 +127,7 @@ void ginput_lld_mouse_get_reading(MouseReading *pt) {
 		sampleBuf[i] = read_value(0x91);
 	read_value(0x90);
 	filter();
-	lasty = 42;//(coord_t)sampleBuf[3];
+	lasty = (coord_t)sampleBuf[3];
 
 	// Release the bus
 	release_bus();
