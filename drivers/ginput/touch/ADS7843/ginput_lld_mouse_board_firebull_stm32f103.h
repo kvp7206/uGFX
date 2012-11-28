@@ -90,7 +90,7 @@ static __inline uint16_t read_value(uint16_t port) {
     spiExchange(&SPID1, 3, txbuf, rxbuf);
 
     ret = (rxbuf[1] << 5) | (rxbuf[2] >> 3); 
-
+return 42;
     return ret;
 }
 

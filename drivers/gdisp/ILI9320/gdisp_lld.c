@@ -237,8 +237,23 @@ static void lld_lcdSetCursor(uint16_t x, uint16_t y) {
 
     addr = y * 0x100 + x;
 
-    lld_lcdWriteReg(0x0020, addr & 0xff);   /* low addr */
-    lld_lcdWriteReg(0x0021, (addr >> 8) & 0x1ff); /* high addr */
+	switch(GDISP.Orientation) {
+		case GDISP_ROTATE_0:
+    		lld_lcdWriteReg(0x0020, addr & 0xff);   /* low addr */
+    		lld_lcdWriteReg(0x0021, (addr >> 8) & 0x1ff); /* high addr */
+			break;
+
+		case GDISP_ROTATE_90:
+            lld_lcdWriteReg(0x0020, (addr >> 8) & 0x1ff);   /* low addr */
+            lld_lcdWriteReg(0x0021, addr & 0xff); /* high addr */
+			break;
+
+		case GDISP_ROTATE_180:
+			break;
+
+		case GDISP_ROTATE_270:
+			break;
+	}
 }
 
 static void lld_lcdSetViewPort(uint16_t x, uint16_t y, uint16_t cx, uint16_t cy) {
@@ -251,6 +266,10 @@ static void lld_lcdSetViewPort(uint16_t x, uint16_t y, uint16_t cx, uint16_t cy)
 			break;
 
 		case GDISP_ROTATE_90:
+			lld_lcdWriteReg(0x0050, y);
+			lld_lcdWriteReg(0x0051, y + cy - 1);
+			lld_lcdWriteReg(0x0052, x);
+			lld_lcdWriteReg(0x0053, x + cx - 1);
 			break;
 
 		case GDISP_ROTATE_180:
@@ -265,7 +284,16 @@ static void lld_lcdSetViewPort(uint16_t x, uint16_t y, uint16_t cx, uint16_t cy)
 }
 
 static __inline void lld_lcdResetViewPort(void) { 
-	/* ToDo */
+    switch(GDISP.Orientation) {
+        case GDISP_ROTATE_0:
+        case GDISP_ROTATE_180:
+            lld_lcdSetViewPort(0, 0, GDISP_SCREEN_WIDTH, GDISP_SCREEN_HEIGHT);
+            break;
+        case GDISP_ROTATE_90:
+        case GDISP_ROTATE_270:
+           	lld_lcdSetViewPort(0, 0, GDISP_SCREEN_HEIGHT, GDISP_SCREEN_WIDTH);
+            break;
+    }
 }
 
 void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
@@ -479,20 +507,20 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				GDISP.Powermode = (gdisp_powermode_t)value;
 				return;
 
-#if 0
-			// NOT IMPLEMENTED YET
 			case GDISP_CONTROL_ORIENTATION:
 				if(GDISP.Orientation == (gdisp_orientation_t)value)
 					return;
 				switch((gdisp_orientation_t)value) {
 					case GDISP_ROTATE_0:
-						/* ToDo */
+						lld_lcdWriteReg(0x0001, 0x0100);
+						lld_lcdWriteReg(0x0003, 0x1038);
 						GDISP.Height = GDISP_SCREEN_HEIGHT;
 						GDISP.Width = GDISP_SCREEN_WIDTH;
 						break;
 
 					case GDISP_ROTATE_90:
-						/* ToDo */
+						lld_lcdWriteReg(0x0001, 0x0000);
+						lld_lcdWriteReg(0x0003, 0x1030);
 						GDISP.Height = GDISP_SCREEN_WIDTH;
 						GDISP.Width = GDISP_SCREEN_HEIGHT;
 						break;
@@ -521,7 +549,6 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				#endif
 				GDISP.Orientation = (gdisp_orientation_t)value;
 				return;
-#endif
 
 			case GDISP_CONTROL_BACKLIGHT:
 				if((unsigned)value > 100) value = (void *)100;
