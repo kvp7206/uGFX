@@ -40,7 +40,10 @@
 	#endif
 
 	#define GINPUT_MOUSE_CALIBRATION_FONT		&fontUI2Double
+	#define GINPUT_MOUSE_CALIBRATION_FONT2		&fontUI2Narrow
 	#define GINPUT_MOUSE_CALIBRATION_TEXT		"Calibration"
+	#define GINPUT_MOUSE_CALIBRATION_ERROR_TEXT	"Failed - Please try again!"
+	#define GINPUT_MOUSE_CALIBRATION_SAME_TEXT	"Error: Same Reading - Check Driver!"
 
 	#if GINPUT_MOUSE_MAX_CALIBRATION_ERROR < 0
 		#define GINPUT_MOUSE_CALIBRATION_POINTS		3
@@ -327,7 +330,9 @@ GSourceHandle ginputGetMouse(uint16_t instance) {
 	#endif
 
 	// We only support a single mouse instance currently
-	if (instance)
+	//	Instance 9999 is the same as instance 0 except that it installs
+	//	a special "raw" calibration if there isn't one we can load.
+	if (instance && instance != 9999)
 		return 0;
 
 	// Do we need to initialise the mouse subsystem?
@@ -348,6 +353,14 @@ GSourceHandle ginputGetMouse(uint16_t instance) {
 				MouseConfig.flags |= (FLG_CAL_OK|FLG_CAL_SAVED);
 				if ((MouseConfig.flags & FLG_CAL_FREE))
 					chHeapFree((void *)pc);
+			} else if (instance == 9999) {
+				MouseConfig.caldata.ax = 1;
+				MouseConfig.caldata.bx = 0;
+				MouseConfig.caldata.cx = 0;
+				MouseConfig.caldata.ay = 0;
+				MouseConfig.caldata.by = 1;
+				MouseConfig.caldata.cy = 0;
+				MouseConfig.flags |= (FLG_CAL_OK|FLG_CAL_SAVED);
 			} else
 				ginputCalibrateMouse(instance);
 		#endif
@@ -410,6 +423,9 @@ bool_t ginputCalibrateMouse(uint16_t instance) {
 		MousePoint *pt;
 		int32_t px, py;
 		unsigned i, j;
+		#if GINPUT_MOUSE_MAX_CALIBRATION_ERROR >= 0
+			unsigned	err;
+		#endif
 
 		if (instance || (MouseConfig.flags & FLG_IN_CAL))
 			return FALSE;
@@ -422,13 +438,17 @@ bool_t ginputCalibrateMouse(uint16_t instance) {
 			gdispSetOrientation(GDISP_ROTATE_0);
 		#endif
 
-		gdispClear(Blue);
-
-		gdispFillStringBox(0, 5, width, 30, GINPUT_MOUSE_CALIBRATION_TEXT, GINPUT_MOUSE_CALIBRATION_FONT,  White, Blue, justifyCenter);
+		#if GDISP_NEED_CLIP
+			gdispSetClip(0, 0, width, height);
+		#endif
 
 		#if GINPUT_MOUSE_MAX_CALIBRATION_ERROR >= 0
-			do {
+			while(1) {
 		#endif
+				gdispClear(Blue);
+
+				gdispFillStringBox(0, 5, width, 30, GINPUT_MOUSE_CALIBRATION_TEXT, GINPUT_MOUSE_CALIBRATION_FONT,  White, Blue, justifyCenter);
+
 				for(i = 0, pt = points, pc = cross; i < GINPUT_MOUSE_CALIBRATION_POINTS; i++, pt++, pc++) {
 					_tsDrawCross(pc);
 
@@ -454,6 +474,13 @@ bool_t ginputCalibrateMouse(uint16_t instance) {
 					pt->y = py / j;
 
 					_tsClearCross(pc);
+
+					if (i >= 1 && pt->x == (pt-1)->x && pt->y == (pt-1)->y) {
+						gdispFillStringBox(0, 35, width, 40, GINPUT_MOUSE_CALIBRATION_SAME_TEXT, GINPUT_MOUSE_CALIBRATION_FONT2,  Red, Yellow, justifyCenter);
+						chThdSleepMilliseconds(5000);
+						gdispFillArea(0, 35, width, 40, Blue);
+					}
+
 				}
 
 				/* Apply 3 point calibration algorithm */
@@ -471,10 +498,15 @@ bool_t ginputCalibrateMouse(uint16_t instance) {
 				_tsTransform(&MouseConfig.t, &MouseConfig.caldata);
 
 				/* Calculate the delta */
-				px = (MouseConfig.t.x - cross[3].x) * (MouseConfig.t.x - cross[3].x) +
+				err = (MouseConfig.t.x - cross[3].x) * (MouseConfig.t.x - cross[3].x) +
 					(MouseConfig.t.y - cross[3].y) * (MouseConfig.t.y - cross[3].y);
 
-			} while (px > GINPUT_MOUSE_MAX_CALIBRATION_ERROR * GINPUT_MOUSE_MAX_CALIBRATION_ERROR);
+				if (err <= GINPUT_MOUSE_MAX_CALIBRATION_ERROR * GINPUT_MOUSE_MAX_CALIBRATION_ERROR)
+					break;
+
+				gdispFillStringBox(0, 35, width, 40, GINPUT_MOUSE_CALIBRATION_ERROR_TEXT, GINPUT_MOUSE_CALIBRATION_FONT2,  Red, Yellow, justifyCenter);
+				chThdSleepMilliseconds(5000);
+			}
 		#endif
 
 		// Restart everything
