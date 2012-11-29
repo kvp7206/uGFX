@@ -52,7 +52,7 @@
 
 // This driver supports both an "interrupt" mode, and a polled mode
 #define GINPUT_MOUSE_POLL_PERIOD				TIME_INFINITE			// Interrupt driven by the Window thread
-//#define GINPUT_MOUSE_POLL_PERIOD				100						// Poll driven
+//#define GINPUT_MOUSE_POLL_PERIOD				25						// Poll driven
 
 #endif /* _LLD_GINPUT_MOUSE_CONFIG_H */
 /** @} */
