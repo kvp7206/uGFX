@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    drivers/ginput/togglePal/ginput_lld_toggle_board_olimexsam7ex256.h
+ * @file    drivers/ginput/toggle/Pal/ginput_lld_toggle_board_olimexsam7ex256.h
  * @brief   GINPUT Toggle low level driver source for the ChibiOS PAL hardware on the Olimex SAM7EX256 board.
  *
  * @addtogroup GINPUT_TOGGLE

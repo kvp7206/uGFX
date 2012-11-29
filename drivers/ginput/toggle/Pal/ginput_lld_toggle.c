@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    drivers/ginput/togglePal/ginput_lld_toggle.c
+ * @file    drivers/ginput/toggle/Pal/ginput_lld_toggle.c
  * @brief   GINPUT Toggle low level driver source for the ChibiOS PAL hardware.
  *
  * @addtogroup GINPUT_TOGGLE

@@ -19,7 +19,7 @@
 */
 
 /**
- * @file	include/touchscreen_lld.h
+ * @file	include/lld/touchscreen/touchscreen_lld.h
  * @brief	TOUCHSCREEN Driver subsystem low level driver header.
  *
  * @addtogroup TOUCHSCREEN

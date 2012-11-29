@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -44,8 +44,7 @@ static __inline void GDISP_LLD(init_board)(void) {
 	palSetPadMode(GPIOE, GPIOE_TFT_RST, PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOD, GPIOD_TFT_LIGHT, PAL_MODE_OUTPUT_PUSHPULL);
 
-    /* const unsigned char FSMC_Bank = 0; */
-    const unsigned char FSMC_Bank = 6;
+    const unsigned char FSMC_Bank = 0;
 
     /* FSMC timing */
     FSMC_Bank1->BTCR[FSMC_Bank+1] = (6) | (10 << 8) | (10 << 16);

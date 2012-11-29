@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -31,13 +31,15 @@
 
 #if (GFX_USE_GINPUT && GINPUT_NEED_MOUSE) /*|| defined(__DOXYGEN__)*/
 
-#include "lld/ginput/touch.h"
+#include "gdisp.h" /* for coord_t */
+#include "gevent.h"
+#include "ginput/ginput_mouse.h" /* for GINPUT_TOUCH_PRESSED */
+#include "lld/ginput/mouse.h"
 
 #if defined(GINPUT_MOUSE_USE_CUSTOM_BOARD) && GINPUT_MOUSE_USE_CUSTOM_BOARD
-	/* Include the user supplied board definitions */
 	#include "ginput_lld_mouse_board.h"
-//#elif defined(BOARD_OLIMEX_SAM7_EX256)
-//	#include "ginput_lld_mouse_board_olimexsam7ex256.h"
+#elif defined(BOARD_OLIMEX_STM32_LCD)
+	#include "ginput_lld_mouse_board_olimex_stm32_lcd.h"
 #else
 	#include "ginput_lld_mouse_board.h"
 #endif
@@ -92,6 +94,8 @@ void ginput_lld_mouse_init(void) {
  * @notapi
  */
 void ginput_lld_mouse_get_reading(MouseReading *pt) {
+	uint16_t i;
+
 	// If touch-off return the previous results
 	if (!getpin_pressed()) {
 		pt->x = lastx;

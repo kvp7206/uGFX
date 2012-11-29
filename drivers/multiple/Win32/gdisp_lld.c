@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    drivers/gdisp/Win32/gdisp_lld.c
+ * @file    drivers/multiple/Win32/gdisp_lld.c
  * @brief   GDISP Graphics Driver subsystem low level driver source for Win32.
  *
  * @addtogroup GDISP
