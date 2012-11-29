@@ -152,6 +152,13 @@ void gwinClear(GHandle gh) {
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispFillArea(gh->x, gh->y, gh->width, gh->height, gh->bgcolor);
+
+	#if GWIN_NEED_CONSOLE
+		if (gh->type == GW_CONSOLE) {
+			((GConsoleObject *)gh)->cx = 0;
+			((GConsoleObject *)gh)->cy = 0;
+		}
+	#endif
 }
 
 /**

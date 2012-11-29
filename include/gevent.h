@@ -40,7 +40,7 @@
 	/**
 	 * @brief   Data part of a static GListener initializer.
 	 */
-	#define _GLISTENER_DATA(name) { _SEMAPHORE_DATA(name.waitqueue, 0), _BSEMAPHORE_DATA(name.eventlock, FALSE), {0} }
+	#define _GLISTENER_DATA(name) { _SEMAPHORE_DATA(name.waitqueue, 0), _BSEMAPHORE_DATA(name.eventlock, FALSE), 0, 0, {0} }
 	/**
 	 * @brief   Static GListener initializer.
 	 */
