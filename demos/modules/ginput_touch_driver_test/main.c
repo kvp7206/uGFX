@@ -201,13 +201,13 @@ StepCalibrate:
 		gwinSetButtonText(ghNext, "Next", FALSE);
 		gsNext = gwinGetButtonSource(ghNext);
 		geventAttachSource(&gl, gsNext, 0);
-		gwinAttachButtonSource(ghNext, gs, GEVENT_MOUSE);
+		gwinAttachButtonMouseSource(ghNext, gs);
 
 		ghPrev = gwinCreateButton(&gPrev, swidth-100, 0, 50, 20, &fontUI2, GBTN_NORMAL);
 		gwinSetButtonText(ghPrev, "Back", FALSE);
 		gsPrev = gwinGetButtonSource(ghPrev);
 		geventAttachSource(&gl, gsPrev, 0);
-		gwinAttachButtonSource(ghPrev, gs, GEVENT_MOUSE);
+		gwinAttachButtonMouseSource(ghPrev, gs);
 
 #if 0
 		{
@@ -221,8 +221,8 @@ StepCalibrate:
 			//	below are correct for the Win32 toggle driver.
 			gsButton1 = ginputGetToggle(GINPUT_TOGGLE_MOMENTARY1);
 			gsButton2 = ginputGetToggle(GINPUT_TOGGLE_MOMENTARY2);
-			gwinAttachButtonSource(ghNext, gsButton2, GEVENT_TOGGLE);
-			gwinAttachButtonSource(ghPrev, gsButton1, GEVENT_TOGGLE);
+			gwinAttachButtonToggleSource(ghNext, gsButton2);
+			gwinAttachButtonToggleSource(ghPrev, gsButton1);
 		}
 #endif
 	}

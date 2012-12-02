@@ -297,30 +297,23 @@ void gwinButtonDraw(GHandle gh) {
 	#undef gbw
 }
 
-// Attach a source to this button. Sources recognised: Mouse, Touch and Toggle - others are ignored (returns false).
-bool_t gwinAttachButtonSource(GHandle gh, GSourceHandle gsh, GEventType type) {
-	#define gbw		((GButtonObject *)gh)
-	unsigned	flags;
+#if defined(GINPUT_NEED_MOUSE) && GINPUT_NEED_MOUSE
+	bool_t gwinAttachButtonMouseSource(GHandle gh, GSourceHandle gsh) {
+		if (gh->type != GW_BUTTON)
+			return FALSE;
 
-	switch (type) {
-	#if defined(GINPUT_NEED_MOUSE) && GINPUT_NEED_MOUSE
-		case GEVENT_MOUSE:
-		case GEVENT_TOUCH:
-			flags = GLISTEN_MOUSEMETA;
-			break;
-	#endif
-	#if defined(GINPUT_NEED_TOGGLE) && GINPUT_NEED_TOGGLE
-		case GEVENT_TOGGLE:
-			flags = GLISTEN_TOGGLE_OFF|GLISTEN_TOGGLE_ON;
-			break;
-	#endif
-	default:
-		return FALSE;
+		return geventAttachSource(&((GButtonObject *)gh)->listener, gsh, GLISTEN_MOUSEMETA);
 	}
-	return geventAttachSource(&gbw->listener, gsh, flags);
+#endif
 
-	#undef gbw
-}
+#if defined(GINPUT_NEED_TOGGLE) && GINPUT_NEED_TOGGLE
+	bool_t gwinAttachButtonToggleSource(GHandle gh, GSourceHandle gsh) {
+		if (gh->type != GW_BUTTON)
+			return FALSE;
+
+		return geventAttachSource(&((GButtonObject *)gh)->listener, gsh, GLISTEN_TOGGLE_OFF|GLISTEN_TOGGLE_ON);
+	}
+#endif
 
 #endif /* GFX_USE_GWIN && GWIN_NEED_BUTTON */
 /** @} */
