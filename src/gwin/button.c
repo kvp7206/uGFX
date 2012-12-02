@@ -305,12 +305,8 @@ bool_t gwinAttachButtonSource(GHandle gh, GSourceHandle gsh, GEventType type) {
 	switch (type) {
 	#if defined(GINPUT_NEED_MOUSE) && GINPUT_NEED_MOUSE
 		case GEVENT_MOUSE:
-			flags = 0;
-			break;
-	#endif
-	#if defined(GINPUT_NEED_TOUCH) && GINPUT_NEED_TOUCH
 		case GEVENT_TOUCH:
-			flags = 0;
+			flags = GLISTEN_MOUSEMETA;
 			break;
 	#endif
 	#if defined(GINPUT_NEED_TOGGLE) && GINPUT_NEED_TOGGLE
