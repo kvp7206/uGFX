@@ -65,7 +65,7 @@
 
 // n			 - Millisecs between poll's
 #ifndef GINPUT_MOUSE_POLL_PERIOD
-	#define GINPUT_MOUSE_POLL_PERIOD				100
+	#define GINPUT_MOUSE_POLL_PERIOD				25
 #endif
 
 // n			- Movement allowed without discarding the CLICK or CLICKCXT event (+/- pixels)
