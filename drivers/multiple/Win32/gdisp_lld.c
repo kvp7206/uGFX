@@ -32,12 +32,6 @@
 
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
-/* Include mouse support code */
-#include "lld/ginput/mouse.h"
-
-/* Include the emulation code for things we don't support */
-#include "lld/gdisp/emulation.c"
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -45,11 +39,41 @@
 #include <wingdi.h>
 #include <assert.h>
 
+#ifndef GINPUT_NEED_TOGGLE
+	#define GINPUT_NEED_TOGGLE	FALSE
+#endif
+#ifndef GINPUT_NEED_MOUSE
+	#define GINPUT_NEED_MOUSE	FALSE
+#endif
+
+#if GINPUT_NEED_TOGGLE
+	/* Include toggle support code */
+	#include "lld/ginput/toggle.h"
+
+	const GToggleConfig GInputToggleConfigTable[GINPUT_TOGGLE_CONFIG_ENTRIES] = {
+		{0,	0xFF, 0x00, PAL_MODE_INPUT},
+	};
+#endif
+
+#if GINPUT_NEED_MOUSE
+	/* Include mouse support code */
+	#include "ginput.h"
+	#include "lld/ginput/mouse.h"
+#endif
+
+/* Include the emulation code for things we don't support */
+#include "lld/gdisp/emulation.c"
+
 /*===========================================================================*/
 /* Driver local routines    .                                                */
 /*===========================================================================*/
 
 #define WIN32_USE_MSG_REDRAW	FALSE
+#if GINPUT_NEED_TOGGLE
+	#define WIN32_BUTTON_AREA		16
+#else
+	#define WIN32_BUTTON_AREA		0
+#endif
 
 #define APP_NAME "GDISP"
 
@@ -61,37 +85,104 @@ static HDC dcBuffer = NULL;
 static HBITMAP dcBitmap = NULL;
 static HBITMAP dcOldBitmap;
 static volatile bool_t isReady = FALSE;
-static coord_t	mousex, mousey;
-static uint16_t	mousebuttons;
+static coord_t	wWidth, wHeight;
+
+#if GINPUT_NEED_MOUSE
+	static coord_t	mousex, mousey;
+	static uint16_t	mousebuttons;
+#endif
+#if GINPUT_NEED_TOGGLE
+	static uint8_t	toggles = 0;
+#endif
 
 static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 {
-	HDC dc;
-	PAINTSTRUCT ps;
+	HDC			dc;
+	PAINTSTRUCT	ps;
+	#if GINPUT_NEED_TOGGLE
+		HBRUSH		hbrOn, hbrOff;
+		HPEN		pen;
+		RECT		rect;
+		HGDIOBJ		old;
+		POINT 		p;
+		coord_t		pos;
+		uint8_t		bit;
+	#endif
 
 	switch (Msg) {
 	case WM_CREATE:
 		break;
-#if GINPUT_NEED_MOUSE
 	case WM_LBUTTONDOWN:
-		mousebuttons = 0x0001;
-		goto mousemove;
+		#if GINPUT_NEED_MOUSE
+			if ((coord_t)HIWORD(lParam) < wHeight) {
+				mousebuttons |= GINPUT_MOUSE_BTN_LEFT;
+				goto mousemove;
+			}
+		#endif
+		#if GINPUT_NEED_TOGGLE
+			bit = 1 << ((coord_t)LOWORD(lParam)*8/wWidth);
+			toggles ^= bit;
+			rect.left = 0;
+			rect.right = wWidth;
+			rect.top = wHeight;
+			rect.bottom = wHeight + WIN32_BUTTON_AREA;
+			InvalidateRect(hWnd, &rect, FALSE);
+			UpdateWindow(hWnd);
+			#if GINPUT_TOGGLE_POLL_PERIOD == TIME_INFINITE
+				ginputToggleWakeup();
+			#endif
+		#endif
+		break;
 	case WM_LBUTTONUP:
-		mousebuttons &= ~0x0001;
-		goto mousemove;
+		#if GINPUT_NEED_TOGGLE
+			if ((toggles & 0xF0)) {
+				toggles &= 0x0F;
+				rect.left = 0;
+				rect.right = wWidth;
+				rect.top = wHeight;
+				rect.bottom = wHeight + WIN32_BUTTON_AREA;
+				InvalidateRect(hWnd, &rect, FALSE);
+				UpdateWindow(hWnd);
+				#if GINPUT_TOGGLE_POLL_PERIOD == TIME_INFINITE
+					ginputToggleWakeup();
+				#endif
+			}
+		#endif
+		#if GINPUT_NEED_MOUSE
+			if ((coord_t)HIWORD(lParam) < wHeight) {
+				mousebuttons &= ~GINPUT_MOUSE_BTN_LEFT;
+				goto mousemove;
+			}
+		#endif
+		break;
+#if GINPUT_NEED_MOUSE
 	case WM_MBUTTONDOWN:
-		mousebuttons = 0x0004;
-		goto mousemove;
+		if ((coord_t)HIWORD(lParam) < wHeight) {
+			mousebuttons |= GINPUT_MOUSE_BTN_MIDDLE;
+			goto mousemove;
+		}
+		break;
 	case WM_MBUTTONUP:
-		mousebuttons &= ~0x0004;
-		goto mousemove;
+		if ((coord_t)HIWORD(lParam) < wHeight) {
+			mousebuttons &= ~GINPUT_MOUSE_BTN_MIDDLE;
+			goto mousemove;
+		}
+		break;
 	case WM_RBUTTONDOWN:
-		mousebuttons = 0x0002;
-		goto mousemove;
+		if ((coord_t)HIWORD(lParam) < wHeight) {
+			mousebuttons |= GINPUT_MOUSE_BTN_RIGHT;
+			goto mousemove;
+		}
+		break;
 	case WM_RBUTTONUP:
-		mousebuttons &= ~0x0002;
-		goto mousemove;
+		if ((coord_t)HIWORD(lParam) < wHeight) {
+			mousebuttons &= ~GINPUT_MOUSE_BTN_RIGHT;
+			goto mousemove;
+		}
+		break;
 	case WM_MOUSEMOVE:
+		if ((coord_t)HIWORD(lParam) >= wHeight)
+			break;
 	mousemove:
 		mousex = (coord_t)LOWORD(lParam); 
 		mousey = (coord_t)HIWORD(lParam); 
@@ -114,8 +205,32 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 		dc = BeginPaint(hWnd, &ps);
 		BitBlt(dc, ps.rcPaint.left, ps.rcPaint.top,
 			ps.rcPaint.right - ps.rcPaint.left,
-			ps.rcPaint.bottom - ps.rcPaint.top,
+			(ps.rcPaint.bottom > wHeight ? wHeight : ps.rcPaint.bottom) - ps.rcPaint.top,
 			dcBuffer, ps.rcPaint.left, ps.rcPaint.top, SRCCOPY);
+		#if GINPUT_NEED_TOGGLE
+			if (ps.rcPaint.bottom >= wHeight) {
+				pen = CreatePen(PS_SOLID, 1, COLOR2BGR(Black));
+				hbrOn = CreateSolidBrush(COLOR2BGR(Blue));
+				hbrOff = CreateSolidBrush(COLOR2BGR(Gray));
+				old = SelectObject(dc, pen);
+				MoveToEx(dc, 0, wHeight, &p);
+				LineTo(dc, wWidth, wHeight);
+				for(pos = 0, bit=1; pos < wWidth; pos=rect.right, bit <<= 1) {
+					rect.left = pos;
+					rect.right = pos + wWidth/8;
+					rect.top = wHeight;
+					rect.bottom = wHeight + WIN32_BUTTON_AREA;
+					FillRect(dc, &rect, (toggles & bit) ? hbrOn : hbrOff);
+					if (pos > 0) {
+						MoveToEx(dc, rect.left, rect.top, &p);
+						LineTo(dc, rect.left, rect.bottom);
+					}
+				}
+				DeleteObject(hbrOn);
+				DeleteObject(hbrOff);
+				SelectObject(dc, old);
+			}
+		#endif
 		EndPaint(hWnd, &ps);
 		break;
 	case WM_DESTROY:
@@ -154,8 +269,8 @@ static DWORD WINAPI WindowThread(LPVOID lpParameter) {
 	wc.lpszClassName   = APP_NAME;
 	RegisterClass(&wc);
 
-	rect.top = 0; rect.bottom = GDISP.Height;
-	rect.left = 0; rect.right = GDISP.Width;
+	rect.top = 0; rect.bottom = wHeight+WIN32_BUTTON_AREA;
+	rect.left = 0; rect.right = wWidth;
 	AdjustWindowRect(&rect, WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU, 0);
 	winRootWindow = CreateWindow(APP_NAME, "", WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU, 0, 0,
 			rect.right-rect.left, rect.bottom-rect.top, 0, 0, hInstance, NULL);
@@ -163,11 +278,11 @@ static DWORD WINAPI WindowThread(LPVOID lpParameter) {
 
 
 	GetClientRect(winRootWindow, &rect);
-	GDISP.Width = rect.right-rect.left;
-	GDISP.Height = rect.bottom - rect.top;
+	wWidth = rect.right-rect.left;
+	wHeight = rect.bottom - rect.top - WIN32_BUTTON_AREA;
 
 	dc = GetDC(winRootWindow);
-	dcBitmap = CreateCompatibleBitmap(dc, GDISP.Width, GDISP.Height);
+	dcBitmap = CreateCompatibleBitmap(dc, wWidth, wHeight);
 	dcBuffer = CreateCompatibleDC(dc);
 	ReleaseDC(winRootWindow, dc);
 	dcOldBitmap = SelectObject(dcBuffer, dcBitmap);
@@ -205,12 +320,12 @@ bool_t GDISP_LLD(init)(void) {
 
 	/* Set the window dimensions */
 	GetWindowRect(GetDesktopWindow(), &rect);
-	GDISP.Width = rect.right - rect.left;
-	GDISP.Height = rect.bottom - rect.top;
-	if (GDISP.Width > GDISP_SCREEN_WIDTH)
-		GDISP.Width = GDISP_SCREEN_WIDTH;
-	if (GDISP.Height > GDISP_SCREEN_HEIGHT)
-		GDISP.Height = GDISP_SCREEN_HEIGHT;
+	wWidth = rect.right - rect.left;
+	wHeight = rect.bottom - rect.top - WIN32_BUTTON_AREA;
+	if (wWidth > GDISP_SCREEN_WIDTH)
+		wWidth = GDISP_SCREEN_WIDTH;
+	if (wHeight > GDISP_SCREEN_HEIGHT)
+		wHeight = GDISP_SCREEN_HEIGHT;
 
 	/* Initialise the window */
 	CreateThread(0, 0, WindowThread, 0, 0, 0);
@@ -222,6 +337,8 @@ bool_t GDISP_LLD(init)(void) {
 	GDISP.Powermode = powerOn;
 	GDISP.Backlight = 100;
 	GDISP.Contrast = 50;
+	GDISP.Width = wWidth;
+	GDISP.Height = wHeight;
 	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 		GDISP.clipx0 = 0;
 		GDISP.clipy0 = 0;
@@ -841,33 +958,26 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void GDISP_LLD(control)(unsigned what, void *value) {
-		RECT	rect;
-		
 		switch(what) {
 		case GDISP_CONTROL_ORIENTATION:
 			if (GDISP.Orientation == (gdisp_orientation_t)value)
 				return;
-			GetClientRect(winRootWindow, &rect);
 			switch((gdisp_orientation_t)value) {
 				case GDISP_ROTATE_0:
-					/* 	Code here */
-					GDISP.Width = rect.right-rect.left;
-					GDISP.Height = rect.bottom - rect.top;
+					GDISP.Width = wWidth;
+					GDISP.Height = wHeight;
 					break;
 				case GDISP_ROTATE_90:
-					/* 	Code here */
-					GDISP.Height = rect.right-rect.left;
-					GDISP.Width = rect.bottom - rect.top;
+					GDISP.Height = wWidth;
+					GDISP.Width = wHeight;
 					break;
 				case GDISP_ROTATE_180:
-					/* 	Code here */
-					GDISP.Width = rect.right-rect.left;
-					GDISP.Height = rect.bottom - rect.top;
+					GDISP.Width = wWidth;
+					GDISP.Height = wHeight;
 					break;
 				case GDISP_ROTATE_270:
-					/* 	Code here */
-					GDISP.Height = rect.right-rect.left;
-					GDISP.Width = rect.bottom - rect.top;
+					GDISP.Height = wWidth;
+					GDISP.Width = wHeight;
 					break;
 				default:
 					return;
@@ -892,16 +1002,21 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 
 #if GINPUT_NEED_MOUSE
 
-#include "lld/ginput/mouse.h"
+	void ginput_lld_mouse_init(void) {}
 
-void ginput_lld_mouse_init(void) {}
+	void ginput_lld_mouse_get_reading(MouseReading *pt) {
+		pt->x = mousex;
+		pt->y = mousey > wHeight ? wHeight : mousey;
+		pt->z = (mousebuttons & GINPUT_MOUSE_BTN_LEFT) ? 100 : 0;
+		pt->buttons = mousebuttons;
+	}
 
-void ginput_lld_mouse_get_reading(MouseReading *pt) {
-	pt->x = mousex;
-	pt->y = mousey;
-	pt->z = (mousebuttons & 0x0001) ? 100 : 0;
-	pt->buttons = mousebuttons;		// We auto-magicaly know that the mousebutton bits match the MouseReading bits.
-}
+#endif /* GINPUT_NEED_MOUSE */
+
+#if GINPUT_NEED_TOGGLE
+
+	void ginput_lld_toggle_init(const GToggleConfig *ptc) { (void) ptc; }
+	unsigned ginput_lld_toggle_getbits(const GToggleConfig *ptc) { (void) ptc; return toggles; }
 
 #endif /* GINPUT_NEED_MOUSE */
 

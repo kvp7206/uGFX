@@ -129,8 +129,15 @@ extern "C" {
 	// Get the source handle so the application can listen for events
 	#define gwinGetButtonSource(gh)		((GSourceHandle)(gh))
 
-	// Attach a source to this button. Sources recognised: Mouse, Touch and Toggle - others are ignored (returns false).
-	bool_t gwinAttachButtonSource(GHandle gh, GSourceHandle gsh, GEventType type);
+	#if defined(GINPUT_NEED_MOUSE) && GINPUT_NEED_MOUSE
+		// Attach a mouse source to this button.
+		bool_t gwinAttachButtonMouseSource(GHandle gh, GSourceHandle gsh);
+	#endif
+
+	#if defined(GINPUT_NEED_TOGGLE) && GINPUT_NEED_TOGGLE
+		// Attach a toggle source to this button.
+		bool_t gwinAttachButtonToggleSource(GHandle gh, GSourceHandle gsh);
+	#endif
 
 #ifdef __cplusplus
 }

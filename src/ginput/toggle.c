@@ -34,10 +34,6 @@
 
 #include "lld/ginput/toggle.h"
 
-#ifndef GINPUT_TOGGLE_POLL_PERIOD
-	#define GINPUT_TOGGLE_POLL_PERIOD	250
-#endif
-
 #define GINPUT_TOGGLE_ISON		0x01
 #define GINPUT_TOGGLE_INVERT	0x02
 
@@ -155,6 +151,16 @@ bool_t ginputGetToggleStatus(uint16_t instance, GEventToggle *ptoggle) {
 	ptoggle->instance = instance;
 	ptoggle->on = (ToggleStatus[instance].status & GINPUT_TOGGLE_ISON) ? TRUE : FALSE;
 	return TRUE;
+}
+
+/* Wake up the mouse driver from an interrupt service routine (there may be new readings available) */
+void ginputToggleWakeup(void) {
+	gtimerJab(&ToggleTimer);
+}
+
+/* Wake up the mouse driver from an interrupt service routine (there may be new readings available) */
+void ginputToggleWakeupI(void) {
+	gtimerJabI(&ToggleTimer);
 }
 
 #endif /* GINPUT_NEED_TOGGLE */
