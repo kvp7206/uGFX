@@ -18,6 +18,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+ * Make sure you have the following enabled in your halconf.h:
+ *
+ *	#define GFX_USE_GDISP TRUE
+ *	#define GFX_USE_GINPUT TRUE
+ *	#define GFX_USE_GEVENT TRUE
+ *	#define GFX_USE_GTIMER TRUE
+ *	#define GFX_USE_GWIN TRUE
+ *
+ *	#define GWIN_NEED_CONSOLE TRUE
+ *	#define GWIN_NEED_BUTTON TRUE
+ *
+ *	#define GINPUT_NEED_MOUSE TRUE
+ *	#define GINPUT_NEED_TOUCH TRUE
+ *
+ *	#define GDISP_NEED_CLIP TRUE
+ */
+
 #include "ch.h"
 #include "hal.h"
 #include "chprintf.h"
