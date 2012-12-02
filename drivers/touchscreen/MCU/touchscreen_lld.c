@@ -98,27 +98,27 @@ static void ts_lld_filter(void) {
  * @notapi
  */
 uint16_t ts_lld_read_x(void) {
-    uint16_t val1, val2;
-    adcsample_t samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
+	uint16_t val1, val2;
+	adcsample_t samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 
-    palSetPadMode(GPIOC, 0, PAL_MODE_INPUT_ANALOG);
-    palSetPadMode(GPIOC, 1, PAL_MODE_INPUT_ANALOG);
-    palSetPadMode(GPIOC, 2, PAL_MODE_OUTPUT_PUSHPULL);
-    palSetPadMode(GPIOC, 3, PAL_MODE_OUTPUT_PUSHPULL);
+    palSetPadMode(ts->yd_port, ts->yd_pin, PAL_MODE_INPUT_ANALOG);
+    palSetPadMode(ts->yu_port, ts->yu_pin, PAL_MODE_INPUT_ANALOG);
+    palSetPadMode(ts->xl_port, ts->xl_pin, PAL_MODE_OUTPUT_PUSHPULL);
+    palSetPadMode(ts->xr_port, ts->xr_pin, PAL_MODE_OUTPUT_PUSHPULL);
     
-    palSetPad(GPIOC, 2); 
-    palClearPad(GPIOC, 3); 
+    palSetPad(ts->xl_port, ts->xl_pin);
+    palClearPad(ts->xr_port, ts->xr_pin);
     chThdSleepMilliseconds(1);
-    adcConvert(&ADCD1, &adc_x_config, samples, ADC_BUF_DEPTH);  
+    adcConvert(ts->adc_driver, &adc_x_config, samples, ADC_BUF_DEPTH);  
     val1 = ((samples[0] + samples[1])/2);
-    
-    palClearPad(GPIOC, 2); 
-    palSetPad(GPIOC, 3); 
+
+    palClearPad(ts->xl_port, ts->xl_pin);
+    palSetPad(ts->xr_port, ts->xr_pin);
     chThdSleepMilliseconds(1);
-    adcConvert(&ADCD1, &adc_x_config, samples, ADC_BUF_DEPTH);
+    adcConvert(ts->adc_driver, &adc_x_config, samples, ADC_BUF_DEPTH);
     val2 = ((samples[0] + samples[1])/2);
     
-    return ((val1+((1<<12)-val2))/4);
+	return ((val1+((1<<12)-val2))/4);
 }
 
 /**
