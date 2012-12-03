@@ -71,7 +71,7 @@ int main(void) {
 	ghNext = ghPrev = 0;
 
 	// Create our title
-	gdispFillStringBox(0, 0, swidth, 20, "Touch Calibration", &fontUI2, Red, White, justifyCenter);
+	gdispFillStringBox(0, 0, swidth, 20, "Touch Calibration", &fontUI2, Red, White, justifyLeft);
 
 	// Create our main display window
 	ghc = gwinCreateConsole(&gc, 0, 20, swidth, sheight-20, &fontUI2);
@@ -246,7 +246,7 @@ StepCalibrate:
 	}
 
 	// Calibration used the whole screen - re-establish our title
-	gdispFillStringBox(0, 0, swidth, 20, "Touch Calibration", &fontUI2, Green, White, justifyCenter);
+	gdispFillStringBox(0, 0, swidth, 20, "Touch Calibration", &fontUI2, Green, White, justifyLeft);
 	gwinButtonDraw(ghNext);
 	gwinButtonDraw(ghPrev);
 
