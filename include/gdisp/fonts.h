@@ -34,16 +34,6 @@
 /* Don't test against GFX_USE_GDISP as we may want to use this in other non-GDISP utilities. */
 
 /**
- * @brief   The maximum height of a font.
- * @details	Either 16 or 32. Defaults to 16
- * @note	Setting this to 32 causes the font tables to take
- *			twice the internal program memory.
- */
-#ifndef GDISP_MAX_FONT_HEIGHT
-	#define GDISP_MAX_FONT_HEIGHT	16
-#endif
-
-/**
  * @brief   The type of a font column.
  * @note	Set by defining @p GDISP_MAX_FNT_HEIGHT appropriately.
  */
@@ -65,6 +55,7 @@
  *			to allow the tables to work across many different compilers.
  */
 struct font {
+	const char *		name;
 	uint8_t				height;
 	uint8_t				charPadding;
 	uint8_t				lineSpacing;

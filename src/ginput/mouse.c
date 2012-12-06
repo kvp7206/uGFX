@@ -38,8 +38,8 @@
 		#error "GINPUT: GFX_USE_GDISP must be defined when mouse or touch calibration is required"
 	#endif
 
-	#define GINPUT_MOUSE_CALIBRATION_FONT		&fontUI2Double
-	#define GINPUT_MOUSE_CALIBRATION_FONT2		&fontUI2Narrow
+	#define GINPUT_MOUSE_CALIBRATION_FONT		"* Double"
+	#define GINPUT_MOUSE_CALIBRATION_FONT2		"* Narrow"
 	#define GINPUT_MOUSE_CALIBRATION_TEXT		"Calibration"
 	#define GINPUT_MOUSE_CALIBRATION_ERROR_TEXT	"Failed - Please try again!"
 	#define GINPUT_MOUSE_CALIBRATION_SAME_TEXT	"Error: Same Reading - Check Driver!"
@@ -422,12 +422,16 @@ bool_t ginputCalibrateMouse(uint16_t instance) {
 		MousePoint *pt;
 		int32_t px, py;
 		unsigned i, j;
+		font_t	font1, font2;
 		#if GINPUT_MOUSE_MAX_CALIBRATION_ERROR >= 0
 			unsigned	err;
 		#endif
 
 		if (instance || (MouseConfig.flags & FLG_IN_CAL))
 			return FALSE;
+
+		font1 = gdispOpenFont(GINPUT_MOUSE_CALIBRATION_FONT);
+		font2 = gdispOpenFont(GINPUT_MOUSE_CALIBRATION_FONT2);
 
 		MouseConfig.flags |= FLG_IN_CAL;
 		gtimerStop(&MouseTimer);
@@ -446,7 +450,7 @@ bool_t ginputCalibrateMouse(uint16_t instance) {
 		#endif
 				gdispClear(Blue);
 
-				gdispFillStringBox(0, 5, width, 30, GINPUT_MOUSE_CALIBRATION_TEXT, GINPUT_MOUSE_CALIBRATION_FONT,  White, Blue, justifyCenter);
+				gdispFillStringBox(0, 5, width, 30, GINPUT_MOUSE_CALIBRATION_TEXT, font1,  White, Blue, justifyCenter);
 
 				for(i = 0, pt = points, pc = cross; i < GINPUT_MOUSE_CALIBRATION_POINTS; i++, pt++, pc++) {
 					_tsDrawCross(pc);
@@ -475,7 +479,7 @@ bool_t ginputCalibrateMouse(uint16_t instance) {
 					_tsClearCross(pc);
 
 					if (i >= 1 && pt->x == (pt-1)->x && pt->y == (pt-1)->y) {
-						gdispFillStringBox(0, 35, width, 40, GINPUT_MOUSE_CALIBRATION_SAME_TEXT, GINPUT_MOUSE_CALIBRATION_FONT2,  Red, Yellow, justifyCenter);
+						gdispFillStringBox(0, 35, width, 40, GINPUT_MOUSE_CALIBRATION_SAME_TEXT, font2,  Red, Yellow, justifyCenter);
 						chThdSleepMilliseconds(5000);
 						gdispFillArea(0, 35, width, 40, Blue);
 					}
@@ -503,12 +507,14 @@ bool_t ginputCalibrateMouse(uint16_t instance) {
 				if (err <= GINPUT_MOUSE_MAX_CALIBRATION_ERROR * GINPUT_MOUSE_MAX_CALIBRATION_ERROR)
 					break;
 
-				gdispFillStringBox(0, 35, width, 40, GINPUT_MOUSE_CALIBRATION_ERROR_TEXT, GINPUT_MOUSE_CALIBRATION_FONT2,  Red, Yellow, justifyCenter);
+				gdispFillStringBox(0, 35, width, 40, GINPUT_MOUSE_CALIBRATION_ERROR_TEXT, font2,  Red, Yellow, justifyCenter);
 				chThdSleepMilliseconds(5000);
 			}
 		#endif
 
 		// Restart everything
+		gdispCloseFont(font1);
+		gdispCloseFont(font2);
 		MouseConfig.flags |= FLG_CAL_OK;
 		MouseConfig.last_buttons = 0;
 		get_calibrated_reading(&MouseConfig.t);

@@ -30,7 +30,7 @@
 // This driver supports being both a mouse or a touch device (we don't actually know which it really is)
 //	When operating in mouse mode a long left button click does not generate a context click.
 //	When operating in touch mode we allow sloppier clicks etc
-#if GINPUT_NEED_MOUSE
+#if 1
 	#define GINPUT_MOUSE_EVENT_TYPE					GEVENT_MOUSE
 	#define GINPUT_MOUSE_CLICK_TIME					TIME_INFINITE			// Long click != Context Click
 	#define GINPUT_MOUSE_NEED_CALIBRATION			FALSE

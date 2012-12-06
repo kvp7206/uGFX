@@ -26,8 +26,8 @@
 #define PEN_SIZE	20
 #define OFFSET		3
 
-#define COLOR_BOX(a)		(x >= a && x <= a + COLOR_SIZE)
-#define PEN_BOX(a)			(y >= a && y <= a + COLOR_SIZE)
+#define COLOR_BOX(a)		(ev.x >= a && ev.x <= a + COLOR_SIZE)
+#define PEN_BOX(a)			(ev.y >= a && ev.y <= a + COLOR_SIZE)
 #define GET_COLOR(a)		(COLOR_BOX(a * COLOR_SIZE + OFFSET))
 #define GET_PEN(a)			(PEN_BOX(a * 2 * PEN_SIZE + OFFSET))
 #define DRAW_COLOR(a)		(a * COLOR_SIZE + OFFSET)
@@ -37,9 +37,13 @@
 
 void drawScreen(void) {
 	char *msg = "ChibiOS/GFX";
+	font_t		font1, font2;
+
+	font1 = gdispOpenFont("UI2 Double");
+	font2 = gdispOpenFont("LargeNumbers");
 
 	gdispClear(White);
-	gdispDrawString(gdispGetWidth()-gdispGetStringWidth(msg, &fontUI2Double)-3, 3, msg, &fontUI2Double, Black);
+	gdispDrawString(gdispGetWidth()-gdispGetStringWidth(msg, font1)-3, 3, msg, font1, Black);
 	
 	/* colors */
 	gdispFillArea(0 * COLOR_SIZE + 3, 3, COLOR_SIZE, COLOR_SIZE, Black);	/* Black */
@@ -50,11 +54,14 @@ void drawScreen(void) {
 	gdispDrawBox (5 * COLOR_SIZE + 3, 3, COLOR_SIZE, COLOR_SIZE, Black);	/* White */
 
 	/* pens */	
-	gdispDrawString(OFFSET * 2, DRAW_PEN(1), "1", &fontLargeNumbers, Black);
-	gdispDrawString(OFFSET * 2, DRAW_PEN(2), "2", &fontLargeNumbers, Black);
-	gdispDrawString(OFFSET * 2, DRAW_PEN(3), "3", &fontLargeNumbers, Black);
-	gdispDrawString(OFFSET * 2, DRAW_PEN(4), "4", &fontLargeNumbers, Black);
-	gdispDrawString(OFFSET * 2, DRAW_PEN(5), "5", &fontLargeNumbers, Black);
+	gdispDrawString(OFFSET * 2, DRAW_PEN(1), "1", font2, Black);
+	gdispDrawString(OFFSET * 2, DRAW_PEN(2), "2", font2, Black);
+	gdispDrawString(OFFSET * 2, DRAW_PEN(3), "3", font2, Black);
+	gdispDrawString(OFFSET * 2, DRAW_PEN(4), "4", font2, Black);
+	gdispDrawString(OFFSET * 2, DRAW_PEN(5), "5", font2, Black);
+
+	gdispCloseFont(font1);
+	gdispCloseFont(font2);
 }
 
 GEventMouse		ev;
@@ -73,11 +80,11 @@ int main(void) {
 
 	while (TRUE) {
 		ginputGetMouseStatus(0, &ev);
-		if (!(ev->current_buttons & GINPUT_MOUSE_BTN_LEFT))
+		if (!(ev.current_buttons & GINPUT_MOUSE_BTN_LEFT))
 			continue;
 
 		/* inside color box ? */
-		if(ev->y >= OFFSET && ev->y <= COLOR_SIZE) {	 
+		if(ev.y >= OFFSET && ev.y <= COLOR_SIZE) {
 			     if(GET_COLOR(0)) 	color = Black;
 			else if(GET_COLOR(1))	color = Red;
 			else if(GET_COLOR(2))	color = Yellow;
@@ -86,7 +93,7 @@ int main(void) {
 			else if(GET_COLOR(5))	color = White;
 		
 		/* inside pen box ? */
-		} else if(ev->x >= OFFSET && ev->x <= PEN_SIZE) {
+		} else if(ev.x >= OFFSET && ev.x <= PEN_SIZE) {
 			     if(GET_PEN(1))		pen = 0;
 			else if(GET_PEN(2))		pen = 1;
 			else if(GET_PEN(3))		pen = 2;
@@ -94,11 +101,11 @@ int main(void) {
 			else if(GET_PEN(5))		pen = 4;		
 
 		/* inside drawing area ? */
-		} else if(DRAW_AREA(ev->x, ev->y)) {
+		} else if(DRAW_AREA(ev.x, ev.y)) {
 			if(pen == 0)
-				gdispDrawPixel(ev->x, ev->y, color);
+				gdispDrawPixel(ev.x, ev.y, color);
 			else
-				gdispFillCircle(ev->x, ev->y, pen, color);
+				gdispFillCircle(ev.x, ev.y, pen, color);
 		}
 	}
 }

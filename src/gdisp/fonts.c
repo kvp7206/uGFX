@@ -18,9 +18,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*
-	Font tables included into gdisp.c
-*/
+/**
+ * @file    src/gdisp/fonts.c
+ * @brief   GDISP Font Handling.
+ *
+ * @addtogroup GDISP
+ * @{
+ */
+
 #include "ch.h"
 #include "hal.h"
 #include "gfx.h"
@@ -29,26 +34,37 @@
 
 #include "gdisp/fonts.h"
 
+#if GDISP_OLD_FONT_DEFINITIONS
+	#define FONT_DECL
+#else
+	#define FONT_DECL static
+#endif
 
 /* fontSmall - for side buttons */
-#if 1
+#if GDISP_INCLUDE_FONT_SMALL
     /* Forward Declarations of internal arrays */
     static const uint8_t        fontSmall_Widths[];
     static const uint16_t       fontSmall_Offsets[];
     static const fontcolumn_t   fontSmall_Data[];
 
-	const struct font fontSmall = { 11, 0, 14, 2, 2, 12, ' ', '~', 1, 1,
-	                                fontSmall_Widths,
-	                                fontSmall_Offsets,
-	                                fontSmall_Data};
-	const struct font fontSmallDouble = { 11, 0, 14, 2, 2, 12, ' ', '~', 2, 2,
-	                                fontSmall_Widths,
-	                                fontSmall_Offsets,
-	                                fontSmall_Data};
-	const struct font fontSmallNarrow = { 11, 0, 14, 2, 2, 12, ' ', '~', 1, 2,
-	                                fontSmall_Widths,
-	                                fontSmall_Offsets,
-	                                fontSmall_Data};
+    FONT_DECL const struct font fontSmall = {
+									"Small",
+									11, 0, 14, 2, 2, 12, ' ', '~', 1, 1,
+									fontSmall_Widths,
+									fontSmall_Offsets,
+									fontSmall_Data};
+    FONT_DECL const struct font fontSmallDouble = {
+									"Small Double",
+									11, 0, 14, 2, 2, 12, ' ', '~', 2, 2,
+									fontSmall_Widths,
+									fontSmall_Offsets,
+									fontSmall_Data};
+    FONT_DECL const struct font fontSmallNarrow = {
+									"Small Narrow",
+									11, 0, 14, 2, 2, 12, ' ', '~', 1, 2,
+									fontSmall_Widths,
+									fontSmall_Offsets,
+									fontSmall_Data};
 
 	static const uint8_t fontSmall_Widths[] = {
 		2, 3, 6, 8, 7, 9, 7, 3, 4, 4, 5, 7, 4, 4, 3, 6,
@@ -172,24 +188,30 @@
 #endif
 
 /* fontLarger - Tahoma, 11, Bold */
-#if 1
+#if GDISP_INCLUDE_FONT_LARGER
     /* Forward Declarations of internal arrays */
     static const uint8_t        fontLarger_Widths[];
     static const uint16_t       fontLarger_Offsets[];
     static const fontcolumn_t   fontLarger_Data[];
 
-	const struct font fontLarger = { 12, 1, 13, 2, 2, 13, ' ', '~', 1, 1,
-	                                 fontLarger_Widths,
-	                                 fontLarger_Offsets,
-	                                 fontLarger_Data};
-	const struct font fontLargerDouble = { 12, 1, 13, 2, 2, 13, ' ', '~', 2, 2,
-									 fontLarger_Widths,
-	                                 fontLarger_Offsets,
-	                                 fontLarger_Data};
-	const struct font fontLargerNarrow = { 12, 1, 13, 2, 2, 13, ' ', '~', 1, 2,
-	                                 fontLarger_Widths,
-	                                 fontLarger_Offsets,
-	                                 fontLarger_Data};
+    FONT_DECL const struct font fontLarger = {
+									"Larger",
+									12, 1, 13, 2, 2, 13, ' ', '~', 1, 1,
+									fontLarger_Widths,
+									fontLarger_Offsets,
+									fontLarger_Data};
+    FONT_DECL const struct font fontLargerDouble = {
+									"Larger Double",
+									12, 1, 13, 2, 2, 13, ' ', '~', 2, 2,
+									fontLarger_Widths,
+									fontLarger_Offsets,
+									fontLarger_Data};
+    FONT_DECL const struct font fontLargerNarrow = {
+									"Larger Narrow",
+									12, 1, 13, 2, 2, 13, ' ', '~', 1, 2,
+									fontLarger_Widths,
+									fontLarger_Offsets,
+									fontLarger_Data};
 	static const uint8_t fontLarger_Widths[] = {
 		2, 3, 5, 8, 7, 13, 8, 2, 4, 4, 7, 8, 3, 4, 3, 5,
 		7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 3, 9, 8, 9, 6,
@@ -313,24 +335,30 @@
 #endif
 
 /* fontUI1 - UI Font 1 Medium Bold */
-#if 1
+#if GDISP_INCLUDE_FONT_UI1
 	/* Forward Declarations of internal arrays */
     static const uint8_t        fontUI1_Widths[];
     static const uint16_t       fontUI1_Offsets[];
     static const fontcolumn_t   fontUI1_Data[];
 
-	const struct font fontUI1 = { 13, 0, 15, 2, 3, 13, ' ', '~', 1, 1,
-	                              fontUI1_Widths,
-	                              fontUI1_Offsets,
-	                              fontUI1_Data};
-	const struct font fontUI1Double = { 13, 0, 15, 2, 3, 13, ' ', '~', 2, 2,
-	                              fontUI1_Widths,
-	                              fontUI1_Offsets,
-	                              fontUI1_Data};
-	const struct font fontUI1Narrow = { 13, 0, 15, 2, 3, 13, ' ', '~', 1, 2,
-	                              fontUI1_Widths,
-	                              fontUI1_Offsets,
-	                              fontUI1_Data};
+    FONT_DECL const struct font fontUI1 = {
+									"UI1",
+									13, 0, 15, 2, 3, 13, ' ', '~', 1, 1,
+									fontUI1_Widths,
+									fontUI1_Offsets,
+									fontUI1_Data};
+    FONT_DECL const struct font fontUI1Double = {
+									"UI1 Double",
+									13, 0, 15, 2, 3, 13, ' ', '~', 2, 2,
+									fontUI1_Widths,
+									fontUI1_Offsets,
+									fontUI1_Data};
+    FONT_DECL const struct font fontUI1Narrow = {
+									"UI1 Narrow",
+									13, 0, 15, 2, 3, 13, ' ', '~', 1, 2,
+									fontUI1_Widths,
+									fontUI1_Offsets,
+									fontUI1_Data};
 
 	static const uint8_t fontUI1_Widths[] = {
 		3, 3, 6, 8, 7, 13, 9, 3, 5, 5, 6, 8, 3, 5, 3, 7,
@@ -455,24 +483,30 @@
 #endif
 
 /* fontUI1 - UI Font 2 Medium Bold */
-#if 1
+#if GDISP_INCLUDE_FONT_UI2
 	/* Forward Declarations of internal arrays */
 	static const uint8_t        fontUI2_Widths[];
 	static const uint16_t       fontUI2_Offsets[];
 	static const fontcolumn_t   fontUI2_Data[];
 
-	const struct font fontUI2 = { 11, 1, 13, 2, 2, 12, ' ', '~', 1, 1,
-	                              fontUI2_Widths,
-	                              fontUI2_Offsets,
-	                              fontUI2_Data};
-	const struct font fontUI2Double = { 11, 1, 13, 2, 2, 12, ' ', '~', 2, 2,
-	                              fontUI2_Widths,
-	                              fontUI2_Offsets,
-	                              fontUI2_Data};
-	const struct font fontUI2Narrow = { 11, 1, 13, 2, 2, 12, ' ', '~', 1, 2,
-	                              fontUI2_Widths,
-	                              fontUI2_Offsets,
-	                              fontUI2_Data};
+	FONT_DECL const struct font fontUI2 = {
+									"UI2",
+									11, 1, 13, 2, 2, 12, ' ', '~', 1, 1,
+									fontUI2_Widths,
+									fontUI2_Offsets,
+									fontUI2_Data};
+	FONT_DECL const struct font fontUI2Double = {
+									"UI2 Double",
+									11, 1, 13, 2, 2, 12, ' ', '~', 2, 2,
+									fontUI2_Widths,
+									fontUI2_Offsets,
+									fontUI2_Data};
+	FONT_DECL const struct font fontUI2Narrow = {
+									"UI2 Narrow",
+									11, 1, 13, 2, 2, 12, ' ', '~', 1, 2,
+									fontUI2_Widths,
+									fontUI2_Offsets,
+									fontUI2_Data};
 
 	static const uint8_t fontUI2_Widths[] = {
 		2, 2, 5, 8, 6, 12, 8, 2, 4, 4, 6, 8, 2, 4, 2, 5,
@@ -600,24 +634,29 @@
 		Large numbers font, height = 16 (including the decenders)
 		Characters include:  0 - 9, -, +, ., %, :, Space, Comma
 */
-#if 1
+#if GDISP_INCLUDE_FONT_LARGENUMBERS
 	/* Forward Declarations of internal arrays */
     static const uint8_t        fontLargeNumbers_Widths[];
     static const uint16_t       fontLargeNumbers_Offsets[];
     static const fontcolumn_t   fontLargeNumbers_Data[];
 
-	const struct font fontLargeNumbers = { 16, 2, 21, 1, 3, 15, '%', ':', 1, 1,
-	                                       fontLargeNumbers_Widths,
-	                                       fontLargeNumbers_Offsets,
-	                                       fontLargeNumbers_Data};
-	const struct font fontLargeNumbersDouble = { 16, 2, 21, 1, 3, 15, '%', ':', 2, 2,
-	                                       fontLargeNumbers_Widths,
-	                                       fontLargeNumbers_Offsets,
-	                                       fontLargeNumbers_Data};
-	const struct font fontLargeNumbersNarrow = { 16, 2, 21, 1, 3, 15, '%', ':', 1, 2,
-	                                       fontLargeNumbers_Widths,
-	                                       fontLargeNumbers_Offsets,
-	                                       fontLargeNumbers_Data};
+    FONT_DECL const struct font fontLargeNumbers = {
+									"LargeNumbers",
+									16, 2, 21, 1, 3, 15, '%', ':', 1, 1,
+									fontLargeNumbers_Widths,
+									fontLargeNumbers_Offsets,
+									fontLargeNumbers_Data};
+    FONT_DECL const struct font fontLargeNumbersDouble = {
+									"LargeNumbers Double",
+									16, 2, 21, 1, 3, 15, '%', ':', 2, 2,
+									fontLargeNumbers_Widths,
+									fontLargeNumbers_Offsets,
+									fontLargeNumbers_Data};
+    FONT_DECL const struct font fontLargeNumbersNarrow = {
+									"LargeNumbers Narrow", 16, 2, 21, 1, 3, 15, '%', ':', 1, 2,
+									fontLargeNumbers_Widths,
+									fontLargeNumbers_Offsets,
+									fontLargeNumbers_Data};
 
 	static const uint8_t fontLargeNumbers_Widths[] = {
 		15, 0, 0, 0, 0, 0, 11, 3, 6, 3, 0, 10, 10, 10, 10, 10,
@@ -649,4 +688,93 @@
 	};
 #endif
 
+static const struct font *BuiltinFontTable[] = {
+	#if GDISP_INCLUDE_FONT_SMALL
+		&fontSmall, &fontSmallDouble, &fontSmallNarrow,
+	#endif
+	#if GDISP_INCLUDE_FONT_LARGER
+		&fontLarger, &fontLargerDouble, &fontLargerNarrow,
+	#endif
+	#if GDISP_INCLUDE_FONT_UI1
+		&fontUI1, &fontUI1Double, &fontUI1Narrow,
+	#endif
+	#if GDISP_INCLUDE_FONT_UI2
+		&fontUI2, &fontUI2Double, &fontUI2Narrow,
+	#endif
+	#if GDISP_INCLUDE_FONT_LARGENUMBERS
+		&fontLargeNumbers, &fontLargeNumbersDouble, &fontLargeNumbersNarrow,
+	#endif
+	};
+
+/**
+ * Match a pattern against the font name.
+ */
+static bool_t matchfont(const char *pattern, const char *name) {
+	while(1) {
+		switch (pattern[0]) {
+		case '*':
+			if (name[0] == 0)
+				return pattern[1] == 0;
+			if (pattern[1] == name[0])
+				pattern++;
+			else
+				name++;
+			break;
+		case 0:
+			return name[0] == 0;
+		default:
+			if (name[0] != pattern[0])
+				return FALSE;
+			pattern++;
+			name++;
+			break;
+		}
+	}
+}
+
+/**
+ * @brief	Find a font and return it.
+ * @details	The supplied name is matched against the font name. A '*' will replace 0 or more characters.
+ * @return	Returns a font or NULL if no matching font could be found.
+ *
+ * @params[in] name		The font name to find.
+ *
+ * @note				Wildcard matching will match the shortest possible match.
+ *
+ * @api
+ */
+font_t gdispOpenFont(const char *name) {
+	const struct font **p;
+
+	for(p = BuiltinFontTable; p < BuiltinFontTable+sizeof(BuiltinFontTable)/sizeof(BuiltinFontTable[0]); p++) {
+		if (matchfont(name, p[0]->name))
+			return p[0];
+	}
+	return 0;
+}
+
+/**
+ * @brief	Release a font after use.
+ *
+ * @params[in] font		The font to release.
+ *
+ * @api
+ */
+void gdispCloseFont(font_t font) {
+	(void) font;
+}
+
+/**
+ * @brief	Get the name of the specified font.
+ * @returns	The name of the font.
+ *
+ * @params[in] font		The font to get the name for.
+ *
+ * @api
+ */
+const char *gdispGetFontName(font_t font) {
+	return font->name;
+}
+
 #endif /* GFX_USE_GDISP && GDISP_NEED_TEXT */
+/** @} */

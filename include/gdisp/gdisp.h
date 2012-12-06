@@ -96,25 +96,35 @@ typedef enum fontmetric {fontHeight, fontDescendersHeight, fontLineSpacing, font
 /* External declarations.                                                    */
 /*===========================================================================*/
 
-#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
-/**
- * @brief   Predefined fonts.
- */
-extern const struct font fontSmall;
-extern const struct font fontSmallDouble;
-extern const struct font fontSmallNarrow;
-extern const struct font fontLarger;
-extern const struct font fontLargerDouble;
-extern const struct font fontLargerNarrow;
-extern const struct font fontUI1;
-extern const struct font fontUI1Double;
-extern const struct font fontUI1Narrow;
-extern const struct font fontUI2;
-extern const struct font fontUI2Double;
-extern const struct font fontUI2Narrow;
-extern const struct font fontLargeNumbers;
-extern const struct font fontLargeNumbersDouble;
-extern const struct font fontLargeNumbersNarrow;
+#if (GDISP_NEED_TEXT && GDISP_OLD_FONT_DEFINITIONS) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Predefined fonts.
+	 */
+	#if GDISP_INCLUDE_FONT_SMALL
+		extern const struct font fontSmall;
+		extern const struct font fontSmallDouble;
+		extern const struct font fontSmallNarrow;
+	#endif
+	#if GDISP_INCLUDE_FONT_LARGER
+		extern const struct font fontLarger;
+		extern const struct font fontLargerDouble;
+		extern const struct font fontLargerNarrow;
+	#endif
+	#if GDISP_INCLUDE_FONT_UI1
+		extern const struct font fontUI1;
+		extern const struct font fontUI1Double;
+		extern const struct font fontUI1Narrow;
+	#endif
+	#if GDISP_INCLUDE_FONT_UI2
+		extern const struct font fontUI2;
+		extern const struct font fontUI2Double;
+		extern const struct font fontUI2Narrow;
+	#endif
+	#if GDISP_INCLUDE_FONT_LARGENUMBERS
+		extern const struct font fontLargeNumbers;
+		extern const struct font fontLargeNumbersDouble;
+		extern const struct font fontLargeNumbersNarrow;
+	#endif
 #endif
 
 #ifdef __cplusplus
@@ -226,6 +236,9 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 	coord_t gdispGetFontMetric(font_t font, fontmetric_t metric);
 	coord_t gdispGetCharWidth(char c, font_t font);
 	coord_t gdispGetStringWidth(const char* str, font_t font);
+	font_t gdispOpenFont(const char *name);
+	void gdispCloseFont(font_t font);
+	const char *gdispGetFontName(font_t font);
 #endif
 
 /* Extra Arc Functions */

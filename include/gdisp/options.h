@@ -152,6 +152,39 @@
 /**
  * @}
  *
+ * @name    GDISP Fonts
+ * @{
+ */
+	/**
+	 * @brief   Include the old global font variable definitions
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GDISP_OLD_FONT_DEFINITIONS
+		#define GDISP_OLD_FONT_DEFINITIONS		FALSE
+	#endif
+	/**
+	 * @brief   Predefined built in fonts.
+	 * @note	Turning off the ones you are not using can save program size.
+	 */
+	#ifndef GDISP_INCLUDE_FONT_SMALL
+		#define GDISP_INCLUDE_FONT_SMALL		TRUE
+	#endif
+	#ifndef GDISP_INCLUDE_FONT_LARGER
+		#define GDISP_INCLUDE_FONT_LARGER		TRUE
+	#endif
+	#ifndef GDISP_INCLUDE_FONT_UI1
+		#define GDISP_INCLUDE_FONT_UI1			TRUE
+	#endif
+	#ifndef GDISP_INCLUDE_FONT_UI2
+		#define GDISP_INCLUDE_FONT_UI2			TRUE
+	#endif
+	#ifndef GDISP_INCLUDE_FONT_LARGENUMBERS
+		#define GDISP_INCLUDE_FONT_LARGENUMBERS	TRUE
+	#endif
+
+/**
+ * @}
+ *
  * @name    GDISP Optional Sizing Parameters
  * @{
  */

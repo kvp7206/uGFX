@@ -37,6 +37,7 @@ BaseSequentialStream *S1, *S2, *S3;
 
 int main(void) {
 	uint8_t i;
+	font_t	font1, font2;
 
 	halInit();
 	chSysInit();
@@ -44,11 +45,13 @@ int main(void) {
 	/* initialize and clear the display */
 	gdispInit();
 	gdispClear(Black);
+	font1 = gdispOpenFont("UI2 Double");
+	font2 = gdispOpenFont("Small");
 
 	/* create the three console windows and set a font for each */
-	GW1 = gwinCreateConsole(NULL, 0, 0, gdispGetWidth(), gdispGetHeight()/2, &fontUI2Double);
-	GW2 = gwinCreateConsole(NULL, 0, gdispGetHeight()/2, gdispGetWidth()/2, gdispGetHeight(), &fontSmall);
-	GW3 = gwinCreateConsole(NULL, gdispGetWidth()/2, gdispGetHeight()/2, gdispGetWidth(), gdispGetHeight(), &fontSmall);
+	GW1 = gwinCreateConsole(NULL, 0, 0, gdispGetWidth(), gdispGetHeight()/2, font1);
+	GW2 = gwinCreateConsole(NULL, 0, gdispGetHeight()/2, gdispGetWidth()/2, gdispGetHeight(), font2);
+	GW3 = gwinCreateConsole(NULL, gdispGetWidth()/2, gdispGetHeight()/2, gdispGetWidth(), gdispGetHeight(), font2);
 
 	/* Set the fore- and background colors for each console */
 	gwinSetColor(GW1, Green);
