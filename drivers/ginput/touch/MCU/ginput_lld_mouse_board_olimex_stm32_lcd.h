@@ -105,7 +105,7 @@ static __inline void release_bus(void) {
  *
  * @notapi
  */
-static __inline uint16_t read_x_value(void) {
+static uint16_t read_x_value(void) {
 	uint16_t val1, val2;
     adcsample_t samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 
@@ -113,7 +113,7 @@ static __inline uint16_t read_x_value(void) {
     palSetPadMode(GPIOC, 1, PAL_MODE_INPUT_ANALOG);
     palSetPadMode(GPIOC, 2, PAL_MODE_OUTPUT_PUSHPULL);
     palSetPadMode(GPIOC, 3, PAL_MODE_OUTPUT_PUSHPULL);
-    
+	
 	palSetPad(GPIOC, 2);
     palClearPad(GPIOC, 3); 
     chThdSleepMilliseconds(1);
@@ -135,7 +135,7 @@ static __inline uint16_t read_x_value(void) {
  *
  * @notapi
  */
-static __inline uint16_t read_y_value(void) {
+static uint16_t read_y_value(void) {
 	uint16_t val1, val2;
     adcsample_t samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 
@@ -143,8 +143,8 @@ static __inline uint16_t read_y_value(void) {
     palSetPadMode(GPIOC, 3, PAL_MODE_INPUT_ANALOG);
     palSetPadMode(GPIOC, 0, PAL_MODE_OUTPUT_PUSHPULL);
     palSetPadMode(GPIOC, 1, PAL_MODE_OUTPUT_PUSHPULL);
-	return 42;
-    palSetPad(GPIOC, 1);
+    
+	palSetPad(GPIOC, 1);
     palClearPad(GPIOC, 0);
     chThdSleepMilliseconds(1);
     adcConvert(&ADCD1, &adc_y_config, samples, ADC_BUF_DEPTH);

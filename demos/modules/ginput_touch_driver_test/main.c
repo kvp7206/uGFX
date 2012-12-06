@@ -18,6 +18,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+ * Make sure you have the following enabled in your halconf.h:
+ *
+ *	#define GFX_USE_GDISP TRUE
+ *	#define GFX_USE_GINPUT TRUE
+ *	#define GFX_USE_GEVENT TRUE
+ *	#define GFX_USE_GTIMER TRUE
+ *	#define GFX_USE_GWIN TRUE
+ *
+ *	#define GWIN_NEED_CONSOLE TRUE
+ *	#define GWIN_NEED_BUTTON TRUE
+ *
+ *	#define GINPUT_NEED_MOUSE TRUE
+ *	#define GINPUT_NEED_TOUCH TRUE
+ *
+ *	#define GDISP_NEED_CLIP TRUE
+ */
+
 #include "ch.h"
 #include "hal.h"
 #include "chprintf.h"
@@ -53,7 +71,7 @@ int main(void) {
 	ghNext = ghPrev = 0;
 
 	// Create our title
-	gdispFillStringBox(0, 0, swidth, 20, "Touch Calibration", &fontUI2, Red, White, justifyCenter);
+	gdispFillStringBox(0, 0, swidth, 20, "Touch Calibration", &fontUI2, Red, White, justifyLeft);
 
 	// Create our main display window
 	ghc = gwinCreateConsole(&gc, 0, 20, swidth, sheight-20, &fontUI2);
@@ -228,7 +246,7 @@ StepCalibrate:
 	}
 
 	// Calibration used the whole screen - re-establish our title
-	gdispFillStringBox(0, 0, swidth, 20, "Touch Calibration", &fontUI2, Green, White, justifyCenter);
+	gdispFillStringBox(0, 0, swidth, 20, "Touch Calibration", &fontUI2, Green, White, justifyLeft);
 	gwinButtonDraw(ghNext);
 	gwinButtonDraw(ghPrev);
 
