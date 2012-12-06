@@ -20,7 +20,7 @@
 
 #include "ch.h"
 #include "hal.h"
-#include "gdisp.h"
+#include "gfx.h"
 
 void mandelbrot(float x1, float y1, float x2, float y2) {
 	unsigned int i,j, width, height;
@@ -63,7 +63,6 @@ int main(void) {
 	chSysInit();
 
 	gdispInit();
-	gdispSetOrientation(GDISP_ROTATE_270);
 
 	/* where to zoom in */
 	cx = -0.086f;

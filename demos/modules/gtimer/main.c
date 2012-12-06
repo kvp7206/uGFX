@@ -18,15 +18,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * Make sure you have enabled the GTimer module in your halconf.h:
- *
- *				#define GFX_USE_GTIMER TRUE
- */
-
 #include "ch.h"
 #include "hal.h"
-#include "gtimer.h"
+#include "gfx.h"
 
 GTimer GT1, GT2;
  

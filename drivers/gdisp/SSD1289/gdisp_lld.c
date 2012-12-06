@@ -28,12 +28,12 @@
 
 #include "ch.h"
 #include "hal.h"
-#include "gdisp.h"
+#include "gfx.h"
 
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
 /* Include the emulation code for things we don't support */
-#include "lld/gdisp/emulation.c"
+#include "gdisp/lld/emulation.c"
 
 /*===========================================================================*/
 /* Driver local definitions.                                                 */

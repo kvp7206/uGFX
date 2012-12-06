@@ -19,20 +19,15 @@
 */
 
 /**
- *	Make sure you have the following stuff enabled in your halconf.h:
+ *	The following stuff is optional in your gfxconf.h:
  *
- *				#define GFX_USE_GDISP		TRUE
- *				#define GFX_USE_GWIN		TRUE
- *				#define GDISP_NEED_SCROLL	TRUE	(optional but recommended)
- *				#define GDISP_NEED_CLIP		TRUE	(optional but recommended)
- *				#define GWIN_NEED_CONSOLE 	TRUE
+ *				#define GDISP_NEED_SCROLL	TRUE	(optional but recommended if your GDISP driver supports it)
  */
 
 #include "ch.h"
 #include "hal.h"
 #include "chprintf.h"
-#include "gdisp.h"
-#include "gwin.h"
+#include "gfx.h"
 
 /* The handles for our three consoles */
 GHandle GW1, GW2, GW3;

@@ -29,37 +29,32 @@
 #ifndef _GDISP_LLD_TOGGLE_BOARD_H
 #define _GDISP_LLD_TOGGLE_BOARD_H
 
-#ifndef _GINPUT_LLD_TOGGLE_CONFIG_H
-	// Visible in ginput.h
+#error "GINPUT Toggle Pal Driver: You need to define your board definitions"
 
-	#define GINPUT_TOGGLE_SW1		0				// Switch 1
-	#define GINPUT_TOGGLE_SW2		1				// Switch 2
-	#define GINPUT_TOGGLE_UP		2				// Joystick Up
-	#define GINPUT_TOGGLE_DOWN		3				// Joystick Down
-	#define GINPUT_TOGGLE_LEFT		4				// Joystick Left
-	#define GINPUT_TOGGLE_RIGHT		5				// Joystick Right
-	#define GINPUT_TOGGLE_CENTER	6				// Joystick Center
+// The below are example values
 
-#elif !defined(GINPUT_TOGGLE_DECLARE_CONFIG)
-	// Visible in ginput_lld.h
+#define GINPUT_TOGGLE_NUM_PORTS			7			// The total number of toggle inputs
+#define GINPUT_TOGGLE_CONFIG_ENTRIES	2			// The total number of GToggleConfig entries
 
-	#define GINPUT_TOGGLE_NUM_PORTS		7				// The total number of toggle inputs
-	
-#else
-	// Visible in ginput_lld_toggle.c
+#define GINPUT_TOGGLE_SW1			0				// Switch 1
+#define GINPUT_TOGGLE_SW2			1				// Switch 2
+#define GINPUT_TOGGLE_UP			2				// Joystick Up
+#define GINPUT_TOGGLE_DOWN			3				// Joystick Down
+#define GINPUT_TOGGLE_LEFT			4				// Joystick Left
+#define GINPUT_TOGGLE_RIGHT			5				// Joystick Right
+#define GINPUT_TOGGLE_CENTER		6				// Joystick Center
 
-	GToggleConfig GInputToggleConfigTable[] = {
-		{AT91C_BASE_PIOB,								// Switch 1 and Switch 2
-			PIOB_SW1_MASK|PIOB_SW2_MASK,
-			PIOB_SW1_MASK|PIOB_SW2_MASK,
-			PAL_MODE_INPUT},
-		{AT91C_BASE_PIOA,								// B1..4 Joystick
-			PIOA_B1_MASK|PIOA_B2_MASK|PIOA_B3_MASK|PIOA_B4_MASK|PIOA_B5_MASK,
-			PIOA_B1_MASK|PIOA_B2_MASK|PIOA_B3_MASK|PIOA_B4_MASK|PIOA_B5_MASK,
-			PAL_MODE_INPUT},
-	};
-
-#endif
+#define GINPUT_TOGGLE_DECLARE_STRUCTURE()											\
+	const GToggleConfig GInputToggleConfigTable[GINPUT_TOGGLE_CONFIG_ENTRIES] = {	\
+		{AT91C_BASE_PIOB,								/* Switch 1 and Switch 2 */	\
+			PIOB_SW1_MASK|PIOB_SW2_MASK,											\
+			PIOB_SW1_MASK|PIOB_SW2_MASK,											\
+			PAL_MODE_INPUT},														\
+		{AT91C_BASE_PIOA,								/* B1..4 Joystick */		\
+			PIOA_B1_MASK|PIOA_B2_MASK|PIOA_B3_MASK|PIOA_B4_MASK|PIOA_B5_MASK,		\
+			PIOA_B1_MASK|PIOA_B2_MASK|PIOA_B3_MASK|PIOA_B4_MASK|PIOA_B5_MASK,		\
+			PAL_MODE_INPUT},														\
+	}
 
 #endif /* _GDISP_LLD_TOGGLE_BOARD_H */
 /** @} */

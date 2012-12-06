@@ -28,12 +28,12 @@
 
 #include "ch.h"
 #include "hal.h"
-#include "gdisp.h"
+#include "gfx.h"
 
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
 /* Include the emulation code for things we don't support */
-#include "lld/gdisp/emulation.c"
+#include "gdisp/lld/emulation.c"
 
 #if defined(GDISP_USE_CUSTOM_BOARD) && GDISP_USE_CUSTOM_BOARD
 	/* Include the user supplied board definitions */
@@ -50,9 +50,11 @@
 
 /* This controller is only ever used with a 240 x 320 display */
 #if defined(GDISP_SCREEN_HEIGHT)
+	#warning "GDISP: This low level driver does not support setting a screen size. It is being ignored."
 	#undef GDISP_SCREEN_HEIGHT
 #endif
 #if defined(GDISP_SCREEN_WIDTH)
+	#warning "GDISP: This low level driver does not support setting a screen size. It is being ignored."
 	#undef GDISP_SCREEN_WIDTH
 #endif
 

@@ -27,12 +27,11 @@
  */
 #include "ch.h"
 #include "hal.h"
-#include "gtimer.h"
-#include "ginput.h"
+#include "gfx.h"
 
-#if GINPUT_NEED_MOUSE || defined(__DOXYGEN__)
+#if (GFX_USE_GINPUT && GINPUT_NEED_MOUSE) || defined(__DOXYGEN__)
 
-#include "lld/ginput/mouse.h"
+#include "ginput/lld/mouse.h"
 
 #if GINPUT_MOUSE_NEED_CALIBRATION
 	#if !defined(GFX_USE_GDISP) || !GFX_USE_GDISP
@@ -582,5 +581,5 @@ void ginputMouseWakeupI(void) {
 	gtimerJabI(&MouseTimer);
 }
 
-#endif /* GINPUT_NEED_MOUSE */
+#endif /* GFX_USE_GINPUT && GINPUT_NEED_MOUSE */
 /** @} */

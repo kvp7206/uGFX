@@ -20,24 +20,20 @@
 
 /**
  * @file    src/gwin/button.c
- * @brief   GWIN Driver code.
+ * @brief   GWIN sub-system button code.
  *
  * @addtogroup GWIN_BUTTON
  * @{
  */
 #include "ch.h"
 #include "hal.h"
-#include "gwin.h"
-#include "ginput.h"
+#include "gfx.h"
 
 #if (GFX_USE_GWIN && GWIN_NEED_BUTTON) || defined(__DOXYGEN__)
 
-#if !GFX_USE_GINPUT
-	#error "GWIN Buttons require GFX_USE_GINPUT"
-#endif
-
 #include <string.h>
-#include "gwin_internal.h"
+
+#include "gwin/internal.h"
 
 static const GButtonStyle GButtonDefaultStyle = {
 	GBTN_3D,
@@ -137,7 +133,7 @@ static void gwinButtonCallback(void *param, GEvent *pe) {
  * @brief   Create a button window.
  * @return  NULL if there is no resultant drawing area, otherwise a window handle.
  *
- * @param[in] gb		The GConsoleWindow structure to initialise. If this is NULL the structure is dynamically allocated.
+ * @param[in] gb		The GButtonObject structure to initialise. If this is NULL the structure is dynamically allocated.
  * @param[in] x,y		The screen co-ordinates for the bottom left corner of the window
  * @param[in] width		The width of the window
  * @param[in] height	The height of the window

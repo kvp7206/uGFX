@@ -28,7 +28,7 @@
 
 #include "ch.h"
 #include "hal.h"
-#include "gdisp.h"
+#include "gfx.h"
 
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
@@ -39,16 +39,16 @@
 #include <wingdi.h>
 #include <assert.h>
 
-#ifndef GINPUT_NEED_TOGGLE
-	#define GINPUT_NEED_TOGGLE	FALSE
+#ifndef GDISP_SCREEN_WIDTH
+	#define GDISP_SCREEN_WIDTH	640
 #endif
-#ifndef GINPUT_NEED_MOUSE
-	#define GINPUT_NEED_MOUSE	FALSE
+#ifndef GDISP_SCREEN_HEIGHT
+	#define GDISP_SCREEN_HEIGHT	480
 #endif
 
 #if GINPUT_NEED_TOGGLE
 	/* Include toggle support code */
-	#include "lld/ginput/toggle.h"
+	#include "ginput/lld/toggle.h"
 
 	const GToggleConfig GInputToggleConfigTable[GINPUT_TOGGLE_CONFIG_ENTRIES] = {
 		{0,	0xFF, 0x00, PAL_MODE_INPUT},
@@ -57,12 +57,11 @@
 
 #if GINPUT_NEED_MOUSE
 	/* Include mouse support code */
-	#include "ginput.h"
-	#include "lld/ginput/mouse.h"
+	#include "ginput/lld/mouse.h"
 #endif
 
 /* Include the emulation code for things we don't support */
-#include "lld/gdisp/emulation.c"
+#include "gdisp/lld/emulation.c"
 
 /*===========================================================================*/
 /* Driver local routines    .                                                */
@@ -621,7 +620,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	}
 #endif
 
-#if GDISP_HARDWARE_BITFILLS || defined(__DOXYGEN__)
+#if (GDISP_HARDWARE_BITFILLS && GDISP_NEED_CONTROL) || defined(__DOXYGEN__)
 	static pixel_t *rotateimg(coord_t cx, coord_t cy, coord_t srcx, coord_t srccx, const pixel_t *buffer) {
 		pixel_t	*dstbuf;
 		pixel_t	*dst;
@@ -667,7 +666,9 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		}
 		return dstbuf;
 	}
+#endif
 	
+#if GDISP_HARDWARE_BITFILLS || defined(__DOXYGEN__)
 	/**
 	 * @brief   Fill an area with a bitmap.
 	 * @note    Optional - The high level driver can emulate using software.

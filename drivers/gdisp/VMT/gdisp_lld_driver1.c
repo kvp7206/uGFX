@@ -42,7 +42,7 @@
 #include CONFIGFILE()
 
 /* Bring in our API */
-#include "gdisp.h"
+#include "gfx.h"
 
 /* Add the low level driver */
 #include DRIVERFILE()

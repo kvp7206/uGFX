@@ -31,7 +31,10 @@
 
 #if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
 
-#if defined(BOARD_OLIMEX_SAM7_EX256)
+#if GINPUT_TOGGLE_USE_CUSTOM_BOARD
+	/* Include the user supplied board definitions */
+	#include "ginput_lld_toggle_board.h"
+#elif defined(BOARD_OLIMEX_SAM7_EX256)
 	#include "ginput_lld_toggle_board_olimexsam7ex256.h"
 #else
 	/* Include the user supplied board definitions */
