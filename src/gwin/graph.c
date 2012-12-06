@@ -88,7 +88,7 @@ static void lineto(GGraphObject *gg, coord_t x0, coord_t y0, coord_t x1, coord_t
 	x0 += gg->gwin.x + gg->xorigin;
 	y0 = gg->gwin.y + gg->gwin.height - 1 - gg->yorigin - y0;
 	x1 += gg->gwin.x + gg->xorigin;
-	y1 += gg->gwin.y + gg->gwin.height - 1 - gg->yorigin - y1;
+	y1 = gg->gwin.y + gg->gwin.height - 1 - gg->yorigin - y1;
 
 	if (style->size <= 0) {
 		// Use the driver to draw a solid line
@@ -235,6 +235,7 @@ void gwinGraphSetStyle(GHandle gh, const GGraphStyle *pstyle) {
 	gg->style.ygrid.size = pstyle->ygrid.size;
 	gg->style.ygrid.color = pstyle->ygrid.color;
 	gg->style.ygrid.spacing = pstyle->ygrid.spacing;
+	gg->style.flags = pstyle->flags;
 
 	#undef gg
 }

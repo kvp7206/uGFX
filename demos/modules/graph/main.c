@@ -13,9 +13,19 @@ int data[5][2] = {
 
 GGraphObject	g;
 
+GGraphStyle GraphStyle1 = {
+	{ GGRAPH_POINT_DOT, 0, Blue },			// point
+	{ GGRAPH_LINE_NONE, 2, Gray },			// line
+	{ GGRAPH_LINE_SOLID, 0, White },		// x axis
+	{ GGRAPH_LINE_SOLID, 0, White },		// y axis
+	{ GGRAPH_LINE_NONE, 0, White, 0 },		// x grid
+	{ GGRAPH_LINE_NONE, 0, White, 0 },		// y grid
+	GWIN_GRAPH_STYLE_XAXIS_ARROWS|GWIN_GRAPH_STYLE_YAXIS_ARROWS		// flags
+};
+
 GGraphStyle GraphStyle2 = {
 	{ GGRAPH_POINT_DOT, 0, Green },			// point
-	{ GGRAPH_LINE_DOT, 2, Gray },			// line
+	{ GGRAPH_LINE_NONE, 2, Gray },			// line
 	{ GGRAPH_LINE_SOLID, 0, White },		// x axis
 	{ GGRAPH_LINE_SOLID, 0, White },		// y axis
 	{ GGRAPH_LINE_NONE, 0, White, 0 },		// x grid
@@ -33,19 +43,20 @@ int main(void) {
 	gdispInit();
 	gdispClear(Black);
 	
-	gh = gwinCreateGraph(0, 0, gdispGetWidth(), gdispGetHeight());
+	gh = gwinCreateGraph(&g, 0, 0, gdispGetWidth(), gdispGetHeight());
 
-	gwinGraphSetOrigin(gh, 150, 150);
+	gwinGraphSetOrigin(gh, gwinGetWidth(gh)/2, gwinGetHeight(gh)/2);
+	gwinGraphSetStyle(gh, &GraphStyle1);
 	gwinGraphDrawAxis(gh);
 	
-	for(i = 0; i < 2500; i++)
-		gwinGraphDrawPoint(gh, i-170, 80*sin(2*0.2*M_PI*i/180));
+	for(i = 0; i < gwinGetWidth(gh); i++)
+		gwinGraphDrawPoint(gh, i-gwinGetWidth(gh)/2, 80*sin(2*0.2*M_PI*i/180));
 
 	gwinGraphStartSet(gh);
 	gwinGraphSetStyle(gh, &GraphStyle2);
 	
-	for(i = 0; i < 2500; i++)
-		gwinGraphDrawPoint(gh, i/5-150, 95*sin(2*0.2*M_PI*i/180));
+	for(i = 0; i < gwinGetWidth(gh)*5; i++)
+		gwinGraphDrawPoint(gh, i/5-gwinGetWidth(gh)/2, 95*sin(2*0.2*M_PI*i/180));
 
 	while(TRUE) {
 		chThdSleepMilliseconds(100);	
