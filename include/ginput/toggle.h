@@ -36,6 +36,10 @@
 // Get the hardware definitions - Number of instances etc.
 #include "ginput_lld_toggle_config.h"
 
+#ifndef GINPUT_TOGGLE_POLL_PERIOD
+	#define GINPUT_TOGGLE_POLL_PERIOD 200
+#endif
+
 /*===========================================================================*/
 /* Type definitions                                                          */
 /*===========================================================================*/
