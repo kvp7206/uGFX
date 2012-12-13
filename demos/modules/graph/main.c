@@ -18,9 +18,9 @@ GGraphStyle GraphStyle1 = {
 	{ GGRAPH_LINE_NONE, 2, Gray },			// line
 	{ GGRAPH_LINE_SOLID, 0, White },		// x axis
 	{ GGRAPH_LINE_SOLID, 0, White },		// y axis
-	{ GGRAPH_LINE_NONE, 0, White, 0 },		// x grid
-	{ GGRAPH_LINE_NONE, 0, White, 0 },		// y grid
-	GWIN_GRAPH_STYLE_XAXIS_ARROWS|GWIN_GRAPH_STYLE_YAXIS_ARROWS		// flags
+	{ GGRAPH_LINE_DASH, 5, Gray, 50 },		// x grid
+	{ GGRAPH_LINE_DOT, 7, Yellow, 50 },		// y grid
+	GWIN_GRAPH_STYLE_POSITIVE_AXIS_ARROWS	// flags
 };
 
 GGraphStyle GraphStyle2 = {
@@ -28,9 +28,9 @@ GGraphStyle GraphStyle2 = {
 	{ GGRAPH_LINE_NONE, 2, Gray },			// line
 	{ GGRAPH_LINE_SOLID, 0, White },		// x axis
 	{ GGRAPH_LINE_SOLID, 0, White },		// y axis
-	{ GGRAPH_LINE_NONE, 0, White, 0 },		// x grid
-	{ GGRAPH_LINE_NONE, 0, White, 0 },		// y grid
-	GWIN_GRAPH_STYLE_XAXIS_ARROWS|GWIN_GRAPH_STYLE_YAXIS_ARROWS		// flags
+	{ GGRAPH_LINE_DASH, 5, Gray, 50 },		// x grid
+	{ GGRAPH_LINE_DOT, 7, Yellow, 50 },		// y grid
+	GWIN_GRAPH_STYLE_POSITIVE_AXIS_ARROWS	// flags
 };
 
 int main(void) {

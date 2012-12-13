@@ -299,11 +299,13 @@ void gwinGraphDrawAxis(GHandle gh) {
 
 	// x axis
 	lineto(gg, xmin, 0, xmax, 0, &gg->style.xaxis);
-	if ((gg->style.flags & GWIN_GRAPH_STYLE_XAXIS_ARROWS)) {
+	if ((gg->style.flags & GWIN_GRAPH_STYLE_XAXIS_NEGATIVE_ARROWS)) {
 		if (xmin > 0 || xmin < -(GGRAPH_ARROW_SIZE+1)) {
 			lineto(gg, xmin, 0, xmin+GGRAPH_ARROW_SIZE, GGRAPH_ARROW_SIZE, &gg->style.xaxis);
 			lineto(gg, xmin, 0, xmin+GGRAPH_ARROW_SIZE, -GGRAPH_ARROW_SIZE, &gg->style.xaxis);
 		}
+	}
+	if ((gg->style.flags & GWIN_GRAPH_STYLE_XAXIS_POSITIVE_ARROWS)) {
 		if (xmax < 0 || xmax > (GGRAPH_ARROW_SIZE+1)) {
 			lineto(gg, xmax, 0, xmax-GGRAPH_ARROW_SIZE, GGRAPH_ARROW_SIZE, &gg->style.xaxis);
 			lineto(gg, xmax, 0, xmax-GGRAPH_ARROW_SIZE, -GGRAPH_ARROW_SIZE, &gg->style.xaxis);
@@ -312,11 +314,13 @@ void gwinGraphDrawAxis(GHandle gh) {
 
 	// y axis
 	lineto(gg, 0, ymin, 0, ymax, &gg->style.yaxis);
-	if ((gg->style.flags & GWIN_GRAPH_STYLE_YAXIS_ARROWS)) {
+	if ((gg->style.flags & GWIN_GRAPH_STYLE_YAXIS_NEGATIVE_ARROWS)) {
 		if (ymin > 0 || ymin < -(GGRAPH_ARROW_SIZE+1)) {
 			lineto(gg, 0, ymin, GGRAPH_ARROW_SIZE, ymin+GGRAPH_ARROW_SIZE, &gg->style.yaxis);
 			lineto(gg, 0, ymin, -GGRAPH_ARROW_SIZE, ymin+GGRAPH_ARROW_SIZE, &gg->style.yaxis);
 		}
+	}
+	if ((gg->style.flags & GWIN_GRAPH_STYLE_YAXIS_POSITIVE_ARROWS)) {
 		if (ymax < 0 || ymax > (GGRAPH_ARROW_SIZE+1)) {
 			lineto(gg, 0, ymax, GGRAPH_ARROW_SIZE, ymax-GGRAPH_ARROW_SIZE, &gg->style.yaxis);
 			lineto(gg, 0, ymax, -GGRAPH_ARROW_SIZE, ymax-GGRAPH_ARROW_SIZE, &gg->style.yaxis);
