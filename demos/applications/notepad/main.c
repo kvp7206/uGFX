@@ -75,6 +75,7 @@ int main(void) {
 
 	gdispInit();
 	ginputGetMouse(0);
+	gdispSetOrientation(GDISP_ROTATE_90);
 
 	drawScreen();
 
