@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    src/gdisp.c
+ * @file    src/gdisp/gdisp.c
  * @brief   GDISP Driver code.
  *
  * @addtogroup GDISP

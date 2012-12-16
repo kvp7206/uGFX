@@ -737,7 +737,7 @@ static bool_t matchfont(const char *pattern, const char *name) {
  * @details	The supplied name is matched against the font name. A '*' will replace 0 or more characters.
  * @return	Returns a font or NULL if no matching font could be found.
  *
- * @params[in] name		The font name to find.
+ * @param[in] name		The font name to find.
  *
  * @note				Wildcard matching will match the shortest possible match.
  *
@@ -756,7 +756,7 @@ font_t gdispOpenFont(const char *name) {
 /**
  * @brief	Release a font after use.
  *
- * @params[in] font		The font to release.
+ * @param[in] font		The font to release.
  *
  * @api
  */
@@ -768,7 +768,7 @@ void gdispCloseFont(font_t font) {
  * @brief	Get the name of the specified font.
  * @returns	The name of the font.
  *
- * @params[in] font		The font to get the name for.
+ * @param[in] font		The font to get the name for.
  *
  * @api
  */

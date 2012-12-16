@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    include/gwin_options.h
+ * @file    include/gwin/options.h
  * @brief   GWIN sub-system options header file.
  *
  * @addtogroup GWIN
@@ -45,9 +45,9 @@
 	 * @details	Defaults to FALSE
 	 * @note	To use chprintf() for printing in a console window you need to
 	 * 			include in your application source file...
-	 * 				#include "chprintf.h"
+	 * 			#include "chprintf.h"
 	 * 			Also in your makefile, as part of your list of C source files, include
-	 * 			    ${CHIBIOS}/os/various/chprintf.c
+	 * 			${CHIBIOS}/os/various/chprintf.c
 	 */
 	#ifndef GWIN_NEED_CONSOLE
 		#define GWIN_NEED_CONSOLE	FALSE

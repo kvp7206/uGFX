@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    src/gevent.c
+ * @file    src/gevent/gevent.c
  * @brief   GEVENT Driver code.
  *
  * @addtogroup GEVENT
