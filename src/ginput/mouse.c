@@ -527,6 +527,10 @@ bool_t ginputCalibrateMouse(uint16_t instance) {
 			MouseConfig.fnsavecal(instance, (const uint8_t *)&MouseConfig.caldata, sizeof(MouseConfig.caldata));
 			MouseConfig.flags |= FLG_CAL_SAVED;
 		}
+		
+		/* FIX THIS PROPERLY!!! */
+		reset_viewport();	
+		
 		return TRUE;
 	#endif
 }

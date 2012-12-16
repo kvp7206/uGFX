@@ -95,7 +95,7 @@ static __inline void set_cursor(coord_t x, coord_t y) {
 	}
 }
 
-static __inline void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
+void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
 
 	set_cursor(x, y);
 
@@ -132,6 +132,19 @@ static __inline void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) 
 	}
 
 	set_cursor(x, y);
+}
+
+void reset_viewport(void) {
+    switch(GDISP.Orientation) {
+        case GDISP_ROTATE_0:
+        case GDISP_ROTATE_180:
+            set_viewport(0, 0, GDISP_SCREEN_WIDTH, GDISP_SCREEN_HEIGHT);
+            break;
+        case GDISP_ROTATE_90:
+        case GDISP_ROTATE_270:
+            set_viewport(0, 0, GDISP_SCREEN_HEIGHT, GDISP_SCREEN_WIDTH);
+            break;
+    }   
 }
 
 /*===========================================================================*/
