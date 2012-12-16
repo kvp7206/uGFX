@@ -2,4 +2,4 @@
 GFXSRC += $(GFXLIB)/drivers/ginput/touch/XPT2046/ginput_lld_mouse.c
 
 # Required include directories
-GFXINC += $(GFXLIB)/drivers/ginput/touchXPT20466
+GFXINC += $(GFXLIB)/drivers/ginput/touch/XPT20466
