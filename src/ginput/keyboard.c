@@ -27,9 +27,9 @@
  */
 #include "ch.h"
 #include "hal.h"
-#include "ginput.h"
+#include "gfx.h"
 
-#if GINPUT_NEED_KEYBOARD || defined(__DOXYGEN__)
+#if (GFX_USE_GINPUT && GINPUT_NEED_KEYBOARD) || defined(__DOXYGEN__)
 	#error "GINPUT: GINPUT_NEED_KEYBOARD - Not Implemented Yet"
-#endif /* GINPUT_NEED_KEYBOARD */
+#endif /* GFX_USE_GINPUT && GINPUT_NEED_KEYBOARD */
 /** @} */

@@ -18,19 +18,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- *	Make sure you have the following stuff enabled in your halconf.h:
- *
- *				#define GFX_USE_GDISP		TRUE
- *				#define GDISP_NEED_SCROLL	TRUE
- *				#define GDISP_NEED_CLIP		TRUE	(optional but recommended)
- */
-
-
 #include "ch.h"
 #include "hal.h"
-#include "gdisp.h"
-#include "gwin.h"
+#include "gfx.h"
 
 /* The handles for our two Windows */
 GHandle GW1, GW2;

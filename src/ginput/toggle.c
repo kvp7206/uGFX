@@ -27,12 +27,11 @@
  */
 #include "ch.h"
 #include "hal.h"
-#include "gtimer.h"
-#include "ginput.h"
+#include "gfx.h"
 
-#if GINPUT_NEED_TOGGLE || defined(__DOXYGEN__)
+#if (GFX_USE_GINPUT && GINPUT_NEED_TOGGLE) || defined(__DOXYGEN__)
 
-#include "lld/ginput/toggle.h"
+#include "ginput/lld/toggle.h"
 
 #define GINPUT_TOGGLE_ISON		0x01
 #define GINPUT_TOGGLE_INVERT	0x02
@@ -163,5 +162,5 @@ void ginputToggleWakeupI(void) {
 	gtimerJabI(&ToggleTimer);
 }
 
-#endif /* GINPUT_NEED_TOGGLE */
+#endif /* GFX_USE_GINPUT && GINPUT_NEED_TOGGLE */
 /** @} */

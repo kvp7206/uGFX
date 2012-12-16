@@ -20,20 +20,20 @@
 
 /**
  * @file    src/gwin/console.c
- * @brief   GWIN Driver code.
+ * @brief   GWIN sub-system console code.
  *
  * @addtogroup GWIN_CONSOLE
  * @{
  */
 #include "ch.h"
 #include "hal.h"
-#include "gwin.h"
+#include "gfx.h"
 
 #if (GFX_USE_GWIN && GWIN_NEED_CONSOLE) || defined(__DOXYGEN__)
 
 #include <string.h>
-#include "gwin_internal.h"
 
+#include "gwin/internal.h"
 
 #define GWIN_CONSOLE_USE_CLEAR_LINES			TRUE
 #define GWIN_CONSOLE_USE_FILLED_CHARS			FALSE

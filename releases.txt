@@ -6,18 +6,22 @@ current stable: 1.4
 
 
 *** changes after 1.4 ***
-FEATURE:	Added three point calibration
-FIX:		Touchpad renamed into Touchscreen
-FIX:		tsIRQ() renamed into tsPressed()
-FEATURE:	Touchscreen support added to gdisp Win32 driver
-FIX:		gdisp Win32 driver fixes
-DEPRECATE:	console deprecated - replaced with gwin functionality
-FEATURE:	ILI9320 GDISP driver
-FEATURE:	gdisp Win32 driver - full orientation support
 FEATURE:	GEVENT - for passing event structures from Sources to Listeners
 FEATURE:	GTIMER - thread context based once-off and periodic timers.
 FEATURE:	GINPUT - extensible, multiple device-type, input sub-system.
-
+FEATURE:	GWIN - full button, console and graph support
+FEATURE:	Numerous touch calibration improvements
+FEATURE:	Win32 driver - now support gdisp & ginput mouse/touch/toggle
+FEATURE:	Win32 driver - full gdisp orientation support
+FEATURE:	ILI9320 GDISP driver
+FEATURE:	Nokia6610 GDISP driver split in to GE8 and GE12 variants
+FEATURE:	Many GDISP drivers changed to use a board interface definition
+FEATURE:	GFX source restructure with new gfx.h include file.
+DEPRECATE:	console deprecated - replaced with gwin functionality
+DEPRECATE:	graph deprecated - replaced with gwin functionality
+DEPRECATE:	touchscreen deprecated - replaced with ginput functionality
+FEATURE:	Numerous documentation improvements
+FEATURE:	Added a number of module demo and test programs
 
 *** changes after 1.3 ***
 FIX:		Nokia 6610 fix

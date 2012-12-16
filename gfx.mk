@@ -3,15 +3,11 @@ ifeq ($(GFXLIB),)
 	GFXLIB =	$(CHIBIOS)/ext/gfx
 endif
 
-GFXSRC +=   $(GFXLIB)/src/gdisp.c \
-            $(GFXLIB)/src/gdisp_fonts.c \
-			$(GFXLIB)/src/gevent.c \
-			$(GFXLIB)/src/gtimer.c \
-            $(GFXLIB)/src/gwin.c \
-            $(GFXLIB)/src/touchscreen.c \
-			$(GFXLIB)/src/graph.c \
-
 GFXINC +=   $(GFXLIB)/include
+GFXSRC +=
 
+include $(GFXLIB)/src/gdisp/gdisp.mk
+include $(GFXLIB)/src/gevent/gevent.mk
+include $(GFXLIB)/src/gtimer/gtimer.mk
 include $(GFXLIB)/src/gwin/gwin.mk
 include $(GFXLIB)/src/ginput/ginput.mk

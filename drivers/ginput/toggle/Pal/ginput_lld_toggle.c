@@ -28,13 +28,13 @@
 
 #include "ch.h"
 #include "hal.h"
+#include "gfx.h"
 
 #if (GFX_USE_GINPUT && GINPUT_NEED_TOGGLE) /*|| defined(__DOXYGEN__)*/
 
-// Declare the static members in the following include file
-#define GINPUT_TOGGLE_DECLARE_CONFIG
+#include "ginput/lld/toggle.h"
 
-#include "lld/ginput/toggle.h"
+GINPUT_TOGGLE_DECLARE_STRUCTURE();
 
 /**
  * @brief   Initialise the port.

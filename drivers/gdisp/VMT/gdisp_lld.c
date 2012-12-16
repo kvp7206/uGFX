@@ -28,14 +28,14 @@
 
 #include "ch.h"
 #include "hal.h"
-#include "gdisp.h"
+#include "gfx.h"
 
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
 #define GDISP_LLD_NO_STRUCT
 
 /* Include the emulation code for things we don't support */
-#include "lld/gdisp/emulation.c"
+#include "gdisp/lld/emulation.c"
 
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
@@ -46,6 +46,7 @@
 
 /* Prototypes for lld driver functions */
 bool_t GDISP_LLD1(init)(void);
+void *GDISP_LLD1(query)(unsigned what);
 void GDISP_LLD1(clear)(color_t color);
 void GDISP_LLD1(drawpixel)(coord_t x, coord_t y, color_t color);
 void GDISP_LLD1(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
@@ -79,11 +80,9 @@ void GDISP_LLD1(drawline)(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_
 #if GDISP_NEED_CONTROL
 	void GDISP_LLD1(control)(unsigned what, void *value);
 #endif
-#if GDISP_NEED_QUERY
-	void *GDISP_LLD1(query)(unsigned what);
-#endif
 
 bool_t GDISP_LLD2(init)(void);
+void *GDISP_LLD2(query)(unsigned what);
 void GDISP_LLD2(clear)(color_t color);
 void GDISP_LLD2(drawpixel)(coord_t x, coord_t y, color_t color);
 void GDISP_LLD2(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
@@ -117,15 +116,13 @@ void GDISP_LLD2(drawline)(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_
 #if GDISP_NEED_CONTROL
 	void GDISP_LLD2(control)(unsigned what, void *value);
 #endif
-#if GDISP_NEED_QUERY
-	void *GDISP_LLD2(query)(unsigned what);
-#endif
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
 
 /* Our VMT table variables */
+void *GDISP_LLD_VMT(query)(unsigned what);
 void GDISP_LLD_VMT(clear)(color_t color);
 void GDISP_LLD_VMT(drawpixel)(coord_t x, coord_t y, color_t color);
 void GDISP_LLD_VMT(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
@@ -162,10 +159,6 @@ void GDISP_LLD_VMT(verticalscroll)(coord_t x, coord_t y, coord_t cx, coord_t cy,
 #if GDISP_NEED_CONTROL
 void GDISP_LLD_VMT(control)(unsigned what, void *value);
 #endif
-/* Set driver specific control */
-#if GDISP_NEED_QUERY
-void *GDISP_LLD_VMT(query)(unsigned what);
-#endif
 /* Clipping Functions */
 #if GDISP_NEED_CLIP
 void GDISP_LLD_VMT(setclip)(coord_t x, coord_t y, coord_t cx, coord_t cy);
@@ -194,6 +187,7 @@ void GDISP_LLD_VMT(setclip)(coord_t x, coord_t y, coord_t cx, coord_t cy);
 
 bool_t	gdisp_lld_init_VMT(void) {
 	if (GDISP_VMT_NAME1(gdisp_lld_init_)()) {
+		gdisp_lld_query_VMT					= GDISP_VMT_NAME1(gdisp_lld_query_);
 		gdisp_lld_clear_VMT					= GDISP_VMT_NAME1(gdisp_lld_clear_);
 		gdisp_lld_drawpixel_VMT				= GDISP_VMT_NAME1(gdisp_lld_drawpixel_);
 		gdisp_lld_fillarea_VMT				= GDISP_VMT_NAME1(gdisp_lld_fillarea_);
@@ -224,9 +218,6 @@ bool_t	gdisp_lld_init_VMT(void) {
 		#if GDISP_NEED_CONTROL
 			gdisp_lld_control_VMT			= GDISP_VMT_NAME1(gdisp_lld_control_);
 		#endif
-		#if GDISP_NEED_QUERY
-			gdisp_lld_query_VMT				= GDISP_VMT_NAME1(gdisp_lld_query_);
-		#endif
 		#if GDISP_NEED_CLIP
 			gdisp_lld_setclip_VMT			= GDISP_VMT_NAME1(gdisp_lld_setclip_);
 		#endif
@@ -235,6 +226,7 @@ bool_t	gdisp_lld_init_VMT(void) {
 	}
 
 	if (GDISP_VMT_NAME2(gdisp_lld_init_)()) {
+		gdisp_lld_query_VMT					= GDISP_VMT_NAME2(gdisp_lld_query_);
 		gdisp_lld_clear_VMT					= GDISP_VMT_NAME2(gdisp_lld_clear_);
 		gdisp_lld_drawpixel_VMT				= GDISP_VMT_NAME2(gdisp_lld_drawpixel_);
 		gdisp_lld_fillarea_VMT				= GDISP_VMT_NAME2(gdisp_lld_fillarea_);
@@ -264,9 +256,6 @@ bool_t	gdisp_lld_init_VMT(void) {
 		#endif
 		#if GDISP_NEED_CONTROL
 			gdisp_lld_control_VMT			= GDISP_VMT_NAME2(gdisp_lld_control_);
-		#endif
-		#if GDISP_NEED_QUERY
-			gdisp_lld_query_VMT				= GDISP_VMT_NAME2(gdisp_lld_query_);
 		#endif
 		#if GDISP_NEED_CLIP
 			gdisp_lld_setclip_VMT			= GDISP_VMT_NAME2(gdisp_lld_setclip_);

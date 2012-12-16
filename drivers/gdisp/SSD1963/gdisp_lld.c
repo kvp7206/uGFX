@@ -28,12 +28,19 @@
 
 #include "ch.h"
 #include "hal.h"
-#include "gdisp.h"
+#include "gfx.h"
 
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
 /* Include the emulation code for things we don't support */
-#include "lld/gdisp/emulation.c"
+#include "gdisp/lld/emulation.c"
+
+#ifndef GDISP_SCREEN_HEIGHT
+	#define GDISP_SCREEN_HEIGHT		320
+#endif
+#ifndef GDISP_SCREEN_WIDTH
+	#define GDISP_SCREEN_WIDTH		240
+#endif
 
 /* All the board specific code should go in these include file so the driver
  * can be ported to another board just by creating a suitable file.

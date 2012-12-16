@@ -18,30 +18,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*
- * Make sure you have the following enabled in your halconf.h:
- *
- *	#define GFX_USE_GDISP TRUE
- *	#define GFX_USE_GINPUT TRUE
- *	#define GFX_USE_GEVENT TRUE
- *	#define GFX_USE_GTIMER TRUE
- *	#define GFX_USE_GWIN TRUE
- *
- *	#define GWIN_NEED_CONSOLE TRUE
- *	#define GWIN_NEED_BUTTON TRUE
- *
- *	#define GINPUT_NEED_MOUSE TRUE
- *	#define GINPUT_NEED_TOUCH TRUE
- *
- *	#define GDISP_NEED_CLIP TRUE
- */
-
 #include "ch.h"
 #include "hal.h"
 #include "chprintf.h"
-#include "gdisp.h"
-#include "ginput.h"
-#include "gwin.h"
+#include "gfx.h"
 
 static GConsoleObject			gc;
 static GButtonObject			gNext;
@@ -60,6 +40,7 @@ int main(void) {
 	GHandle					ghc, ghNext, ghPrev;
 	BaseSequentialStream	*gp;
 	GEventType				deviceType;
+	font_t					font;
 
 	halInit();			// Initialise the Hardware
 	chSysInit();		// Initialize the OS
@@ -71,10 +52,11 @@ int main(void) {
 	ghNext = ghPrev = 0;
 
 	// Create our title
-	gdispFillStringBox(0, 0, swidth, 20, "Touch Calibration", &fontUI2, Red, White, justifyLeft);
+	font = gdispOpenFont("UI2");
+	gdispFillStringBox(0, 0, swidth, 20, "Touch Calibration", font, Red, White, justifyLeft);
 
 	// Create our main display window
-	ghc = gwinCreateConsole(&gc, 0, 20, swidth, sheight-20, &fontUI2);
+	ghc = gwinCreateConsole(&gc, 0, 20, swidth, sheight-20, font);
 	gwinClear(ghc);
 	gp = gwinGetConsoleStream(ghc);
 
@@ -215,13 +197,13 @@ StepCalibrate:
 	/* From now on we can use Next and Previous Buttons */
 	if (!ghNext) {
 
-		ghNext = gwinCreateButton(&gNext, swidth-50, 0, 50, 20, &fontUI2, GBTN_NORMAL);
+		ghNext = gwinCreateButton(&gNext, swidth-50, 0, 50, 20, font, GBTN_NORMAL);
 		gwinSetButtonText(ghNext, "Next", FALSE);
 		gsNext = gwinGetButtonSource(ghNext);
 		geventAttachSource(&gl, gsNext, 0);
 		gwinAttachButtonMouseSource(ghNext, gs);
 
-		ghPrev = gwinCreateButton(&gPrev, swidth-100, 0, 50, 20, &fontUI2, GBTN_NORMAL);
+		ghPrev = gwinCreateButton(&gPrev, swidth-100, 0, 50, 20, font, GBTN_NORMAL);
 		gwinSetButtonText(ghPrev, "Back", FALSE);
 		gsPrev = gwinGetButtonSource(ghPrev);
 		geventAttachSource(&gl, gsPrev, 0);
@@ -246,7 +228,7 @@ StepCalibrate:
 	}
 
 	// Calibration used the whole screen - re-establish our title
-	gdispFillStringBox(0, 0, swidth, 20, "Touch Calibration", &fontUI2, Green, White, justifyLeft);
+	gdispFillStringBox(0, 0, swidth, 20, "Touch Calibration", font, Green, White, justifyLeft);
 	gwinButtonDraw(ghNext);
 	gwinButtonDraw(ghPrev);
 

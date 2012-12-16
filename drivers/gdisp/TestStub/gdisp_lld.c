@@ -28,12 +28,19 @@
 
 #include "ch.h"
 #include "hal.h"
-#include "gdisp.h"
+#include "gfx.h"
 
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
 /* Include the emulation code for things we don't support */
-#include "lld/gdisp/emulation.c"
+#include "gdisp/lld/emulation.c"
+
+#ifndef GDISP_SCREEN_HEIGHT
+	#define GDISP_SCREEN_HEIGHT		128
+#endif
+#ifndef GDISP_SCREEN_WIDTH
+	#define GDISP_SCREEN_WIDTH		128
+#endif
 
 /* ---- Required Routines ---- */
 /*
@@ -48,8 +55,8 @@
  */
 bool_t GDISP_LLD(init)(void) {
 	/* Initialise the GDISP structure */
-	GDISP.Width = 128;
-	GDISP.Height = 128;
+	GDISP.Width = GDISP_SCREEN_WIDTH;
+	GDISP.Height = GDISP_SCREEN_HEIGHT;
 	GDISP.Orientation = GDISP_ROTATE_0;
 	GDISP.Powermode = powerOff;
 	GDISP.Backlight = 100;
