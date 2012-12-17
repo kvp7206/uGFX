@@ -292,6 +292,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	void GDISP_LLD(clear)(color_t color) {
 	    unsigned i;
 
+		reset_viewport();
 		acquire_bus();
 	    set_cursor(0, 0);
 	    stream_start();

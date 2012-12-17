@@ -528,11 +528,6 @@ bool_t ginputCalibrateMouse(uint16_t instance) {
 			MouseConfig.flags |= FLG_CAL_SAVED;
 		}
 	
-		/* FIX THIS PROPERLY!!! */
-		#if IS_THIS_SSD1289 == 134038
-		reset_viewport();	
-		#endif 
-		
 		return TRUE;
 	#endif
 }

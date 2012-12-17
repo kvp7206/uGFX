@@ -36,7 +36,6 @@
 /*===========================================================================*/
 
 #define GDISP_DRIVER_NAME				"SSD1289"
-#define IS_THIS_SSD1289 134038	/* very dirty fix until reset_viewport works */
 #define GDISP_LLD(x)					gdisp_lld_##x##_SSD1289
 
 #define GDISP_HARDWARE_CLEARS			TRUE
