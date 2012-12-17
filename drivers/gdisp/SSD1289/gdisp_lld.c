@@ -144,7 +144,7 @@ void reset_viewport(void) {
         case GDISP_ROTATE_270:
             set_viewport(0, 0, GDISP_SCREEN_HEIGHT, GDISP_SCREEN_WIDTH);
             break;
-    }   
+    }
 }
 
 /*===========================================================================*/
@@ -180,9 +180,9 @@ bool_t GDISP_LLD(init)(void) {
 	acquire_bus();
 	
 	write_reg(0x0000,0x0001);		delay(5);
-    write_reg(0x0003,0xA8A4);    	delay(5);
-    write_reg(0x000C,0x0000);    	delay(5);
-    write_reg(0x000D,0x080C);    	delay(5);
+	write_reg(0x0003,0xA8A4);    	delay(5);
+	write_reg(0x000C,0x0000);    	delay(5);
+	write_reg(0x000D,0x080C);    	delay(5);
     write_reg(0x000E,0x2B00);    	delay(5);
     write_reg(0x001E,0x00B0);    	delay(5);
 	write_reg(0x0001,0x2B3F);		delay(5);
@@ -290,15 +290,15 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void GDISP_LLD(clear)(color_t color) {
-	    unsigned i;
+		unsigned i;
 
-		reset_viewport();
 		acquire_bus();
-	    set_cursor(0, 0);
-	    stream_start();
-	    for(i = 0; i < GDISP_SCREEN_WIDTH * GDISP_SCREEN_HEIGHT; i++)
-	    	write_data(color);
-	    stream_stop();
+		reset_viewport();
+		set_cursor(0, 0);
+		stream_start();
+		for(i = 0; i < GDISP_SCREEN_WIDTH * GDISP_SCREEN_HEIGHT; i++)
+			write_data(color);
+		stream_stop();
 		release_bus();
 	}
 #endif
@@ -499,6 +499,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void GDISP_LLD(control)(unsigned what, void *value) {
+		acquire_bus();
 		switch(what) {
 		case GDISP_CONTROL_POWER:
 			if (GDISP.Powermode == (gdisp_powermode_t)value)
@@ -571,6 +572,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		case GDISP_CONTROL_CONTRAST:
 */
 		}
+		release_bus();
 	}
 #endif
 
