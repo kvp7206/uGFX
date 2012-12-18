@@ -21,7 +21,8 @@
  * @file    include/ginput/dial.h
  * @brief   GINPUT GFX User Input subsystem header file.
  *
- * @addtogroup GINPUT
+ * @defgroup Dial
+ * @ingroup GINPUT
  * @{
  */
 #ifndef _GINPUT_DIAL_H

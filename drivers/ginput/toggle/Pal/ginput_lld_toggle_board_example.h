@@ -22,7 +22,8 @@
  * @file    drivers/ginput/toggle/Pal/ginput_lld_toggle_board_example.h
  * @brief   GINPUT Toggle low level driver source for the ChibiOS PAL hardware on the example board.
  *
- * @addtogroup GINPUT_TOGGLE
+ * @defgroup Toggle
+ * @ingroup GINPUT
  * @{
  */
 

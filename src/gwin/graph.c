@@ -17,14 +17,16 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 /**
  * @file    src/gwin/button.c
  * @brief   GWIN sub-system button code.
  *
- * @addtogroup GWIN_BUTTON
+ * @defgroup Button
+ * @ingroup GWIN
+ *
  * @{
  */
+
 #include "ch.h"
 #include "hal.h"
 #include "gfx.h"

@@ -17,14 +17,16 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 /**
  * @file    src/gwin/console.c
  * @brief   GWIN sub-system console code.
  *
- * @addtogroup GWIN_CONSOLE
+ * @defgroup Console
+ * @ingroup GWIN
+ *
  * @{
  */
+
 #include "ch.h"
 #include "hal.h"
 #include "gfx.h"

@@ -19,10 +19,9 @@
 */
 
 /**
- * @addtogroup GRAPH
- * @details The GRAPH module provides high level HAL independed routines
- *			to draw graphs on a graphic display. The graph is highly
- *			configurable. There are many options to controll the look
- *			of the graph.
+ * @addtogroup GINPUT
+ *
+ * @details GINPUT provides an easy and common interface to use different
+ *			input devices such as touchscreens and mices.
  */
 

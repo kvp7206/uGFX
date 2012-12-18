@@ -21,7 +21,8 @@
  * @file    include/ginput/keyboard.h
  * @brief   GINPUT GFX User Input subsystem header file.
  *
- * @addtogroup GINPUT
+ * @defgroup Keyboard
+ * @ingroup GINPUT
  * @{
  */
 #ifndef _GINPUT_KEYBOARD_H

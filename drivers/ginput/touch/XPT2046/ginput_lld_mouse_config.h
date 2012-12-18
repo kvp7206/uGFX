@@ -21,7 +21,9 @@
  * @file    drivers/ginput/touch/XPT2046/ginput_lld_mouse_config.h
  * @brief   GINPUT LLD header file for mouse/touch driver.
  *
- * @addtogroup GINPUT_LLD_MOUSE
+ * @defgroup Mouse
+ * @ingroup GINPUT
+ *
  * @{
  */
 #ifndef _LLD_GINPUT_MOUSE_CONFIG_H

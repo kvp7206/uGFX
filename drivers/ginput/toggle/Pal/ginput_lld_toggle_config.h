@@ -22,7 +22,8 @@
  * @file    drivers/ginput/toggle/Pal/ginput_lld_toggle_config.h
  * @brief   GINPUT Toggle Driver configuration header.
  *
- * @addtogroup GDISP
+ * @defgroup Toggle
+ * @ingroup GINPUT
  * @{
  */
 

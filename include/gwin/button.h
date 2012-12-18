@@ -21,9 +21,12 @@
  * @file    include/gwin/button.h
  * @brief   GWIN Graphic window subsystem header file.
  *
- * @addtogroup GWIN
+ * @defgroup Button
+ * @ingroup GWIN
+ *
  * @{
  */
+
 #ifndef _GWIN_BUTTON_H
 #define _GWIN_BUTTON_H
 

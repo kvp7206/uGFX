@@ -22,7 +22,8 @@
  * @file    src/ginput/mouse.c
  * @brief   GINPUT mouse/touch code.
  *
- * @addtogroup GINPUT_MOUSE
+ * @defgroup Mouse
+ * @ingroup GINPUT
  * @{
  */
 #include "ch.h"

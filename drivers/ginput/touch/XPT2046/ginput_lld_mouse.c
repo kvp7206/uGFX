@@ -22,7 +22,9 @@
  * @file    drivers/ginput/touch/XPT2046/ginput_lld_mouse.c
  * @brief   GINPUT Touch low level driver source for the XPT2046.
  *
- * @addtogroup GINPUT_MOUSE
+ * @defgroup Mouse
+ * @ingroup GINPUT
+ *
  * @{
  */
 

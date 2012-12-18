@@ -22,7 +22,8 @@
  * @file    src/ginput/dial.c
  * @brief   GINPUT dial code.
  *
- * @addtogroup GINPUT
+ * @defgroup Dial
+ * @ingroup GINPUT
  * @{
  */
 #include "ch.h"

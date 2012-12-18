@@ -22,7 +22,9 @@
  * @file	include/gwin/graph.h
  * @brief	GWIN GRAPH module header file.
  *
- * @addtogroup GWIN_GRAPH
+ * @defgroup Graph
+ * @ingroup GWIN
+ *
  * @{
  */
 

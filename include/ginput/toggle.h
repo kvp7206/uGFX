@@ -21,7 +21,8 @@
  * @file    include/ginput/toggle.h
  * @brief   GINPUT GFX User Input subsystem header file.
  *
- * @addtogroup GINPUT
+ * @defgroup Toggle
+ * @ingroup GINPUT
  * @{
  */
 #ifndef _GINPUT_TOGGLE_H

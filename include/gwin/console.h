@@ -21,9 +21,12 @@
  * @file    include/gwin/console.h
  * @brief   GWIN Graphic window subsystem header file.
  *
- * @addtogroup GWIN
+ * @defgroup Console
+ * @ingroup GWIN
+ *
  * @{
  */
+
 #ifndef _GWIN_CONSOLE_H
 #define _GWIN_CONSOLE_H
 

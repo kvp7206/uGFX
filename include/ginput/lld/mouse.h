@@ -21,7 +21,8 @@
  * @file    include/ginput/lld/mouse.h
  * @brief   GINPUT LLD header file for mouse/touch drivers.
  *
- * @addtogroup GINPUT_MOUSE
+ * @defgroup Mouse
+ * @ingroup GINPUT
  * @{
  */
 #ifndef _LLD_GINPUT_MOUSE_H

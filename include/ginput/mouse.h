@@ -21,7 +21,8 @@
  * @file    include/ginput/mouse.h
  * @brief   GINPUT GFX User Input subsystem header file for mouse and touch.
  *
- * @addtogroup GINPUT
+ * @defgroup Mouse
+ * @ingroup GINPUT
  * @{
  */
 #ifndef _GINPUT_MOUSE_H
