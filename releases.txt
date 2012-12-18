@@ -22,6 +22,7 @@ DEPRECATE:	graph deprecated - replaced with gwin functionality
 DEPRECATE:	touchscreen deprecated - replaced with ginput functionality
 FEATURE:	Numerous documentation improvements
 FEATURE:	Added a number of module demo and test programs
+DEPRECATE:	Remove of XPT2046 since full compatibility with ADS7843
 
 *** changes after 1.3 ***
 FIX:		Nokia 6610 fix
