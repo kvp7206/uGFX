@@ -21,9 +21,12 @@
  * @file    include/gwin/gwin.h
  * @brief   GWIN Graphic window subsystem header file.
  *
- * @addtogroup GWIN
+ * @defgroup Window
+ * @ingroup GWIN
+ *
  * @{
  */
+
 #ifndef _GWIN_H
 #define _GWIN_H
 
