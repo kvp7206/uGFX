@@ -85,17 +85,34 @@ typedef struct GEventMouse_t {
 extern "C" {
 #endif
 
-	/* Mouse Functions */
-	GSourceHandle ginputGetMouse(uint16_t instance);					// Instance = 0 to n-1
+	/**
+	 * @brief	Creates an instance of a mouse and returns the Source handler
+	 * @note	hack: if the instance is 9999, no calibration will be performed!
+	 *
+	 * @param[in] instance		The instance ID, from 0 to 9999
+	 *
+	 * @return		The source handle of the created instance
+	 */
+	GSourceHandle ginputGetMouse(uint16_t instance);
 	
-	/* Get the current mouse position and button status.
-	 *	Unlike a listener event, this status cannot record meta events such as "CLICK"
-	 *	Returns FALSE on error (eg invalid instance)
+	/**
+	 * @brief	Get the current mouse position and button status
+	 * @note	Unlinke a listener event, this status cannot record meta events such as
+	 *			"CLICK".
+	 *
+	 * @param[in] instance	The instance
+	 * @param[in] pmouse	The mouse event
+	 *
+	 * @return	FALSE on an error (eg. invalid instance)
 	 */
 	bool_t ginputGetMouseStatus(uint16_t instance, GEventMouse *pmouse);
 
-	/* Run a calibration.
-	 *	Returns FALSE if the driver doesn't support it or if the handle is invalid.
+	/**
+	 * @brief	Performs a calibration
+	 *
+	 * @param[in] instance	The instance to be calibrated
+	 *
+	 * @return	FALSE if the driver dosen't support a calibration of if the handle is invalid
 	 */
 	bool_t ginputCalibrateMouse(uint16_t instance);
 
@@ -107,9 +124,31 @@ extern "C" {
 	 */
 	typedef void (*GMouseCalibrationSaveRoutine)(uint16_t instance, const uint8_t *calbuf, size_t sz);			// Save calibration data
 	typedef const char * (*GMouseCalibrationLoadRoutine)(uint16_t instance);									// Load calibration data (returns NULL if not data saved)
+
+	/**
+	 * @brief	Set the routines to store and restore calibration data
+	 *
+	 * @details	This function should be called before first calling ginputGetMouse() for a particular instance
+	 *			as the gdispGetMouse() routine may attempt to fetch calibration data and perform a startup calibration if there is no way to get it.
+	 *			If this is called after gdispGetMouse() has been called and the driver requires calibration storage, it will immediately save the
+	 *			data is has already obtained.
+ 	 * 			The 'requireFree' parameter indicates if the fetch buffer must be free()'d to deallocate the buffer provided by the Fetch routine.
+	 *
+	 * @param[in] instance		The instance
+	 * @param[in] fnsave		The routine to save the data
+	 * @param[in] fnload		The routine to restore the data
+	 * @param[in] requireFree	ToDo
+	 */	
 	void ginputSetMouseCalibrationRoutines(uint16_t instance, GMouseCalibrationSaveRoutine fnsave, GMouseCalibrationLoadRoutine fnload, bool_t requireFree);
 
-	/* Test if a particular mouse/touch instance requires routines to save its calibration data. */
+	/**
+	 * @brief	Test if a particular mouse/touch instance requires routines to save it's alibration data
+	 * @note	Not implemented yet
+	 *
+	 * @param[in] instance		The instance
+	 *
+	 * @return	TRUE if needed
+	 */
 	bool_t ginputRequireMouseCalibrationStorage(uint16_t instance);
 	
 #ifdef __cplusplus
