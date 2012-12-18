@@ -24,6 +24,12 @@
  * @defgroup Console
  * @ingroup GWIN
  *
+ * @details		GWIN allows it to create a console/terminal like window.
+ *				You can simply use chprintf() to print to the terminal.
+ *
+ * @pre			GFX_USE_GWIN must be set to TRUE in your gfxconf.h
+ * @pre			GWIN_NEED_CONSOLE must be set to TRUE in your gfxconf.h
+ *
  * @{
  */
 

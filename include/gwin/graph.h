@@ -25,6 +25,10 @@
  * @defgroup Graph
  * @ingroup GWIN
  *
+ * @details	GWIN allows it to easily draw graphs.
+ * @pre		GFX_USE_GWIN must be set to TRUE in your gfxconf.h
+ * @pre		GWIN_NEED_GRAPH must be set to TRUE in your gfxconf.h
+ *
  * @{
  */
 

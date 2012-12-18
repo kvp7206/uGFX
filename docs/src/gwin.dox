@@ -20,7 +20,9 @@
 
 /**
  * @addtogroup GWIN
- * @details	The GWIN module provides simple window management.
+ * @details	The GWIN module does not only provides simple window manager, but also
+ *			different widgets such as a console/terminal, buttons and a module
+ *			to draw graphs.
  * @details	Please note that GWIN is a module ontop of GDISP. Therefore, GDISP
  *			has to be set up correctly.
  */
