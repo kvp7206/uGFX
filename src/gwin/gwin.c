@@ -21,7 +21,7 @@
  * @file    src/gwin/gwin.c
  * @brief   GWIN sub-system code.
  *
- * @defgroup Window
+ * @defgroup Window Window
  * @ingroup GWIN
  *
  * @{

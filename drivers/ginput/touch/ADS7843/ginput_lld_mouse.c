@@ -22,7 +22,7 @@
  * @file    drivers/ginput/touch/ADS7843/ginput_lld_mouse.c
  * @brief   GINPUT Touch low level driver source for the ADS7843.
  *
- * @defgroup Mouse
+ * @defgroup Mouse Mouse
  * @ingroup GINPUT
  * @{
  */

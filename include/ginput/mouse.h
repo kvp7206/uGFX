@@ -21,7 +21,7 @@
  * @file    include/ginput/mouse.h
  * @brief   GINPUT GFX User Input subsystem header file for mouse and touch.
  *
- * @defgroup Mouse
+ * @defgroup Mouse Mouse
  * @ingroup GINPUT
  *
  * @details GINPUT allows it to easily interface touchscreens and mices to
@@ -32,6 +32,7 @@
  * 
  * @{
  */
+
 #ifndef _GINPUT_MOUSE_H
 #define _GINPUT_MOUSE_H
 

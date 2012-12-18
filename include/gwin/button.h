@@ -21,7 +21,7 @@
  * @file    include/gwin/button.h
  * @brief   GWIN Graphic window subsystem header file.
  *
- * @defgroup Button
+ * @defgroup Button Button
  * @ingroup GWIN
  *
  * @details		GWIN allows it to easily create buttons with different styles

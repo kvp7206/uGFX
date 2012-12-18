@@ -21,7 +21,7 @@
  * @file    src/gwin/button.c
  * @brief   GWIN sub-system button code.
  *
- * @defgroup Button
+ * @defgroup Button Button
  * @ingroup GWIN
  *
  * @{

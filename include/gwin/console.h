@@ -21,7 +21,7 @@
  * @file    include/gwin/console.h
  * @brief   GWIN Graphic window subsystem header file.
  *
- * @defgroup Console
+ * @defgroup Console Console
  * @ingroup GWIN
  *
  * @details		GWIN allows it to create a console/terminal like window.

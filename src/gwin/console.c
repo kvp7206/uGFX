@@ -21,7 +21,7 @@
  * @file    src/gwin/console.c
  * @brief   GWIN sub-system console code.
  *
- * @defgroup Console
+ * @defgroup Console Console
  * @ingroup GWIN
  *
  * @{

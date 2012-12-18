@@ -21,7 +21,7 @@
  * @file    drivers/ginput/touch/MCU/ginput_lld_mouse_config.h
  * @brief   GINPUT LLD header file for touch driver.
  *
- * @defgroup Mouse
+ * @defgroup Mouse Mouse
  * @ingroup GINPUT
  *
  * @{

@@ -21,7 +21,7 @@
  * @file    include/ginput/dial.h
  * @brief   GINPUT GFX User Input subsystem header file.
  *
- * @defgroup Dial
+ * @defgroup Dial Dial
  * @ingroup GINPUT
  *
  * @details	A dial provides a powerful way to navigate through menus

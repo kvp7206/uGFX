@@ -22,7 +22,7 @@
  * @file    drivers/ginput/touch/ADS7843/ginput_lld_mouse_board_olimex_stm32_e407.h
  * @brief   GINPUT Touch low level driver source for the ADS7843 on an Olimex STM32E407.
  *
- * @defgroup Mouse
+ * @defgroup Mouse Mouse
  * @ingroup GINPUT
  * @{
  */

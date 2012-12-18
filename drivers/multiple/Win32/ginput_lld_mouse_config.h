@@ -21,7 +21,7 @@
  * @file    drivers/multiple/Win32/ginput_lld_mouse_config.h
  * @brief   GINPUT LLD header file for mouse/touch driver.
  *
- * @defgroup Mouse
+ * @defgroup Mouse Mouse
  * @ingroup GINPUT
  *
  * @{
@@ -59,3 +59,4 @@
 
 #endif /* _LLD_GINPUT_MOUSE_CONFIG_H */
 /** @} */
+

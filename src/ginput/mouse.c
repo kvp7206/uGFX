@@ -22,7 +22,7 @@
  * @file    src/ginput/mouse.c
  * @brief   GINPUT mouse/touch code.
  *
- * @defgroup Mouse
+ * @defgroup Mouse Mouse
  * @ingroup GINPUT
  * @{
  */

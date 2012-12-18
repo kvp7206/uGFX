@@ -22,7 +22,7 @@
  * @file    src/ginput/toggle.c
  * @brief   GINPUT toggle code.
  *
- * @defgroup Toggle
+ * @defgroup Toggle Toggle
  * @ingroup GINPUT
  * @{
  */

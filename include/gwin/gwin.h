@@ -21,7 +21,7 @@
  * @file    include/gwin/gwin.h
  * @brief   GWIN Graphic window subsystem header file.
  *
- * @defgroup Window
+ * @defgroup Window Window
  * @ingroup GWIN
  *
  * @details	GWIN provides a basic window manager which allows it to easily

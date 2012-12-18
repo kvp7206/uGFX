@@ -22,7 +22,7 @@
  * @file	include/gwin/graph.h
  * @brief	GWIN GRAPH module header file.
  *
- * @defgroup Graph
+ * @defgroup Graph Graph
  * @ingroup GWIN
  *
  * @details	GWIN allows it to easily draw graphs.

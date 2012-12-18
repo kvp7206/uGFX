@@ -22,7 +22,7 @@
  * @file    drivers/multiple/Win32/ginput_lld_toggle_config.h
  * @brief   GINPUT Toggle Driver configuration header.
  *
- * @defgroup Toggle
+ * @defgroup Toggle Toggle
  * @ingroup GINPUT
  *
  * @{
@@ -51,3 +51,4 @@
 
 #endif	/* _GINPUT_LLD_TOGGLE_CONFIG_H */
 /** @} */
+

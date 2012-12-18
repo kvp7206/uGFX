@@ -21,7 +21,7 @@
  * @file    include/ginput/toggle.h
  * @brief   GINPUT GFX User Input subsystem header file.
  *
- * @defgroup Toggle
+ * @defgroup Toggle Toggle
  * @ingroup GINPUT
  *
  * @details	GINPUT allows it to interface toggle buttons easily to your

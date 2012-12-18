@@ -22,7 +22,7 @@
  * @file    drivers/ginput/toggle/Pal/ginput_lld_toggle_board_olimexsam7ex256.h
  * @brief   GINPUT Toggle low level driver source for the ChibiOS PAL hardware on the Olimex SAM7EX256 board.
  *
- * @defgroup Toggle
+ * @defgroup Toggle Toggle
  * @ingroup GINPUT
  * @{
  */
