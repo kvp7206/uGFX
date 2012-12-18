@@ -50,15 +50,58 @@ typedef struct GEventDial_t {
 extern "C" {
 #endif
 
-	/* Dial Functions */
-	GSourceHandle ginputGetDial(uint16_t instance);						// Instance = 0 to n-1
-	void ginputResetDialRange(uint16_t instance);						// Reset the maximum value back to the hardware default.
-	uint16_t ginputGetDialRange(uint16_t instance);						// Get the maximum value. The readings are scaled to be 0...max-1. 0 means over the full uint16_t range.
-	void ginputSetDialRange(uint16_t instance, uint16_t max);			// Set the maximum value.
-	void ginputSetDialSensitivity(uint16_t instance, uint16_t diff);	// Set the level change required before a dial event is generated.
-																		//		- This is done after range scaling
-	/* Get the current keyboard button status.
-	 *	Returns FALSE on error (eg invalid instance)
+	/**
+	 * @brief	Create a dial input instance
+	 *
+	 * @param[in] instance	The ID of the dial input instance (from 0 to 9999)
+	 *
+	 * @return	The soure handle of the created dial instance
+	 */
+	GSourceHandle ginputGetDial(uint16_t instance);				
+	
+	/**
+	 * @brief	Reset the value back to the hardware default
+	 *
+	 * @param[in] instance	The ID of the dial input instance
+	 */
+	void ginputResetDialRange(uint16_t instance);				
+
+	/**
+	 * @brief	Get the maximum value
+	 * @details	The readings are scaled to be 0 ... max-1.
+	 *			0 means over the full uint16_t range.
+	 *
+	 * @param[in] instance	The ID of the dial input instance
+	 *
+	 * @return	The maximum value
+	 */
+	uint16_t ginputGetDialRange(uint16_t instance);
+
+	/**
+	 * @brief	Set the maximum value
+	 * @note	This shouldn't be set higher that the hardwares possible maximum value
+	 *
+	 * @param[in] instance	The ID of the dial input instance
+	 * @param[in] max		The maximum value to be set
+	 */
+	void ginputSetDialRange(uint16_t instance, uint16_t max);
+
+	/**
+	 * @brief	Set the level change required before a dial even is generated (threshold)
+	 * @note	This is done after range scaling
+	 *
+	 * @param[in] instance	The ID of the dial input instance
+	 * @param[in] diff		The amount of level changes
+	 */
+	void ginputSetDialSensitivity(uint16_t instance, uint16_t diff);
+																	
+	/**
+	 * @brief	Get the current dial status
+	 *
+	 * @param[in] instance	The ID of the dial input instance
+	 * @param[in] pdial		The dial event struct
+	 *
+	 * @return	Returns FALSE on an error (eg invalid instance)
 	 */
 	bool_t ginputGetDialStatus(uint16_t instance, GEventDial *pdial);
 

@@ -89,7 +89,7 @@ extern "C" {
 	 * @brief	Creates an instance of a mouse and returns the Source handler
 	 * @note	hack: if the instance is 9999, no calibration will be performed!
 	 *
-	 * @param[in] instance		The instance ID, from 0 to 9999
+	 * @param[in] instance		The ID of the mouse input instance (from 0 to 9999)
 	 *
 	 * @return		The source handle of the created instance
 	 */
@@ -100,7 +100,7 @@ extern "C" {
 	 * @note	Unlinke a listener event, this status cannot record meta events such as
 	 *			"CLICK".
 	 *
-	 * @param[in] instance	The instance
+	 * @param[in] instance	The ID of the mouse input instance
 	 * @param[in] pmouse	The mouse event
 	 *
 	 * @return	FALSE on an error (eg. invalid instance)
@@ -110,7 +110,7 @@ extern "C" {
 	/**
 	 * @brief	Performs a calibration
 	 *
-	 * @param[in] instance	The instance to be calibrated
+	 * @param[in] instance	The ID of the mouse input instance
 	 *
 	 * @return	FALSE if the driver dosen't support a calibration of if the handle is invalid
 	 */
@@ -134,7 +134,7 @@ extern "C" {
 	 *			data is has already obtained.
  	 * 			The 'requireFree' parameter indicates if the fetch buffer must be free()'d to deallocate the buffer provided by the Fetch routine.
 	 *
-	 * @param[in] instance		The instance
+	 * @param[in] instance		The ID of the mouse input instance
 	 * @param[in] fnsave		The routine to save the data
 	 * @param[in] fnload		The routine to restore the data
 	 * @param[in] requireFree	ToDo
@@ -145,7 +145,7 @@ extern "C" {
 	 * @brief	Test if a particular mouse/touch instance requires routines to save it's alibration data
 	 * @note	Not implemented yet
 	 *
-	 * @param[in] instance		The instance
+	 * @param[in] instance		The ID of the mouse input instance
 	 *
 	 * @return	TRUE if needed
 	 */
@@ -159,3 +159,4 @@ extern "C" {
 
 #endif /* _GINPUT_MOUSE_H */
 /** @} */
+

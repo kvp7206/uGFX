@@ -108,11 +108,22 @@ typedef struct GEventKeyboard_t {
 extern "C" {
 #endif
 
-	/* Keyboard Functions */
-	GSourceHandle ginputGetKeyboard(uint16_t instance);					// Instance = 0 to n-1
+	/**
+	 * @brief	Create a keyboard input instance
+	 *
+	 * @param[in] instance	The ID of the keyboard input instance (from 0 to 9999)
+	 *
+	 * @return	The source handle of the created input instance
+	 */
+	GSourceHandle ginputGetKeyboard(uint16_t instance);
 	
-	/* Get the current keyboard button status.
-	 *	Returns FALSE on error (eg invalid instance)
+	/**
+	 * @brief	Get the current keyboard status
+	 *
+	 * @param[in] instance	The ID of the keyboard input instance
+	 * @param[in] pkeyboard	The keyboard event struct
+	 *
+	 * @return Returns FALSE on an error (eg invalid instance)
 	 */
 	bool_t ginputGetKeyboardStatus(uint16_t instance, GEventKeyboard *pkeyboard);
 
@@ -124,3 +135,4 @@ extern "C" {
 
 #endif /* _GINPUT_KEYBOARD_H */
 /** @} */
+
