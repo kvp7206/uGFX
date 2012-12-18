@@ -23,6 +23,13 @@
  *
  * @defgroup Mouse
  * @ingroup GINPUT
+ *
+ * @details GINPUT allows it to easily interface touchscreens and mices to
+ *			your application.
+ *
+ * @pre		GFX_USE_GINPUT must be set to TRUE in your gfxconf.h
+ * @pre		GINPUT_NEED_MOUSE must be set to TRUE in your gfxconf.h
+ * 
  * @{
  */
 #ifndef _GINPUT_MOUSE_H

@@ -23,6 +23,13 @@
  *
  * @defgroup Dial
  * @ingroup GINPUT
+ *
+ * @details	A dial provides a powerful way to navigate through menus
+ *			on a display. 
+ *
+ * @pre		GFX_USE_GINPUT must be set to TRUE in your gfxconf.h
+ * @pre		GINPUT_NEED_DIAL must be set to TRUE in your gfxconf.h
+ *
  * @{
  */
 #ifndef _GINPUT_DIAL_H

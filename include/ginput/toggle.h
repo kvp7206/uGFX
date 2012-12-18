@@ -23,8 +23,16 @@
  *
  * @defgroup Toggle
  * @ingroup GINPUT
+ *
+ * @details	GINPUT allows it to interface toggle buttons easily to your
+ *			application.
+ *
+ * @pre		GFX_USE_GINPUT must be set to TRUE in your gfxconf.h
+ * @pre		GINPUT_NEED_TOGGLE must be set to TRUE in your gfxconf.h
+ *
  * @{
  */
+
 #ifndef _GINPUT_TOGGLE_H
 #define _GINPUT_TOGGLE_H
 
