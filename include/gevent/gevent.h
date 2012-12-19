@@ -37,13 +37,9 @@
 
 #if GFX_USE_GEVENT || defined(__DOXYGEN__)
 
-/**
- * @brief   Data part of a static GListener initializer.
- */
+/* Data part of a static GListener initializer */
 #define _GLISTENER_DATA(name) { _SEMAPHORE_DATA(name.waitqueue, 0), _BSEMAPHORE_DATA(name.eventlock, FALSE), 0, 0, {0} }
-/**
- * @brief   Static GListener initializer.
- */
+/* Static GListener initializer */
 #define GLISTENER_DECL(name) GListener name = _GLISTENER_DATA(name)
 
 /*===========================================================================*/
