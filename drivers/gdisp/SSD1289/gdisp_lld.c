@@ -95,7 +95,7 @@ static __inline void set_cursor(coord_t x, coord_t y) {
 	}
 }
 
-void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
+static void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
 
 	set_cursor(x, y);
 
@@ -134,17 +134,8 @@ void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
 	set_cursor(x, y);
 }
 
-void reset_viewport(void) {
-    switch(GDISP.Orientation) {
-        case GDISP_ROTATE_0:
-        case GDISP_ROTATE_180:
-            set_viewport(0, 0, GDISP_SCREEN_WIDTH, GDISP_SCREEN_HEIGHT);
-            break;
-        case GDISP_ROTATE_90:
-        case GDISP_ROTATE_270:
-            set_viewport(0, 0, GDISP_SCREEN_HEIGHT, GDISP_SCREEN_WIDTH);
-            break;
-    }
+static __inline void reset_viewport(void) {
+	set_viewport(0, 0, GDISP.Width, GDISP.Height);
 }
 
 /*===========================================================================*/
@@ -499,25 +490,30 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void GDISP_LLD(control)(unsigned what, void *value) {
-		acquire_bus();
 		switch(what) {
 		case GDISP_CONTROL_POWER:
 			if (GDISP.Powermode == (gdisp_powermode_t)value)
 				return;
 			switch((gdisp_powermode_t)value) {
 			case powerOff:
+				acquire_bus();
 				write_reg(0x0010, 0x0000);	// leave sleep mode
 				write_reg(0x0007, 0x0000);	// halt operation
 				write_reg(0x0000, 0x0000);	// turn off oszillator
 				write_reg(0x0010, 0x0001);	// enter sleepmode
+				release_bus();
 				break;
 			case powerOn:
+				acquire_bus();
 				write_reg(0x0010, 0x0000);	// leave sleep mode
+				release_bus();
 				if (GDISP.Powermode != powerSleep)
 					GDISP_LLD(init)();
 				break;
 			case powerSleep:
+				acquire_bus();
 				write_reg(0x0010, 0x0001);	// enter sleep mode
+				release_bus();
 				break;
 			default:
 				return;
@@ -529,30 +525,38 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 				return;
 			switch((gdisp_orientation_t)value) {
 			case GDISP_ROTATE_0:
+				acquire_bus();
 				write_reg(0x0001, 0x2B3F);
 				/* ID = 11 AM = 0 */
 				write_reg(0x0011, 0x6070);
+				release_bus();
 				GDISP.Height = GDISP_SCREEN_HEIGHT;
 				GDISP.Width = GDISP_SCREEN_WIDTH;
 				break;
 			case GDISP_ROTATE_90:
+				acquire_bus();
 				write_reg(0x0001, 0x293F);
 				/* ID = 11 AM = 1 */
 				write_reg(0x0011, 0x6078);
+				release_bus();
 				GDISP.Height = GDISP_SCREEN_WIDTH;
 				GDISP.Width = GDISP_SCREEN_HEIGHT;
 				break;
 			case GDISP_ROTATE_180:
+				acquire_bus();
 				write_reg(0x0001, 0x2B3F);
 				/* ID = 01 AM = 0 */
 				write_reg(0x0011, 0x6040);
+				release_bus();
 				GDISP.Height = GDISP_SCREEN_HEIGHT;
 				GDISP.Width = GDISP_SCREEN_WIDTH;
 				break;
 			case GDISP_ROTATE_270:
+				acquire_bus();
 				write_reg(0x0001, 0x293F);
 				/* ID = 01 AM = 1 */
 				write_reg(0x0011, 0x6048);
+				release_bus();
 				GDISP.Height = GDISP_SCREEN_WIDTH;
 				GDISP.Width = GDISP_SCREEN_HEIGHT;
 				break;
@@ -572,7 +576,6 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 		case GDISP_CONTROL_CONTRAST:
 */
 		}
-		release_bus();
 	}
 #endif
 
