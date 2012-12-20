@@ -44,7 +44,6 @@ int main(void) {
     gdispDrawArc(width-width/8, height/8, 30, 10, 70, Gray);
     gdispFillArc(width/8, height/8, 30, 10, 70, Gray);
 
-
     while(TRUE) {
         chThdSleepMilliseconds(500);
     }   
