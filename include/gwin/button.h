@@ -21,9 +21,18 @@
  * @file    include/gwin/button.h
  * @brief   GWIN Graphic window subsystem header file.
  *
- * @addtogroup GWIN
+ * @defgroup Button Button
+ * @ingroup GWIN
+ *
+ * @details		GWIN allows it to easily create buttons with different styles
+ *				and check for different meta states such as: PRESSED, CLICKED,
+ *				RELEASED etc.
+ *
+ * @pre			GFX_USE_GWIN must be set to TRUE in your gfxconf.h
+ * @pre			GWIN_NEED_BUTTON must be set to TRUE in your gfxconf.h
  * @{
  */
+
 #ifndef _GWIN_BUTTON_H
 #define _GWIN_BUTTON_H
 

@@ -22,7 +22,8 @@
  * @file    drivers/ginput/touch/ADS7843/ginput_lld_mouse.c
  * @brief   GINPUT Touch low level driver source for the ADS7843.
  *
- * @addtogroup GINPUT_MOUSE
+ * @defgroup Mouse Mouse
+ * @ingroup GINPUT
  * @{
  */
 
@@ -38,6 +39,8 @@
 	#include "ginput_lld_mouse_board.h"
 #elif defined(BOARD_FIREBULL_STM32_F103)
 	#include "ginput_lld_mouse_board_firebull_stm32f103.h"
+#elif defined(BOARD_OLIMEX_STM32_E407)
+	#include "ginput_lld_mouse_board_olimex_stm32_e407.h"
 #else
 	#include "ginput_lld_mouse_board_example.h"
 #endif

@@ -22,6 +22,12 @@
  * @brief   GINPUT GFX User Input subsystem header file.
  *
  * @addtogroup GINPUT
+ *
+ * @details		GINPUT provides an easy and common interface to use different input devices
+ *				such as touchscreens and mices.
+ *
+ * @pre			GFX_USE_GINPUT must be set to TRUE in your gfxconf.h
+ *
  * @{
  */
 #ifndef _GINPUT_H

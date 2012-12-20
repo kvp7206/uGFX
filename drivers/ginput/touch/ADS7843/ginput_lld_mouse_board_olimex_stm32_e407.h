@@ -19,10 +19,11 @@
 */
 
 /**
- * @file    drivers/ginput/touch/XPT2046/ginput_lld_mouse_board_example.h
- * @brief   GINPUT Touch low level driver source for the XPT2046 on the example board.
+ * @file    drivers/ginput/touch/ADS7843/ginput_lld_mouse_board_olimex_stm32_e407.h
+ * @brief   GINPUT Touch low level driver source for the ADS7843 on an Olimex STM32E407.
  *
- * @addtogroup GINPUT_MOUSE
+ * @defgroup Mouse Mouse
+ * @ingroup GINPUT
  * @{
  */
 
@@ -31,8 +32,8 @@
 
 static const SPIConfig spicfg = { 
     NULL,
-	GPIOC, 
-    6,
+	GPIOG, 
+    10,
     /* SPI_CR1_BR_2 |*/ SPI_CR1_BR_1 | SPI_CR1_BR_0,
 };
 
@@ -42,7 +43,7 @@ static const SPIConfig spicfg = {
  * @notapi
  */
 static __inline void init_board(void) {
-	spiStart(&SPID1, &spicfg);
+	spiStart(&SPID2, &spicfg);
 }
 
 /**
@@ -52,7 +53,7 @@ static __inline void init_board(void) {
  * @notapi
  */
 static __inline bool_t getpin_pressed(void) {
-	return (!palReadPad(GPIOC, 4));
+	return (!palReadPad(GPIOG, 0));
 }
 /**
  * @brief   Aquire the bus ready for readings
@@ -60,9 +61,9 @@ static __inline bool_t getpin_pressed(void) {
  * @notapi
  */
 static __inline void aquire_bus(void) {
-	spiAcquireBus(&SPID1);
+	spiAcquireBus(&SPID2);
     //TOUCHSCREEN_SPI_PROLOGUE();
-    palClearPad(GPIOC, 6);
+    palClearPad(GPIOG, 10);
 }
 
 /**
@@ -71,8 +72,8 @@ static __inline void aquire_bus(void) {
  * @notapi
  */
 static __inline void release_bus(void) {
-	palSetPad(GPIOC, 6);
-	spiReleaseBus(&SPID1);
+	palSetPad(GPIOG, 10);
+	spiReleaseBus(&SPID2);
     //TOUCHSCREEN_SPI_EPILOGUE();
 }
 
@@ -91,7 +92,7 @@ static __inline uint16_t read_value(uint16_t port) {
 
     txbuf[0] = port;
 
-    spiExchange(&SPID1, 3, txbuf, rxbuf);
+    spiExchange(&SPID2, 3, txbuf, rxbuf);
 
     ret = (rxbuf[1] << 5) | (rxbuf[2] >> 3); 
     

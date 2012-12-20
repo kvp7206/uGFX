@@ -22,9 +22,12 @@
  * @file    src/ginput/keyboard.c
  * @brief   GINPUT keyboard code.
  *
- * @addtogroup GINPUT
+ * @defgroup Keyboard Keyboard
+ * @ingroup GINPUT
+ *
  * @{
  */
+
 #include "ch.h"
 #include "hal.h"
 #include "gfx.h"

@@ -22,7 +22,8 @@
  * @file    src/ginput/mouse.c
  * @brief   GINPUT mouse/touch code.
  *
- * @addtogroup GINPUT_MOUSE
+ * @defgroup Mouse Mouse
+ * @ingroup GINPUT
  * @{
  */
 #include "ch.h"
@@ -322,7 +323,6 @@ static void MousePoll(void *param) {
 	}
 }
 
-/* Mouse Functions */
 GSourceHandle ginputGetMouse(uint16_t instance) {
 	#if GINPUT_MOUSE_NEED_CALIBRATION
 		Calibration		*pc;
@@ -377,10 +377,6 @@ GSourceHandle ginputGetMouse(uint16_t instance) {
 	return (GSourceHandle)&MouseConfig;
 }
 
-/* Get the current mouse position and button status.
- *	Unlike a listener event, this status cannot record meta events such as "CLICK"
- *	Returns FALSE on error (eg invalid instance)
- */
 bool_t ginputGetMouseStatus(uint16_t instance, GEventMouse *pe) {
 	if (instance || (MouseConfig.flags & (FLG_INIT_DONE|FLG_IN_CAL)) != FLG_INIT_DONE)
 		return FALSE;
@@ -401,9 +397,6 @@ bool_t ginputGetMouseStatus(uint16_t instance, GEventMouse *pe) {
 	return TRUE;
 }
 
-/* Run a mouse calibration.
- *	Returns FALSE if the driver doesn't support it or if the handle is invalid.
- */
 bool_t ginputCalibrateMouse(uint16_t instance) {
 	#if !GINPUT_MOUSE_NEED_CALIBRATION
 		(void) instance;
@@ -527,6 +520,7 @@ bool_t ginputCalibrateMouse(uint16_t instance) {
 			MouseConfig.fnsavecal(instance, (const uint8_t *)&MouseConfig.caldata, sizeof(MouseConfig.caldata));
 			MouseConfig.flags |= FLG_CAL_SAVED;
 		}
+	
 		return TRUE;
 	#endif
 }

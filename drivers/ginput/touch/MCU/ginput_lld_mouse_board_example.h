@@ -22,7 +22,9 @@
  * @file    drivers/ginput/touch/MCU/ginput_lld_mouse_board_example.h
  * @brief   GINPUT Touch low level driver source for the MCU on the example board.
  *
- * @addtogroup GINPUT_MOUSE
+ * @defgroup Mouse Mouse
+ * @ingroup GINPUT
+ *
  * @{
  */
 

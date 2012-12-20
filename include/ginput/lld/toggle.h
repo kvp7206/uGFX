@@ -21,9 +21,11 @@
  * @file    include/ginput/lld/toggle.h
  * @brief   GINPUT header file for toggle drivers.
  *
- * @addtogroup GINPUT_TOGGLE
+ * @defgroup Toggle Toggle
+ * @ingroup GINPUT
  * @{
  */
+
 #ifndef _LLD_GINPUT_TOGGLE_H
 #define _LLD_GINPUT_TOGGLE_H
 
@@ -68,3 +70,4 @@ extern "C" {
 
 #endif /* _LLD_GINPUT_TOGGLE_H */
 /** @} */
+

@@ -21,9 +21,20 @@
  * @file    include/gwin/gwin.h
  * @brief   GWIN Graphic window subsystem header file.
  *
- * @addtogroup GWIN
+ * @defgroup Window Window
+ * @ingroup GWIN
+ *
+ * @details	GWIN provides a basic window manager which allows it to easily
+ *			create and destroy different windows on runtime. Each window
+ *			will have it's own properties such as colors, brushes as well as
+ *			it's own drawing origin.
+ *			Moving the windows around is not supported yet.
+ *
+ * @pre		GFX_USE_GWIN must be set to TRUE in your gfxconf.h
+ *
  * @{
  */
+
 #ifndef _GWIN_H
 #define _GWIN_H
 

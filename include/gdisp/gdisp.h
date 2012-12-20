@@ -23,6 +23,11 @@
  * @brief   GDISP Graphic Driver subsystem header file.
  *
  * @addtogroup GDISP
+ *
+ * @details		The GDISP module provides high level abstraction to interface pixel oriented graphic displays.
+ *
+ * @pre			GFX_USE_GDISP must be set to TRUE in gfxconf.h
+ *
  * @{
  */
 
