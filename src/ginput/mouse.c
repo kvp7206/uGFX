@@ -378,6 +378,10 @@ GSourceHandle ginputGetMouse(uint16_t instance) {
 }
 
 bool_t ginputGetMouseStatus(uint16_t instance, GEventMouse *pe) {
+	// Win32 threads don't seem to recognise priority and/or pre-emption
+	// so we add a sleep here to prevent 100% polled applications from locking up.
+	chThdSleepMilliseconds(1);
+
 	if (instance || (MouseConfig.flags & (FLG_INIT_DONE|FLG_IN_CAL)) != FLG_INIT_DONE)
 		return FALSE;
 

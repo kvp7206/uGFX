@@ -145,6 +145,10 @@ void ginputInvertToggle(uint16_t instance, bool_t invert) {
  *	Returns FALSE on error (eg invalid instance)
  */
 bool_t ginputGetToggleStatus(uint16_t instance, GEventToggle *ptoggle) {
+	// Win32 threads don't seem to recognise priority and/or pre-emption
+	// so we add a sleep here to prevent 100% polled applications from locking up.
+	chThdSleepMilliseconds(1);
+
 	if (instance >= GINPUT_TOGGLE_NUM_PORTS)
 		return FALSE;
 	ptoggle->type = GEVENT_TOGGLE;
