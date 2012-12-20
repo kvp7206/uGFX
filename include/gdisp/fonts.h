@@ -71,9 +71,6 @@ struct font {
 	const fontcolumn_t  *dataTable;
 };
 
-/**
- * @brief   Macros to get to the complex parts of the font structure.
- */
 #define _getCharWidth(f,c)		(((c) < (f)->minChar || (c) > (f)->maxChar) ? 0 : (f)->widthTable[(c) - (f)->minChar])
 #define _getCharOffset(f,c)		((f)->offsetTable[(c) - (f)->minChar])
 #define _getCharData(f,c)		(&(f)->dataTable[_getCharOffset(f, c)])
