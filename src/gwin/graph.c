@@ -18,10 +18,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
- * @file    src/gwin/button.c
+ * @file    src/gwin/graph.c
  * @brief   GWIN sub-system button code.
  *
- * @defgroup Button Button
+ * @defgroup Graph Graph
  * @ingroup GWIN
  *
  * @{
