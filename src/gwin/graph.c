@@ -176,22 +176,6 @@ static void lineto(GGraphObject *gg, coord_t x0, coord_t y0, coord_t x1, coord_t
 	}
 }
 
-/**
- * @brief   Create a graph window.
- * @return  NULL if there is no resultant drawing area, otherwise a window handle.
- *
- * @param[in] gg		The GGraphObject structure to initialise. If this is NULL the structure is dynamically allocated.
- * @param[in] x,y		The screen co-ordinates for the bottom left corner of the window
- * @param[in] width		The width of the window
- * @param[in] height	The height of the window
- * @note				The console is not automatically cleared on creation. You must do that by calling gwinClear() (possibly after changing your background color)
- * @note				The coordinate system within the window for graphing operations (but not for any other drawing
- * 						operation) is relative to the bottom left corner and then shifted right and up by the specified
- * 						graphing x and y origin. Note that this system is inverted in the y direction relative to the display.
- * 						This gives the best graphing arrangement ie. increasing y values are closer to the top of the display.
- *
- * @api
- */
 GHandle gwinCreateGraph(GGraphObject *gg, coord_t x, coord_t y, coord_t width, coord_t height) {
 	if (!(gg = (GGraphObject *)_gwinInit((GWindowObject *)gg, x, y, width, height, sizeof(GGraphObject))))
 		return 0;
@@ -202,15 +186,6 @@ GHandle gwinCreateGraph(GGraphObject *gg, coord_t x, coord_t y, coord_t width, c
 	return (GHandle)gg;
 }
 
-/**
- * @brief   Set the style of the graphing operations.
- *
- * @param[in] gh		The window handle (must be a graph window)
- * @param[in] pstyle	The graph style to set.
- * @note				The graph is not automatically redrawn. The new style will apply to any new drawing operations.
- *
- * @api
- */
 void gwinGraphSetStyle(GHandle gh, const GGraphStyle *pstyle) {
 	#define gg	((GGraphObject *)gh)
 
@@ -242,15 +217,6 @@ void gwinGraphSetStyle(GHandle gh, const GGraphStyle *pstyle) {
 	#undef gg
 }
 
-/**
- * @brief   Set the origin for graphing operations.
- *
- * @param[in] gh		The window handle (must be a graph window)
- * @param[in] x, y		The new origin for the graph (in graph coordinates relative to the bottom left corner).
- * @note				The graph is not automatically redrawn. The new origin will apply to any new drawing operations.
- *
- * @api
- */
 void gwinGraphSetOrigin(GHandle gh, coord_t x, coord_t y) {
 	#define gg	((GGraphObject *)gh)
 
@@ -263,14 +229,6 @@ void gwinGraphSetOrigin(GHandle gh, coord_t x, coord_t y) {
 	#undef gg
 }
 
-/**
- * @brief   Draw the axis and the background grid.
- *
- * @param[in] gh		The window handle (must be a graph window)
- * @note				The graph is not automatically cleared. You must do that first by calling gwinClear().
- *
- * @api
- */
 void gwinGraphDrawAxis(GHandle gh) {
 	#define gg	((GGraphObject *)gh)
 	coord_t		i, xmin, ymin, xmax, ymax;
@@ -332,14 +290,6 @@ void gwinGraphDrawAxis(GHandle gh) {
 	#undef gg
 }
 
-/**
- * @brief   Start a new set of graphing data.
- * @details	This prevents a line being drawn from the last data point to the next point to be drawn.
- *
- * @param[in] gh		The window handle (must be a graph window)
- *
- * @api
- */
 void gwinGraphStartSet(GHandle gh) {
 	if (gh->type != GW_GRAPH)
 		return;
@@ -347,15 +297,6 @@ void gwinGraphStartSet(GHandle gh) {
 	gh->flags &= ~GGRAPH_FLG_CONNECTPOINTS;
 }
 
-/**
- * @brief   Draw a graph point.
- * @details	A graph point and a line connecting to the previous point will be drawn.
- *
- * @param[in] gh		The window handle (must be a graph window)
- * @param[in] x, y		The new point for the graph.
- *
- * @api
- */
 void gwinGraphDrawPoint(GHandle gh, coord_t x, coord_t y) {
 	#define gg	((GGraphObject *)gh)
 
@@ -382,17 +323,6 @@ void gwinGraphDrawPoint(GHandle gh, coord_t x, coord_t y) {
 	#undef gg
 }
 
-/**
- * @brief   Draw multiple graph points.
- * @details	A graph point and a line connecting to each previous point will be drawn.
- *
- * @param[in] gh		The window handle (must be a graph window)
- * @param[in] points	The array of points for the graph.
- * @param[in] count		The number of points in the array.
- * @note				This is slightly more efficient than calling gwinGraphDrawPoint() repeatedly.
- *
- * @api
- */
 void gwinGraphDrawPoints(GHandle gh, const GGraphPoint *points, unsigned count) {
 	#define gg	((GGraphObject *)gh)
 	unsigned			i;
