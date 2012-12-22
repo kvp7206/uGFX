@@ -30,7 +30,7 @@
 DWT_CYCCNT = 0; \
 DWT_CTRL = DWT_CTRL | 1 ; } while(0)
 
-int uitoa(unsigned int value, char * buf, int max) {
+static int uitoa(unsigned int value, char * buf, int max) {
     int n = 0;
     int i = 0;
     unsigned int tmp = 0;
@@ -79,75 +79,64 @@ int uitoa(unsigned int value, char * buf, int max) {
     return n;
 }
 
-static WORKING_AREA(waThread2, 2048);
-static msg_t Thread2(void *arg)  {
-    (void)arg;
-    font_t          font1;
-    chRegSetThreadName("lcd");
+void benchmark(void) {
+    uint32_t i, pixels, ms, pps;
+    char pps_str[25];
+	coord_t height, width, rx, ry, rcx, rcy;
+    color_t random_color;
+	font_t font;
 
     gdispSetOrientation(GDISP_ROTATE_90);
     gdispClear(Black);
 
-    uint16_t width = gdispGetWidth();
-    uint16_t height = gdispGetHeight();
+	width = gdispGetWidth();
+	height = gdispGetHeight();
+    font = gdispOpenFont("UI2 Double");
 
-    uint32_t pixels;
-    uint32_t i;
-    color_t random_color;
-    uint16_t rx, ry, rcx, rcy;
-    char pps_str[25];
-    srand(DWT_CYCCNT);
+	gdispDrawStringBox(0, 0, width, 30, "ChibiOS/GFX - Benchmark", font, White, justifyCenter);
 
-    font1 = gdispOpenFont("UI2");
+	font = gdispOpenFont("UI2");
+	gdispDrawStringBox(0, height/2, width, 30, "5000 random rectangles", font, White, justifyCenter);
+	
+	chThdSleepMilliseconds(3000);
+	
+	/* seed for the rand() */
+	srand(DWT_CYCCNT);
+	pixels = 0;
 
-    while (TRUE) {
-        gdispFillArea(10, 10, width-20, height-20, Grey);
-        gdispFillArea(30, 30, 300, 150, Red);
-        gdispFillArea(50, 50, 200, 100, Blue);
-        gdispFillArea(80, 80, 150, 50, Yellow);
-        gdispFillCircle(width/2, height/2, 50, White);
+	CPU_RESET_CYCLECOUNTER;
 
-        const char *msg = "ChibiOS/GFX on SSD1289";
-        gdispDrawString(width-gdispGetStringWidth(msg, font1)-3, height-24, msg, font1, White);
+	for (i = 0; i < 5000; i++) {
+		random_color = (rand() % 65535);
+		rx = (rand() % (width-10));
+		ry = (rand() % (height-10));
+		rcx = (rand() % ((width-rx)-10))+10;
+		rcy = (rand() % ((height-ry)-10))+10;
 
-        chThdSleepMilliseconds(1000);
+		gdispFillArea(rx, ry, rcx, rcy, random_color);
+		pixels += (rcx+1)*(rcy+1);
+	}
 
-        pixels = 0;
-        gdispClear(Black);
-        gdispDrawString(10, height/2, "Doing 5000 random rectangles", font1, White);
-        chThdSleepMilliseconds(2000);
-        CPU_RESET_CYCLECOUNTER;
-        for (i = 0; i < 5000; i++) {
-            random_color = (rand() % 65535);
-            rx = (rand() % (width-10));
-            ry = (rand() % (height-10));
-            rcx = (rand() % ((width-rx)-10))+10;
-            rcy = (rand() % ((height-ry)-10))+10;
+	ms = DWT_CYCCNT / 168000;
+	pps = (float)pixels/((float)ms/1000.0f);
 
-            gdispFillArea(rx, ry, rcx, rcy, random_color);
-            pixels += (rcx+1)*(rcy+1);
-        }
-        uint32_t ms = DWT_CYCCNT / 168000;
-        uint32_t pps = (float)pixels/((float)ms/1000.0f);
+	memset (pps_str, 0, sizeof(pps_str));
+	uitoa(pps, pps_str, sizeof(pps_str));
+	strcat(pps_str, " Pixels/s");
 
-        memset (pps_str, 0, sizeof(pps_str));
-        uitoa(pps, pps_str, sizeof(pps_str));
-        strcat(pps_str, " Pixels/s");
-
-        gdispClear(Black);
-        gdispDrawString(100, height/2, pps_str, font1, White);
-        chThdSleepMilliseconds(3000);
-    }
-
-	return 0;
+	font = gdispOpenFont("UI2 Double");
+	gdispClear(Black);
+	gdispDrawStringBox(0, 0, width, 30, "ChibiOS/GFX - Benchmark", font, White, justifyCenter);
+	gdispDrawStringBox(0, height/2, width, 30, pps_str, font, White, justifyCenter);
+	//gdispDrawString(20, height/2, pps_str, font, White);
 }
 
 int main(void) {
     halInit();
     chSysInit();
 	gdispInit();
-
-    chThdCreateStatic(waThread2, sizeof(waThread2), NORMALPRIO, Thread2, NULL);
+	
+	benchmark();
     
 	while(TRUE) {
         chThdSleepMilliseconds(500);

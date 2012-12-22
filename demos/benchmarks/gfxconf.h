@@ -18,28 +18,24 @@
 
 /* Features for the GDISP sub-system. */
 #define GDISP_NEED_VALIDATION           FALSE
-#define GDISP_NEED_CLIP                 TRUE
+#define GDISP_NEED_CLIP                 FALSE
 #define GDISP_NEED_TEXT                 TRUE
-#define GDISP_NEED_CIRCLE               TRUE
+#define GDISP_NEED_CIRCLE               FALSE
 #define GDISP_NEED_ELLIPSE              FALSE
 #define GDISP_NEED_ARC                  FALSE
 #define GDISP_NEED_SCROLL               FALSE
 #define GDISP_NEED_PIXELREAD            FALSE
 #define GDISP_NEED_CONTROL              TRUE
-#define GDISP_NEED_MULTITHREAD          TRUE
+#define GDISP_NEED_MULTITHREAD          FALSE
 #define GDISP_NEED_ASYNC                FALSE
 #define GDISP_NEED_MSGAPI               FALSE
 
-#define GINPUT_MOUSE_USE_CUSTOM_BOARD   TRUE
 /* Builtin Fonts */
 #define GDISP_INCLUDE_FONT_SMALL        FALSE
 #define GDISP_INCLUDE_FONT_LARGER       FALSE
 #define GDISP_INCLUDE_FONT_UI1          FALSE
 #define GDISP_INCLUDE_FONT_UI2          TRUE
-#define GDISP_INCLUDE_FONT_LARGENUMBERS TRUE
-
-/* Features for the GINPUT sub-system. */
-#define GINPUT_NEED_MOUSE               FALSE
+#define GDISP_INCLUDE_FONT_LARGENUMBERS FALSE
 
 #endif /* _GFXCONF_H */
 
