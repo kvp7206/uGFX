@@ -50,7 +50,7 @@ static __inline void GDISP_LLD(init_board)(void) {
 	rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
 
     /* set pin modes */
-/*    IOBus busD = {GPIOD, PAL_WHOLE_PORT, 0}; 
+/*	IOBus busD = {GPIOD, PAL_WHOLE_PORT, 0}; 
     IOBus busE = {GPIOE, PAL_WHOLE_PORT, 0}; 
     palSetBusMode(&busD, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
     palSetBusMode(&busE, PAL_MODE_STM32_ALTERNATE_PUSHPULL);

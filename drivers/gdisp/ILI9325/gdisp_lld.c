@@ -18,18 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*
-	driver quickly hacked together from a chinese sourcecode that came
-	with the board and existing ili9320 code by Chris van Dongen (sjaak)
-	(sjaak2002 at msn.com)
-	
-	Also added rotation for 180 and 270 degrees and minor tweaks to
-	setcursor
-	
-	Added code comes without warranty and free bugs. Feel free to use 
-	or misuse the added code :D
-*/
-
 /**
  * @file    drivers/gdisp/ILI9325/gdisp_lld.c
  * @brief   GDISP Graphics Driver subsystem low level driver source for the ILI9325 display.
