@@ -3,6 +3,7 @@
 *****************************************************************************
 
 current release: 1.5
+FEATURE:	Added ILI9325 driver - Thanks to Chris van Dongen aka _Sjaak
 
 
 *** changes after 1.4 ***
@@ -67,3 +68,4 @@ FEATURE:	added SSD1963 DMA support
 FEATURE:	added touchpad interface for storing calibration values (#define TOUCHPAD_STORE_CALIBRATION)
 CHANGE:		replaced every  GDISP_XXX  macro with  GDISP_XXX
 CHANGE:		removed last digit of version number
+
