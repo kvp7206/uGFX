@@ -109,6 +109,7 @@
 #include "gdisp/gdisp.h"
 #include "gwin/gwin.h"
 #include "ginput/ginput.h"
+#include "tdisp/tdisp.h"
 
 #endif /* _GFX_H */
 /** @} */
