@@ -45,7 +45,7 @@
 	 * @details	Defaults to FALSE
 	 * @note	To use chprintf() for printing in a console window you need to
 	 * 			include in your application source file...
-	 * 			#include "chprintf.h"
+	 * 			\#include "chprintf.h"
 	 * 			Also in your makefile, as part of your list of C source files, include
 	 * 			${CHIBIOS}/os/various/chprintf.c
 	 */

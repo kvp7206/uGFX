@@ -25,7 +25,7 @@
 int main(void) {
 	coord_t		width, height;
 	font_t		font1, font2, font3, font4;
-	const char *msg;
+	const char	*msg;
 
     halInit();
     chSysInit();
@@ -47,6 +47,7 @@ int main(void) {
 	// Display large numbers on the right (measuring the string)
 	msg = "123456";
 	gdispDrawString(width-gdispGetStringWidth(msg, font4)-3, 3, msg, font4, Green);
+	
 	// Display the font name under it.
 	msg = gdispGetFontName(font4);
 	gdispDrawString(width-gdispGetStringWidth(msg, font1)-3, 20, msg, font1, Green);

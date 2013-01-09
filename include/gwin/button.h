@@ -97,24 +97,92 @@ typedef struct GButtonObject_t {
 extern "C" {
 #endif
 
-	GHandle gwinCreateButton(GButtonObject *gb, coord_t x, coord_t y, coord_t width, coord_t height, font_t font, GButtonType type);
-	void gwinSetButtonStyle(GHandle gh, const GButtonStyle *style);
-	void gwinSetButtonText(GHandle gh, const char *txt, bool_t useAlloc);
-	void gwinButtonDraw(GHandle gh);
-	#define gwinGetButtonState(gh)		(((GButtonObject *)(gh))->state)
+/**
+ * @brief   Create a button window.
+ * @return  NULL if there is no resultant drawing area, otherwise a window handle.
+ *
+ * @param[in] gb		The GButtonObject structure to initialise. If this is NULL the structure is dynamically allocated.
+ * @param[in] x,y		The screen co-ordinates for the bottom left corner of the window
+ * @param[in] width		The width of the window
+ * @param[in] height	The height of the window
+ * @param[in] font		The font to use
+ * @param[in] type		The type of button
+ * @note				The drawing color gets set to White and the background drawing color to Black.
+ * @note				The dimensions and position may be changed to fit on the real screen.
+ * @note				The button is not automatically drawn. Call gwinButtonDraw() after changing the button style or setting the text.
+ *
+ * @api
+ */	
+GHandle gwinCreateButton(GButtonObject *gb, coord_t x, coord_t y, coord_t width, coord_t height, font_t font, GButtonType type);
 
-	// Get the source handle so the application can listen for events
-	#define gwinGetButtonSource(gh)		((GSourceHandle)(gh))
+/**
+ * @brief   Set the style of a button.
+ * @details	The button style is defined by its shape and colours.
+ *
+ * @param[in] gh		The window handle (must be a button window)
+ * @param[in] style		The button style to set.
+ * @note				The button is not automatically redrawn. Call gwinButtonDraw() after changing the button style
+ *
+ * @api
+ */
+void gwinSetButtonStyle(GHandle gh, const GButtonStyle *style);
 
-	#if defined(GINPUT_NEED_MOUSE) && GINPUT_NEED_MOUSE
-		// Attach a mouse source to this button.
-		bool_t gwinAttachButtonMouseSource(GHandle gh, GSourceHandle gsh);
-	#endif
+/**
+ * @brief   Set the text of a button.
+ *
+ * @param[in] gh		The window handle (must be a button window)
+ * @param[in] txt		The button text to set. This must be a constant string unless useAlloc is set.
+ * @param[in] useAlloc	If TRUE the string specified will be copied into dynamically allocated memory.
+ * @note				The button is not automatically redrawn. Call gwinButtonDraw() after changing the button text.
+ *
+ * @api
+ */
+void gwinSetButtonText(GHandle gh, const char *txt, bool_t useAlloc);
 
-	#if defined(GINPUT_NEED_TOGGLE) && GINPUT_NEED_TOGGLE
-		// Attach a toggle source to this button.
-		bool_t gwinAttachButtonToggleSource(GHandle gh, GSourceHandle gsh);
-	#endif
+/**
+ * @brief   Redraw the button.
+ *
+ * @param[in] gh		The window handle (must be a button window)
+ *
+ * @api
+ */
+void gwinButtonDraw(GHandle gh);
+
+#define gwinGetButtonState(gh)		(((GButtonObject *)(gh))->state)
+
+/**
+ * @brief Get the source handle of a button
+ * @details Get the source handle of a button so the application can listen for events
+ *
+ * @param[in] gh	The Hanlde
+ */
+#define gwinGetButtonSource(gh)		((GSourceHandle)(gh))
+
+#if defined(GINPUT_NEED_MOUSE) && GINPUT_NEED_MOUSE
+	/**
+	 * @brief	Attach a mouse source
+	 * @details	Attach a mouse source to a given button
+	 *
+	 * @param[in] gh	The button handle
+	 * @param[in] gsh	The source handle
+	 *
+	 * @return
+	 */
+	bool_t gwinAttachButtonMouseSource(GHandle gh, GSourceHandle gsh);
+#endif
+
+#if defined(GINPUT_NEED_TOGGLE) && GINPUT_NEED_TOGGLE
+	/**
+	 * @brief	Attach a toggle source
+	 * @details	Attach a toggle source to this button
+	 *
+	 * @gh		The button handle
+	 * @gsh		The source handle
+	 *
+	 * @return
+	 */
+	bool_t gwinAttachButtonToggleSource(GHandle gh, GSourceHandle gsh);
+#endif
 
 #ifdef __cplusplus
 }

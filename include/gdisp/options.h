@@ -163,7 +163,7 @@
 		#define GDISP_OLD_FONT_DEFINITIONS		FALSE
 	#endif
 	/**
-	 * @brief   Predefined built in fonts.
+	 * @brief   Predefined built in fonts
 	 * @note	Turning off the ones you are not using can save program size.
 	 */
 	#ifndef GDISP_INCLUDE_FONT_SMALL

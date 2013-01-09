@@ -131,22 +131,6 @@ static void gwinButtonCallback(void *param, GEvent *pe) {
 	#undef gh
 }
 
-/**
- * @brief   Create a button window.
- * @return  NULL if there is no resultant drawing area, otherwise a window handle.
- *
- * @param[in] gb		The GButtonObject structure to initialise. If this is NULL the structure is dynamically allocated.
- * @param[in] x,y		The screen co-ordinates for the bottom left corner of the window
- * @param[in] width		The width of the window
- * @param[in] height	The height of the window
- * @param[in] font		The font to use
- * @param[in] type		The type of button
- * @note				The drawing color gets set to White and the background drawing color to Black.
- * @note				The dimensions and position may be changed to fit on the real screen.
- * @note				The button is not automatically drawn. Call gwinButtonDraw() after changing the button style or setting the text.
- *
- * @api
- */
 GHandle gwinCreateButton(GButtonObject *gb, coord_t x, coord_t y, coord_t width, coord_t height, font_t font, GButtonType type) {
 	if (!(gb = (GButtonObject *)_gwinInit((GWindowObject *)gb, x, y, width, height, sizeof(GButtonObject))))
 		return 0;
@@ -161,16 +145,6 @@ GHandle gwinCreateButton(GButtonObject *gb, coord_t x, coord_t y, coord_t width,
 	return (GHandle)gb;
 }
 
-/**
- * @brief   Set the style of a button.
- * @details	The button style is defined by its shape and colours.
- *
- * @param[in] gh		The window handle (must be a button window)
- * @param[in] style		The button style to set.
- * @note				The button is not automatically redrawn. Call gwinButtonDraw() after changing the button style
- *
- * @api
- */
 void gwinSetButtonStyle(GHandle gh, const GButtonStyle *style) {
 	#define gbw		((GButtonObject *)gh)
 	if (gh->type != GW_BUTTON)
@@ -186,16 +160,6 @@ void gwinSetButtonStyle(GHandle gh, const GButtonStyle *style) {
 	#undef gbw
 }
 
-/**
- * @brief   Set the text of a button.
- *
- * @param[in] gh		The window handle (must be a button window)
- * @param[in] txt		The button text to set. This must be a constant string unless useAlloc is set.
- * @param[in] useAlloc	If TRUE the string specified will be copied into dynamically allocated memory.
- * @note				The button is not automatically redrawn. Call gwinButtonDraw() after changing the button text.
- *
- * @api
- */
 void gwinSetButtonText(GHandle gh, const char *txt, bool_t useAlloc) {
 	#define gbw		((GButtonObject *)gh)
 	if (gh->type != GW_BUTTON)
@@ -224,13 +188,6 @@ void gwinSetButtonText(GHandle gh, const char *txt, bool_t useAlloc) {
 	#undef gbw
 }
 
-/**
- * @brief   Redraw the button.
- *
- * @param[in] gh		The window handle (must be a button window)
- *
- * @api
- */
 void gwinButtonDraw(GHandle gh) {
 	color_t			cedge;
 	color_t			cfill;

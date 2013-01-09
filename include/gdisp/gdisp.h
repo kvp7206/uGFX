@@ -52,7 +52,8 @@ typedef int16_t	coord_t;
 /*===========================================================================*/
 
 /**
- * @brief   Some basic colors
+ * @name   Some basic colors
+ * @{
  */
 #define White			HTML2COLOR(0xFFFFFF)
 #define Black			HTML2COLOR(0x000000)
@@ -76,6 +77,7 @@ typedef int16_t	coord_t;
 #define Orange			HTML2COLOR(0xFFA500)
 #define Pink			HTML2COLOR(0xFFC0CB)
 #define SkyBlue			HTML2COLOR(0x87CEEB)
+/** @} */
 
 /*===========================================================================*/
 /* Low Level Driver details and error checks.                                */
@@ -102,9 +104,6 @@ typedef enum fontmetric {fontHeight, fontDescendersHeight, fontLineSpacing, font
 /*===========================================================================*/
 
 #if (GDISP_NEED_TEXT && GDISP_OLD_FONT_DEFINITIONS) || defined(__DOXYGEN__)
-	/**
-	 * @brief   Predefined fonts.
-	 */
 	#if GDISP_INCLUDE_FONT_SMALL
 		extern const struct font fontSmall;
 		extern const struct font fontSmallDouble;
