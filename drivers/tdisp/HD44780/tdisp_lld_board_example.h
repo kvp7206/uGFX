@@ -60,4 +60,5 @@ void write_bus(uint8_t data) {
 }
 
 #endif /* _TDISP_LLD_BOARD_H */
+/** @} */
 

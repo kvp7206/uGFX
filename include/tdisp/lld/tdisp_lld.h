@@ -48,4 +48,5 @@ extern void write_data(uint8_t data);
 #endif /* GFX_USE_TDISP */
 
 #endif /* _TDISP_LLD_H */
+/** @} */
 

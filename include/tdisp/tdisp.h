@@ -41,16 +41,73 @@
 /* Include the low level driver information */
 #include "tdisp/lld/tdisp_lld.h"
 
+/**
+ * @brief	TDISP driver initialisation
+ * @note	This function is not implicitly invoked by @p halInit().
+ *			It must be called manually.
+ *
+ * @return	TRUE if success, FALSE otherwise
+ *
+ * @init
+ */
 bool_t tdispInit(void);
+
+/**
+ * @brief	Clears the display
+ */
 void tdispClear(void);
+
+/**
+ * @brief	Sets the cursor to it's home position ( 0/0 )
+ */
 void tdispHome(void);
+
+/**
+ * @brief	Set cursor to a certain position
+ *
+ * @param[in] col	The column
+ * @param[in] row	The row
+ */
 void tdispGotoXY(coord_t col, coord_t row);
+
+/**
+ * @brief	Draws a single character at the current cursor position
+ *
+ * @param[in] c		The character to be drawn
+ */
 void tdispDrawChar(char c);
+
+/**
+ * @brief	Draws a string at the current cursor position
+ *
+ * @param[in] s		The string to be drawn
+ */
 void tdispDrawString(char *s);
-void tdispDrawCharLocation(coord_t x, coord_t y, char c);
-void tdispDrawStringLocation(coord_t x, coord_t y, char *s);
+
+/**
+ * @brief	Draws a single character at a given position
+ * @note	This function manipulates the cursor position and it will not be
+ *			reset to it's original state
+ *
+ * @param[in] col	The column
+ * @param[in] row	The row
+ * @param[in] c		The character to be drawn
+ */
+void tdispDrawCharLocation(coord_t col, coord_t row, char c);
+
+/**
+ * @brief	Draws a string at a given position
+ * @note	This function manipulates the cursor position and it will not be
+ *			reset to it's original state
+ *
+ * @param[in] col	The column
+ * @param[in] row	The row
+ * @param[in] s		The string to be drawn
+ */
+void tdispDrawStringLocation(coord_t col, coord_t row, char *s);
 
 #endif /* GFX_USE_TDISP */
 
 #endif /* _TDISP_H */
+/** @} */
 

@@ -64,15 +64,16 @@ void tdispDrawString(char *s) {
 		tdispDrawChar(c);	
 }
 
-void tdispDrawCharLocation(coord_t x, coord_t y, char c) {
+void tdispDrawCharLocation(coord_t col, coord_t row, char c) {
 	tdispGotoXY(x, y);
 	tdispDrawChar(c);
 }
 
-void tdispDrawStringLocation(coord_t x, coord_t y, char *s) {
+void tdispDrawStringLocation(coord_t col, coord_t row, char *s) {
 	tdispGotoXY(x, y);
 	tdispDrawString(s);
 }
 
 #endif /* GFX_USE_TDISP */
+/** @} */
 

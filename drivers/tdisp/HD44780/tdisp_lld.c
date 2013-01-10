@@ -84,4 +84,5 @@ bool_t TDISP_LLD(init)(void) {
 }
 
 #endif /* GFX_USE_TDISP */
+/** @} */
 
