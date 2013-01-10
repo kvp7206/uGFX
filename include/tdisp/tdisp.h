@@ -41,6 +41,22 @@
 /* Include the low level driver information */
 #include "tdisp/lld/tdisp_lld.h"
 
+#ifndef TDISP_NEED_4BIT_MODE
+	#define TDISP_NEED_4BIT_MODE	FALSE
+#endif
+
+#ifndef TDISP_NEED_8BIT_MODE
+	#define TDISP_NEED_8BIT_MODE	FALSE
+#endif
+
+#if (!TDISP_NEED_4BIT_MODE && !TDISP_NEED_8BIT_MODE)
+	#error "Either TDISP_NEED_4BIT_MODE or TDISP_NEED_8BIT_MODE needs to be set to TRUE in your gfxconf.h!"
+#endif
+
+#if (TDISP_NEED_4BIT_MODE && TDISP_NEED_8BIT_MODE)
+	#error "Only TDISP_NEED_4BIT_MODE or TDISP_NEED_8BIT_MODE can be set to TRUE, not both at one!"
+#endif
+
 /**
  * @brief	TDISP driver initialisation
  * @note	This function is not implicitly invoked by @p halInit().

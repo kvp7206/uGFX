@@ -65,12 +65,12 @@ void tdispDrawString(char *s) {
 }
 
 void tdispDrawCharLocation(coord_t col, coord_t row, char c) {
-	tdispGotoXY(x, y);
+	tdispGotoXY(col, row);
 	tdispDrawChar(c);
 }
 
 void tdispDrawStringLocation(coord_t col, coord_t row, char *s) {
-	tdispGotoXY(x, y);
+	tdispGotoXY(col, row);
 	tdispDrawString(s);
 }
 

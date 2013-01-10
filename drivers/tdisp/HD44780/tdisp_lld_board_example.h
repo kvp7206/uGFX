@@ -31,7 +31,7 @@
 
 void init_board(void) {
 	palSetGroupMode(GPIOE, PAL_WHOLE_PORT, 0, PAL_MODE_OUTPUT_PUSHPULL);
-	palSetGroupMode(GPIOD, PAL_WHOLE_PORT, 0, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetGroupMode(GPIOG, PAL_WHOLE_PORT, 0, PAL_MODE_OUTPUT_PUSHPULL);
 }
 
 void setpin_e(bool_t state) {
@@ -56,7 +56,7 @@ void setpin_rw(bool_t state) {
 }
 
 void write_bus(uint8_t data) {
-	palWritePort(GPIOD, data);
+	palWritePort(GPIOG, data);
 }
 
 #endif /* _TDISP_LLD_BOARD_H */

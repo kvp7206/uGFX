@@ -41,42 +41,51 @@
 
 #include "tdisp_lld_board_example.h"
 
-void TDISP_LLD(write_cmd)(uint8_t data) {
-	setpin_rs(FALSE);
-	setpin_rw(FALSE);
-
+static void _writeData(uint8_t data) {
 	write_bus(data);
-
+	
 	setpin_e(TRUE);
 	chThdSleepMicroseconds(1);
 	setpin_e(FALSE);
 	chThdSleepMicroseconds(5);
+}
+
+void TDISP_LLD(write_cmd)(uint8_t data) {
+	setpin_rs(FALSE);
+	setpin_rw(FALSE);
+
+	#if TDISP_NEED_4BIT_MODE
+	_writeData(data>>4);
+	#endif
+	_writeData(data);
 }
 
 void TDISP_LLD(write_data)(uint8_t data) {
 	setpin_rs(TRUE);
 	setpin_rw(FALSE);
 
-	write_bus(data);
-
-	setpin_e(TRUE);
-	chThdSleepMicroseconds(1);
-	setpin_e(FALSE);
-	chThdSleepMicroseconds(5);
+	#if TDISP_NEED_4BIT_MODE
+	_writeData(data>>4);
+	#endif
+	_writeData(data);
 }
 
 bool_t TDISP_LLD(init)(void) { 
-	/* initialise hardware */
+	/* initialise MCU hardware */
 	init_board();
 
-	/* initialise controller */
+	/* wait some time */
 	chThdSleepMilliseconds(50);
+
 	TDISP_LLD(write_cmd)(0x38);
 	chThdSleepMilliseconds(64);
+
 	TDISP_LLD(write_cmd)(0x0f);	
 	chThdSleepMicroseconds(50);
+
 	TDISP_LLD(write_cmd)(0x01);
 	chThdSleepMilliseconds(5);
+
 	TDISP_LLD(write_cmd)(0x06);
 	chThdSleepMicroseconds(50);
 
