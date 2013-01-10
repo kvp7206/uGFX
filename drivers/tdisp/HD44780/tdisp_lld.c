@@ -32,13 +32,6 @@
 
 #if GFX_USE_TDISP /*|| defined(__DOXYGEN__)*/
 
-#ifndef TDISP_ROWS
-	#define TDISP_ROWS		16
-#endif
-#ifndef TDISP_COLUMNS
-	#define TDISP_COLUMNS	2
-#endif
-
 #include "tdisp_lld_board_example.h"
 
 static void _writeData(uint8_t data) {

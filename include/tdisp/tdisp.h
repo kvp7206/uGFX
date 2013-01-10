@@ -41,6 +41,13 @@
 /* Include the low level driver information */
 #include "tdisp/lld/tdisp_lld.h"
 
+#ifndef TDISP_ROWS
+	#define TDISP_ROWS		2
+#endif
+#ifndef TDISP_COLUMNS
+	#define TDISP_COLUMNS	16
+#endif
+
 #ifndef TDISP_NEED_4BIT_MODE
 	#define TDISP_NEED_4BIT_MODE	FALSE
 #endif

@@ -50,6 +50,9 @@ void tdispHome(void) {
 void tdispGotoXY(coord_t col, coord_t row) {
 	uint8_t row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
 
+	if(row >= TDISP_ROWS)
+		row = TDISP_ROWS - 1;
+
 	TDISP_LLD(write_cmd)(0x80 | (col + row_offsets[row]));
 }
 
@@ -60,7 +63,7 @@ void tdispDrawChar(char c) {
 void tdispDrawString(char *s) {
 	char c;
 
-	while(c = s++)
+	while(c = *s++)
 		tdispDrawChar(c);	
 }
 
