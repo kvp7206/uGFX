@@ -25,6 +25,7 @@
  * @addtogroup TDISP
  *
  * @details		The TDISP module provides high level abstraction to interface pixel oriented graphic displays.
+ *				Due the TDISP module is completely encapsulated from the other modules, it's very fast and lightweight.
  *
  * @pre			GFX_USE_TDISP must be set to TRUE in gfxconf.h
  *
