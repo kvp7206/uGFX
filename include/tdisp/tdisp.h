@@ -45,11 +45,12 @@
  * @name	TDISP display attributes
  * @{
  */
-#define	TDISP_ON			0x01
-#define TDISP_OFF			0x02
-#define TDISP_CURSOR_ON		0x03
-#define TDISP_CURSOR_OFF	0x04
-#define TDISP_CURSOR_BLINK	0x05
+#define	TDISP_ON				0x01
+#define TDISP_OFF				0x02
+#define TDISP_CURSOR_ON			0x03
+#define TDISP_CURSOR_OFF		0x04
+#define TDISP_CURSOR_BLINK_ON	0x05
+#define TDISP_CURSOR_BLINK_OFF	0x06
 /** @} */
 
 /**

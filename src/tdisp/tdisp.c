@@ -31,10 +31,12 @@
 
 #if GFX_USE_TDISP || defined(__DOXYGEN__)
 
+static uint8_t _displaycontrol;
+
 bool_t tdispInit(void) {
 	bool_t ret;
 
-	ret = TDISP_LLD(init)();
+	ret = TDIP_LLD(init)();
 
 	return ret;
 }
@@ -42,14 +44,28 @@ bool_t tdispInit(void) {
 void tdispSetAttributes(uint8_t attributes) {
 	switch(attributes) {
 		case TDISP_ON:
+			_displaycontrol |= 0x04;
+			TDISP_LLD(write_cmd)(0x08 | _displaycontrol);
 			break;
 		case TDISP_OFF:
+			_displaycontrol &=~ 0x04;
+			TDISP_LLD(write_cmd)(0x08 | _displaycontrol);
 			break;
 		case TDISP_CURSOR_ON:
+			_displaycontrol |= 0x02;
+			TDISP_LLD(write_cmd)(0x08 | _displaycontrol);
 			break;
 		case TDISP_CURSOR_OFF:
+			_displaycontrol &=~ 0x02;
+			TDISP_LLD(write_cmd)(0x08 | _displaycontrol);
 			break;
-		case TDISP_CURSOR_BLINK:
+		case TDISP_CURSOR_BLINK_ON:
+			_displaycontrol |= 0x00;
+			TDISP_LLD(write_cmd)(0x08 | _displaycontrol);
+			break;
+		case TDISP_CURSOR_BLINK_OFF:
+			_displaycontrol &=~ 0x00;
+			TDISP_LLD(write_cmd)(0x08 | _displaycontrol);
 			break;
 	}
 }
