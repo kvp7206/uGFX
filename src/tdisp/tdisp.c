@@ -36,7 +36,7 @@ static uint8_t _displaycontrol;
 bool_t tdispInit(void) {
 	bool_t ret;
 
-	ret = TDIP_LLD(init)();
+	ret = TDISP_LLD(init)();
 
 	return ret;
 }
