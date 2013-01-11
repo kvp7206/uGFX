@@ -19,8 +19,8 @@
 */
 
 /**
- * @file    drivers/ginput/touch/ADS7843/ginput_lld_mouse_board_example.h
- * @brief   GINPUT Touch low level driver source for the ADS7843 on the example board.
+ * @file    drivers/ginput/touch/ADS7843/ginput_lld_mouse_board_firebull_stm32f103.h
+ * @brief   GINPUT ouch low level driver source for the ADS7843 on the FireBull STM32F103-FB board.
  *
  * @defgroup Mouse Mouse
  * @ingroup GINPUT

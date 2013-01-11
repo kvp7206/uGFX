@@ -18,20 +18,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*
-	Emulation routines included into gdisp_lld.c
-*/
-
-/*
-	Even though this is a software emulation of a low level driver
-	most validation doesn't need to happen here as eventually
-	we call a real low level driver routine and if validation is
-	required - it will do it.
-*/
+/**
+ * @file	include/gdisp/lld/emulation.c
+ * @brief	GDISP emulation routines for stuff the driver dosen't support
+ *
+ * @addtogroup GDISP
+ *
+ * @details	Even though this is a software emulation of a low level driver
+ *			most validation doesn't need to happen here as eventually
+ *			we call a real low level driver routine and if validation is
+ *			required - it will do it.
+ *
+ * @{
+ */
 #ifndef GDISP_EMULATION_C
 #define GDISP_EMULATION_C
 
-#if GFX_USE_GDISP || defined(__DOXYGEN__)
+#if GFX_USE_GDISP /*|| defined(__DOXYGEN__) */
 
 #ifndef GDISP_LLD_NO_STRUCT
 	static struct GDISPDriver {
@@ -765,4 +768,5 @@ void *GDISP_LLD(query)(unsigned what) {
 
 #endif  /* GFX_USE_GDISP */
 #endif	/* GDISP_EMULATION_C */
+/** @} */
 

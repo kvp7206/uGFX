@@ -20,7 +20,7 @@
 
 /**
  * @file    drivers/gdisp/S6D1121/gdisp_lld_board_olimex_e407.h
- * @brief   GDISP Graphic Driver subsystem board interface for the SSD1289 display.
+ * @brief   GDISP Graphic Driver subsystem board interface for the S6D1121 display
  *
  * @addtogroup GDISP
  * @{
