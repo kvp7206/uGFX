@@ -39,6 +39,21 @@ bool_t tdispInit(void) {
 	return ret;
 }
 
+void tdispSetAttributes(uint8_t attributes) {
+	switch(attributes) {
+		case TDISP_ON:
+			break;
+		case TDISP_OFF:
+			break;
+		case TDISP_CURSOR_ON:
+			break;
+		case TDISP_CURSOR_OFF:
+			break;
+		case TDISP_CURSOR_BLINK:
+			break;
+	}
+}
+
 void tdispClear(void) {
 	TDISP_LLD(write_cmd)(0x01);
 }

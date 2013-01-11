@@ -94,6 +94,7 @@
 #include "gdisp/options.h"
 #include "gwin/options.h"
 #include "ginput/options.h"
+#include "tdisp/options.h"
 
 /**
  * Inter-dependancy safety checks on the sub-systems.

@@ -41,28 +41,16 @@
 /* Include the low level driver information */
 #include "tdisp/lld/tdisp_lld.h"
 
-#ifndef TDISP_ROWS
-	#define TDISP_ROWS		2
-#endif
-#ifndef TDISP_COLUMNS
-	#define TDISP_COLUMNS	16
-#endif
-
-#ifndef TDISP_NEED_4BIT_MODE
-	#define TDISP_NEED_4BIT_MODE	FALSE
-#endif
-
-#ifndef TDISP_NEED_8BIT_MODE
-	#define TDISP_NEED_8BIT_MODE	FALSE
-#endif
-
-#if (!TDISP_NEED_4BIT_MODE && !TDISP_NEED_8BIT_MODE)
-	#error "Either TDISP_NEED_4BIT_MODE or TDISP_NEED_8BIT_MODE needs to be set to TRUE in your gfxconf.h!"
-#endif
-
-#if (TDISP_NEED_4BIT_MODE && TDISP_NEED_8BIT_MODE)
-	#error "Only TDISP_NEED_4BIT_MODE or TDISP_NEED_8BIT_MODE can be set to TRUE, not both at one!"
-#endif
+/**
+ * @name	TDISP display attributes
+ * @{
+ */
+#define	TDISP_ON			0x01
+#define TDISP_OFF			0x02
+#define TDISP_CURSOR_ON		0x03
+#define TDISP_CURSOR_OFF	0x04
+#define TDISP_CURSOR_BLINK	0x05
+/** @} */
 
 /**
  * @brief	TDISP driver initialisation
@@ -74,6 +62,15 @@
  * @init
  */
 bool_t tdispInit(void);
+
+/**
+ * @brief	Control different display properties
+ * @note	Multiple attributes can be passed using the OR operator.
+ * @note	Example: TDISP_DISPLAY_ON | TDISP_CURSOR_BLINK
+ *
+ * @param[in] attributes	The attributes
+ */
+void tdispSetAttributes(uint8_t attributes);
 
 /**
  * @brief	Clears the display
