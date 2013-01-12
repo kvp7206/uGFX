@@ -105,10 +105,8 @@ void tdispDrawChar(char c) {
 }
 
 void tdispDrawString(char *s) {
-	char c;
-
-	while(c = *s++)
-		tdispDrawChar(c);	
+	while(*s)
+		tdispDrawChar(*s++);
 }
 
 void tdispDrawCharLocation(coord_t col, coord_t row, char c) {

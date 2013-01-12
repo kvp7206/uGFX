@@ -93,13 +93,13 @@ void tdispHome(void);
 void tdispGotoXY(coord_t col, coord_t row);
 
 /**
- * @brief	Store a custom character in the displays RAM
+ * @brief	Store a custom character in RAM
  *
  * @note	This usually must be done after each power-up since most
  *			LCDs lose their RAM content.
  *
  * @param[in] location		On which address to store the character (from 0 up to max)
- * @param[in] char			The character to be stored. This is an array.
+ * @param[in] charmap		The character to be stored.
  */
 void tdispCreateChar(uint8_t location, char *charmap);
 
