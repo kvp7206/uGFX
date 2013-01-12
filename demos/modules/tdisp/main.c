@@ -28,9 +28,11 @@ int main(void) {
 
 	tdispInit();
 
+	/* reset cursor position and clear the screen */
 	tdispHome();
 	tdispClear();
 
+	/* set cursor position and draw single characters */
 	tdispGotoXY(4, 0);
 	tdispDrawChar('H');
 	tdispDrawChar('D');
@@ -40,7 +42,21 @@ int main(void) {
 	tdispDrawChar('8');
 	tdispDrawChar('0');
 
+	/* draw a string to a given location */
 	tdispDrawStringLocation(0, 1, "chibios-gfx.com");
+
+	/* create and display a custom made character */
+	charmap[0] = 0b00000;
+	charmap[1] = 0b00100;
+	charmap[2] = 0b00010;
+	charmap[3] = 0b11111;
+	charmap[4] = 0b00010;
+	charmap[5] = 0b00100;
+	charmap[6] = 0b00000;
+	charmap[7] = 0b00000;
+	tdispCreateChar(0, charmap);
+	tdispHome();
+	tdispDrawChar(0);
 
 	while(TRUE) {
 		chThdSleepMilliseconds(250);	

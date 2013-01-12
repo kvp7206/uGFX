@@ -38,6 +38,8 @@
 #define TDISP_DRIVER_NAME				"HD44780"
 #define TDISP_LLD(x)					tdisp_lld_##x##_HD44780
 
+#define TDISP_MAX_CUSTOM_CHARS			0x07
+
 #endif	/* GFX_USE_TDISP */
 
 #endif	/* _TDISP_LLD_CONFIG_H */

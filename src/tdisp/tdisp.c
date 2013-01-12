@@ -78,6 +78,19 @@ void tdispHome(void) {
 	TDISP_LLD(write_cmd)(0x02);
 }
 
+void tdispCreateChar(uint8_t location, char *charmap) {
+	uint8_t i;
+
+	/* make sure we don't write somewhere we're not supposed to */
+	location &= TDISP_MAX_CUSTOM_CHARS;
+
+	TDISP_LLD(write_cmd)(0x40 | (location << 3));
+
+	for(i = 0; i < 8; i++) {
+		TDISP_LLD(write_data)(charmap[i]);
+	}
+}
+
 void tdispGotoXY(coord_t col, coord_t row) {
 	uint8_t row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
 

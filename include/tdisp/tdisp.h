@@ -68,7 +68,7 @@ bool_t tdispInit(void);
 /**
  * @brief	Control different display properties
  * @note	Multiple attributes can be passed using the OR operator.
- * @note	Example: TDISP_DISPLAY_ON | TDISP_CURSOR_BLINK
+ * @note	Example: tdispSetAttributes(TDISP_DISPLAY_ON | TDISP_CURSOR_BLINK)
  *
  * @param[in] attributes	The attributes
  */
@@ -91,6 +91,17 @@ void tdispHome(void);
  * @param[in] row	The row
  */
 void tdispGotoXY(coord_t col, coord_t row);
+
+/**
+ * @brief	Store a custom character in the displays RAM
+ *
+ * @note	This usually must be done after each power-up since most
+ *			LCDs lose their RAM content.
+ *
+ * @param[in] location		On which address to store the character (from 0 up to max)
+ * @param[in] char			The character to be stored. This is an array.
+ */
+void tdispCreateChar(uint8_t location, char *charmap);
 
 /**
  * @brief	Draws a single character at the current cursor position
