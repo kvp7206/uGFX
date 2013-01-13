@@ -29,6 +29,7 @@
 #ifndef _TDISP_OPTIONS_H
 #define _TDISP_OPTIONS_H
 
+#if GFX_USE_TDISP
 /**
  * @name    TDISP configuration
  * @{
@@ -78,6 +79,8 @@
 	#endif
 
 /** @} */
+
+#endif /* GFX_USE_TDISP */
 
 #endif /* _TDISP_OPTIONS_H */
 /** @} */
