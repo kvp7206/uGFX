@@ -23,6 +23,8 @@
 #include "gfx.h"
 
 int main(void) {
+	char charmap[8];
+
 	halInit();
 	chSysInit();
 
@@ -33,7 +35,7 @@ int main(void) {
 	tdispClear();
 
 	/* set cursor position and draw single characters */
-	tdispGotoXY(4, 0);
+	tdispSetCursor(4, 0);
 	tdispDrawChar('H');
 	tdispDrawChar('D');
 	tdispDrawChar('4');
