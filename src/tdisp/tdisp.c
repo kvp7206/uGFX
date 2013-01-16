@@ -78,26 +78,12 @@ void tdispHome(void) {
 	TDISP_LLD(write_cmd)(0x02);
 }
 
-void tdispCreateChar(uint8_t location, char *charmap) {
-	uint8_t i;
-
-	/* make sure we don't write somewhere we're not supposed to */
-	location &= TDISP_MAX_CUSTOM_CHARS;
-
-	TDISP_LLD(write_cmd)(0x40 | (location << 3));
-
-	for(i = 0; i < 8; i++) {
-		TDISP_LLD(write_data)(charmap[i]);
-	}
+void tdispCreateChar(uint8_t address, char *charmap) {
+	TDISP_LLD(create_char)(address, charmap);
 }
 
-void tdispGotoXY(coord_t col, coord_t row) {
-	uint8_t row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
-
-	if(row >= TDISP_ROWS)
-		row = TDISP_ROWS - 1;
-
-	TDISP_LLD(write_cmd)(0x80 | (col + row_offsets[row]));
+void tdispSetCursor(coord_t col, coord_t row) {
+	TDISP_LLD(set_cursor)(col, row);
 }
 
 void tdispDrawChar(char c) {
@@ -110,12 +96,12 @@ void tdispDrawString(char *s) {
 }
 
 void tdispDrawCharLocation(coord_t col, coord_t row, char c) {
-	tdispGotoXY(col, row);
+	tdispSetCursor(col, row);
 	tdispDrawChar(c);
 }
 
 void tdispDrawStringLocation(coord_t col, coord_t row, char *s) {
-	tdispGotoXY(col, row);
+	tdispSetCursor(col, row);
 	tdispDrawString(s);
 }
 

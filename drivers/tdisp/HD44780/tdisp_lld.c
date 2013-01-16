@@ -85,6 +85,28 @@ bool_t TDISP_LLD(init)(void) {
 	return TRUE;
 }
 
+void TDISP_LLD(set_cursor)(coord_t col, coord_t row) {
+	uint8_t row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
+
+	if(row >= TDISP_ROWS)
+		row = TDISP_ROWS - 1;
+
+	TDISP_LLD(write_cmd)(0x80 | (col + row_offsets[row]));
+}
+
+void TDISP_LLD(create_char)(uint8_t address, char *charmap) {
+	uint8_t i;
+
+	/* make sure we don't write somewhere we're not supposed to */
+	address &= TDISP_MAX_CUSTOM_CHARS;
+
+	TDISP_LLD(write_cmd)(0x40 | (address << 3));
+
+	for(i = 0; i < 8; i++) {
+		TDISP_LLD(write_data)(charmap[i]);
+	}
+}
+
 #endif /* GFX_USE_TDISP */
 /** @} */
 

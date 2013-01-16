@@ -90,7 +90,7 @@ void tdispHome(void);
  * @param[in] col	The column
  * @param[in] row	The row
  */
-void tdispGotoXY(coord_t col, coord_t row);
+void tdispSetCursor(coord_t col, coord_t row);
 
 /**
  * @brief	Store a custom character in RAM
@@ -98,10 +98,10 @@ void tdispGotoXY(coord_t col, coord_t row);
  * @note	This usually must be done after each power-up since most
  *			LCDs lose their RAM content.
  *
- * @param[in] location		On which address to store the character (from 0 up to max)
+ * @param[in] address		On which address to store the character (from 0 up to max)
  * @param[in] charmap		The character to be stored.
  */
-void tdispCreateChar(uint8_t location, char *charmap);
+void tdispCreateChar(uint8_t address, char *charmap);
 
 /**
  * @brief	Draws a single character at the current cursor position

@@ -4,6 +4,8 @@
 
 current release: 1.5
 FEATURE:	Added ILI9325 driver - Thanks to Chris van Dongen aka _Sjaak
+FEATURE:	Added TDISP module
+FIX:		tdispGotoXY() renamed to tdispSetCursor()
 
 
 *** changes after 1.4 ***
@@ -24,7 +26,6 @@ DEPRECATE:	touchscreen deprecated - replaced with ginput functionality
 FEATURE:	Numerous documentation improvements
 FEATURE:	Added a number of module demo and test programs
 DEPRECATE:	Remove of XPT2046 since full compatibility with ADS7843
-FEATURE:	Introduced TDISP module
 
 
 *** changes after 1.3 ***
