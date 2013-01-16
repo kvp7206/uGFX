@@ -42,6 +42,8 @@ extern void		tdisp_lld_write_data(uint8_t data);
 extern bool_t	tdisp_lld_init(void);
 extern void 	tdisp_lld_set_cursor(coord_t col, coord_t row);
 extern void		tdisp_lld_create_char(uint8_t address, char *charmap);
+extern void		tdisp_lld_clear(void);
+extern void		tdisp_lld_home(void);
 
 #ifdef __cplusplus
 }

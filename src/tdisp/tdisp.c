@@ -71,11 +71,11 @@ void tdispSetAttributes(uint8_t attributes) {
 }
 
 void tdispClear(void) {
-	tdisp_lld_write_cmd(0x01);
+	tdisp_lld_clear();
 }
 
 void tdispHome(void) {
-	tdisp_lld_write_cmd(0x02);
+	tdisp_lld_home();
 }
 
 void tdispCreateChar(uint8_t address, char *charmap) {

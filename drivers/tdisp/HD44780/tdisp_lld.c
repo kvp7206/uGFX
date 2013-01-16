@@ -107,6 +107,14 @@ void tdisp_lld_create_char(uint8_t address, char *charmap) {
 	}
 }
 
+void tdisp_lld_clear(void) {
+	tdisp_lld_write_cmd(0x01);
+}
+
+void tdisp_lld_home(void) {
+	tdisp_lld_write_cmd(0x02);
+}
+
 #endif /* GFX_USE_TDISP */
 /** @} */
 
