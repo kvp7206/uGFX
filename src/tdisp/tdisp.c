@@ -36,7 +36,7 @@ static uint8_t _displaycontrol;
 bool_t tdispInit(void) {
 	bool_t ret;
 
-	ret = TDISP_LLD(init)();
+	ret = tdisp_lld_init();
 
 	return ret;
 }
@@ -45,49 +45,49 @@ void tdispSetAttributes(uint8_t attributes) {
 	switch(attributes) {
 		case TDISP_ON:
 			_displaycontrol |= 0x04;
-			TDISP_LLD(write_cmd)(0x08 | _displaycontrol);
+			tdisp_lld_write_cmd(0x08 | _displaycontrol);
 			break;
 		case TDISP_OFF:
 			_displaycontrol &=~ 0x04;
-			TDISP_LLD(write_cmd)(0x08 | _displaycontrol);
+			tdisp_lld_write_cmd(0x08 | _displaycontrol);
 			break;
 		case TDISP_CURSOR_ON:
 			_displaycontrol |= 0x02;
-			TDISP_LLD(write_cmd)(0x08 | _displaycontrol);
+			tdisp_lld_write_cmd(0x08 | _displaycontrol);
 			break;
 		case TDISP_CURSOR_OFF:
 			_displaycontrol &=~ 0x02;
-			TDISP_LLD(write_cmd)(0x08 | _displaycontrol);
+			tdisp_lld_write_cmd(0x08 | _displaycontrol);
 			break;
 		case TDISP_CURSOR_BLINK_ON:
 			_displaycontrol |= 0x00;
-			TDISP_LLD(write_cmd)(0x08 | _displaycontrol);
+			tdisp_lld_write_cmd(0x08 | _displaycontrol);
 			break;
 		case TDISP_CURSOR_BLINK_OFF:
 			_displaycontrol &=~ 0x00;
-			TDISP_LLD(write_cmd)(0x08 | _displaycontrol);
+			tdisp_lld_write_cmd(0x08 | _displaycontrol);
 			break;
 	}
 }
 
 void tdispClear(void) {
-	TDISP_LLD(write_cmd)(0x01);
+	tdisp_lld_write_cmd(0x01);
 }
 
 void tdispHome(void) {
-	TDISP_LLD(write_cmd)(0x02);
+	tdisp_lld_write_cmd(0x02);
 }
 
 void tdispCreateChar(uint8_t address, char *charmap) {
-	TDISP_LLD(create_char)(address, charmap);
+	tdisp_lld_create_char(address, charmap);
 }
 
 void tdispSetCursor(coord_t col, coord_t row) {
-	TDISP_LLD(set_cursor)(col, row);
+	tdisp_lld_set_cursor(col, row);
 }
 
 void tdispDrawChar(char c) {
-	TDISP_LLD(write_data)(c);
+	tdisp_lld_write_data(c);
 }
 
 void tdispDrawString(char *s) {

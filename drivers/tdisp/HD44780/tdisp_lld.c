@@ -43,7 +43,7 @@ static void _writeData(uint8_t data) {
 	chThdSleepMicroseconds(5);
 }
 
-void TDISP_LLD(write_cmd)(uint8_t data) {
+void tdisp_lld_write_cmd(uint8_t data) {
 	setpin_rs(FALSE);
 	setpin_rw(FALSE);
 
@@ -53,7 +53,7 @@ void TDISP_LLD(write_cmd)(uint8_t data) {
 	_writeData(data);
 }
 
-void TDISP_LLD(write_data)(uint8_t data) {
+void tdisp_lld_write_data(uint8_t data) {
 	setpin_rs(TRUE);
 	setpin_rw(FALSE);
 
@@ -63,47 +63,47 @@ void TDISP_LLD(write_data)(uint8_t data) {
 	_writeData(data);
 }
 
-bool_t TDISP_LLD(init)(void) { 
+bool_t tdisp_lld_init(void) { 
 	/* initialise MCU hardware */
 	init_board();
 
 	/* wait some time */
 	chThdSleepMilliseconds(50);
 
-	TDISP_LLD(write_cmd)(0x38);
+	tdisp_lld_write_cmd(0x38);
 	chThdSleepMilliseconds(64);
 
-	TDISP_LLD(write_cmd)(0x0f);	
+	tdisp_lld_write_cmd(0x0f);	
 	chThdSleepMicroseconds(50);
 
-	TDISP_LLD(write_cmd)(0x01);
+	tdisp_lld_write_cmd(0x01);
 	chThdSleepMilliseconds(5);
 
-	TDISP_LLD(write_cmd)(0x06);
+	tdisp_lld_write_cmd(0x06);
 	chThdSleepMicroseconds(50);
 
 	return TRUE;
 }
 
-void TDISP_LLD(set_cursor)(coord_t col, coord_t row) {
+void tdisp_lld_set_cursor(coord_t col, coord_t row) {
 	uint8_t row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
 
 	if(row >= TDISP_ROWS)
 		row = TDISP_ROWS - 1;
 
-	TDISP_LLD(write_cmd)(0x80 | (col + row_offsets[row]));
+	tdisp_lld_write_cmd(0x80 | (col + row_offsets[row]));
 }
 
-void TDISP_LLD(create_char)(uint8_t address, char *charmap) {
+void tdisp_lld_create_char(uint8_t address, char *charmap) {
 	uint8_t i;
 
 	/* make sure we don't write somewhere we're not supposed to */
 	address &= TDISP_MAX_CUSTOM_CHARS;
 
-	TDISP_LLD(write_cmd)(0x40 | (address << 3));
+	tdisp_lld_write_cmd(0x40 | (address << 3));
 
 	for(i = 0; i < 8; i++) {
-		TDISP_LLD(write_data)(charmap[i]);
+		tdisp_lld_write_data(charmap[i]);
 	}
 }
 
