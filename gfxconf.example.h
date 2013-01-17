@@ -14,14 +14,15 @@
 #ifndef _GFXCONF_H
 #define _GFXCONF_H
 
-/* GFX sub-systems to turn on */
+/* GFX subsystems to turn on */
 #define GFX_USE_GDISP			FALSE
+#define GFX_USE_TDISP			FALSE
 #define GFX_USE_GWIN			FALSE
 #define GFX_USE_GEVENT			FALSE
 #define GFX_USE_GTIMER			FALSE
 #define GFX_USE_GINPUT			FALSE
 
-/* Features for the GDISP sub-system. */
+/* Features for the GDISP subsystem */
 #define GDISP_NEED_VALIDATION	TRUE
 #define GDISP_NEED_CLIP			TRUE
 #define GDISP_NEED_TEXT			TRUE
@@ -35,7 +36,7 @@
 #define GDISP_NEED_ASYNC		FALSE
 #define GDISP_NEED_MSGAPI		FALSE
 
-/* Builtin Fonts */
+/* GDISP - builtin fonts */
 #define GDISP_OLD_FONT_DEFINITIONS		FALSE
 #define GDISP_INCLUDE_FONT_SMALL		TRUE
 #define GDISP_INCLUDE_FONT_LARGER		TRUE
@@ -43,24 +44,30 @@
 #define GDISP_INCLUDE_FONT_UI2			TRUE
 #define GDISP_INCLUDE_FONT_LARGENUMBERS	TRUE
 
-/* Features for the GWIN sub-system. */
+/* TDISP options */
+#define TDISP_COLUMNS			16
+#define TDISP_ROWS				2
+#define TDISP_NEED_4BIT_MODE	FALSE
+#define TDISP_NEED_8BIT_MODE	FALSE
+
+/* Features for the GWIN subsystem. */
 #define GWIN_NEED_BUTTON		FALSE
 #define GWIN_NEED_CONSOLE		FALSE
 #define GWIN_NEED_GRAPH			FALSE
 
-/* Features for the GEVENT sub-system. */
+/* Features for the GEVENT subsystem. */
 #define GEVENT_ASSERT_NO_RESOURCE	FALSE
 
-/* Features for the GTIMER sub-system. */
+/* Features for the GTIMER subsystem. */
 /* NONE */
 
-/* Features for the GINPUT sub-system. */
+/* Features for the GINPUT subsystem. */
 #define GINPUT_NEED_MOUSE		FALSE
 #define GINPUT_NEED_KEYBOARD	FALSE
 #define GINPUT_NEED_TOGGLE		FALSE
 #define GINPUT_NEED_DIAL		FALSE
 
-/* Optional Parameters for various sub-systems */
+/* Optional Parameters for various subsystems */
 /*
 	#define GDISP_MAX_FONT_HEIGHT			16
 	#define GEVENT_MAXIMUM_SIZE				32

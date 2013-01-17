@@ -7,6 +7,7 @@ GFXINC +=   $(GFXLIB)/include
 GFXSRC +=
 
 include $(GFXLIB)/src/gdisp/gdisp.mk
+include $(GFXLIB)/src/tdisp/tdisp.mk
 include $(GFXLIB)/src/gevent/gevent.mk
 include $(GFXLIB)/src/gtimer/gtimer.mk
 include $(GFXLIB)/src/gwin/gwin.mk

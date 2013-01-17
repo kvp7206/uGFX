@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    drivers/gdisp/ILI9320/gdisp_lld_board_olimex_stm32_lcd.h
+ * @file    drivers/gdisp/ILI9320/gdisp_lld_board_example.h
  * @brief   GDISP Graphic Driver subsystem board interface for the ILI9320 display.
  *
  * @addtogroup GDISP

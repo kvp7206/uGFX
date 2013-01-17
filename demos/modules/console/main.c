@@ -18,12 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- *	The following stuff is optional in your gfxconf.h:
- *
- *				#define GDISP_NEED_SCROLL	TRUE	(optional but recommended if your GDISP driver supports it)
- */
-
 #include "ch.h"
 #include "hal.h"
 #include "chprintf.h"

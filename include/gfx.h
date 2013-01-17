@@ -46,6 +46,15 @@
 		#define GFX_USE_GDISP	FALSE
 	#endif
 	/**
+	 * @brief   GFX Text Display Basic API
+	 * @details	Defaults to FALSE
+	 * @note	Also add the specific hardware driver to your makefile.
+	 * 			Eg.  include $(GFXLIB)/drivers/tdisp/HD44780/tdisp_lld.mk
+	 */
+	#ifndef GFX_USE_TDISP
+		#define GFX_USE_TDISP	FALSE
+	#endif
+	/**
 	 * @brief   GFX Graphics Windowing API
 	 * @details	Defaults to FALSE
 	 * @details	Extends the GDISP API to add the concept of graphic windows.
@@ -94,6 +103,7 @@
 #include "gdisp/options.h"
 #include "gwin/options.h"
 #include "ginput/options.h"
+#include "tdisp/options.h"
 
 /**
  * Inter-dependancy safety checks on the sub-systems.
@@ -109,6 +119,7 @@
 #include "gdisp/gdisp.h"
 #include "gwin/gwin.h"
 #include "ginput/ginput.h"
+#include "tdisp/tdisp.h"
 
 #endif /* _GFX_H */
 /** @} */
