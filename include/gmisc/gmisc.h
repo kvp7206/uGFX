@@ -69,6 +69,12 @@ extern "C" {
 	 *
 	 * @note				Assumes the destination buffer is large enough for the resultant data.
 	 * @note				This routine is optimised to perform as fast as possible.
+	 * @note				No type checking is performed on the source format. It is assumed to
+	 * 						have only valid values eg. ARRAY_DATA_4BITSIGNED will have values
+	 * 							0000 -> 0111 for positive numbers and 1111 -> 1000 for negative numbers
+	 * 							Bits 5 -> 8 in the storage byte are treated in an undefined manner.
+	 * @note				If srcfmt or dstfmt is an unknown format, this routine does nothing
+	 * 						with no warning that something is wrong
 	 *
 	 * @api
 	 */
