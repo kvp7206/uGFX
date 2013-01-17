@@ -41,33 +41,8 @@ bool_t tdispInit(void) {
 	return ret;
 }
 
-void tdispSetAttributes(uint8_t attributes) {
-	switch(attributes) {
-		case TDISP_ON:
-			_displaycontrol |= 0x04;
-			tdisp_lld_write_cmd(0x08 | _displaycontrol);
-			break;
-		case TDISP_OFF:
-			_displaycontrol &=~ 0x04;
-			tdisp_lld_write_cmd(0x08 | _displaycontrol);
-			break;
-		case TDISP_CURSOR_ON:
-			_displaycontrol |= 0x02;
-			tdisp_lld_write_cmd(0x08 | _displaycontrol);
-			break;
-		case TDISP_CURSOR_OFF:
-			_displaycontrol &=~ 0x02;
-			tdisp_lld_write_cmd(0x08 | _displaycontrol);
-			break;
-		case TDISP_CURSOR_BLINK_ON:
-			_displaycontrol |= 0x00;
-			tdisp_lld_write_cmd(0x08 | _displaycontrol);
-			break;
-		case TDISP_CURSOR_BLINK_OFF:
-			_displaycontrol &=~ 0x00;
-			tdisp_lld_write_cmd(0x08 | _displaycontrol);
-			break;
-	}
+void tdispControl(uint16_t what, void *value) {
+	tdisp_lld_control(what, value);
 }
 
 void tdispClear(void) {
