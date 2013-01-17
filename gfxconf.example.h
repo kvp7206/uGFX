@@ -21,6 +21,10 @@
 #define GFX_USE_GEVENT			FALSE
 #define GFX_USE_GTIMER			FALSE
 #define GFX_USE_GINPUT			FALSE
+#define GFX_USE_GADC			FALSE
+#define GFX_USE_GAUDIN			FALSE
+#define GFX_USE_GAUDOUT			FALSE
+#define GFX_USE_GMISC			FALSE
 
 /* Features for the GDISP subsystem */
 #define GDISP_NEED_VALIDATION	TRUE
@@ -67,12 +71,25 @@
 #define GINPUT_NEED_TOGGLE		FALSE
 #define GINPUT_NEED_DIAL		FALSE
 
+/* Features for the GADC subsystem. */
+/* NONE */
+
+/* Features for the GAUDIN subsystem. */
+/* NONE */
+
+/* Features for the GAUDOUT subsystem. */
+/* NONE */
+
+/* Features for the GMISC subsystem. */
+#define GMISC_NEED_ARRAYOPS		FALSE
+
 /* Optional Parameters for various subsystems */
 /*
 	#define GDISP_MAX_FONT_HEIGHT			16
 	#define GEVENT_MAXIMUM_SIZE				32
 	#define GEVENT_MAX_SOURCE_LISTENERS		32
 	#define GTIMER_THREAD_WORKAREA_SIZE		512
+	#define GADC_MAX_LOWSPEED_DEVICES		4
 */
 
 /* Optional Low Level Driver Definitions */
@@ -87,4 +104,3 @@
 */
 
 #endif /* _GFXCONF_H */
-

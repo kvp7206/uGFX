@@ -92,18 +92,59 @@
 	#ifndef GFX_USE_GINPUT
 		#define GFX_USE_GINPUT	FALSE
 	#endif
+	/**
+	 * @brief   GFX Generic Periodic ADC API
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GFX_USE_GADC
+		#define GFX_USE_GADC	FALSE
+	#endif
+	/**
+	 * @brief   GFX Audio Input Device API
+	 * @details	Defaults to FALSE
+	 * @note	Also add the specific hardware drivers to your makefile.
+	 * 			Eg.
+	 * 				include $(GFXLIB)/drivers/gaudin/GADC/gaudin_lld.mk
+	 */
+	#ifndef GFX_USE_GAUDIN
+		#define GFX_USE_GAUDIN	FALSE
+	#endif
+	/**
+	 * @brief   GFX Audio Output Device API
+	 * @details	Defaults to FALSE
+	 * @note	Also add the specific hardware drivers to your makefile.
+	 * 			Eg.
+	 * 				include $(GFXLIB)/drivers/gaudout/PWM/gaudout_lld.mk
+	 */
+	#ifndef GFX_USE_GAUDOUT
+		#define GFX_USE_GAUDOUT	FALSE
+	#endif
+	/**
+	 * @brief   GFX Miscellaneous Routines API
+	 * @details	Defaults to FALSE
+	 * @note	Turning this on without turning on any GMISC_NEED_xxx macros will result
+	 * 			in no extra code being compiled in. GMISC is made up from the sum of its
+	 * 			parts.
+	 */
+	#ifndef GFX_USE_GMISC
+		#define GFX_USE_GMISC	FALSE
+	#endif
 /** @} */
 
 /**
  * Get all the options for each sub-system.
  *
  */
+#include "gmisc/options.h"
 #include "gevent/options.h"
 #include "gtimer/options.h"
 #include "gdisp/options.h"
 #include "gwin/options.h"
 #include "ginput/options.h"
 #include "tdisp/options.h"
+#include "gadc/options.h"
+#include "gaudin/options.h"
+#include "gaudout/options.h"
 
 /**
  * Inter-dependancy safety checks on the sub-systems.
@@ -120,6 +161,10 @@
 #include "gwin/gwin.h"
 #include "ginput/ginput.h"
 #include "tdisp/tdisp.h"
+#include "gadc/gadc.h"
+#include "gaudin/gaudin.h"
+#include "gaudout/gaudout.h"
+#include "gmisc/gmisc.h"
 
 #endif /* _GFX_H */
 /** @} */

@@ -53,6 +53,9 @@ typedef uint16_t						GEventType;
 		/* Other event types are allocated in ranges in their respective include files */
 		#define GEVENT_GINPUT_FIRST		0x0100				// GINPUT events range from 0x0100 to 0x01FF
 		#define GEVENT_GWIN_FIRST		0x0200				// GWIN events range from 0x0200 to 0x02FF
+		#define GEVENT_GADC_FIRST		0x0300				// GADC events range from 0x0300 to 0x033F
+		#define GEVENT_GAUDIN_FIRST		0x0340				// GAUDIN events range from 0x0340 to 0x037F
+		#define GEVENT_GAUDOUT_FIRST	0x0380				// GAUDOUT events range from 0x0380 to 0x03BF
 		#define GEVENT_USER_FIRST		0x8000				// Any application defined events start at 0x8000
 
 // This object can be typecast to any GEventXxxxx type to allow any sub-system (or the application) to create events.

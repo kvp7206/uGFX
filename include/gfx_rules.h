@@ -96,6 +96,9 @@
 	#endif
 #endif
 
+#if GFX_USE_TDISP
+#endif
+
 #if GFX_USE_GEVENT
 	#if !CH_USE_MUTEXES || !CH_USE_SEMAPHORES
 		#error "GEVENT: CH_USE_MUTEXES and CH_USE_SEMAPHORES must be defined in chconf.h"
@@ -107,6 +110,18 @@
 		#warning "GTIMER: Neither GDISP_NEED_MULTITHREAD nor GDISP_NEED_ASYNC has been specified."
 		#warning "GTIMER: Make sure you are not performing any GDISP/GWIN drawing operations in the timer callback!"
 	#endif
+#endif
+
+#if GFX_USE_GAUDIN
+#endif
+
+#if GFX_USE_GAUDOUT
+#endif
+
+#if GFX_USE_GADC
+#endif
+
+#if GFX_USE_GMISC
 #endif
 
 #endif /* _GFX_H */
