@@ -6,6 +6,7 @@ current release: 1.5
 FEATURE:	Added ILI9325 driver - Thanks to Chris van Dongen aka _Sjaak
 FEATURE:	Added TDISP module
 FIX:		tdispGotoXY() renamed to tdispSetCursor()
+FEATURE:	Addition of GADC, GMISC, GAUDIN, GAUDOUT subsystems
 
 
 *** changes after 1.4 ***
