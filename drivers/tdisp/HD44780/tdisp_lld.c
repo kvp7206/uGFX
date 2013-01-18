@@ -32,120 +32,131 @@
 
 #if GFX_USE_TDISP /*|| defined(__DOXYGEN__)*/
 
-#include "tdisp_lld_board_example.h"
+/* The user may override the default display size */
+#ifndef TDISP_COLUMNS
+	#define TDISP_COLUMNS		16
+#endif
+#ifndef TDISP_ROWS
+	#define TDISP_ROWS			2
+#endif
 
-static void _writeData(uint8_t data) {
-	write_bus(data);
-	
-	setpin_e(TRUE);
-	chThdSleepMicroseconds(1);
-	setpin_e(FALSE);
-	chThdSleepMicroseconds(5);
-}
+/* Controller Specific Properties */
+#define CUSTOM_CHAR_COUNT		8
+#define CUSTOM_CHAR_XBITS		5
+#define CUSTOM_CHAR_YBITS		8
 
-void tdisp_lld_write_cmd(uint8_t data) {
-	setpin_rs(FALSE);
-	setpin_rw(FALSE);
+/* Define the properties of our controller */
+tdispStruct	TDISP = {
+		TDISP_COLUMNS, TDISP_ROWS,				/* cols, rows */
+		CUSTOM_CHAR_XBITS, CUSTOM_CHAR_YBITS,	/* charBitsX, charBitsY */
+		CUSTOM_CHAR_COUNT						/* maxCustomChars */
+		};
 
-	#if TDISP_NEED_4BIT_MODE
-	_writeData(data>>4);
-	#endif
-	_writeData(data);
-}
+/* Include the hardware interface details */
+#if defined(TDISP_USE_CUSTOM_BOARD) && TDISP_USE_CUSTOM_BOARD
+	/* Include the user supplied board definitions */
+	#include "tdisp_lld_board.h"
+#elif defined(BOARD_UNKNOWN)
+	#include "gdisp_lld_board_unknown.h"
+#else
+	/* Include the user supplied board definitions */
+	#include "gdisp_lld_board.h"
+#endif
 
-void tdisp_lld_write_data(uint8_t data) {
-	setpin_rs(TRUE);
-	setpin_rw(FALSE);
+/* Our display control */
+#define DISPLAY_ON		0x04
+#define CURSOR_ON		0x02
+#define CURSOR_BLINK	0x01
 
-	#if TDISP_NEED_4BIT_MODE
-	_writeData(data>>4);
-	#endif
-	_writeData(data);
-}
+static uint8_t	displaycontrol;
+
 
 bool_t tdisp_lld_init(void) { 
-	/* initialise MCU hardware */
+	/* initialise hardware */
 	init_board();
 
 	/* wait some time */
 	chThdSleepMilliseconds(50);
 
-	tdisp_lld_write_cmd(0x38);
+	write_cmd(0x38);
 	chThdSleepMilliseconds(64);
 
-	tdisp_lld_write_cmd(0x0f);	
+	displaycontrol = DISPLAY_ON | CURSOR_ON | CURSOR_BLINK;		// The default displaycontrol
+	write_cmd(0x08 | displaycontrol);
 	chThdSleepMicroseconds(50);
 
-	tdisp_lld_write_cmd(0x01);
+	write_cmd(0x01);					// Clear the screen
 	chThdSleepMilliseconds(5);
 
-	tdisp_lld_write_cmd(0x06);
+	write_cmd(0x06);
 	chThdSleepMicroseconds(50);
 
 	return TRUE;
 }
 
-void tdisp_lld_set_cursor(coord_t col, coord_t row) {
-	uint8_t row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
-
-	if(row >= TDISP_ROWS)
-		row = TDISP_ROWS - 1;
-
-	tdisp_lld_write_cmd(0x80 | (col + row_offsets[row]));
-}
-
-void tdisp_lld_create_char(uint8_t address, char *charmap) {
-	uint8_t i;
-
-	/* make sure we don't write somewhere we're not supposed to */
-	address &= TDISP_MAX_CUSTOM_CHARS;
-
-	tdisp_lld_write_cmd(0x40 | (address << 3));
-
-	for(i = 0; i < 8; i++) {
-		tdisp_lld_write_data(charmap[i]);
-	}
-}
-
 void tdisp_lld_clear(void) {
-	tdisp_lld_write_cmd(0x01);
+	write_cmd(0x01);
 }
 
-void tdisp_lld_home(void) {
-	tdisp_lld_write_cmd(0x02);
+void tdisp_lld_draw_char(char c) {
+	write_data(c);
+}
+
+void tdisp_lld_set_cursor(coord_t col, coord_t row) {
+	static const uint8_t row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
+
+	/*
+	 *  Short-cut:
+	 *
+	 *  If x and y = 0 then use the home command.
+	 *
+	 *  Note: There is probably no advantage as both commands are a single byte
+	 */
+//	if (col == 0 && row == 0) {
+//		write_cmd(0x02);
+//		return;
+//	}
+
+	write_cmd(0x80 | (col + row_offsets[row]));
+}
+
+void tdisp_lld_create_char(uint8_t address, uint8_t *charmap) {
+	int i;
+
+	write_cmd(0x40 | (address << 3));
+	for(i = 0; i < CUSTOM_CHAR_YBITS; i++)
+		write_data(charmap[i]);
 }
 
 void tdisp_lld_control(uint16_t what, void *value) {
-	(void)what;
-	(void)value;
-/*
-	switch(attributes) {
-		case TDISP_ON:
-			_displaycontrol |= 0x04;
-			tdisp_lld_write_cmd(0x08 | _displaycontrol);
+	switch(what) {
+		case TDISP_CTRL_BACKLIGHT:
+			if ((uint8_t)value)
+				displaycontrol |= DISPLAY_ON;
+			else
+				displaycontrol &= ~DISPLAY_ON;
+			write_cmd(0x08 | displaycontrol);
 			break;
-		case TDISP_OFF:
-			_displaycontrol &=~ 0x04;
-			tdisp_lld_write_cmd(0x08 | _displaycontrol);
-			break;
-		case TDISP_CURSOR_ON:
-			_displaycontrol |= 0x02;
-			tdisp_lld_write_cmd(0x08 | _displaycontrol);
-			break;
-		case TDISP_CURSOR_OFF:
-			_displaycontrol &=~ 0x02;
-			tdisp_lld_write_cmd(0x08 | _displaycontrol);
-			break;
-		case TDISP_CURSOR_BLINK_ON:
-			_displaycontrol |= 0x00;
-			tdisp_lld_write_cmd(0x08 | _displaycontrol);
-			break;
-		case TDISP_CURSOR_BLINK_OFF:
-			_displaycontrol &=~ 0x00;
-			tdisp_lld_write_cmd(0x08 | _displaycontrol);
+		case TDISP_CTRL_CURSOR:
+			switch((cursorshape)value) {
+			case cursorOff:
+				displaycontrol &= ~CURSOR_ON;
+				break;
+			case cursorBlock:
+			case cursorUnderline:
+			case cursorBar:
+				displaycontrol = (displaycontrol | CURSOR_ON) & ~CURSOR_BLINK;
+				break;
+			case cursorBlinkingBlock:
+			case cursorBlinkingUnderline:
+			case cursorBlinkingBar:
+			default:
+				displaycontrol |= (CURSOR_ON | CURSOR_BLINK);
+				break;
+			}
+			write_cmd(0x08 | displaycontrol);
 			break;
 	}
-*/
 }
 
 #endif /* GFX_USE_TDISP */

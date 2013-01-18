@@ -48,11 +48,8 @@
 #define GDISP_INCLUDE_FONT_UI2			TRUE
 #define GDISP_INCLUDE_FONT_LARGENUMBERS	TRUE
 
-/* TDISP options */
-#define TDISP_COLUMNS			16
-#define TDISP_ROWS				2
-#define TDISP_NEED_4BIT_MODE	FALSE
-#define TDISP_NEED_8BIT_MODE	FALSE
+/* Features for the TDISP subsystem. */
+#define TDISP_NEED_MULTITHREAD	FALSE
 
 /* Features for the GWIN subsystem. */
 #define GWIN_NEED_BUTTON		FALSE
@@ -101,6 +98,8 @@
 	#define GDISP_USE_GPIO
 	#define GDISP_VMT_NAME1(x)			x##YourDriver1
 	#define GDISP_VMT_NAME2(x)			x##YourDriver2
+	#define TDISP_COLUMNS				16
+	#define TDISP_ROWS					2
 */
 
 #endif /* _GFXCONF_H */
