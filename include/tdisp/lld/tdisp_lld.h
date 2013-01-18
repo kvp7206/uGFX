@@ -44,6 +44,7 @@ extern void 	tdisp_lld_set_cursor(coord_t col, coord_t row);
 extern void		tdisp_lld_create_char(uint8_t address, char *charmap);
 extern void		tdisp_lld_clear(void);
 extern void		tdisp_lld_home(void);
+extern void		tdisp_lld_control(uint16_t what, void *value);
 
 #ifdef __cplusplus
 }

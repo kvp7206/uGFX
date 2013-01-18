@@ -67,12 +67,13 @@ bool_t tdispInit(void);
 
 /**
  * @brief	Control different display properties
- * @note	Multiple attributes can be passed using the OR operator.
- * @note	Example: tdispSetAttributes(TDISP_DISPLAY_ON | TDISP_CURSOR_BLINK)
+ * @note	A wrapper macro exists for each option, please use them
+ *			instead of this function manually.
  *
- * @param[in] attributes	The attributes
+ * @param[in] what		What you want to control
+ * @param[in] value		The value to be assigned
  */
-void tdispSetAttributes(uint8_t attributes);
+void tdispControl(uint16_t what, void *value);
 
 /**
  * @brief	Clears the display

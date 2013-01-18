@@ -115,6 +115,39 @@ void tdisp_lld_home(void) {
 	tdisp_lld_write_cmd(0x02);
 }
 
+void tdisp_lld_control(uint16_t what, void *value) {
+	(void)what;
+	(void)value;
+/*
+	switch(attributes) {
+		case TDISP_ON:
+			_displaycontrol |= 0x04;
+			tdisp_lld_write_cmd(0x08 | _displaycontrol);
+			break;
+		case TDISP_OFF:
+			_displaycontrol &=~ 0x04;
+			tdisp_lld_write_cmd(0x08 | _displaycontrol);
+			break;
+		case TDISP_CURSOR_ON:
+			_displaycontrol |= 0x02;
+			tdisp_lld_write_cmd(0x08 | _displaycontrol);
+			break;
+		case TDISP_CURSOR_OFF:
+			_displaycontrol &=~ 0x02;
+			tdisp_lld_write_cmd(0x08 | _displaycontrol);
+			break;
+		case TDISP_CURSOR_BLINK_ON:
+			_displaycontrol |= 0x00;
+			tdisp_lld_write_cmd(0x08 | _displaycontrol);
+			break;
+		case TDISP_CURSOR_BLINK_OFF:
+			_displaycontrol &=~ 0x00;
+			tdisp_lld_write_cmd(0x08 | _displaycontrol);
+			break;
+	}
+*/
+}
+
 #endif /* GFX_USE_TDISP */
 /** @} */
 
