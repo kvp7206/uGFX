@@ -58,6 +58,8 @@
 	#include "gdisp_lld_board.h"
 #elif defined(BOARD_FIREBULL_STM32_F103)
 	#include "gdisp_lld_board_firebullstm32f103.h"
+#elif defined(BOARD_EMBEST_DMSTF4BB)
+	#include "gdisp_lld_board_embest_dmstf4bb.h"
 #else
 	/* Include the user supplied board definitions */
 	#include "gdisp_lld_board.h"
