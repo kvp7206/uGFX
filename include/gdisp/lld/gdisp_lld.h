@@ -366,7 +366,7 @@
 	#define RGB2COLOR(r,g,b)	((color_t)((((r) & 0xF8)<<8) | (((g) & 0xFC)<<3) | (((b) & 0xF8)>>3)))
 	#define HTML2COLOR(h)		((color_t)((((h) & 0xF80000)>>8) | (((h) & 0x00FC00)>>5) | (((h) & 0x0000F8)>>3)))
 	#define RED_OF(c)			(((c) & 0xF800)>>8)
-	#define GREEN_OF(c)			(((c)&0x007E)>>3)
+	#define GREEN_OF(c)			(((c)&0x07E0)>>3)
 	#define BLUE_OF(c)			(((c)&0x001F)<<3)
 
 #elif GDISP_PIXELFORMAT == GDISP_PIXELFORMAT_RGB888
