@@ -30,6 +30,8 @@
 #include "hal.h"
 #include "gfx.h"
 
+#include "ssd2119.h"
+
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
 
 /* Include the emulation code for things we don't support */
@@ -40,10 +42,10 @@
 /*===========================================================================*/
 
 #ifndef GDISP_SCREEN_HEIGHT
-	#define GDISP_SCREEN_HEIGHT		320
+	#define GDISP_SCREEN_HEIGHT		240
 #endif
 #ifndef GDISP_SCREEN_WIDTH
-	#define GDISP_SCREEN_WIDTH		240
+	#define GDISP_SCREEN_WIDTH		320
 #endif
 
 #define GDISP_INITIAL_CONTRAST	50
@@ -56,8 +58,6 @@
 #if defined(GDISP_USE_CUSTOM_BOARD) && GDISP_USE_CUSTOM_BOARD
 	/* Include the user supplied board definitions */
 	#include "gdisp_lld_board.h"
-#elif defined(BOARD_FIREBULL_STM32_F103)
-	#include "gdisp_lld_board_firebullstm32f103.h"
 #elif defined(BOARD_EMBEST_DMSTF4BB)
 	#include "gdisp_lld_board_embest_dmstf4bb.h"
 #else
@@ -73,26 +73,26 @@
 #define delayms(ms)					chThdSleepMilliseconds(ms)
 
 static __inline void set_cursor(coord_t x, coord_t y) {
-	/* Reg 0x004E is an 8 bit value
-	 * Reg 0x004F is 9 bit
+	/* Reg SSD2119_REG_X_RAM_ADDR is 9 bit value
+	 * Reg SSD2119_REG_Y_RAM_ADDR is an 8 bit
 	 * Use a bit mask to make sure they are not set too high
 	 */
 	switch(GDISP.Orientation) {
 		case GDISP_ROTATE_180:
-			write_reg(0x004e, (GDISP_SCREEN_WIDTH-1-x) & 0x00FF);
-			write_reg(0x004f, (GDISP_SCREEN_HEIGHT-1-y) & 0x01FF);
+			write_reg(SSD2119_REG_X_RAM_ADDR, (GDISP_SCREEN_WIDTH - 1 - x) & 0x01FF);
+			write_reg(SSD2119_REG_Y_RAM_ADDR, (GDISP_SCREEN_HEIGHT - 1 - y) & 0x00FF);
 			break;
 		case GDISP_ROTATE_0:
-			write_reg(0x004e, x & 0x00FF);
-			write_reg(0x004f, y & 0x01FF);
+			write_reg(SSD2119_REG_X_RAM_ADDR, x & 0x01FF);
+			write_reg(SSD2119_REG_Y_RAM_ADDR, y & 0x00FF);
 			break;
 		case GDISP_ROTATE_270:
-			write_reg(0x004e, y & 0x00FF);
-			write_reg(0x004f, x & 0x01FF);
+			write_reg(SSD2119_REG_X_RAM_ADDR, y & 0x01FF);
+			write_reg(SSD2119_REG_Y_RAM_ADDR, x & 0x00FF);
 			break;
 		case GDISP_ROTATE_90:
-			write_reg(0x004e, (GDISP_SCREEN_WIDTH - y - 1) & 0x00FF);
-			write_reg(0x004f, (GDISP_SCREEN_HEIGHT - x - 1) & 0x01FF);
+			write_reg(SSD2119_REG_X_RAM_ADDR, (GDISP_SCREEN_WIDTH - y - 1) & 0x01FF);
+			write_reg(SSD2119_REG_Y_RAM_ADDR, (GDISP_SCREEN_HEIGHT - x - 1) & 0x00FF);
 			break;
 	}
 }
@@ -101,35 +101,35 @@ static void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
 
 	set_cursor(x, y);
 
-	/* Reg 0x44 - Horizontal RAM address position
-	 * 		Upper Byte - HEA
-	 * 		Lower Byte - HSA
-	 * 		0 <= HSA <= HEA <= 0xEF
-	 * Reg 0x45,0x46 - Vertical RAM address position
-	 * 		Lower 9 bits gives 0-511 range in each value
-	 * 		0 <= Reg(0x45) <= Reg(0x46) <= 0x13F
+	/* Reg 0x44 - Vertical RAM address position
+	 * 		Upper Byte - VEA
+	 * 		Lower Byte - VSA
+	 * 		0 <= VSA <= VEA <= 0xEF
+	 * Reg 0x45,0x46 - Horizontal RAM address position
+	 * 		Lower 9 bits gives 0-511 range in each value, HSA and HEA respectively
+	 * 		0 <= HSA <= HEA <= 0x13F
 	 */
 
 	switch(GDISP.Orientation) {
 		case GDISP_ROTATE_0:
-			write_reg(0x44, (((x+cx-1) << 8) & 0xFF00 ) | (x & 0x00FF));
-			write_reg(0x45, y & 0x01FF);
-			write_reg(0x46, (y+cy-1) & 0x01FF);
+			write_reg(SSD2119_REG_V_RAM_POS,   (((y + cy - 1) << 8) & 0xFF00 ) | (y & 0x00FF));
+			write_reg(SSD2119_REG_H_RAM_START, (x & 0x01FF));
+			write_reg(SSD2119_REG_H_RAM_END,   (x + cx - 1) & 0x01FF);
 			break;
 		case GDISP_ROTATE_270:
-			write_reg(0x44, (((x+cx-1) << 8) & 0xFF00 ) | (y & 0x00FF));
-			write_reg(0x45, x & 0x01FF);
-			write_reg(0x46, (x+cx-1) & 0x01FF);
+			write_reg(SSD2119_REG_V_RAM_POS,   (((y + cy - 1) << 8) & 0xFF00 ) | (x & 0x00FF));
+			write_reg(SSD2119_REG_H_RAM_START, (y & 0x01FF));
+			write_reg(SSD2119_REG_H_RAM_END,   (y + cy - 1) & 0x01FF);
 			break;
 		case GDISP_ROTATE_180:
-			write_reg(0x44, (((GDISP_SCREEN_WIDTH-x-1) & 0x00FF) << 8) | ((GDISP_SCREEN_WIDTH - (x+cx)) & 0x00FF));
-			write_reg(0x45, (GDISP_SCREEN_HEIGHT-(y+cy)) & 0x01FF);
-			write_reg(0x46, (GDISP_SCREEN_HEIGHT-y-1) & 0x01FF);
+			write_reg(SSD2119_REG_V_RAM_POS,   (((GDISP_SCREEN_HEIGHT - y - 1) & 0x00FF) << 8) | ((GDISP_SCREEN_HEIGHT - (y + cy)) & 0x00FF));
+			write_reg(SSD2119_REG_H_RAM_START, (GDISP_SCREEN_WIDTH - (x + cx)) & 0x01FF);
+			write_reg(SSD2119_REG_H_RAM_END,   (GDISP_SCREEN_WIDTH - x - 1) & 0x01FF);
 			break;
 		case GDISP_ROTATE_90:
-			write_reg(0x44, (((GDISP_SCREEN_WIDTH - y - 1) & 0x00FF) << 8) | ((GDISP_SCREEN_WIDTH - (y+cy)) & 0x00FF));
-			write_reg(0x45, (GDISP_SCREEN_HEIGHT - (x+cx)) & 0x01FF);
-			write_reg(0x46, (GDISP_SCREEN_HEIGHT - x - 1) & 0x01FF);
+			write_reg(SSD2119_REG_V_RAM_POS,   (((GDISP_SCREEN_HEIGHT - x - 1) & 0x00FF) << 8) | ((GDISP_SCREEN_HEIGHT - (x + cx)) & 0x00FF));
+			write_reg(SSD2119_REG_H_RAM_START, (GDISP_SCREEN_WIDTH - (y + cy)) & 0x01FF);
+			write_reg(SSD2119_REG_H_RAM_END,   (GDISP_SCREEN_WIDTH - y - 1) & 0x01FF);
 			break;
 	}
 
@@ -171,52 +171,70 @@ bool_t GDISP_LLD(init)(void) {
 
 	// Get the bus for the following initialisation commands
 	acquire_bus();
-	
-	write_reg(0x0000,0x0001);		delay(5);
-	write_reg(0x0003,0xA8A4);    	delay(5);
-	write_reg(0x000C,0x0000);    	delay(5);
-	write_reg(0x000D,0x080C);    	delay(5);
-    write_reg(0x000E,0x2B00);    	delay(5);
-    write_reg(0x001E,0x00B0);    	delay(5);
-	write_reg(0x0001,0x2B3F);		delay(5);
-    write_reg(0x0002,0x0600);    	delay(5);
-    write_reg(0x0010,0x0000);    	delay(5);
-    write_reg(0x0011,0x6070);    	delay(5);
-    write_reg(0x0005,0x0000);    	delay(5);
-    write_reg(0x0006,0x0000);    	delay(5);
-    write_reg(0x0016,0xEF1C);    	delay(5);
-    write_reg(0x0017,0x0003);    	delay(5);
-    write_reg(0x0007,0x0133);    	delay(5);
-    write_reg(0x000B,0x0000);    	delay(5);
-    write_reg(0x000F,0x0000);    	delay(5);
-    write_reg(0x0041,0x0000);    	delay(5);
-    write_reg(0x0042,0x0000);    	delay(5);
-    write_reg(0x0048,0x0000);    	delay(5);
-    write_reg(0x0049,0x013F);    	delay(5);
-    write_reg(0x004A,0x0000);    	delay(5);
-    write_reg(0x004B,0x0000);    	delay(5);
-    write_reg(0x0044,0xEF00);    	delay(5);
-    write_reg(0x0045,0x0000);    	delay(5);
-    write_reg(0x0046,0x013F);    	delay(5);
-    write_reg(0x0030,0x0707);    	delay(5);
-    write_reg(0x0031,0x0204);    	delay(5);
-    write_reg(0x0032,0x0204);    	delay(5);
-    write_reg(0x0033,0x0502);    	delay(5);
-    write_reg(0x0034,0x0507);    	delay(5);
-    write_reg(0x0035,0x0204);    	delay(5);
-    write_reg(0x0036,0x0204);    	delay(5);
-    write_reg(0x0037,0x0502);    	delay(5);
-    write_reg(0x003A,0x0302);    	delay(5);
-    write_reg(0x003B,0x0302);    	delay(5);
-    write_reg(0x0023,0x0000);    	delay(5);
-    write_reg(0x0024,0x0000);    	delay(5);
-    write_reg(0x0025,0x8000);    	delay(5);
-    write_reg(0x004f,0x0000);		delay(5);
-    write_reg(0x004e,0x0000);		delay(5);
+
+	write_reg(SSD2119_REG_SLEEP_MODE_1, 0x0001);
+	delay(5);
+	write_reg(SSD2119_REG_PWR_CTRL_5, 0x00B2);
+	delay(5);
+	write_reg(SSD2119_REG_VCOM_OTP_1, 0x0006);
+	delay(5);
+	write_reg(SSD2119_REG_OSC_START, 0x0001);
+	delay(5);
+	write_reg(SSD2119_REG_OUTPUT_CTRL, 0x30EF);
+	delay(5);
+	write_reg(SSD2119_REG_LCD_DRIVE_AC_CTRL, 0x0600);
+	delay(5);
+	write_reg(SSD2119_REG_SLEEP_MODE_1, 0x0000);
+	delay(5);
+	write_reg(SSD2119_REG_ENTRY_MODE, 0x6830); // ENTRY_MODE_DEFAULT
+	delay(5);
+	write_reg(SSD2119_REG_SLEEP_MODE_2, 0x0999);
+	delay(5);
+	write_reg(SSD2119_REG_ANALOG_SET, 0x3800);
+	delay(5);
+	write_reg(SSD2119_REG_DISPLAY_CTRL, 0x0033);
+	delay(5);
+	write_reg(SSD2119_REG_PWR_CTRL_2, 0x0005);
+	delay(5);
+	write_reg(SSD2119_REG_GAMMA_CTRL_1, 0x0000);
+	delay(5);
+	write_reg(SSD2119_REG_GAMMA_CTRL_2, 0x0303);
+	delay(5);
+	write_reg(SSD2119_REG_GAMMA_CTRL_3, 0x0407);
+	delay(5);
+	write_reg(SSD2119_REG_GAMMA_CTRL_4, 0x0301);
+	delay(5);
+	write_reg(SSD2119_REG_GAMMA_CTRL_5, 0x0301);
+	delay(5);
+	write_reg(SSD2119_REG_GAMMA_CTRL_6, 0x0403);
+	delay(5);
+	write_reg(SSD2119_REG_GAMMA_CTRL_7, 0x0707);
+	delay(5);
+	write_reg(SSD2119_REG_GAMMA_CTRL_8, 0x0400);
+	delay(5);
+	write_reg(SSD2119_REG_GAMMA_CTRL_9, 0x0a00);
+	delay(5);
+	write_reg(SSD2119_REG_GAMMA_CTRL_10, 0x1000);
+	delay(5);
+	write_reg(SSD2119_REG_PWR_CTRL_3, 0x000A);
+	delay(5);
+	write_reg(SSD2119_REG_PWR_CTRL_4, 0x2E00);
+	delay(5);
+	write_reg(SSD2119_REG_V_RAM_POS, (GDISP_SCREEN_HEIGHT - 1) << 8);
+	delay(5);
+	write_reg(SSD2119_REG_H_RAM_START, 0x0000);
+	delay(5);
+	write_reg(SSD2119_REG_H_RAM_END, GDISP_SCREEN_WIDTH - 1);
+	delay(5);
+
+	write_reg(SSD2119_REG_X_RAM_ADDR, 0x00);
+	delay(5);
+	write_reg(SSD2119_REG_Y_RAM_ADDR, 0x00);
+	delay(5);
 
  	// Release the bus
 	release_bus();
-	
+
 	/* Turn on the back-light */
 	set_backlight(GDISP_INITIAL_BACKLIGHT);
 

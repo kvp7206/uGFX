@@ -29,14 +29,12 @@
 #ifndef _GDISP_LLD_BOARD_H
 #define _GDISP_LLD_BOARD_H
 
-#define SET_CS		palSetPad(GPIOD, 12);
-#define CLR_CS		palClearPad(GPIOD, 12);
-#define SET_RS		palSetPad(GPIOD, 13);
-#define CLR_RS		palClearPad(GPIOD, 13);
-#define SET_WR		palSetPad(GPIOD, 14);
-#define CLR_WR		palClearPad(GPIOD, 14);
-#define SET_RD		palSetPad(GPIOD, 15);
-#define CLR_RD		palClearPad(GPIOD, 15);
+/* Using FSMC A19 (PE3) as DC */
+#define GDISP_REG              (*((volatile uint16_t *) 0x60000000)) /* DC = 0 */
+#define GDISP_RAM              (*((volatile uint16_t *) 0x60100000)) /* DC = 1 */
+
+#define SET_RST 	palSetPad(GPIOD, 3);
+#define CLR_RST 	palClearPad(GPIOD, 3);
 
 /**
  * @brief   Initialise the board for the display.
@@ -45,19 +43,37 @@
  * @notapi
  */
 static __inline void init_board(void) {
-	palSetGroupMode(GPIOE, PAL_WHOLE_PORT, 0, PAL_MODE_OUTPUT_PUSHPULL);
-	palSetPadMode(GPIOD, 12, PAL_MODE_OUTPUT_PUSHPULL);
+	unsigned char FSMC_Bank;
+
+	/* STM32F2-F4 FSMC init */
+	rccEnableAHB3(RCC_AHB3ENR_FSMCEN, 0);
+
+	/* set pins to FSMC mode */
+	IOBus busD = {GPIOD, (1 << 0) | (1 << 1) | (1 << 4) | (1 << 5) | (1 << 7) | (1 << 8) |
+							(1 << 9) | (1 << 10) | (1 << 14) | (1 << 15), 0};
+
+	IOBus busE = {GPIOE, (1 << 3) | (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10) | (1 << 11) | (1 << 12) |
+						(1 << 13) | (1 << 14) | (1 << 15), 0};
+
+	/* FSMC is an alternate function 12 (AF12). */
+	palSetBusMode(&busD, PAL_MODE_ALTERNATE(12));
+	palSetBusMode(&busE, PAL_MODE_ALTERNATE(12));
+
+	FSMC_Bank = 0;
+
+	/* FSMC timing */
+	FSMC_Bank1->BTCR[FSMC_Bank+1] = (FSMC_BTR1_ADDSET_1 | FSMC_BTR1_ADDSET_3) \
+			| (FSMC_BTR1_DATAST_1 | FSMC_BTR1_DATAST_3) \
+			| (FSMC_BTR1_BUSTURN_1 | FSMC_BTR1_BUSTURN_3) ;
+
+	/* Bank1 NOR/SRAM control register configuration
+	 * This is actually not needed as already set by default after reset */
+	FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
+
+	/* Display backlight always on. */
 	palSetPadMode(GPIOD, 13, PAL_MODE_OUTPUT_PUSHPULL);
-	palSetPadMode(GPIOD, 14, PAL_MODE_OUTPUT_PUSHPULL);
-	palSetPadMode(GPIOD, 15, PAL_MODE_OUTPUT_PUSHPULL);
-
-	// Configure the pins to a well know state
-	SET_RS;
-	SET_RD;
-	SET_WR;
-	CLR_CS;
+	palSetPad(GPIOD, 13);
 }
-
 
 /**
  * @brief   Set or clear the lcd reset pin.
@@ -67,8 +83,11 @@ static __inline void init_board(void) {
  * @notapi
  */
 static __inline void setpin_reset(bool_t state) {
-	(void) state;
-	/* Nothing to do here - reset pin tied to Vcc */
+	if (state) {
+		CLR_RST;
+	} else {
+		SET_RST;
+	}
 }
 
 /**
@@ -85,6 +104,7 @@ static __inline void set_backlight(uint8_t percent) {
 
 /**
  * @brief   Take exclusive control of the bus
+ * @note	Not needed, not implemented
  *
  * @notapi
  */
@@ -94,6 +114,7 @@ static __inline void acquire_bus(void) {
 
 /**
  * @brief   Release exclusive control of the bus
+ * @note	Not needed, not implemented
  *
  * @notapi
  */
@@ -109,8 +130,7 @@ static __inline void release_bus(void) {
  * @notapi
  */
 static __inline void write_index(uint16_t index) {
-	palWritePort(GPIOE, index);
-	CLR_RS; CLR_WR; SET_WR; SET_RS;
+	GDISP_REG = index;
 }
 
 /**
@@ -121,8 +141,7 @@ static __inline void write_index(uint16_t index) {
  * @notapi
  */
 static __inline void write_data(uint16_t data) {
-	palWritePort(GPIOE, data);
-	CLR_WR; SET_WR;
+	GDISP_RAM = data;
 }
 
 #if GDISP_HARDWARE_READPIXEL || GDISP_HARDWARE_SCROLL || defined(__DOXYGEN__)
@@ -136,20 +155,7 @@ static __inline void write_data(uint16_t data) {
  * @notapi
  */
 static __inline uint16_t read_data(void) {
-	uint16_t	value;
-
-	// change pin mode to digital input
-	palSetGroupMode(GPIOE, PAL_WHOLE_PORT, 0, PAL_MODE_INPUT);
-
-	CLR_RD;
-	value = palReadPort(GPIOE);
-	value = palReadPort(GPIOE);
-	SET_RD;
-
-	// change pin mode back to digital output
-	palSetGroupMode(GPIOE, PAL_WHOLE_PORT, 0, PAL_MODE_OUTPUT_PUSHPULL);
-
-	return value;
+	return GDISP_RAM;
 }
 #endif
 
