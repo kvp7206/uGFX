@@ -20,7 +20,7 @@
 
 /**
  * @file    drivers/gdisp/SSD2119/gdisp_lld_board_embest_dmstf4bb.h
- * @brief   GDISP Graphic Driver subsystem board interface for the SSD2119 display.
+ * @brief   GDISP Graphic Driver subsystem board FSMC interface for the SSD2119 display.
  *
  * @addtogroup GDISP
  * @{
@@ -30,11 +30,11 @@
 #define _GDISP_LLD_BOARD_H
 
 /* Using FSMC A19 (PE3) as DC */
-#define GDISP_REG              (*((volatile uint16_t *) 0x60000000)) /* DC = 0 */
-#define GDISP_RAM              (*((volatile uint16_t *) 0x60100000)) /* DC = 1 */
+#define GDISP_REG	(*((volatile uint16_t *) 0x60000000)) /* DC = 0 */
+#define GDISP_RAM	(*((volatile uint16_t *) 0x60100000)) /* DC = 1 */
 
-#define SET_RST 	palSetPad(GPIOD, 3);
-#define CLR_RST 	palClearPad(GPIOD, 3);
+#define SET_RST		palSetPad(GPIOD, 3);
+#define CLR_RST		palClearPad(GPIOD, 3);
 
 /**
  * @brief   Initialise the board for the display.
@@ -53,7 +53,7 @@ static __inline void init_board(void) {
 							(1 << 9) | (1 << 10) | (1 << 14) | (1 << 15), 0};
 
 	IOBus busE = {GPIOE, (1 << 3) | (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10) | (1 << 11) | (1 << 12) |
-						(1 << 13) | (1 << 14) | (1 << 15), 0};
+							(1 << 13) | (1 << 14) | (1 << 15), 0};
 
 	/* FSMC is an alternate function 12 (AF12) */
 	palSetBusMode(&busD, PAL_MODE_ALTERNATE(12));

@@ -58,10 +58,10 @@
 #if defined(GDISP_USE_CUSTOM_BOARD) && GDISP_USE_CUSTOM_BOARD
 	/* Include the user supplied board definitions */
 	#include "gdisp_lld_board.h"
-#elif defined(BOARD_EMBEST_DMSTF4BB_FSMC)
-	#include "gdisp_lld_board_embest_dmstf4bb_fsmc.h"
 #elif defined(BOARD_EMBEST_DMSTF4BB)
 	#include "gdisp_lld_board_embest_dmstf4bb.h"
+#elif defined(BOARD_EMBEST_DMSTF4BB_FSMC)
+	#include "gdisp_lld_board_embest_dmstf4bb_fsmc.h"
 #else
 	/* Include the user supplied board definitions */
 	#include "gdisp_lld_board.h"
@@ -69,7 +69,7 @@
 
 // Some common routines and macros
 #define write_reg(reg, data)		{ write_index(reg); write_data(data); }
-#define stream_start()				write_index(0x0022);
+#define stream_start()				write_index(SSD2119_REG_RAM_DATA);
 #define stream_stop()
 #define delay(us)					chThdSleepMicroseconds(us)
 #define delayms(ms)					chThdSleepMilliseconds(ms)
@@ -111,7 +111,6 @@ static void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
 	 * 		Lower 9 bits gives 0-511 range in each value, HSA and HEA respectively
 	 * 		0 <= HSA <= HEA <= 0x13F
 	 */
-
 	switch(GDISP.Orientation) {
 		case GDISP_ROTATE_0:
 			write_reg(SSD2119_REG_V_RAM_POS,   (((y + cy - 1) << 8) & 0xFF00 ) | (y & 0x00FF));
@@ -295,7 +294,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	
 	acquire_bus();
 	set_cursor(x, y);
-	write_reg(0x0022, color);
+	write_reg(SSD2119_REG_RAM_DATA, color);
 	release_bus();
 }
 

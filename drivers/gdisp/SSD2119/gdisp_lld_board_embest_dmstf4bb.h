@@ -20,7 +20,7 @@
 
 /**
  * @file    drivers/gdisp/SSD2119/gdisp_lld_board_embest_dmstf4bb.h
- * @brief   GDISP Graphic Driver subsystem board interface for the SSD2119 display.
+ * @brief   GDISP Graphic Driver subsystem board GPIO interface for the SSD2119 display.
  *
  * @addtogroup GDISP
  * @{
@@ -37,8 +37,8 @@
 #define CLR_WR		palClearPad(GPIOD, 5);
 #define SET_RD		palSetPad(GPIOD, 4);
 #define CLR_RD		palClearPad(GPIOD, 4);
-#define SET_RST 	palSetPad(GPIOD, 3);
-#define CLR_RST 	palClearPad(GPIOD, 3);
+#define SET_RST		palSetPad(GPIOD, 3);
+#define CLR_RST		palClearPad(GPIOD, 3);
 
 /**
  * @brief   Initialise the board for the display.
@@ -47,7 +47,6 @@
  * @notapi
  */
 static __inline void init_board(void) {
-
 	// D0 - D15
 	palSetPadMode(GPIOD, 14, PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOD, 15, PAL_MODE_OUTPUT_PUSHPULL);
@@ -143,7 +142,6 @@ static __inline void release_bus(void) {
  * @notapi
  */
 static __inline void write_index(uint16_t index) {
-
 	// D0 - D15
 	palWritePad(GPIOD, 14, index & 1);
 	palWritePad(GPIOD, 15, (index >> 1) & 1);
@@ -174,7 +172,6 @@ static __inline void write_index(uint16_t index) {
  * @notapi
  */
 static __inline void write_data(uint16_t data) {
-
 	// D0 - D15
 	palWritePad(GPIOD, 14, data & 1);
 	palWritePad(GPIOD, 15, (data >> 1) & 1);

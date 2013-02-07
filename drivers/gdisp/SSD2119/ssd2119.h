@@ -1,6 +1,6 @@
 /*
     ChibiOS/GFX - Copyright (C) 2012
-			Joel Bodenmann aka Tectu <joel@unormal.org>
+                 Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
 
@@ -17,6 +17,14 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+/**
+ * @file    drivers/gdisp/SSD2119/ssd2119.h
+ * @brief   GDISP Graphic Driver support header for the SSD2119 display.
+ *
+ * @addtogroup GDISP
+ * @{
+ */
 
 #ifndef _SSD2119_H
 #define _SSD2119_H
@@ -69,6 +77,7 @@
 #define SSD2119_REG_X_RAM_ADDR        0x4E
 #define SSD2119_REG_Y_RAM_ADDR        0x4F
 
-/* SSD2119 commands */
+/* TODO: SSD2119 commands */
 
-#endif // _SSD2119_H
+#endif /* _SSD2119_H */
+/** @} */
