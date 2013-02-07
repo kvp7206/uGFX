@@ -29,10 +29,14 @@
 #ifndef _GDISP_LLD_BOARD_H
 #define _GDISP_LLD_BOARD_H
 
-/* Using FSMC A19 (PE3) as DC */
-#define GDISP_REG              (*((volatile uint16_t *) 0x60000000)) /* DC = 0 */
-#define GDISP_RAM              (*((volatile uint16_t *) 0x60100000)) /* DC = 1 */
-
+#define SET_CS		palSetPad(GPIOD, 7);
+#define CLR_CS		palClearPad(GPIOD, 7);
+#define SET_DC		palSetPad(GPIOE, 3);
+#define CLR_DC		palClearPad(GPIOE, 3);
+#define SET_WR		palSetPad(GPIOD, 5);
+#define CLR_WR		palClearPad(GPIOD, 5);
+#define SET_RD		palSetPad(GPIOD, 4);
+#define CLR_RD		palClearPad(GPIOD, 4);
 #define SET_RST 	palSetPad(GPIOD, 3);
 #define CLR_RST 	palClearPad(GPIOD, 3);
 
@@ -43,34 +47,45 @@
  * @notapi
  */
 static __inline void init_board(void) {
-	unsigned char FSMC_Bank;
 
-	/* STM32F2-F4 FSMC init */
-	rccEnableAHB3(RCC_AHB3ENR_FSMCEN, 0);
+	// D0 - D15
+	palSetPadMode(GPIOD, 14, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOD, 15, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOD,  0, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOD,  1, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOE,  7, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOE,  8, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOE,  9, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOE, 10, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOE, 11, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOE, 12, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOE, 13, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOE, 14, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOE, 15, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOD,  8, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOD,  9, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode(GPIOD, 10, PAL_MODE_OUTPUT_PUSHPULL);
 
-	/* set pins to FSMC mode */
-	IOBus busD = {GPIOD, (1 << 0) | (1 << 1) | (1 << 4) | (1 << 5) | (1 << 7) | (1 << 8) |
-							(1 << 9) | (1 << 10) | (1 << 14) | (1 << 15), 0};
+	// RST
+	palSetPadMode(GPIOD,  3, PAL_MODE_OUTPUT_PUSHPULL);
 
-	IOBus busE = {GPIOE, (1 << 3) | (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10) | (1 << 11) | (1 << 12) |
-						(1 << 13) | (1 << 14) | (1 << 15), 0};
+	// CS
+	palSetPadMode(GPIOD,  7, PAL_MODE_OUTPUT_PUSHPULL);
+	// DC
+	palSetPadMode(GPIOE,  3, PAL_MODE_OUTPUT_PUSHPULL);
+	// RD
+	palSetPadMode(GPIOD,  4, PAL_MODE_OUTPUT_PUSHPULL);
+	// WR
+	palSetPadMode(GPIOD,  5, PAL_MODE_OUTPUT_PUSHPULL);
 
-	/* FSMC is an alternate function 12 (AF12). */
-	palSetBusMode(&busD, PAL_MODE_ALTERNATE(12));
-	palSetBusMode(&busE, PAL_MODE_ALTERNATE(12));
+	/* Configure the pins to a well know state */
+	SET_DC;
+	SET_RD;
+	SET_WR;
+	CLR_CS;
+	//SET_RST;
 
-	FSMC_Bank = 0;
-
-	/* FSMC timing */
-	FSMC_Bank1->BTCR[FSMC_Bank+1] = (FSMC_BTR1_ADDSET_1 | FSMC_BTR1_ADDSET_3) \
-			| (FSMC_BTR1_DATAST_1 | FSMC_BTR1_DATAST_3) \
-			| (FSMC_BTR1_BUSTURN_1 | FSMC_BTR1_BUSTURN_3) ;
-
-	/* Bank1 NOR/SRAM control register configuration
-	 * This is actually not needed as already set by default after reset */
-	FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
-
-	/* Display backlight always on. */
+	/* Display backlight always on */
 	palSetPadMode(GPIOD, 13, PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPad(GPIOD, 13);
 }
@@ -79,7 +94,7 @@ static __inline void init_board(void) {
  * @brief   Set or clear the lcd reset pin.
  *
  * @param[in] state		TRUE = lcd in reset, FALSE = normal operation
- * 
+ *
  * @notapi
  */
 static __inline void setpin_reset(bool_t state) {
@@ -94,7 +109,7 @@ static __inline void setpin_reset(bool_t state) {
  * @brief   Set the lcd back-light level.
  *
  * @param[in] percent		0 to 100%
- * 
+ *
  * @notapi
  */
 static __inline void set_backlight(uint8_t percent) {
@@ -104,7 +119,6 @@ static __inline void set_backlight(uint8_t percent) {
 
 /**
  * @brief   Take exclusive control of the bus
- * @note	Not needed, not implemented
  *
  * @notapi
  */
@@ -114,7 +128,6 @@ static __inline void acquire_bus(void) {
 
 /**
  * @brief   Release exclusive control of the bus
- * @note	Not needed, not implemented
  *
  * @notapi
  */
@@ -130,18 +143,58 @@ static __inline void release_bus(void) {
  * @notapi
  */
 static __inline void write_index(uint16_t index) {
-	GDISP_REG = index;
+
+	// D0 - D15
+	palWritePad(GPIOD, 14, index & 1);
+	palWritePad(GPIOD, 15, (index >> 1) & 1);
+	palWritePad(GPIOD,  0, (index >> 2) & 1);
+	palWritePad(GPIOD,  1, (index >> 3) & 1);
+	palWritePad(GPIOE,  7, (index >> 4) & 1);
+	palWritePad(GPIOE,  8, (index >> 5) & 1);
+	palWritePad(GPIOE,  9, (index >> 6) & 1);
+	palWritePad(GPIOE, 10, (index >> 7) & 1);
+	palWritePad(GPIOE, 11, (index >> 8) & 1);
+	palWritePad(GPIOE, 12, (index >> 9) & 1);
+	palWritePad(GPIOE, 13, (index >> 10) & 1);
+	palWritePad(GPIOE, 14, (index >> 11) & 1);
+	palWritePad(GPIOE, 15, (index >> 12) & 1);
+	palWritePad(GPIOD,  8, (index >> 13) & 1);
+	palWritePad(GPIOD,  9, (index >> 14) & 1);
+	palWritePad(GPIOD, 10, (index >> 15) & 1);
+
+	/* Control lines */
+	CLR_DC; CLR_WR; SET_WR; SET_DC;
 }
 
 /**
  * @brief   Send data to the lcd.
  *
  * @param[in] data		The data to send
- * 
+ *
  * @notapi
  */
 static __inline void write_data(uint16_t data) {
-	GDISP_RAM = data;
+
+	// D0 - D15
+	palWritePad(GPIOD, 14, data & 1);
+	palWritePad(GPIOD, 15, (data >> 1) & 1);
+	palWritePad(GPIOD,  0, (data >> 2) & 1);
+	palWritePad(GPIOD,  1, (data >> 3) & 1);
+	palWritePad(GPIOE,  7, (data >> 4) & 1);
+	palWritePad(GPIOE,  8, (data >> 5) & 1);
+	palWritePad(GPIOE,  9, (data >> 6) & 1);
+	palWritePad(GPIOE, 10, (data >> 7) & 1);
+	palWritePad(GPIOE, 11, (data >> 8) & 1);
+	palWritePad(GPIOE, 12, (data >> 9) & 1);
+	palWritePad(GPIOE, 13, (data >> 10) & 1);
+	palWritePad(GPIOE, 14, (data >> 11) & 1);
+	palWritePad(GPIOE, 15, (data >> 12) & 1);
+	palWritePad(GPIOD,  8, (data >> 13) & 1);
+	palWritePad(GPIOD,  9, (data >> 14) & 1);
+	palWritePad(GPIOD, 10, (data >> 15) & 1);
+
+	/* Control lines */
+	CLR_WR; SET_WR;
 }
 
 #if GDISP_HARDWARE_READPIXEL || GDISP_HARDWARE_SCROLL || defined(__DOXYGEN__)
@@ -151,11 +204,24 @@ static __inline void write_data(uint16_t data) {
  * @return	The data from the lcd
  * @note	The chip select may need to be asserted/de-asserted
  * 			around the actual spi read
- * 
+ *
  * @notapi
  */
 static __inline uint16_t read_data(void) {
-	return GDISP_RAM;
+	uint16_t	value;
+/*
+	// change pin mode to digital input
+	palSetGroupMode(GPIOE, PAL_WHOLE_PORT, 0, PAL_MODE_INPUT);
+
+	CLR_RD;
+	value = palReadPort(GPIOE);
+	value = palReadPort(GPIOE);
+	SET_RD;
+
+	// change pin mode back to digital output
+	palSetGroupMode(GPIOE, PAL_WHOLE_PORT, 0, PAL_MODE_OUTPUT_PUSHPULL);
+*/
+	return value;
 }
 #endif
 

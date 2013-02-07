@@ -58,6 +58,8 @@
 #if defined(GDISP_USE_CUSTOM_BOARD) && GDISP_USE_CUSTOM_BOARD
 	/* Include the user supplied board definitions */
 	#include "gdisp_lld_board.h"
+#elif defined(BOARD_EMBEST_DMSTF4BB_FSMC)
+	#include "gdisp_lld_board_embest_dmstf4bb_fsmc.h"
 #elif defined(BOARD_EMBEST_DMSTF4BB)
 	#include "gdisp_lld_board_embest_dmstf4bb.h"
 #else
@@ -172,30 +174,49 @@ bool_t GDISP_LLD(init)(void) {
 	// Get the bus for the following initialisation commands
 	acquire_bus();
 
+	// Enter sleep mode (if we are not already there).
 	write_reg(SSD2119_REG_SLEEP_MODE_1, 0x0001);
 	delay(5);
+
+	// Set initial power parameters.
 	write_reg(SSD2119_REG_PWR_CTRL_5, 0x00B2);
 	delay(5);
 	write_reg(SSD2119_REG_VCOM_OTP_1, 0x0006);
 	delay(5);
+
+	// Start the oscillator.
 	write_reg(SSD2119_REG_OSC_START, 0x0001);
 	delay(5);
+
+	// Set pixel format and basic display orientation (scanning direction).
 	write_reg(SSD2119_REG_OUTPUT_CTRL, 0x30EF);
 	delay(5);
 	write_reg(SSD2119_REG_LCD_DRIVE_AC_CTRL, 0x0600);
 	delay(5);
+
+	// Exit sleep mode.
 	write_reg(SSD2119_REG_SLEEP_MODE_1, 0x0000);
 	delay(5);
+
+	// Configure pixel color format and MCU interface parameters.
 	write_reg(SSD2119_REG_ENTRY_MODE, 0x6830); // ENTRY_MODE_DEFAULT
 	delay(5);
+
+	// Set analog parameters.
 	write_reg(SSD2119_REG_SLEEP_MODE_2, 0x0999);
 	delay(5);
 	write_reg(SSD2119_REG_ANALOG_SET, 0x3800);
 	delay(5);
+
+	// Enable the display.
 	write_reg(SSD2119_REG_DISPLAY_CTRL, 0x0033);
 	delay(5);
+
+	// Set VCIX2 voltage to 6.1V.
 	write_reg(SSD2119_REG_PWR_CTRL_2, 0x0005);
 	delay(5);
+
+	// Configure gamma correction.
 	write_reg(SSD2119_REG_GAMMA_CTRL_1, 0x0000);
 	delay(5);
 	write_reg(SSD2119_REG_GAMMA_CTRL_2, 0x0303);
@@ -216,10 +237,14 @@ bool_t GDISP_LLD(init)(void) {
 	delay(5);
 	write_reg(SSD2119_REG_GAMMA_CTRL_10, 0x1000);
 	delay(5);
+
+	// Configure Vlcd63 and VCOMl.
 	write_reg(SSD2119_REG_PWR_CTRL_3, 0x000A);
 	delay(5);
 	write_reg(SSD2119_REG_PWR_CTRL_4, 0x2E00);
 	delay(5);
+
+	// Set the display size and ensure that the GRAM window is set to allow access to the full display buffer.
 	write_reg(SSD2119_REG_V_RAM_POS, (GDISP_SCREEN_HEIGHT - 1) << 8);
 	delay(5);
 	write_reg(SSD2119_REG_H_RAM_START, 0x0000);
