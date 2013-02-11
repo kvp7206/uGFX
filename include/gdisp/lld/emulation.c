@@ -685,7 +685,7 @@ void *lld_gdisp_query(unsigned what) {
 #endif
 
 #if GDISP_NEED_MSGAPI
-	void GDISP_LLD(msgdispatch)(gdisp_lld_msg_t *msg) {
+	void lld_gdisp_msg_dispatch(gdisp_lld_msg_t *msg) {
 		switch(msg->action) {
 		case GDISP_LLD_MSG_NOP:
 			break;

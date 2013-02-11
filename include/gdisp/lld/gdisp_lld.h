@@ -458,11 +458,6 @@ typedef enum powermode {powerOff, powerSleep, powerDeepSleep, powerOn} gdisp_pow
 /* External declarations.                                                    */
 /*===========================================================================*/
 
-#ifndef GDISP_LLD_VMT
-	/* Special magic stuff for the VMT driver */
-	#define GDISP_LLD_VMT(x) GDISP_LLD(x)
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -530,7 +525,7 @@ extern "C" {
 	/* Messaging API */
 	#if GDISP_NEED_MSGAPI
 	#include "gdisp_lld_msgs.h"
-	extern void GDISP_LLD(msgdispatch)(gdisp_lld_msg_t *msg);
+	extern void lld_gdisp_msg_dispatch(gdisp_lld_msg_t *msg);
 	#endif
 
 #ifdef __cplusplus

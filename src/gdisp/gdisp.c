@@ -95,7 +95,7 @@
 
 			/* OK - we need to obtain the mutex in case a synchronous operation is occurring */
 			chMtxLock(&gdispMutex);
-			GDISP_LLD(msgdispatch)(pmsg);
+			lld_gdisp_msg_dispatch(pmsg);
 			chMtxUnlock();
 
 			/* Mark the message as free */

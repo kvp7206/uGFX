@@ -36,7 +36,6 @@
 /*===========================================================================*/
 
 #define GDISP_DRIVER_NAME				"TestStub"
-#define GDISP_LLD(x)					gdisp_lld_##x##_TestStub
 
 #define GDISP_HARDWARE_SCROLL			GDISP_NEED_SCROLL
 #define GDISP_HARDWARE_PIXELREAD		GDISP_NEED_PIXELREAD

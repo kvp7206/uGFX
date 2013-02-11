@@ -81,28 +81,28 @@ static __inline void lld_lcdDelay(uint16_t us) {
 }
 
 static __inline void lld_lcdWriteIndex(uint16_t index) {
-	GDISP_LLD(write_index)(index);
+	lld_gdisp_write_index(index);
 }
 
 static __inline void lld_lcdWriteData(uint16_t data) {
-	GDISP_LLD(write_data)(data);
+	lld_gdisp_write_data(data);
 }
 
 static __inline void lld_lcdWriteReg(uint16_t lcdReg, uint16_t lcdRegValue) {
-	GDISP_LLD(write_index)(lcdReg);
-	GDISP_LLD(write_data)(lcdRegValue);
+	lld_gdisp_write_index(lcdReg);
+	lld_gdisp_write_data(lcdRegValue);
 }
 
 static __inline uint16_t lld_lcdReadData(void) {
 	/* fix this! */
-	//return GDISP_LLD(read_data);
+	//return lld_gdisp_read_data;
 	return GDISP_RAM;
 }
 
 static __inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
     volatile uint16_t dummy;
 
-    GDISP_LLD(write_index)(lcdReg);
+    lld_gdisp_write_index(lcdReg);
     dummy = lld_lcdReadData();
     (void)dummy;
 
@@ -145,12 +145,12 @@ static __inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
 
 bool_t lld_gdisp_init(void) {
 	/* Initialise your display */
-	GDISP_LLD(init_board)();
+	lld_gdisp_init_board();
 
 	/* Hardware reset */
-	GDISP_LLD(setpin_reset)(TRUE);
+	lld_gdisp_reset_pin(TRUE);
 	lld_lcdDelay(1000);
-	GDISP_LLD(setpin_reset)(FALSE);
+	lld_gdisp_reset_pin(FALSE);
 	lld_lcdDelay(1000);
 
     DISPLAY_CODE = lld_lcdReadReg(0);
@@ -215,7 +215,7 @@ bool_t lld_gdisp_init(void) {
     lld_lcdWriteReg(0x0007, 0x0173); //display On
 
 	// Turn on the backlight
-	GDISP_LLD(set_backlight)(GDISP_INITIAL_BACKLIGHT);
+	lld_gdisp_backlight(GDISP_INITIAL_BACKLIGHT);
 	
     /* Initialise the GDISP structure */
     GDISP.Width = GDISP_SCREEN_WIDTH;
@@ -457,7 +457,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 						lld_lcdWriteReg(0x0011, 0x0000);
 						lld_lcdWriteReg(0x0012, 0x0000);
 						lld_lcdWriteReg(0x0013, 0x0000);
-						GDISP_LLD(set_backlight)(0);
+						lld_gdisp_backlight(0);
 						break;
 			
 					case powerOn:
@@ -476,7 +476,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 						lld_lcdWriteReg(0x0029, 0x0009); /* VCM[4:0] for VCOMH */
 						lld_lcdDelay(500);
 						lld_lcdWriteReg(0x0007, 0x0173); /* 262K color and display ON */	
-						GDISP_LLD(set_backlight)(GDISP.Backlight);
+						lld_gdisp_backlight(GDISP.Backlight);
 						if(GDISP.Powermode != powerSleep || GDISP.Powermode != powerDeepSleep)
 							lld_gdisp_init();
 						break;
@@ -489,7 +489,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	                  	lld_lcdWriteReg(0x0013, 0x0000); /* VDV[4:0] for VCOM amplitude */
 	                  	lld_lcdDelay(2000); /* Dis-charge capacitor power voltage */
 	                   	lld_lcdWriteReg(0x0010, 0x0002); /* SAP, BT[3:0], APE, AP, DSTB, SLP */				
-						GDISP_LLD(set_backlight)(0);
+						lld_gdisp_backlight(0);
 						break;
 
 					case powerDeepSleep:
@@ -500,7 +500,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	   					lld_lcdWriteReg(0x0013, 0x0000); /* VDV[4:0] for VCOM amplitude */
 	   					lld_lcdDelay(2000); /* Dis-charge capacitor power voltage */
 	  					lld_lcdWriteReg(0x0010, 0x0004); /* SAP, BT[3:0], APE, AP, DSTB, SLP */
-						GDISP_LLD(set_backlight)(0);
+						lld_gdisp_backlight(0);
 						break;
 
 					default:
@@ -554,7 +554,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 
 			case GDISP_CONTROL_BACKLIGHT:
 				if((unsigned)value > 100) value = (void *)100;
-				GDISP_LLD(set_backlight)((unsigned)value);
+				lld_gdisp_backlight((unsigned)value);
 				GDISP.Backlight = (unsigned)value;
 				break;
 			

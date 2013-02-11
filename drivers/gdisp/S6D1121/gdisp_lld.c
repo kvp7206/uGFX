@@ -508,7 +508,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 					/* 	Code here */
 					/* You may need this ---
 						if (GDISP.Powermode != powerSleep)
-							GDISP_LLD(init();
+							lld_gdisp_init();
 					*/
 					/* break; */
 				case powerSleep:
