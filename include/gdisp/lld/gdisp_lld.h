@@ -495,7 +495,7 @@ extern "C" {
 
 	/* Text Rendering Functions */
 	#if GDISP_NEED_TEXT
-	extern void lld_gdisp_draw_char(coord_t x, coord_t y, char c, font_t font, color_t color;
+	extern void lld_gdisp_draw_char(coord_t x, coord_t y, char c, font_t font, color_t color);
 	extern void lld_gdisp_fill_char(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor);
 	#endif
 
