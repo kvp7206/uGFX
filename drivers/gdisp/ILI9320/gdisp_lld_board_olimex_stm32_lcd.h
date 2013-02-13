@@ -32,7 +32,7 @@
 #define GDISP_REG              (*((volatile uint16_t *) 0x60000000)) /* RS = 0 */
 #define GDISP_RAM              (*((volatile uint16_t *) 0x60100000)) /* RS = 1 */
 
-static __inline void GDISP_LLD(init_board)(void) {
+static __inline void lld_gdisp_init_board(void) {
 	/* FSMC setup for F1 */
 	rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
 
@@ -54,26 +54,26 @@ static __inline void GDISP_LLD(init_board)(void) {
     FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
 }
 
-static __inline void GDISP_LLD(setpin_reset)(bool_t state) {
+static __inline void lld_gdisp_reset_pin(bool_t state) {
 	if(state)
 		palClearPad(GPIOE, GPIOE_TFT_RST);
 	else
 		palSetPad(GPIOE, GPIOE_TFT_RST);
 }
 
-static __inline void GDISP_LLD(write_index)(uint16_t reg) {
+static __inline void lld_gdisp_write_index(uint16_t reg) {
 	GDISP_REG = reg;
 }
 
-static __inline void GDISP_LLD(write_data)(uint16_t data) {
+static __inline void lld_gdisp_write_data(uint16_t data) {
 	GDISP_RAM = data;
 }
 
-static __inline uint16_t GDISP_LLD(read_data)(void) {
+static __inline uint16_t lld_gdisp_read_data(void) {
 	return GDISP_RAM;
 }
 
-static __inline void GDISP_LLD(set_backlight)(uint8_t percent) {
+static __inline void lld_gdisp_backlight(uint8_t percent) {
 	if(percent == 100)
 		palClearPad(GPIOD, GPIOD_TFT_LIGHT);
 	else

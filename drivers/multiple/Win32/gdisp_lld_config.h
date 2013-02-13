@@ -36,7 +36,6 @@
 /*===========================================================================*/
 
 #define GDISP_DRIVER_NAME				"Win32"
-#define GDISP_LLD(x)					gdisp_lld_##x##_Win32
 
 #define GDISP_HARDWARE_LINES			TRUE
 #define GDISP_HARDWARE_FILLS			TRUE

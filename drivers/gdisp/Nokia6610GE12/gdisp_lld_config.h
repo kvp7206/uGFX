@@ -36,7 +36,6 @@
 /*===========================================================================*/
 
 #define GDISP_DRIVER_NAME				"Nokia6610GE12"
-#define GDISP_LLD(x)					gdisp_lld_##x##_Nokia6610GE12
 
 #define GDISP_HARDWARE_FILLS			TRUE
 #define GDISP_HARDWARE_BITFILLS			TRUE

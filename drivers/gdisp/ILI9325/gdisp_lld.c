@@ -81,28 +81,28 @@ static __inline void lld_lcdDelay(uint16_t us) {
 }
 
 static __inline void lld_lcdWriteIndex(uint16_t index) {
-	GDISP_LLD(write_index)(index);
+	lld_gdisp_write_index(index);
 }
 
 static __inline void lld_lcdWriteData(uint16_t data) {
-	GDISP_LLD(write_data)(data);
+	lld_gdisp_write_data(data);
 }
 
 static __inline void lld_lcdWriteReg(uint16_t lcdReg, uint16_t lcdRegValue) {
-	GDISP_LLD(write_index)(lcdReg);
-	GDISP_LLD(write_data)(lcdRegValue);
+	lld_gdisp_write_index(lcdReg);
+	lld_gdisp_write_data(lcdRegValue);
 }
 
 static __inline uint16_t lld_lcdReadData(void) {
 	/* fix this! */
-	//return GDISP_LLD(read_data);
+	//return lld_gdisp_read_data;
 	return GDISP_RAM;
 }
 
 static __inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
     volatile uint16_t dummy;
 
-    GDISP_LLD(write_index)(lcdReg);
+    lld_gdisp_write_index(lcdReg);
     dummy = lld_lcdReadData();
     (void)dummy;
 
@@ -143,14 +143,14 @@ static __inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
 		buffer[i] = lld_lcdReadData();
 }
 
-bool_t GDISP_LLD(init)(void) {
+bool_t lld_gdisp_init(void) {
 	/* Initialise your display */
-	GDISP_LLD(init_board)();
+	lld_gdisp_init_board();
 
 	/* Hardware reset */
-	GDISP_LLD(setpin_reset)(TRUE);
+	lld_gdisp_reset_pin(TRUE);
 	lld_lcdDelay(1000);
-	GDISP_LLD(setpin_reset)(FALSE);
+	lld_gdisp_reset_pin(FALSE);
 	lld_lcdDelay(1000);
 
 	// chinese code starts here
@@ -210,7 +210,7 @@ bool_t GDISP_LLD(init)(void) {
 	// chinese code ends here
 
 	// Turn on the backlight
-	GDISP_LLD(set_backlight)(GDISP_INITIAL_BACKLIGHT);
+	lld_gdisp_backlight(GDISP_INITIAL_BACKLIGHT);
 	
     /* Initialise the GDISP structure */
     GDISP.Width = GDISP_SCREEN_WIDTH;
@@ -302,7 +302,7 @@ static __inline void lld_lcdResetViewPort(void) {
     }
 }
 
-void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
+void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
     #if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
         if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
     #endif
@@ -311,7 +311,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 }
 
 #if GDISP_HARDWARE_CLEARS || defined(__DOXYGEN__)
-	void GDISP_LLD(clear)(color_t color) {
+	void lld_gdisp_clear(color_t color) {
 	    unsigned i;
 
 	    lld_lcdSetCursor(0, 0);
@@ -325,7 +325,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 #endif
 
 #if GDISP_HARDWARE_FILLS || defined(__DOXYGEN__)
-	void GDISP_LLD(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+	void lld_gdisp_fill_area(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; x = GDISP.clipx0; }
 			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; y = GDISP.clipy0; }
@@ -347,7 +347,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 #endif
 
 #if GDISP_HARDWARE_BITFILLS || defined(__DOXYGEN__)
-	void GDISP_LLD(blitareaex)(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
+	void lld_gdisp_blit_area_ex(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
 		coord_t endx, endy;
 		unsigned lg;
 
@@ -376,7 +376,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 #endif
 
 #if (GDISP_NEED_PIXELREAD && GDISP_HARDWARE_PIXELREAD) || defined(__DOXYGEN__)
-	color_t GDISP_LLD(getpixelcolor)(coord_t x, coord_t y) {
+	color_t lld_gdisp_get_pixel_color(coord_t x, coord_t y) {
 		color_t color;
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
@@ -396,7 +396,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 #endif
 
 #if (GDISP_NEED_SCROLL && GDISP_HARDWARE_SCROLL) || defined(__DOXYGEN__)
-	void GDISP_LLD(verticalscroll)(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
+	void lld_gdisp_vertical_scroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
 		static color_t buf[((GDISP_SCREEN_HEIGHT > GDISP_SCREEN_WIDTH ) ? GDISP_SCREEN_HEIGHT : GDISP_SCREEN_WIDTH)];
 		coord_t row0, row1;
 		unsigned i, gap, abslines;
@@ -449,7 +449,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 #endif
 
 #if (GDISP_NEED_CONTROL && GDISP_HARDWARE_CONTROL) || defined(__DOXYGEN__)
-	void GDISP_LLD(control)(unsigned what, void *value) {
+	void lld_gdisp_control(unsigned what, void *value) {
 		switch(what) {
 			case GDISP_CONTROL_POWER:
 				if(GDISP.Powermode == (gdisp_powermode_t)value)
@@ -461,7 +461,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 						lld_lcdWriteReg(0x0011, 0x0000);
 						lld_lcdWriteReg(0x0012, 0x0000);
 						lld_lcdWriteReg(0x0013, 0x0000);
-						GDISP_LLD(set_backlight)(0);
+						lld_gdisp_backlight(0);
 						break;
 			
 					case powerOn:
@@ -480,9 +480,9 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 						lld_lcdWriteReg(0x0029, 0x0009); /* VCM[4:0] for VCOMH */
 						lld_lcdDelay(500);
 						lld_lcdWriteReg(0x0007, 0x0173); /* 262K color and display ON */	
-						GDISP_LLD(set_backlight)(GDISP.Backlight);
+						lld_gdisp_backlight(GDISP.Backlight);
 						if(GDISP.Powermode != powerSleep || GDISP.Powermode != powerDeepSleep)
-							GDISP_LLD(init)();
+							lld_gdisp_init();
 						break;
 	
 					case powerSleep:
@@ -493,7 +493,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	                  	lld_lcdWriteReg(0x0013, 0x0000); /* VDV[4:0] for VCOM amplitude */
 	                  	lld_lcdDelay(2000); /* Dis-charge capacitor power voltage */
 	                   	lld_lcdWriteReg(0x0010, 0x0002); /* SAP, BT[3:0], APE, AP, DSTB, SLP */				
-						GDISP_LLD(set_backlight)(0);
+						lld_gdisp_backlight(0);
 						break;
 
 					case powerDeepSleep:
@@ -504,7 +504,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	   					lld_lcdWriteReg(0x0013, 0x0000); /* VDV[4:0] for VCOM amplitude */
 	   					lld_lcdDelay(2000); /* Dis-charge capacitor power voltage */
 	  					lld_lcdWriteReg(0x0010, 0x0004); /* SAP, BT[3:0], APE, AP, DSTB, SLP */
-						GDISP_LLD(set_backlight)(0);
+						lld_gdisp_backlight(0);
 						break;
 
 					default:
@@ -564,7 +564,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 
 			case GDISP_CONTROL_BACKLIGHT:
 				if((unsigned)value > 100) value = (void *)100;
-				GDISP_LLD(set_backlight)((unsigned)value);
+				lld_gdisp_backlight((unsigned)value);
 				GDISP.Backlight = (unsigned)value;
 				break;
 			

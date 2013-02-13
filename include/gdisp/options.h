@@ -229,13 +229,8 @@
 	 */
 	/* #define GDISP_USE_FSMC */
 	/* #define GDISP_USE_GPIO */
-	/**
-	 * @brief   Define which two drivers will be used by the VMT layer.
-	 * @details	Only required by the VMT driver.
-	 */
-	/* #define GDISP_VMT_NAME1(x)	x##YourDriver1 */
-	/* #define GDISP_VMT_NAME2(x)	x##YourDriver2 */
 /** @} */
 
 #endif /* _GDISP_OPTIONS_H */
 /** @} */
+
