@@ -36,7 +36,6 @@
 /*===========================================================================*/
 
 #define GDISP_DRIVER_NAME				"SSD2119"
-#define GDISP_LLD(x)					gdisp_lld_##x##_SSD2119
 
 #define GDISP_HARDWARE_CLEARS			TRUE
 #define GDISP_HARDWARE_FILLS			TRUE
