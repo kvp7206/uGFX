@@ -95,7 +95,7 @@
 
 			/* OK - we need to obtain the mutex in case a synchronous operation is occurring */
 			chMtxLock(&gdispMutex);
-			GDISP_LLD(msgdispatch)(pmsg);
+			lld_gdisp_msg_dispatch(pmsg);
 			chMtxUnlock();
 
 			/* Mark the message as free */
@@ -153,7 +153,7 @@
 
 		/* Initialise driver */
 		chMtxLock(&gdispMutex);
-		res = GDISP_LLD(init)();
+		res = lld_gdisp_init();
 		chMtxUnlock();
 
 		return res;
@@ -180,7 +180,7 @@
 
 		/* Initialise driver - synchronous */
 		chMtxLock(&gdispMutex);
-		res = GDISP_LLD(init)();
+		res = lld_gdisp_init();
 		chMtxUnlock();
 
 		return res;
@@ -216,7 +216,7 @@
 	 */
 	void gdispClear(color_t color) {
 		chMtxLock(&gdispMutex);
-		GDISP_LLD(clear)(color);
+		lld_gdisp_clear(color);
 		chMtxUnlock();
 	}
 #elif GDISP_NEED_ASYNC
@@ -238,7 +238,7 @@
 	 */
 	void gdispDrawPixel(coord_t x, coord_t y, color_t color) {
 		chMtxLock(&gdispMutex);
-		GDISP_LLD(drawpixel)(x, y, color);
+		lld_gdisp_draw_pixel(x, y, color);
 		chMtxUnlock();
 	}
 #elif GDISP_NEED_ASYNC
@@ -263,7 +263,7 @@
 	 */
 	void gdispDrawLine(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
 		chMtxLock(&gdispMutex);
-		GDISP_LLD(drawline)(x0, y0, x1, y1, color);
+		lld_gdisp_draw_line(x0, y0, x1, y1, color);
 		chMtxUnlock();
 	}
 #elif GDISP_NEED_ASYNC
@@ -290,7 +290,7 @@
 	 */
 	void gdispFillArea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		chMtxLock(&gdispMutex);
-		GDISP_LLD(fillarea)(x, y, cx, cy, color);
+		lld_gdisp_fill_area(x, y, cx, cy, color);
 		chMtxUnlock();
 	}
 #elif GDISP_NEED_ASYNC
@@ -326,7 +326,7 @@
 	 */
 	void gdispBlitAreaEx(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
 		chMtxLock(&gdispMutex);
-		GDISP_LLD(blitareaex)(x, y, cx, cy, srcx, srcy, srccx, buffer);
+		lld_gdisp_blit_area_ex(x, y, cx, cy, srcx, srcy, srccx, buffer);
 		chMtxUnlock();
 	}
 #elif GDISP_NEED_ASYNC
@@ -355,7 +355,7 @@
 	 */
 	void gdispSetClip(coord_t x, coord_t y, coord_t cx, coord_t cy) {
 		chMtxLock(&gdispMutex);
-		GDISP_LLD(setclip)(x, y, cx, cy);
+		lld_gdisp_set_clip(x, y, cx, cy);
 		chMtxUnlock();
 	}
 #elif GDISP_NEED_CLIP && GDISP_NEED_ASYNC
@@ -381,7 +381,7 @@
 	 */
 	void gdispDrawCircle(coord_t x, coord_t y, coord_t radius, color_t color) {
 		chMtxLock(&gdispMutex);
-		GDISP_LLD(drawcircle)(x, y, radius, color);
+		lld_gdisp_draw_circle(x, y, radius, color);
 		chMtxUnlock();
 	}
 #elif GDISP_NEED_CIRCLE && GDISP_NEED_ASYNC
@@ -407,7 +407,7 @@
 	 */
 	void gdispFillCircle(coord_t x, coord_t y, coord_t radius, color_t color) {
 		chMtxLock(&gdispMutex);
-		GDISP_LLD(fillcircle)(x, y, radius, color);
+		lld_gdisp_fill_circle(x, y, radius, color);
 		chMtxUnlock();
 	}
 #elif GDISP_NEED_CIRCLE && GDISP_NEED_ASYNC
@@ -433,7 +433,7 @@
 	 */
 	void gdispDrawEllipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
 		chMtxLock(&gdispMutex);
-		GDISP_LLD(drawellipse)(x, y, a, b, color);
+		lld_gdisp_draw_ellipse(x, y, a, b, color);
 		chMtxUnlock();
 	}
 #elif GDISP_NEED_ELLIPSE && GDISP_NEED_ASYNC
@@ -460,7 +460,7 @@
 	 */
 	void gdispFillEllipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
 		chMtxLock(&gdispMutex);
-		GDISP_LLD(fillellipse)(x, y, a, b, color);
+		lld_gdisp_fill_ellipse(x, y, a, b, color);
 		chMtxUnlock();
 	}
 #elif GDISP_NEED_ELLIPSE && GDISP_NEED_ASYNC
@@ -489,7 +489,7 @@
 	 */
 	void gdispDrawArc(coord_t x, coord_t y, coord_t radius, coord_t start, coord_t end, color_t color) {
 		chMtxLock(&gdispMutex);
-		GDISP_LLD(drawarc)(x, y, radius, start, end, color);
+		lld_gdisp_draw_arc(x, y, radius, start, end, color);
 		chMtxUnlock();
 	}
 #elif GDISP_NEED_ARC && GDISP_NEED_ASYNC
@@ -520,7 +520,7 @@
 	 */
 	void gdispFillArc(coord_t x, coord_t y, coord_t radius, coord_t start, coord_t end, color_t color) {
 		chMtxLock(&gdispMutex);
-		GDISP_LLD(fillarc)(x, y, radius, start, end, color);
+		lld_gdisp_fill_arc(x, y, radius, start, end, color);
 		chMtxUnlock();
 	}
 #elif GDISP_NEED_ARC && GDISP_NEED_ASYNC
@@ -605,7 +605,7 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 	 */
 	void gdispDrawChar(coord_t x, coord_t y, char c, font_t font, color_t color) {
 		chMtxLock(&gdispMutex);
-		GDISP_LLD(drawchar)(x, y, c, font, color);
+		lld_gdisp_draw_char(x, y, c, font, color);
 		chMtxUnlock();
 	}
 #elif GDISP_NEED_TEXT && GDISP_NEED_ASYNC
@@ -634,7 +634,7 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 	 */
 	void gdispFillChar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
 		chMtxLock(&gdispMutex);
-		GDISP_LLD(fillchar)(x, y, c, font, color, bgcolor);
+		lld_gdisp_fill_char(x, y, c, font, color, bgcolor);
 		chMtxUnlock();
 	}
 #elif GDISP_NEED_TEXT && GDISP_NEED_ASYNC
@@ -664,7 +664,7 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 
 		/* Always synchronous as it must return a value */
 		chMtxLock(&gdispMutex);
-		c = GDISP_LLD(getpixelcolor)(x, y);
+		c = lld_gdisp_get_pixel_color(x, y);
 		chMtxUnlock();
 
 		return c;
@@ -687,7 +687,7 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 	 */
 	void gdispVerticalScroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
 		chMtxLock(&gdispMutex);
-		GDISP_LLD(verticalscroll)(x, y, cx, cy, lines, bgcolor);
+		lld_gdisp_vertical_scroll(x, y, cx, cy, lines, bgcolor);
 		chMtxUnlock();
 	}
 #elif GDISP_NEED_SCROLL && GDISP_NEED_ASYNC
@@ -717,7 +717,7 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 	 */
 	void gdispControl(unsigned what, void *value) {
 		chMtxLock(&gdispMutex);
-		GDISP_LLD(control)(what, value);
+		lld_gdisp_control(what, value);
 		chMtxUnlock();
 		chThdSleepMilliseconds(100);
 	}
@@ -746,7 +746,7 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 		void *res;
 
 		chMtxLock(&gdispMutex);
-		res = GDISP_LLD(query)(what);
+		res = lld_gdisp_query(what);
 		chMtxUnlock();
 		return res;
 	}

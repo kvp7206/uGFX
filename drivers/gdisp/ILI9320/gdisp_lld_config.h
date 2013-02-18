@@ -36,7 +36,6 @@
 /*===========================================================================*/
 
 #define GDISP_DRIVER_NAME				"ILI9320"
-#define GDISP_LLD(x)					gdisp_lld_##x##_ILI9320
 
 #define GDISP_HARDWARE_CLEARS			TRUE
 #define GDISP_HARDWARE_FILLS			TRUE

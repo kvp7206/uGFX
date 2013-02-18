@@ -187,7 +187,7 @@ __inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
  *
  * @notapi
  */
-bool_t GDISP_LLD(init)(void) {
+bool_t lld_gdisp_init(void) {
 	/* Initialise the display */
 
 #if defined(GDISP_USE_FSMC)
@@ -358,7 +358,7 @@ void GDISP_LLD(setwindow)(coord_t x0, coord_t y0, coord_t x1, coord_t y1) {
  *
  * @notapi
  */
-void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
+void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 	if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
 	#endif
@@ -381,7 +381,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void GDISP_LLD(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+	void lld_gdisp_fill_area(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
     
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; x = GDISP.clipx0; }
@@ -430,7 +430,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void GDISP_LLD(blitareaex)(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
+	void lld_gdisp_blit_area_ex(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; srcx += GDISP.clipx0 - x; x = GDISP.clipx0; }
@@ -486,7 +486,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void GDISP_LLD(verticalscroll)(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
+	void lld_gdisp_vertical_scroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; x = GDISP.clipx0; }
 			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; y = GDISP.clipy0; }
@@ -535,7 +535,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void GDISP_LLD(control)(unsigned what, void *value) {
+	void lld_gdisp_control(unsigned what, void *value) {
 		/* NOT IMPLEMENTED YET */
 		switch(what) {
 			case GDISP_CONTROL_POWER:
@@ -552,7 +552,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 					GDISP_LLD(readreg)(0x0000); chThdSleepMicroseconds(5000); // 2x Dummy reads to wake up from deep sleep
 					GDISP_LLD(readreg)(0x0000); chThdSleepMicroseconds(5000);
 					if (GDISP.Powermode != powerSleep)
-						GDISP_LLD(init)();
+						lld_gdisp_init();
 					GDISP_LLD(writeindex)(SSD1963_SET_DISPLAY_ON);
 
 					break;

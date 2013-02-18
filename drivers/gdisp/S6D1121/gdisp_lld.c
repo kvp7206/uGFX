@@ -150,7 +150,7 @@ static __inline void reset_viewport(void) {
 	}
 }
 
-bool_t GDISP_LLD(init)(void) {
+bool_t lld_gdisp_init(void) {
 	/* initialize the hardware */
 	init_board();
 
@@ -255,7 +255,7 @@ bool_t GDISP_LLD(init)(void) {
  *
  * @notapi
  */
-void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
+void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 		if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
 	#endif
@@ -277,7 +277,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void GDISP_LLD(clear)(color_t color) {
+	void lld_gdisp_clear(color_t color) {
 	    unsigned i;
 
 		acquire_bus();
@@ -303,7 +303,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void GDISP_LLD(fillarea)(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+	void lld_gdisp_fill_area(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		unsigned i, area;
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
@@ -339,7 +339,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void GDISP_LLD(blitareaex)(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
+	void lld_gdisp_blit_area_ex(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
 		coord_t endx, endy;
 		unsigned lg;
 
@@ -379,7 +379,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	color_t GDISP_LLD(getpixelcolor)(coord_t x, coord_t y) {
+	color_t lld_gdisp_get_pixel_color(coord_t x, coord_t y) {
 		/* This routine is marked "DO NOT USE" in the original
 		 *  GLCD driver. We just keep our GDISP_HARDWARE_READPIXEL
 		 *  turned off for now.
@@ -418,7 +418,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void GDISP_LLD(verticalscroll)(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
+	void lld_gdisp_vertical_scroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
 		/* This is marked as "TODO: Test this" in the original GLCD driver.
 		 * For now we just leave the GDISP_HARDWARE_SCROLL off.
 		 */
@@ -495,7 +495,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void GDISP_LLD(control)(unsigned what, void *value) {
+	void lld_gdisp_control(unsigned what, void *value) {
 		switch(what) {
 		case GDISP_CONTROL_POWER:
 			if (GDISP.Powermode == (gdisp_powermode_t)value)
@@ -508,7 +508,7 @@ void GDISP_LLD(drawpixel)(coord_t x, coord_t y, color_t color) {
 					/* 	Code here */
 					/* You may need this ---
 						if (GDISP.Powermode != powerSleep)
-							GDISP_LLD(init();
+							lld_gdisp_init();
 					*/
 					/* break; */
 				case powerSleep:

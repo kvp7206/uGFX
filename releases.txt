@@ -7,6 +7,8 @@ FEATURE:	Added ILI9325 driver - Thanks to Chris van Dongen aka _Sjaak
 FEATURE:	Added TDISP module
 FIX:		tdispGotoXY() renamed to tdispSetCursor()
 FEATURE:	Addition of GADC, GMISC, GAUDIN, GAUDOUT subsystems
+FIX:		Removal of the GDISP_LLD() macro
+DEPRECATE:	Removal of the GDISP VMT
 
 
 *** changes after 1.4 ***
