@@ -19,37 +19,28 @@
 */
 
 /**
- * @file    include/gadc/options.h
- * @brief   GADC - Periodic ADC subsystem options header file.
+ * @file    drivers/gadc/AT91SAM7/gadc_lld_board_olimexsam7ex256.h
+ * @brief   GADC Driver config file.
  *
  * @addtogroup GADC
  * @{
  */
 
-#ifndef _GADC_OPTIONS_H
-#define _GADC_OPTIONS_H
+#ifndef _GADC_LLD_BOARD_OLIMEXSAM7EX256_H
+#define _GADC_LLD_BOARD_OLIMEXSAM7EX256_H
 
-/**
- * @name    GADC Functionality to be included
- * @{
- */
-/**
- * @}
- *
- * @name    GADC Optional Sizing Parameters
- * @{
- */
-	/**
-	 * @brief   The maximum GADC sample rate
-	 * @details	Defaults to 44000
-	 * @note	This value must be less than half the maximum sample rate allowed by the CPU.
-	 * 			This is to ensure there is time between high speed samples to perform low
-	 * 			speed device sampling.
-	 */
-	#ifndef GADC_MAX_HIGH_SPEED_SAMPLERATE
-		#define GADC_MAX_HIGH_SPEED_SAMPLERATE	44000
-	#endif
+#if GFX_USE_GADC
+
+/*===========================================================================*/
+/* Analogue devices on this board                                            */
+/*===========================================================================*/
+
+#define GADC_PHYSDEV_MICROPHONE			0x00000080
+#define GADC_PHYSDEV_DIAL				0x00000040
+#define GADC_PHYSDEV_TEMPERATURE		0x00000020
+
+#endif	/* GFX_USE_GADC */
+
+#endif	/* _GADC_LLD_BOARD_OLIMEXSAM7EX256_H */
 /** @} */
 
-#endif /* _GADC_OPTIONS_H */
-/** @} */

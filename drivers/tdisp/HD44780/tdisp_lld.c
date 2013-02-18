@@ -32,6 +32,17 @@
 
 #if GFX_USE_TDISP /*|| defined(__DOXYGEN__)*/
 
+/* Include the hardware interface details */
+#if defined(TDISP_USE_CUSTOM_BOARD) && TDISP_USE_CUSTOM_BOARD
+	/* Include the user supplied board definitions */
+	#include "tdisp_lld_board.h"
+#elif defined(BOARD_UNKNOWN)
+	#include "gdisp_lld_board_unknown.h"
+#else
+	/* Include the user supplied board definitions */
+	#include "gdisp_lld_board.h"
+#endif
+
 /* The user may override the default display size */
 #ifndef TDISP_COLUMNS
 	#define TDISP_COLUMNS		16
@@ -51,17 +62,6 @@ tdispStruct	TDISP = {
 		CUSTOM_CHAR_XBITS, CUSTOM_CHAR_YBITS,	/* charBitsX, charBitsY */
 		CUSTOM_CHAR_COUNT						/* maxCustomChars */
 		};
-
-/* Include the hardware interface details */
-#if defined(TDISP_USE_CUSTOM_BOARD) && TDISP_USE_CUSTOM_BOARD
-	/* Include the user supplied board definitions */
-	#include "tdisp_lld_board.h"
-#elif defined(BOARD_UNKNOWN)
-	#include "gdisp_lld_board_unknown.h"
-#else
-	/* Include the user supplied board definitions */
-	#include "gdisp_lld_board.h"
-#endif
 
 /* Our display control */
 #define DISPLAY_ON		0x04

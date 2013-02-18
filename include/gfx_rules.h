@@ -99,6 +99,17 @@
 #if GFX_USE_TDISP
 #endif
 
+#if GFX_USE_GADC
+	#if !CH_USE_MUTEXES || !CH_USE_SEMAPHORES
+		#error "GADC: CH_USE_MUTEXES and CH_USE_SEMAPHORES must be defined in chconf.h"
+	#endif
+	#if !GFX_USE_GTIMER
+		#warning "GADC: GFX_USE_GTIMER is required if GFX_USE_GADC is TRUE. It has been turned on for you."
+		#undef GFX_USE_GTIMER
+		#define	GFX_USE_GTIMER		TRUE
+	#endif
+#endif
+
 #if GFX_USE_GEVENT
 	#if !CH_USE_MUTEXES || !CH_USE_SEMAPHORES
 		#error "GEVENT: CH_USE_MUTEXES and CH_USE_SEMAPHORES must be defined in chconf.h"
@@ -116,9 +127,6 @@
 #endif
 
 #if GFX_USE_GAUDOUT
-#endif
-
-#if GFX_USE_GADC
 #endif
 
 #if GFX_USE_GMISC
