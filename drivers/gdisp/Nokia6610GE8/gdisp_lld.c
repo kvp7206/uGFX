@@ -112,7 +112,7 @@ static __inline void setviewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
  *
  * @notapi
  */
-bool_t lld_gdisp_init(void) {
+bool_t gdisp_lld_init(void) {
 	/* Initialise your display */
 	init_board();
 
@@ -174,7 +174,7 @@ bool_t lld_gdisp_init(void) {
  *
  * @notapi
  */
-void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
+void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 		if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
 	#endif
@@ -196,7 +196,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_fill_area(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+	void gdisp_lld_fill_area(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		unsigned i, tuples;
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
@@ -231,7 +231,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_blit_area_ex(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
+	void gdisp_lld_blit_area_ex(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
 		coord_t endx, endy, lg;
 		color_t	c1, c2;
 		#if GDISP_PACKED_PIXELS
@@ -341,7 +341,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	color_t lld_gdisp_get_pixel_color(coord_t x, coord_t y) {
+	color_t gdisp_lld_get_pixel_color(coord_t x, coord_t y) {
 		/* NOT IMPLEMENTED */
 		/* Some board hardware might support this in the future.
 		 * The Olimex board doesn't.
@@ -362,7 +362,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_vertical_scroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
+	void gdisp_lld_vertical_scroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
 		/* NOT IMPLEMENTED */
 		/* The hardware seems capable of doing this.
 		 * It is just really complex so we leave it out for now.
@@ -390,7 +390,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_control(unsigned what, void *value) {
+	void gdisp_lld_control(unsigned what, void *value) {
 		/* The hardware is capable of supporting...
 		 * 	GDISP_CONTROL_POWER				- not implemented yet
 		 * 	GDISP_CONTROL_ORIENTATION		- not implemented yet
@@ -411,7 +411,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 					// 	Code here
 					/* You may need this ---
 					 *	if (GDISP.Powermode != powerSleep)
-					 *		lld_gdisp_init();
+					 *		gdisp_lld_init();
 					 */
 					break;
 				case powerSleep:

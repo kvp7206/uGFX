@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    include/gdisp/lld/lld_gdisp.h
+ * @file    include/gdisp/lld/gdisp_lld.h
  * @brief   GDISP Graphic Driver subsystem low level driver header.
  *
  * @addtogroup GDISP
@@ -463,69 +463,69 @@ extern "C" {
 #endif
 
 	/* Core functions */
-	extern bool_t lld_gdisp_init(void);
+	extern bool_t gdisp_lld_init(void);
 
 	/* Some of these functions will be implemented in software by the high level driver
-	   depending on the GDISP_HARDWARE_XXX macros defined in lld_gdisp_config.h.
+	   depending on the GDISP_HARDWARE_XXX macros defined in gdisp_lld_config.h.
 	 */
 
 	/* Drawing functions */
-	extern void lld_gdisp_clear(color_t color);
-	extern void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color);
-	extern void lld_gdisp_fill_area(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
-	extern void lld_gdisp_blit_area_ex(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer);
-	extern void lld_gdisp_draw_line(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color);
+	extern void gdisp_lld_clear(color_t color);
+	extern void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color);
+	extern void gdisp_lld_fill_area(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
+	extern void gdisp_lld_blit_area_ex(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer);
+	extern void gdisp_lld_draw_line(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color);
 
 	/* Circular Drawing Functions */
 	#if GDISP_NEED_CIRCLE
-	extern void lld_gdisp_draw_circle(coord_t x, coord_t y, coord_t radius, color_t color);
-	extern void lld_gdisp_fill_circle(coord_t x, coord_t y, coord_t radius, color_t color);
+	extern void gdisp_lld_draw_circle(coord_t x, coord_t y, coord_t radius, color_t color);
+	extern void gdisp_lld_fill_circle(coord_t x, coord_t y, coord_t radius, color_t color);
 	#endif
 
 	#if GDISP_NEED_ELLIPSE
-	extern void lld_gdisp_draw_ellipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
-	extern void lld_gdisp_fill_ellipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
+	extern void gdisp_lld_draw_ellipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
+	extern void gdisp_lld_fill_ellipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
 	#endif
 
 	/* Arc Drawing Functions */
 	#if GDISP_NEED_ARC
-	extern void lld_gdisp_draw_arc(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color);
-	extern void lld_gdisp_fill_arc(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color);
+	extern void gdisp_lld_draw_arc(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color);
+	extern void gdisp_lld_fill_arc(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color);
 	#endif
 
 	/* Text Rendering Functions */
 	#if GDISP_NEED_TEXT
-	extern void lld_gdisp_draw_char(coord_t x, coord_t y, char c, font_t font, color_t color);
-	extern void lld_gdisp_fill_char(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor);
+	extern void gdisp_lld_draw_char(coord_t x, coord_t y, char c, font_t font, color_t color);
+	extern void gdisp_lld_fill_char(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor);
 	#endif
 
 	/* Pixel readback */
 	#if GDISP_NEED_PIXELREAD
-	extern color_t lld_gdisp_get_pixel_color(coord_t x, coord_t y);
+	extern color_t gdisp_lld_get_pixel_color(coord_t x, coord_t y);
 	#endif
 
 	/* Scrolling Function - clears the area scrolled out */
 	#if GDISP_NEED_SCROLL
-	extern void lld_gdisp_vertical_scroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor);
+	extern void gdisp_lld_vertical_scroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor);
 	#endif
 
 	/* Set driver specific control */
 	#if GDISP_NEED_CONTROL
-	extern void lld_gdisp_control(unsigned what, void *value);
+	extern void gdisp_lld_control(unsigned what, void *value);
 	#endif
 
 	/* Query driver specific data */
-	extern void *lld_gdisp_query(unsigned what);
+	extern void *gdisp_lld_query(unsigned what);
 
 	/* Clipping Functions */
 	#if GDISP_NEED_CLIP
-	extern void lld_gdisp_set_clip(coord_t x, coord_t y, coord_t cx, coord_t cy);
+	extern void gdisp_lld_set_clip(coord_t x, coord_t y, coord_t cx, coord_t cy);
 	#endif
 
 	/* Messaging API */
 	#if GDISP_NEED_MSGAPI
-	#include "lld_gdisp_msgs.h"
-	extern void lld_gdisp_msg_dispatch(lld_gdisp_msg_t *msg);
+	#include "gdisp_lld_msgs.h"
+	extern void gdisp_lld_msg_dispatch(gdisp_lld_msg_t *msg);
 	#endif
 
 #ifdef __cplusplus

@@ -29,28 +29,28 @@
 #ifndef GDISP_LLD_BOARD_H
 #define GDISP_LLD_BOARD_H
 
-static __inline void lld_gdisp_init_board(void) {
+static __inline void gdisp_lld_init_board(void) {
 	#error "ILI9325: You must implement the init_board routine for your board"
 }
 
-static __inline void lld_gdisp_reset_pin(bool_t state) {
+static __inline void gdisp_lld_reset_pin(bool_t state) {
 	#error "ILI9325: You must implement setpin_reset routine for your board"
 }
 
-static __inline void lld_gdisp_write_index(uint16_t data) {
+static __inline void gdisp_lld_write_index(uint16_t data) {
 	#error "ILI9325: You must implement write_index routine for your board"
 }
 
-static __inline void lld_gdisp_write_data(uint16_t data) {
+static __inline void gdisp_lld_write_data(uint16_t data) {
 	#error "ILI9325: You must implement write_data routine for your board"
 }
 
-static __inline uint16_t lld_gdisp_read_data(void) {
+static __inline uint16_t gdisp_lld_read_data(void) {
 	#error "ILI9325: You must implement read_data routine for your board"
 }
 
 /* if not available, just ignore the argument and return */
-static __inline uint16_t lld_gdisp_backlight(uint8_t percentage) {
+static __inline uint16_t gdisp_lld_backlight(uint8_t percentage) {
 	#error "ILI9325: You must implement set_backlight routine for your board"
 }
 

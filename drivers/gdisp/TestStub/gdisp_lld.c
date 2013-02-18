@@ -53,7 +53,7 @@
  *
  * @notapi
  */
-bool_t lld_gdisp_init(void) {
+bool_t gdisp_lld_init(void) {
 	/* Initialise the GDISP structure */
 	GDISP.Width = GDISP_SCREEN_WIDTH;
 	GDISP.Height = GDISP_SCREEN_HEIGHT;
@@ -79,7 +79,7 @@ bool_t lld_gdisp_init(void) {
  *
  * @notapi
  */
-void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
+void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	(void)x;
 	(void)y;
 	(void)color;
@@ -97,7 +97,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	color_t lld_gdisp_get_pixel_color(coord_t x, coord_t y) {
+	color_t gdisp_lld_get_pixel_color(coord_t x, coord_t y) {
 		(void)x;
 		(void)y;
 
@@ -119,7 +119,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_vertical_scroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
+	void gdisp_lld_vertical_scroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
 		(void)x;
 		(void)y;
 		(void)cx;
