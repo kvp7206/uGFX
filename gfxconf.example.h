@@ -96,13 +96,9 @@
 	#define GDISP_SCREEN_HEIGHT			240
 	#define GDISP_USE_FSMC
 	#define GDISP_USE_GPIO
-<<<<<<< HEAD
-=======
-	#define GDISP_VMT_NAME1(x)			x##YourDriver1
-	#define GDISP_VMT_NAME2(x)			x##YourDriver2
+	
 	#define TDISP_COLUMNS				16
 	#define TDISP_ROWS					2
->>>>>>> 1985906bea97a015d6e035ebb3f91b6e4f94aff1
 */
 
 #endif /* _GFXCONF_H */
