@@ -31,53 +31,44 @@
 
 #if GFX_USE_TDISP
 /**
- * @name    TDISP configuration
+ * @name    TDISP Functionality to be included
  * @{
  */
-
-	/**
-	 * @brief	How many rows of characters the TDISP provides
-	 */
-	#ifndef TDISP_ROWS
-		#define TDISP_ROWS		2
-	#endif
-
-	/**
-	 * @brief	How many columns of characters the TDISP provides
-	 */
-	#ifndef TDISP_COLUMNS
-		#define TDISP_COLUMNS	16
-	#endif
-
-/** @} */
-
 /**
- * @name	TDISP interface configuration
- * @note	Only one of these interfaces can be selected at a time!
+ * @}
+ *
+ * @name    TDISP Multi-Threading Options
  * @{
  */
 	/**
-	 * @brief	Use the 4-bit paralle interface
+	 * @brief   Do the display functions need to be thread-safe.
+	 * @details	Defaults to FALSE
 	 */
-	#ifndef TDISP_NEED_4BIT_MODE
-		#define TDISP_NEED_4BIT_MODE	FALSE
+	#ifndef TDISP_NEED_MULTITHREAD
+		#define TDISP_NEED_MULTITHREAD	FALSE
 	#endif
-
+/**
+ * @}
+ *
+ * @name    TDISP Optional Low Level Driver Defines
+ * @{
+ */
 	/**
-	 * @brief	Use the 8-bit parallel interface
+	 * @brief   Use a custom board definition even if a board definition exists.
+	 * @details	Defaults to FALSE
+	 * @details	If TRUE, add tdisp_lld_board.h to your project directory and customise it.
+	 * @note	Not all TDISP low level drivers currently use board definition files.
 	 */
-	#ifndef TDISP_NEED_8BIT_MODE
-		#define TDISP_NEED_8BIT_MODE	FALSE
+	#ifndef TDISP_USE_CUSTOM_BOARD
+		#define TDISP_USE_CUSTOM_BOARD		FALSE
 	#endif
-
-	#if (!TDISP_NEED_4BIT_MODE && !TDISP_NEED_8BIT_MODE)
-		#error "Either TDISP_NEED_4BIT_MODE or TDISP_NEED_8BIT_MODE needs to be set to TRUE in your gfxconf.h!"
-	#endif
-
-	#if (TDISP_NEED_4BIT_MODE && TDISP_NEED_8BIT_MODE)
-		#error "Only TDISP_NEED_4BIT_MODE or TDISP_NEED_8BIT_MODE can be set to TRUE, not both at one!"
-	#endif
-
+	/**
+	 * @brief   Set the screen height and width.
+	 * @note	Ignored by some low level GDISP drivers, optional for others.
+	 * @note	Where these values are allowed, a default is always provided by the low level driver.
+	 */
+	/* #define TDISP_COLUMNS		16 */
+	/* #define TDISP_ROWS			2  */
 /** @} */
 
 #endif /* GFX_USE_TDISP */
