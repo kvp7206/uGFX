@@ -39,20 +39,45 @@
 
 #if GFX_USE_TDISP || defined(__DOXYGEN__)
 
-/* Include the low level driver information */
-#include "tdisp/lld/tdisp_lld.h"
+/**
+ * @brief	TDISP cursor shape definitions
+ */
+typedef enum cursorshape_e {
+	cursorOff,
+	cursorBlock,
+	cursorBlinkingBlock,
+	cursorUnderline,
+	cursorBlinkingUnderline,
+	cursorBar,
+	cursorBlinkingBar,
+	} cursorshape;
 
 /**
- * @name	TDISP display attributes
+ * @name	TDISP control values
+ * @note	The low level driver may define extra control values
  * @{
  */
-#define	TDISP_ON				0x01
-#define TDISP_OFF				0x02
-#define TDISP_CURSOR_ON			0x03
-#define TDISP_CURSOR_OFF		0x04
-#define TDISP_CURSOR_BLINK_ON	0x05
-#define TDISP_CURSOR_BLINK_OFF	0x06
+#define	TDISP_CTRL_BACKLIGHT	0x0000
+#define TDISP_CTRL_CURSOR		0x0001
 /** @} */
+
+/**
+ * @brief	The TDISP structure definition
+ */
+typedef struct tdispStruct_t {
+	coord_t		columns, rows;
+	coord_t		charBitsX, charBitsY;
+	uint16_t	maxCustomChars;
+	} tdispStruct;
+
+/**
+ * @brief	The TDISP structure
+ */
+extern tdispStruct	TDISP;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief	TDISP driver initialisation
@@ -66,9 +91,62 @@
 bool_t tdispInit(void);
 
 /**
+ * @brief	Clears the display
+ */
+void tdispClear(void);
+
+/**
+ * @brief	Sets the cursor to it's home position ( 0, 0 )
+ */
+void tdispHome(void);
+
+/**
+ * @brief	Set cursor to a specified position
+ *
+ * @param[in] col	The column	(x)
+ * @param[in] row	The row		(y)
+ */
+void tdispSetCursor(coord_t col, coord_t row);
+
+/**
+ * @brief	Store a custom character into the display
+ *
+ * @note	This usually must be done after each power-up since most
+ *			LCDs lose their RAM content.
+ *
+ * @param[in] address		On which address to store the character from 0 up to (@p tdispGetNumCustomChars() - 1)
+ * @param[in] charmap		The character to be stored.
+ *
+ * @note					The charmap is made up of @p tdispGetCharBitHieght() data values. Each data value is
+ * 							made up of @p tdispGetCharBitWidth() bits of data. Note that bits in multiple rows are not
+ * 							packed.
+ */
+void tdispCreateChar(uint8_t address, uint8_t *charmap);
+
+/**
+ * @brief	Draws a single character at the current cursor position and advances the cursor
+ *
+ * @param[in] c		The character to be drawn
+ *
+ * @note			Writing past the end of a row leaves the cursor in an undefined position.
+ */
+void tdispDrawChar(char c);
+
+/**
+ * @brief	Draws a string at the current cursor position and advances the cursor
+ *
+ * @param[in] s		The string to be drawn
+ *
+ * @note			Any characters written past the end of a row may or may not be displayed on
+ * 					the next row. The cursor is also left in an undefined position.
+ */
+void tdispDrawString(char *s);
+
+/**
  * @brief	Control different display properties
  * @note	A wrapper macro exists for each option, please use them
- *			instead of this function manually.
+ *			instead of this function manually unless calling a low
+ *			level driver specific value.
  *
  * @param[in] what		What you want to control
  * @param[in] value		The value to be assigned
@@ -76,69 +154,50 @@ bool_t tdispInit(void);
 void tdispControl(uint16_t what, void *value);
 
 /**
- * @brief	Clears the display
+ * @brief	Set the backlight level
+ *
+ * @param[in] percent	A percentage from 0 to 100%. 0% will turn off the display
  */
-void tdispClear(void);
+#define tdispSetBacklight(percent)		tdispControl(TDISP_CTRL_BACKLIGHT, (void *)((uint8_t)(percent)))
 
 /**
- * @brief	Sets the cursor to it's home position ( 0/0 )
+ * @brief	Set the cursor shape
+ *
+ * @param[in] shape	The shape to set the cursor.
+ *
+ * @note			Not all shapes are necessarily supported. The driver will make a similar
+ * 					choice if the one specified is not available.
  */
-void tdispHome(void);
+#define tdispSetCursorShape(shape)		tdispControl(TDISP_CTRL_CURSOR, (void *)((cursorshape)(shape)))
 
 /**
- * @brief	Set cursor to a certain position
- *
- * @param[in] col	The column
- * @param[in] row	The row
+ * @brief	Get the number of columns (width) in the display
  */
-void tdispSetCursor(coord_t col, coord_t row);
+#define tdispGetColumns()				(TDISP.columns)
 
 /**
- * @brief	Store a custom character in RAM
- *
- * @note	This usually must be done after each power-up since most
- *			LCDs lose their RAM content.
- *
- * @param[in] address		On which address to store the character (from 0 up to max)
- * @param[in] charmap		The character to be stored.
+ * @brief	Get the number of rows (height) in the display
  */
-void tdispCreateChar(uint8_t address, char *charmap);
+#define tdispGetRows()					(TDISP.columns)
 
 /**
- * @brief	Draws a single character at the current cursor position
- *
- * @param[in] c		The character to be drawn
+ * @brief	Get the number of bits in width of a character
  */
-void tdispDrawChar(char c);
+#define tdispGetCharBitWidth()			(TDISP.charBitsX)
 
 /**
- * @brief	Draws a string at the current cursor position
- *
- * @param[in] s		The string to be drawn
+ * @brief	Get the number of bits in height of a character
  */
-void tdispDrawString(char *s);
+#define tdispGetCharBitHeight()			(TDISP.charBitsY)
 
 /**
- * @brief	Draws a single character at a given position
- * @note	This function manipulates the cursor position and it will not be
- *			reset to it's original state
- *
- * @param[in] col	The column
- * @param[in] row	The row
- * @param[in] c		The character to be drawn
+ * @brief	Get the number of custom characters
  */
-void tdispDrawCharLocation(coord_t col, coord_t row, char c);
+#define tdispGetNumCustomChars()		(TDISP.maxCustomChars)
 
-/**
- * @brief	Draws a string at a given position
- * @note	This function manipulates the cursor position and it will not be
- *			reset to it's original state
- *
- * @param[in] col	The column
- * @param[in] row	The row
- * @param[in] s		The string to be drawn
- */
-void tdispDrawStringLocation(coord_t col, coord_t row, char *s);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* GFX_USE_TDISP */
 

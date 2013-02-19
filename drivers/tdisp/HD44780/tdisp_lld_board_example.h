@@ -29,36 +29,33 @@
 #ifndef _TDISP_LLD_BOARD_H
 #define _TDISP_LLD_BOARD_H
 
-void init_board(void) {
-	palSetGroupMode(GPIOE, PAL_WHOLE_PORT, 0, PAL_MODE_OUTPUT_PUSHPULL);
-	palSetGroupMode(GPIOG, PAL_WHOLE_PORT, 0, PAL_MODE_OUTPUT_PUSHPULL);
+/**
+ * The board may override the default display size.
+ * Uncomment the below if your board needs a non-standard size.
+ */
+/*
+#ifndef TDISP_COLUMNS
+	#define TDISP_COLUMNS		16
+#endif
+#ifndef TDISP_ROWS
+	#define TDISP_ROWS			2
+#endif
+*/
+
+static void init_board(void) {
+	/* Code here */
+	#error "tdispHD44780: You must supply a definition for init_board for your board"
 }
 
-void setpin_e(bool_t state) {
-	if(state)
-		palSetPad(GPIOE, 2);
-	else
-		palClearPad(GPIOE, 2);
+static void write_cmd(uint8_t data) {
+	/* Code here */
+	#error "tdispHD44780: You must supply a definition for write_cmd for your board"
 }
 
-void setpin_rs(bool_t state) {
-	if(state)
-		palSetPad(GPIOE, 0);
-	else
-		palClearPad(GPIOE, 0);
-}
-
-void setpin_rw(bool_t state) {
-	if(state)
-		palSetPad(GPIOE, 1);
-	else
-		palClearPad(GPIOE, 1);
-}
-
-void write_bus(uint8_t data) {
-	palWritePort(GPIOG, data);
+static void write_data(uint8_t data) {
+	/* Code here */
+	#error "tdispHD44780: You must supply a definition for write_data for your board"
 }
 
 #endif /* _TDISP_LLD_BOARD_H */
 /** @} */
-

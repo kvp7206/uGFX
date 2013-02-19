@@ -31,20 +31,16 @@
 
 #if GFX_USE_TDISP || defined(__DOXYGEN__)
 
-#include "tdisp_lld_config.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern void		tdisp_lld_write_cmd(uint8_t data);
-extern void		tdisp_lld_write_data(uint8_t data);
-extern bool_t	tdisp_lld_init(void);
-extern void 	tdisp_lld_set_cursor(coord_t col, coord_t row);
-extern void		tdisp_lld_create_char(uint8_t address, char *charmap);
-extern void		tdisp_lld_clear(void);
-extern void		tdisp_lld_home(void);
-extern void		tdisp_lld_control(uint16_t what, void *value);
+	bool_t	tdisp_lld_init(void);
+	void	tdisp_lld_clear(void);
+	void	tdisp_lld_draw_char(char c);
+	void 	tdisp_lld_set_cursor(coord_t col, coord_t row);
+	void	tdisp_lld_create_char(uint8_t address, uint8_t *charmap);
+	void	tdisp_lld_control(uint16_t what, void *value);
 
 #ifdef __cplusplus
 }

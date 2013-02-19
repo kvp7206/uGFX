@@ -157,7 +157,7 @@ static __inline void reset_viewport(void) {
  *
  * @notapi
  */
-bool_t lld_gdisp_init(void) {
+bool_t gdisp_lld_init(void) {
 	/* Initialise your display */
 	init_board();
 
@@ -243,7 +243,7 @@ bool_t lld_gdisp_init(void) {
  *
  * @notapi
  */
-void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
+void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 		if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
 	#endif
@@ -280,7 +280,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_clear(color_t color) {
+	void gdisp_lld_clear(color_t color) {
 		unsigned i;
 
 		acquire_bus();
@@ -305,7 +305,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_fill_area(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+	void gdisp_lld_fill_area(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		unsigned i, area;
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
@@ -341,7 +341,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_blit_area_ex(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
+	void gdisp_lld_blit_area_ex(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
 		coord_t endx, endy;
 		unsigned lg;
 
@@ -380,7 +380,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	color_t lld_gdisp_get_pixel_color(coord_t x, coord_t y) {
+	color_t gdisp_lld_get_pixel_color(coord_t x, coord_t y) {
 		color_t color;
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
@@ -413,7 +413,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_vertical_scroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
+	void gdisp_lld_vertical_scroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
 		static color_t buf[((GDISP_SCREEN_HEIGHT > GDISP_SCREEN_WIDTH ) ? GDISP_SCREEN_HEIGHT : GDISP_SCREEN_WIDTH)];
 		coord_t row0, row1;
 		unsigned i, gap, abslines, j;
@@ -489,7 +489,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_control(unsigned what, void *value) {
+	void gdisp_lld_control(unsigned what, void *value) {
 		switch(what) {
 		case GDISP_CONTROL_POWER:
 			if (GDISP.Powermode == (gdisp_powermode_t)value)
@@ -508,7 +508,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 				write_reg(0x0010, 0x0000);	// leave sleep mode
 				release_bus();
 				if (GDISP.Powermode != powerSleep)
-					lld_gdisp_init();
+					gdisp_lld_init();
 				break;
 			case powerSleep:
 				acquire_bus();

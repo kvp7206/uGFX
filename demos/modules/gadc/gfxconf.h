@@ -14,73 +14,73 @@
 #ifndef _GFXCONF_H
 #define _GFXCONF_H
 
-/* GFX subsystems to turn on */
-#define GFX_USE_GDISP			FALSE
+/* GFX sub-systems to turn on */
+#define GFX_USE_GDISP			TRUE
 #define GFX_USE_TDISP			FALSE
-#define GFX_USE_GWIN			FALSE
+#define GFX_USE_GWIN			TRUE
 #define GFX_USE_GEVENT			FALSE
-#define GFX_USE_GTIMER			FALSE
+#define GFX_USE_GTIMER			TRUE
 #define GFX_USE_GINPUT			FALSE
-#define GFX_USE_GADC			FALSE
+#define GFX_USE_GADC			TRUE
 #define GFX_USE_GAUDIN			FALSE
 #define GFX_USE_GAUDOUT			FALSE
 #define GFX_USE_GMISC			FALSE
 
-/* Features for the GDISP subsystem */
+/* Features for the GDISP sub-system. */
 #define GDISP_NEED_VALIDATION	TRUE
 #define GDISP_NEED_CLIP			TRUE
 #define GDISP_NEED_TEXT			TRUE
-#define GDISP_NEED_CIRCLE		TRUE
-#define GDISP_NEED_ELLIPSE		TRUE
+#define GDISP_NEED_CIRCLE		FALSE
+#define GDISP_NEED_ELLIPSE		FALSE
 #define GDISP_NEED_ARC			FALSE
 #define GDISP_NEED_SCROLL		FALSE
 #define GDISP_NEED_PIXELREAD	FALSE
-#define GDISP_NEED_CONTROL		FALSE
-#define GDISP_NEED_MULTITHREAD	FALSE
+#define GDISP_NEED_CONTROL		TRUE
+#define GDISP_NEED_MULTITHREAD	TRUE
 #define GDISP_NEED_ASYNC		FALSE
 #define GDISP_NEED_MSGAPI		FALSE
 
 /* GDISP - builtin fonts */
 #define GDISP_OLD_FONT_DEFINITIONS		FALSE
-#define GDISP_INCLUDE_FONT_SMALL		TRUE
-#define GDISP_INCLUDE_FONT_LARGER		TRUE
-#define GDISP_INCLUDE_FONT_UI1			TRUE
+#define GDISP_INCLUDE_FONT_SMALL		FALSE
+#define GDISP_INCLUDE_FONT_LARGER		FALSE
+#define GDISP_INCLUDE_FONT_UI1			FALSE
 #define GDISP_INCLUDE_FONT_UI2			TRUE
-#define GDISP_INCLUDE_FONT_LARGENUMBERS	TRUE
+#define GDISP_INCLUDE_FONT_LARGENUMBERS	FALSE
 
 /* Features for the TDISP subsystem. */
 #define TDISP_NEED_MULTITHREAD	FALSE
 
-/* Features for the GWIN subsystem. */
+/* Features for the GWIN sub-system. */
 #define GWIN_NEED_BUTTON		FALSE
-#define GWIN_NEED_CONSOLE		FALSE
+#define GWIN_NEED_CONSOLE		TRUE
 #define GWIN_NEED_GRAPH			FALSE
 
-/* Features for the GEVENT subsystem. */
+/* Features for the GEVENT sub-system. */
 #define GEVENT_ASSERT_NO_RESOURCE	FALSE
 
-/* Features for the GTIMER subsystem. */
+/* Features for the GTIMER sub-system. */
 /* NONE */
 
-/* Features for the GINPUT subsystem. */
+/* Features for the GINPUT sub-system. */
 #define GINPUT_NEED_MOUSE		FALSE
 #define GINPUT_NEED_KEYBOARD	FALSE
 #define GINPUT_NEED_TOGGLE		FALSE
 #define GINPUT_NEED_DIAL		FALSE
 
-/* Features for the GADC subsystem. */
+/* Features for the GADC sub-system. */
 /* NONE */
 
-/* Features for the GAUDIN subsystem. */
+/* Features for the GAUDIN sub-system. */
 /* NONE */
 
-/* Features for the GAUDOUT subsystem. */
+/* Features for the GAUDOUT sub-system. */
 /* NONE */
 
-/* Features for the GMISC subsystem. */
+/* Features for the GMISC sub-system. */
 #define GMISC_NEED_ARRAYOPS		FALSE
 
-/* Optional Parameters for various subsystems */
+/* Optional Parameters for various sub-systems */
 /*
 	#define GDISP_MAX_FONT_HEIGHT			16
 	#define GEVENT_MAXIMUM_SIZE				32
@@ -96,6 +96,8 @@
 	#define GDISP_SCREEN_HEIGHT			240
 	#define GDISP_USE_FSMC
 	#define GDISP_USE_GPIO
+	#define GDISP_VMT_NAME1(x)			x##YourDriver1
+	#define GDISP_VMT_NAME2(x)			x##YourDriver2
 	#define TDISP_COLUMNS				16
 	#define TDISP_ROWS					2
 */

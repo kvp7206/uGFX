@@ -140,14 +140,14 @@ typedef union gdisp_lld_msg {
 		coord_t				radius;
 		coord_t				startangle, endangle;
 		color_t				color;
-	} drawcircle;
+	} drawarc;
 	struct gdisp_lld_msg_fillarc {
 		gdisp_msgaction_t	action;			// GDISP_LLD_MSG_FILLARC
 		coord_t				x, y;
 		coord_t				radius;
 		coord_t				startangle, endangle;
 		color_t				color;
-	} fillcircle;
+	} fillarc;
 	struct gdisp_lld_msg_drawchar {
 		gdisp_msgaction_t	action;			// GDISP_LLD_MSG_DRAWCHAR
 		coord_t				x, y;

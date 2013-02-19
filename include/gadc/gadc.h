@@ -1,5 +1,5 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012, 2013
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -68,10 +68,13 @@
  * @{
  */
 typedef struct GEventADC_t {
-	/**
-	 * @brief The type of this event (GEVENT_ADC)
-	 */
-	GEventType		type;
+	#if GFX_USE_GEVENT || defined(__DOXYGEN__)
+		/**
+		 * @brief The type of this event (GEVENT_ADC)
+		 */
+		GEventType		type;
+	#endif
+
 	/**
 	 * @brief The event flags
 	 */
@@ -115,7 +118,11 @@ extern "C" {
  * @param[in] bufcount		The total number of conversions that will fit in the buffer.
  * @param[in] countPerEvent	The number of conversions to do before returning an event.
  *
- * @note				If the high speed ADC is running it will be stopped.
+ * @note				If the high speed ADC is running it will be stopped. The Event subsystem is
+ * 						disconnected from the high speed ADC and any binary semaphore event is forgotten.
+ * @note				bufcount must be greater than countPerEvent (usually 2 or more times) otherwise
+ * 						the buffer will be overwitten with new data while the application is still trying
+ * 						to process the old data.
  * @note				Due to a bug in Chibi-OS countPerEvent must be even. If bufcount is not
  * 						evenly divisable by countPerEvent, the remainder must also be even.
  * @note				The physdev parameter may be used to turn on more than one ADC channel.
@@ -151,7 +158,7 @@ void gadcHighSpeedInit(uint32_t physdev, uint32_t frequency, adcsample_t *buffer
 	 * @note				The high speed ADC will not use the GEVENT system unless this is
 	 * 						called first. This saves processing time if the application does
 	 * 						not want to use the GEVENT sub-system for the high speed ADC.
-	 * 						Once turned on it cannot be turned off.
+	 * 						Once turned on it can only be turned off by calling @p gadcHighSpeedInit() again.
 	 * @note				The high speed ADC is capable of signalling via this method and a binary semaphore
 	 * 						at the same time.
 	 *
@@ -166,7 +173,8 @@ void gadcHighSpeedInit(uint32_t physdev, uint32_t frequency, adcsample_t *buffer
  * @param[in] pbsem			The binary semaphore is signaled when data is available.
  * @param[in] pEvent		The static event buffer to place the result information.
  *
- * @note				Passing a NULL for pbsem or pEvent will turn off signalling via this method.
+ * @note				Passing a NULL for pbsem or pEvent will turn off signalling via this method as will calling
+ * 						@p gadcHighSpeedInit().
  * @note				The high speed ADC is capable of signalling via this method and the GEVENT
  * 						sub-system at the same time.
  *
@@ -180,7 +188,7 @@ void gadcHighSpeedSetBSem(BinarySemaphore *pbsem, GEventADC *pEvent);
  *
  * @api
  */
-GSourceHandle gadcHighSpeedStart(void);
+void gadcHighSpeedStart(void);
 
 /**
  * @brief   Stop the high speed ADC conversions.
@@ -237,7 +245,7 @@ void gadcLowSpeedGet(uint32_t physdev, adcsample_t *buffer);
  *
  * @api
  */
-bool gadcLowSpeedStart(uint32_t physdev, adcsample_t *buffer, GADCCallbackFunction fn, void *param);
+bool_t gadcLowSpeedStart(uint32_t physdev, adcsample_t *buffer, GADCCallbackFunction fn, void *param);
 
 #ifdef __cplusplus
 }

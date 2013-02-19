@@ -314,7 +314,7 @@ static DWORD WINAPI WindowThread(LPVOID lpParameter) {
  *
  * @notapi
  */
-bool_t lld_gdisp_init(void) {
+bool_t gdisp_lld_init(void) {
 	RECT rect;
 
 	/* Set the window dimensions */
@@ -356,7 +356,7 @@ bool_t lld_gdisp_init(void) {
  *
  * @notapi
  */
-void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
+void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	HDC dc;
 	#if WIN32_USE_MSG_REDRAW
 		RECT	rect;
@@ -422,7 +422,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_draw_line(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
+	void gdisp_lld_draw_line(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
 		POINT p;
 		HPEN pen;
 		HDC dc;
@@ -550,7 +550,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_fill_area(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+	void gdisp_lld_fill_area(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		HDC dc;
 		RECT rect;
 		HBRUSH hbr;
@@ -681,7 +681,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_blit_area_ex(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
+	void gdisp_lld_blit_area_ex(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
 		BITMAPV4HEADER bmpInfo;
 		RECT	rect;
 		#if GDISP_NEED_CONTROL
@@ -788,7 +788,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	color_t lld_gdisp_get_pixel_color(coord_t x, coord_t y) {
+	color_t gdisp_lld_get_pixel_color(coord_t x, coord_t y) {
 		color_t color;
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
@@ -834,7 +834,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_vertical_scroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
+	void gdisp_lld_vertical_scroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
 		RECT	rect, frect, srect;
 		HBRUSH	hbr;
 		
@@ -958,7 +958,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_control(unsigned what, void *value) {
+	void gdisp_lld_control(unsigned what, void *value) {
 		switch(what) {
 		case GDISP_CONTROL_ORIENTATION:
 			if (GDISP.Orientation == (gdisp_orientation_t)value)
