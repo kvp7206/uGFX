@@ -38,8 +38,8 @@
 
 /* PWM configuration structure. We use timer 4 channel 2 (orange LED on board). */
 static const PWMConfig pwmcfg = {
-  100000,                                   /* 100kHz PWM clock frequency.  */
-  100,                                      /* PWM period is 128 cycles.    */
+  1000000,		/* 1 MHz PWM clock frequency. */
+  100,			/* PWM period is 100 cycles. */
   NULL,
   {
    {PWM_OUTPUT_ACTIVE_HIGH, NULL},
@@ -47,7 +47,6 @@ static const PWMConfig pwmcfg = {
    {PWM_OUTPUT_ACTIVE_HIGH, NULL},
    {PWM_OUTPUT_ACTIVE_HIGH, NULL}
   },
-  /* HW dependent part.*/
   0
 };
 

@@ -40,6 +40,20 @@
 #define SET_RST		palSetPad(GPIOD, 3);
 #define CLR_RST		palClearPad(GPIOD, 3);
 
+/* PWM configuration structure. We use timer 4 channel 2 (orange LED on board). */
+static const PWMConfig pwmcfg = {
+  1000000,		/* 1 MHz PWM clock frequency. */
+  100,			/* PWM period is 100 cycles. */
+  NULL,
+  {
+   {PWM_OUTPUT_ACTIVE_HIGH, NULL},
+   {PWM_OUTPUT_ACTIVE_HIGH, NULL},
+   {PWM_OUTPUT_ACTIVE_HIGH, NULL},
+   {PWM_OUTPUT_ACTIVE_HIGH, NULL}
+  },
+  0
+};
+
 /**
  * @brief   Initialise the board for the display.
  * @notes	This board definition uses GPIO and assumes exclusive access to these GPIO pins
