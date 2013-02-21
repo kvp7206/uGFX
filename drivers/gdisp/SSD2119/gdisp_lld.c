@@ -80,21 +80,21 @@ static __inline void set_cursor(coord_t x, coord_t y) {
 	 * Use a bit mask to make sure they are not set too high
 	 */
 	switch(GDISP.Orientation) {
-		case GDISP_ROTATE_180:
-			write_reg(SSD2119_REG_X_RAM_ADDR, (GDISP_SCREEN_WIDTH - 1 - x) & 0x01FF);
-			write_reg(SSD2119_REG_Y_RAM_ADDR, (GDISP_SCREEN_HEIGHT - 1 - y) & 0x00FF);
-			break;
 		case GDISP_ROTATE_0:
 			write_reg(SSD2119_REG_X_RAM_ADDR, x & 0x01FF);
 			write_reg(SSD2119_REG_Y_RAM_ADDR, y & 0x00FF);
 			break;
-		case GDISP_ROTATE_270:
-			write_reg(SSD2119_REG_X_RAM_ADDR, y & 0x01FF);
-			write_reg(SSD2119_REG_Y_RAM_ADDR, x & 0x00FF);
-			break;
 		case GDISP_ROTATE_90:
 			write_reg(SSD2119_REG_X_RAM_ADDR, (GDISP_SCREEN_WIDTH - y - 1) & 0x01FF);
 			write_reg(SSD2119_REG_Y_RAM_ADDR, (GDISP_SCREEN_HEIGHT - x - 1) & 0x00FF);
+			break;
+		case GDISP_ROTATE_180:
+			write_reg(SSD2119_REG_X_RAM_ADDR, (GDISP_SCREEN_WIDTH - 1 - x) & 0x01FF);
+			write_reg(SSD2119_REG_Y_RAM_ADDR, (GDISP_SCREEN_HEIGHT - 1 - y) & 0x00FF);
+			break;
+		case GDISP_ROTATE_270:
+			write_reg(SSD2119_REG_X_RAM_ADDR, y & 0x01FF);
+			write_reg(SSD2119_REG_Y_RAM_ADDR, x & 0x00FF);
 			break;
 	}
 }
@@ -117,20 +117,20 @@ static void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
 			write_reg(SSD2119_REG_H_RAM_START, (x & 0x01FF));
 			write_reg(SSD2119_REG_H_RAM_END,   (x + cx - 1) & 0x01FF);
 			break;
-		case GDISP_ROTATE_270:
-			write_reg(SSD2119_REG_V_RAM_POS,   (((y + cy - 1) << 8) & 0xFF00 ) | (x & 0x00FF));
-			write_reg(SSD2119_REG_H_RAM_START, (y & 0x01FF));
-			write_reg(SSD2119_REG_H_RAM_END,   (y + cy - 1) & 0x01FF);
+		case GDISP_ROTATE_90:
+			write_reg(SSD2119_REG_V_RAM_POS,   (((GDISP_SCREEN_HEIGHT - x - 1) & 0x00FF) << 8) | ((GDISP_SCREEN_HEIGHT - (x + cx)) & 0x00FF));
+			write_reg(SSD2119_REG_H_RAM_START, (GDISP_SCREEN_WIDTH - (y + cy)) & 0x01FF);
+			write_reg(SSD2119_REG_H_RAM_END,   (GDISP_SCREEN_WIDTH - y - 1) & 0x01FF);
 			break;
 		case GDISP_ROTATE_180:
 			write_reg(SSD2119_REG_V_RAM_POS,   (((GDISP_SCREEN_HEIGHT - y - 1) & 0x00FF) << 8) | ((GDISP_SCREEN_HEIGHT - (y + cy)) & 0x00FF));
 			write_reg(SSD2119_REG_H_RAM_START, (GDISP_SCREEN_WIDTH - (x + cx)) & 0x01FF);
 			write_reg(SSD2119_REG_H_RAM_END,   (GDISP_SCREEN_WIDTH - x - 1) & 0x01FF);
 			break;
-		case GDISP_ROTATE_90:
-			write_reg(SSD2119_REG_V_RAM_POS,   (((GDISP_SCREEN_HEIGHT - x - 1) & 0x00FF) << 8) | ((GDISP_SCREEN_HEIGHT - (x + cx)) & 0x00FF));
-			write_reg(SSD2119_REG_H_RAM_START, (GDISP_SCREEN_WIDTH - (y + cy)) & 0x01FF);
-			write_reg(SSD2119_REG_H_RAM_END,   (GDISP_SCREEN_WIDTH - y - 1) & 0x01FF);
+		case GDISP_ROTATE_270:
+			write_reg(SSD2119_REG_V_RAM_POS,   (((y + cy - 1) << 8) & 0xFF00 ) | (x & 0x00FF));
+			write_reg(SSD2119_REG_H_RAM_START, (y & 0x01FF));
+			write_reg(SSD2119_REG_H_RAM_END,   (y + cy - 1) & 0x01FF);
 			break;
 	}
 
@@ -160,7 +160,7 @@ static __inline void reset_viewport(void) {
  *
  * @notapi
  */
-bool_t lld_gdisp_init(void) {
+bool_t gdisp_lld_init(void) {
 	/* Initialise your display */
 	init_board();
 
@@ -259,7 +259,7 @@ bool_t lld_gdisp_init(void) {
  	// Release the bus
 	release_bus();
 
-	/* Turn on the back-light */
+	/* Turn on the backlight */
 	set_backlight(GDISP_INITIAL_BACKLIGHT);
 
    /* Initialise the GDISP structure */
@@ -287,7 +287,7 @@ bool_t lld_gdisp_init(void) {
  *
  * @notapi
  */
-void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
+void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 		if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
 	#endif
@@ -324,7 +324,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_clear(color_t color) {
+	void gdisp_lld_clear(color_t color) {
 		unsigned i;
 
 		acquire_bus();
@@ -349,7 +349,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_fill_area(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+	void gdisp_lld_fill_area(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		unsigned i, area;
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
@@ -385,7 +385,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_blit_area_ex(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
+	void gdisp_lld_blit_area_ex(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
 		coord_t endx, endy;
 		unsigned lg;
 
@@ -424,7 +424,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	color_t lld_gdisp_get_pixel_color(coord_t x, coord_t y) {
+	color_t gdisp_lld_get_pixel_color(coord_t x, coord_t y) {
 		color_t color;
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
@@ -521,7 +521,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 * @note	There are some predefined and some specific to the low level driver.
 	 * @note	GDISP_CONTROL_POWER			- Takes a gdisp_powermode_t
 	 * 			GDISP_CONTROL_ORIENTATION	- Takes a gdisp_orientation_t
-	 * 			GDISP_CONTROL_BACKLIGHT -	 Takes an int from 0 to 100. For a driver
+	 * 			GDISP_CONTROL_BACKLIGHT		- Takes an int from 0 to 100. For a driver
 	 * 											that only supports off/on anything other
 	 * 											than zero is on.
 	 * 			GDISP_CONTROL_CONTRAST		- Takes an int from 0 to 100.
@@ -533,7 +533,7 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 *
 	 * @notapi
 	 */
-	void lld_gdisp_control(unsigned what, void *value) {
+	void gdisp_lld_control(unsigned what, void *value) {
 		switch(what) {
 		case GDISP_CONTROL_POWER:
 			if (GDISP.Powermode == (gdisp_powermode_t)value)
@@ -541,10 +541,11 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 			switch((gdisp_powermode_t)value) {
 			case powerOff:
 				acquire_bus();
-				write_reg(0x0010, 0x0000);	// leave sleep mode
-				write_reg(0x0007, 0x0000);	// halt operation
-				write_reg(0x0000, 0x0000);	// turn off oszillator
-				write_reg(0x0010, 0x0001);	// enter sleepmode
+				write_reg(SSD2119_REG_SLEEP_MODE_1,	0x0001);	// enter sleep mode
+				write_reg(SSD2119_REG_DISPLAY_CTRL,	0x0000);	// halt operation
+				write_reg(SSD2119_REG_OSC_START,	0x0000);	// turn off oszcillator
+				set_backlight(0);
+				delayms(500);
 				release_bus();
 				break;
 			case powerOn:
@@ -552,7 +553,8 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 				write_reg(0x0010, 0x0000);	// leave sleep mode
 				release_bus();
 				if (GDISP.Powermode != powerSleep)
-					GDISP_LLD(init)();
+					gdisp_lld_init();
+				set_backlight(100);
 				break;
 			case powerSleep:
 				acquire_bus();
@@ -608,15 +610,21 @@ void lld_gdisp_draw_pixel(coord_t x, coord_t y, color_t color) {
 				return;
 			}
 			#if GDISP_NEED_CLIP || GDISP_NEED_VALIDATION
-				GDISP.clipx0 = 0;
-				GDISP.clipy0 = 0;
-				GDISP.clipx1 = GDISP.Width;
-				GDISP.clipy1 = GDISP.Height;
+			GDISP.clipx0 = 0;
+			GDISP.clipy0 = 0;
+			GDISP.clipx1 = GDISP.Width;
+			GDISP.clipy1 = GDISP.Height;
 			#endif
 			GDISP.Orientation = (gdisp_orientation_t)value;
 			return;
-/*
 		case GDISP_CONTROL_BACKLIGHT:
+			if ((unsigned)value > 100) {
+				value = (void *) 100;
+			}
+			set_backlight((unsigned)value);
+			GDISP.Backlight = (unsigned)value;
+			break;
+/*
 		case GDISP_CONTROL_CONTRAST:
 */
 		}

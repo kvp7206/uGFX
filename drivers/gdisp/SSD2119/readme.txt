@@ -1,3 +1,7 @@
+Description:
+
+Driver for LCD with 16-bit interface in 8080 mode (65k colors).
+
 To use this driver:
 
 1. Add in your halconf.h:
@@ -11,6 +15,7 @@ To use this driver:
 		Currently known boards are:
 			BOARD_EMBEST_DMSTF4BB		- GPIO interface
 			BOARD_EMBEST_DMSTF4BB_FSMC	- FSMC interface
+		Both board configurations assume you have STM32_PWM_USE_TIM4 set to TRUE in your mcuconf.h.
 
 	d) The following are optional - define them if you are not using the defaults below:
 		#define GDISP_SCREEN_WIDTH	320

@@ -36,6 +36,21 @@
 #define SET_RST		palSetPad(GPIOD, 3);
 #define CLR_RST		palClearPad(GPIOD, 3);
 
+/* PWM configuration structure. We use timer 4 channel 2 (orange LED on board). */
+static const PWMConfig pwmcfg = {
+  100000,                                   /* 100kHz PWM clock frequency.  */
+  100,                                      /* PWM period is 128 cycles.    */
+  NULL,
+  {
+   {PWM_OUTPUT_ACTIVE_HIGH, NULL},
+   {PWM_OUTPUT_ACTIVE_HIGH, NULL},
+   {PWM_OUTPUT_ACTIVE_HIGH, NULL},
+   {PWM_OUTPUT_ACTIVE_HIGH, NULL}
+  },
+  /* HW dependent part.*/
+  0
+};
+
 /**
  * @brief   Initialise the board for the display.
  * @notes	This board definition uses GPIO and assumes exclusive access to these GPIO pins
@@ -70,12 +85,11 @@ static __inline void init_board(void) {
 	 * This is actually not needed as already set by default after reset */
 	FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
 
-	/* Display backlight always on */
-	palSetPadMode(GPIOD, 13, PAL_MODE_OUTPUT_PUSHPULL);
-	palSetPad(GPIOD, 13);
-
+	/* Display backlight control */
 	/* TIM4 is an alternate function 2 (AF2) */
-	//palSetPadMode(GPIOD, 13, PAL_MODE_ALTERNATE(2));
+	pwmStart(&PWMD4, &pwmcfg);
+	palSetPadMode(GPIOD, 13, PAL_MODE_ALTERNATE(2));
+	pwmEnableChannel(&PWMD4, 1, 100);
 }
 
 /**
@@ -101,8 +115,7 @@ static __inline void setpin_reset(bool_t state) {
  * @notapi
  */
 static __inline void set_backlight(uint8_t percent) {
-	(void) percent;
-	/* Nothing to do here - Backlight always on */
+	pwmEnableChannel(&PWMD4, 1, percent);
 }
 
 /**

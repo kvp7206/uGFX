@@ -84,9 +84,11 @@ static __inline void init_board(void) {
 	CLR_CS;
 	//SET_RST;
 
-	/* Display backlight always on */
-	palSetPadMode(GPIOD, 13, PAL_MODE_OUTPUT_PUSHPULL);
-	palSetPad(GPIOD, 13);
+	/* Display backlight control */
+	/* TIM4 is an alternate function 2 (AF2) */
+	pwmStart(&PWMD4, &pwmcfg);
+	palSetPadMode(GPIOD, 13, PAL_MODE_ALTERNATE(2));
+	pwmEnableChannel(&PWMD4, 1, 100);
 }
 
 /**
@@ -112,8 +114,7 @@ static __inline void setpin_reset(bool_t state) {
  * @notapi
  */
 static __inline void set_backlight(uint8_t percent) {
-	(void) percent;
-	/* Nothing to do here - Backlight always on */
+	pwmEnableChannel(&PWMD4, 1, percent);
 }
 
 /**
