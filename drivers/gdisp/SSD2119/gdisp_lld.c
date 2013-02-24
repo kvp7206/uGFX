@@ -515,7 +515,7 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 
 #if (GDISP_NEED_CONTROL && GDISP_HARDWARE_CONTROL) || defined(__DOXYGEN__)
 	/**
-	 * @brief   Driver Control
+	 * @brief	Driver Control
 	 * @details	Unsupported control codes are ignored.
 	 * @note	The value parameter should always be typecast to (void *).
 	 * @note	There are some predefined and some specific to the low level driver.
@@ -525,8 +525,6 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 * 											that only supports off/on anything other
 	 * 											than zero is on.
 	 * 			GDISP_CONTROL_CONTRAST		- Takes an int from 0 to 100.
-	 * 			GDISP_CONTROL_LLD			- Low level driver control constants start at
-	 * 											this value.
 	 *
 	 * @param[in] what		What to do.
 	 * @param[in] value		The value to use (always cast to a void *).
@@ -535,98 +533,135 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 */
 	void gdisp_lld_control(unsigned what, void *value) {
 		switch(what) {
-		case GDISP_CONTROL_POWER:
-			if (GDISP.Powermode == (gdisp_powermode_t)value)
+			case GDISP_CONTROL_POWER:
+				if (GDISP.Powermode == (gdisp_powermode_t)value)
+					return;
+				switch((gdisp_powermode_t)value) {
+					case powerOff:
+						acquire_bus();
+						write_reg(SSD2119_REG_SLEEP_MODE_1,	0x0001);	// Enter sleep mode
+						write_reg(SSD2119_REG_DISPLAY_CTRL,	0x0000);	// Display off
+						write_reg(SSD2119_REG_OSC_START,	0x0000);	// Turn off oscillator
+						release_bus();
+						set_backlight(0);
+						break;
+
+					case powerOn:
+						if (GDISP.Powermode == powerSleep) {
+							acquire_bus();
+							write_reg(SSD2119_REG_SLEEP_MODE_1, 0x0000);	// Leave sleep mode
+							write_reg(SSD2119_REG_DISPLAY_CTRL, 0x0033);	// Display on
+							release_bus();
+							delayms(170);
+						} else if (GDISP.Powermode == powerDeepSleep) {
+							acquire_bus();
+							write_reg(SSD2119_REG_SLEEP_MODE_2, 0x0999);	// Disable deep sleep function
+							write_reg(SSD2119_REG_SLEEP_MODE_1, 0x0000);	// Leave sleep mode
+							write_reg(SSD2119_REG_DISPLAY_CTRL, 0x0033);	// Display on
+							release_bus();
+							delayms(170);
+						} else {
+							acquire_bus();
+							write_reg(SSD2119_REG_SLEEP_MODE_1, 0x0000);	// Leave sleep mode
+							release_bus();
+							gdisp_lld_init();
+						}
+						set_backlight(100);
+						break;
+
+					case powerSleep:
+						acquire_bus();
+						write_reg(SSD2119_REG_SLEEP_MODE_1, 0x0001);	// Enter sleep mode
+						write_reg(SSD2119_REG_DISPLAY_CTRL, 0x0000);	// Display off
+						release_bus();
+						set_backlight(0);
+						delayms(25);
+						break;
+
+					case powerDeepSleep:
+						acquire_bus();
+						write_reg(SSD2119_REG_SLEEP_MODE_1, 0x0001);	// Enter sleep mode
+						write_reg(SSD2119_REG_SLEEP_MODE_2, 0x2999);	// Enable deep sleep function
+						write_reg(SSD2119_REG_DISPLAY_CTRL, 0x0000);	// Display off
+						release_bus();
+						set_backlight(0);
+						delayms(25);
+						break;
+
+					default:
+						return;
+				}
+				GDISP.Powermode = (gdisp_powermode_t)value;
 				return;
-			switch((gdisp_powermode_t)value) {
-			case powerOff:
-				acquire_bus();
-				write_reg(SSD2119_REG_SLEEP_MODE_1,	0x0001);	// enter sleep mode
-				write_reg(SSD2119_REG_DISPLAY_CTRL,	0x0000);	// halt operation
-				write_reg(SSD2119_REG_OSC_START,	0x0000);	// turn off oszcillator
-				set_backlight(0);
-				delayms(500);
-				release_bus();
-				break;
-			case powerOn:
-				acquire_bus();
-				write_reg(0x0010, 0x0000);	// leave sleep mode
-				release_bus();
-				if (GDISP.Powermode != powerSleep)
-					gdisp_lld_init();
-				set_backlight(100);
-				break;
-			case powerSleep:
-				acquire_bus();
-				write_reg(0x0010, 0x0001);	// enter sleep mode
-				release_bus();
-				break;
+
+			case GDISP_CONTROL_ORIENTATION:
+				if (GDISP.Orientation == (gdisp_orientation_t)value)
+					return;
+				switch((gdisp_orientation_t)value) {
+					case GDISP_ROTATE_0:
+						acquire_bus();
+						write_reg(0x0001, 0x2B3F);
+						/* ID = 11 AM = 0 */
+						write_reg(0x0011, 0x6070);
+						release_bus();
+						GDISP.Height = GDISP_SCREEN_HEIGHT;
+						GDISP.Width = GDISP_SCREEN_WIDTH;
+						break;
+
+					case GDISP_ROTATE_90:
+						acquire_bus();
+						write_reg(0x0001, 0x293F);
+						/* ID = 11 AM = 1 */
+						write_reg(0x0011, 0x6078);
+						release_bus();
+						GDISP.Height = GDISP_SCREEN_WIDTH;
+						GDISP.Width = GDISP_SCREEN_HEIGHT;
+						break;
+
+					case GDISP_ROTATE_180:
+						acquire_bus();
+						write_reg(0x0001, 0x2B3F);
+						/* ID = 01 AM = 0 */
+						write_reg(0x0011, 0x6040);
+						release_bus();
+						GDISP.Height = GDISP_SCREEN_HEIGHT;
+						GDISP.Width = GDISP_SCREEN_WIDTH;
+						break;
+
+					case GDISP_ROTATE_270:
+						acquire_bus();
+						write_reg(0x0001, 0x293F);
+						/* ID = 01 AM = 1 */
+						write_reg(0x0011, 0x6048);
+						release_bus();
+						GDISP.Height = GDISP_SCREEN_WIDTH;
+						GDISP.Width = GDISP_SCREEN_HEIGHT;
+						break;
+
+					default:
+						return;
+				}
+
+				#if GDISP_NEED_CLIP || GDISP_NEED_VALIDATION
+				GDISP.clipx0 = 0;
+				GDISP.clipy0 = 0;
+				GDISP.clipx1 = GDISP.Width;
+				GDISP.clipy1 = GDISP.Height;
+				#endif
+				GDISP.Orientation = (gdisp_orientation_t)value;
+				return;
+
+			case GDISP_CONTROL_BACKLIGHT:
+				if ((unsigned)value > 100)
+					value = (void *)100;
+				set_backlight((unsigned)value);
+				GDISP.Backlight = (unsigned)value;
+				return;
+
+			case GDISP_CONTROL_CONTRAST:
+
 			default:
 				return;
-			}
-			GDISP.Powermode = (gdisp_powermode_t)value;
-			return;
-		case GDISP_CONTROL_ORIENTATION:
-			if (GDISP.Orientation == (gdisp_orientation_t)value)
-				return;
-			switch((gdisp_orientation_t)value) {
-			case GDISP_ROTATE_0:
-				acquire_bus();
-				write_reg(0x0001, 0x2B3F);
-				/* ID = 11 AM = 0 */
-				write_reg(0x0011, 0x6070);
-				release_bus();
-				GDISP.Height = GDISP_SCREEN_HEIGHT;
-				GDISP.Width = GDISP_SCREEN_WIDTH;
-				break;
-			case GDISP_ROTATE_90:
-				acquire_bus();
-				write_reg(0x0001, 0x293F);
-				/* ID = 11 AM = 1 */
-				write_reg(0x0011, 0x6078);
-				release_bus();
-				GDISP.Height = GDISP_SCREEN_WIDTH;
-				GDISP.Width = GDISP_SCREEN_HEIGHT;
-				break;
-			case GDISP_ROTATE_180:
-				acquire_bus();
-				write_reg(0x0001, 0x2B3F);
-				/* ID = 01 AM = 0 */
-				write_reg(0x0011, 0x6040);
-				release_bus();
-				GDISP.Height = GDISP_SCREEN_HEIGHT;
-				GDISP.Width = GDISP_SCREEN_WIDTH;
-				break;
-			case GDISP_ROTATE_270:
-				acquire_bus();
-				write_reg(0x0001, 0x293F);
-				/* ID = 01 AM = 1 */
-				write_reg(0x0011, 0x6048);
-				release_bus();
-				GDISP.Height = GDISP_SCREEN_WIDTH;
-				GDISP.Width = GDISP_SCREEN_HEIGHT;
-				break;
-			default:
-				return;
-			}
-			#if GDISP_NEED_CLIP || GDISP_NEED_VALIDATION
-			GDISP.clipx0 = 0;
-			GDISP.clipy0 = 0;
-			GDISP.clipx1 = GDISP.Width;
-			GDISP.clipy1 = GDISP.Height;
-			#endif
-			GDISP.Orientation = (gdisp_orientation_t)value;
-			return;
-		case GDISP_CONTROL_BACKLIGHT:
-			if ((unsigned)value > 100) {
-				value = (void *) 100;
-			}
-			set_backlight((unsigned)value);
-			GDISP.Backlight = (unsigned)value;
-			break;
-/*
-		case GDISP_CONTROL_CONTRAST:
-*/
 		}
 	}
 #endif
