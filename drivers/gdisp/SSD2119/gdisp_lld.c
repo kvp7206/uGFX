@@ -111,6 +111,7 @@ static void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
 	 * 		Lower 9 bits gives 0-511 range in each value, HSA and HEA respectively
 	 * 		0 <= HSA <= HEA <= 0x13F
 	 */
+
 	switch(GDISP.Orientation) {
 		case GDISP_ROTATE_0:
 			write_reg(SSD2119_REG_V_RAM_POS,   (((y + cy - 1) << 8) & 0xFF00 ) | (y & 0x00FF));
@@ -128,7 +129,7 @@ static void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
 			write_reg(SSD2119_REG_H_RAM_END,   (GDISP_SCREEN_WIDTH - x - 1) & 0x01FF);
 			break;
 		case GDISP_ROTATE_270:
-			write_reg(SSD2119_REG_V_RAM_POS,   (((y + cy - 1) << 8) & 0xFF00 ) | (x & 0x00FF));
+			write_reg(SSD2119_REG_V_RAM_POS,   (((x + cx - 1) << 8) & 0xFF00 ) | (x & 0x00FF));
 			write_reg(SSD2119_REG_H_RAM_START, (y & 0x01FF));
 			write_reg(SSD2119_REG_H_RAM_END,   (y + cy - 1) & 0x01FF);
 			break;
@@ -524,7 +525,6 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 * 			GDISP_CONTROL_BACKLIGHT		- Takes an int from 0 to 100. For a driver
 	 * 											that only supports off/on anything other
 	 * 											than zero is on.
-	 * 			GDISP_CONTROL_CONTRAST		- Takes an int from 0 to 100.
 	 *
 	 * @param[in] what		What to do.
 	 * @param[in] value		The value to use (always cast to a void *).
@@ -600,9 +600,10 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 				switch((gdisp_orientation_t)value) {
 					case GDISP_ROTATE_0:
 						acquire_bus();
-						write_reg(0x0001, 0x2B3F);
+						/* TB = 0 */
+						write_reg(SSD2119_REG_OUTPUT_CTRL, 0x30EF);
 						/* ID = 11 AM = 0 */
-						write_reg(0x0011, 0x6070);
+						write_reg(SSD2119_REG_ENTRY_MODE, 0x6830);
 						release_bus();
 						GDISP.Height = GDISP_SCREEN_HEIGHT;
 						GDISP.Width = GDISP_SCREEN_WIDTH;
@@ -610,9 +611,10 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 
 					case GDISP_ROTATE_90:
 						acquire_bus();
-						write_reg(0x0001, 0x293F);
-						/* ID = 11 AM = 1 */
-						write_reg(0x0011, 0x6078);
+						/* TB = 1 */
+						write_reg(SSD2119_REG_OUTPUT_CTRL, 0x32EF);
+						/* ID = 10 AM = 1 */
+						write_reg(SSD2119_REG_ENTRY_MODE, 0x6828);
 						release_bus();
 						GDISP.Height = GDISP_SCREEN_WIDTH;
 						GDISP.Width = GDISP_SCREEN_HEIGHT;
@@ -620,9 +622,10 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 
 					case GDISP_ROTATE_180:
 						acquire_bus();
-						write_reg(0x0001, 0x2B3F);
-						/* ID = 01 AM = 0 */
-						write_reg(0x0011, 0x6040);
+						/* TB = 0 */
+						write_reg(SSD2119_REG_OUTPUT_CTRL, 0x30EF);
+						/* ID = 00 AM = 0 */
+						write_reg(SSD2119_REG_ENTRY_MODE, 0x6800);
 						release_bus();
 						GDISP.Height = GDISP_SCREEN_HEIGHT;
 						GDISP.Width = GDISP_SCREEN_WIDTH;
@@ -630,9 +633,10 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 
 					case GDISP_ROTATE_270:
 						acquire_bus();
-						write_reg(0x0001, 0x293F);
+						/* TB = 1 */
+						write_reg(SSD2119_REG_OUTPUT_CTRL, 0x32EF);
 						/* ID = 01 AM = 1 */
-						write_reg(0x0011, 0x6048);
+						write_reg(SSD2119_REG_ENTRY_MODE, 0x6818);
 						release_bus();
 						GDISP.Height = GDISP_SCREEN_WIDTH;
 						GDISP.Width = GDISP_SCREEN_HEIGHT;
@@ -657,8 +661,6 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 				set_backlight((unsigned)value);
 				GDISP.Backlight = (unsigned)value;
 				return;
-
-			case GDISP_CONTROL_CONTRAST:
 
 			default:
 				return;

@@ -77,7 +77,5 @@
 #define SSD2119_REG_X_RAM_ADDR        0x4E
 #define SSD2119_REG_Y_RAM_ADDR        0x4F
 
-/* TODO: SSD2119 commands */
-
 #endif /* _SSD2119_H */
 /** @} */
