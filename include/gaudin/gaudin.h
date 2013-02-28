@@ -35,9 +35,6 @@
 
 /* Include the driver defines */
 #include "gaudin_lld_config.h"
-//audio_in_sample_t
-//GAUDIN_SAMPLE_FORMAT		ARRAY_DATA_10BITUNSIGNED
-//GAUDIN_STEREO_DEVICE		FALSE
 
 /*===========================================================================*/
 /* Type definitions                                                          */
@@ -51,10 +48,16 @@
  * @{
  */
 typedef struct GEventAudioIn_t {
+	#if GFX_USE_GEVENT || defined(__DOXYGEN__)
 	/**
 	 * @brief The type of this event (GEVENT_AUDIO_IN)
 	 */
-	GEventType				type;
+		GEventType				type;
+	#endif
+	/**
+	 * @brief The current channel
+	 */
+	uint16_t				channel;
 	/**
 	 * @brief The event flags
 	 */
@@ -72,7 +75,7 @@ typedef struct GEventAudioIn_t {
 	/**
 	 * @brief The buffer containing the audio samples
 	 */
-	audio_in_sample_t		*buffer;
+	audin_sample_t			*buffer;
 	} GEventAudioIn;
 
 /*===========================================================================*/
@@ -84,16 +87,23 @@ extern "C" {
 #endif
 
 /**
- * @brief				Initialise the Audio Input Subsystem.
- * @details				Initialises but does not start the audio in.
+ * @brief		Initialise (but not start) the Audio Input Subsystem.
+ * @details		Returns FALSE for an invalid channel or other invalid parameter.
  *
+ * @param[in] channel		The channel to convert. Can be set from 0 to GAUDIN_NUM_CHANNELS - 1.
  * @param[in] frequency		The sample frequency
  * @param[in] buffer		The static buffer to put the samples into.
  * @param[in] bufcount		The total number of conversions that will fit in the buffer.
  * @param[in] countPerEvent	The number of conversions to do before returning an event.
  *
- * @note				If the audio input is running it will be stopped.
- * @note				Due to a bug in Chibi-OS countPerEvent must be even for the GADC audio driver.
+ * @note				Only one channel is active at a time. If an audio input is running it will be stopped.
+ * 						The Event subsystem is disconnected from the audio subsystem and any binary semaphore
+ * 						event is forgotten.
+ * @note				Some channels may be stereo channels which return twice as much sample data with
+ * 						the left and right channel data interleaved. Other channels may be mono channels.
+ * 						Where stereo channels exist it would be common for the low level driver to also
+ * 						offer the left and right channels separately.
+ * @note				Due to a bug in Chibi-OS countPerEvent must be even if using the GADC low level audio driver.
  * 						If bufcount is not evenly divisable by countPerEvent, the remainder must also be even.
  * 						This requirement may not apply to other GAUDIN drivers.
  * @note				The number of samples for stereo devices will be double the number of conversions.
@@ -111,7 +121,7 @@ extern "C" {
  *
  * @api
  */
-void gaudinInit(uint32_t frequency, adcsample_t *buffer, size_t bufcount, size_t samplesPerEvent);
+bool_t gaudinInit(uint16_t channel, uint32_t frequency, audin_sample_t *buffer, size_t bufcount, size_t samplesPerEvent);
 
 #if GFX_USE_GEVENT || defined(__DOXYGEN__)
 	/**
@@ -121,7 +131,7 @@ void gaudinInit(uint32_t frequency, adcsample_t *buffer, size_t bufcount, size_t
 	 * @note				The audio input will not use the GEVENT system unless this is
 	 * 						called first. This saves processing time if the application does
 	 * 						not want to use the GEVENT sub-system for audio input.
-	 * 						Once turned on it cannot be turned off.
+	 * 						Once turned on it can only be turned off by calling @p gadcHighSpeedInit() again.
 	 * @note				The audio input is capable of signalling via this method and a binary semaphore
 	 * 						at the same time.
 	 *
@@ -150,7 +160,7 @@ void gaudinSetBSem(BinarySemaphore *pbsem, GEventAudioIn *pEvent);
  *
  * @api
  */
-GSourceHandle gaudinStart(void);
+void gaudinStart(void);
 
 /**
  * @brief   Stop the audio input conversions.

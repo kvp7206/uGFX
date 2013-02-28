@@ -155,6 +155,7 @@
 /**
  *  Include the sub-system header files
  */
+#include "gmisc/gmisc.h"
 #include "gevent/gevent.h"
 #include "gtimer/gtimer.h"
 #include "gdisp/gdisp.h"
@@ -164,7 +165,6 @@
 #include "gadc/gadc.h"
 #include "gaudin/gaudin.h"
 #include "gaudout/gaudout.h"
-#include "gmisc/gmisc.h"
 
 #endif /* _GFX_H */
 /** @} */

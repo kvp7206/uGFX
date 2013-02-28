@@ -99,6 +99,14 @@
 #if GFX_USE_TDISP
 #endif
 
+#if GFX_USE_GAUDIN
+	#if GFX_USE_GEVENT && !GFX_USE_GTIMER
+		#warning "GAUDIN: GFX_USE_GTIMER is required if GFX_USE_GAUDIN and GFX_USE_GEVENT are TRUE. It has been turned on for you."
+		#undef GFX_USE_GTIMER
+		#define	GFX_USE_GTIMER		TRUE
+	#endif
+#endif
+
 #if GFX_USE_GADC
 	#if !CH_USE_MUTEXES || !CH_USE_SEMAPHORES
 		#error "GADC: CH_USE_MUTEXES and CH_USE_SEMAPHORES must be defined in chconf.h"
@@ -121,9 +129,6 @@
 		#warning "GTIMER: Neither GDISP_NEED_MULTITHREAD nor GDISP_NEED_ASYNC has been specified."
 		#warning "GTIMER: Make sure you are not performing any GDISP/GWIN drawing operations in the timer callback!"
 	#endif
-#endif
-
-#if GFX_USE_GAUDIN
 #endif
 
 #if GFX_USE_GAUDOUT

@@ -96,9 +96,14 @@ typedef struct GEventADC_t {
 	} GEventADC;
 
 /**
- * @brief A callback function (executed in a thread context)
+ * @brief A callback function (executed in a thread context) for a low speed conversion
  */
 typedef void (*GADCCallbackFunction)(adcsample_t *buffer, void *param);
+
+/**
+ * @brief A callback function (executed in an ISR context) for a high speed conversion
+ */
+typedef void (*GADCISRCallbackFunction)(adcsample_t *buffer, size_t size);
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -121,9 +126,9 @@ extern "C" {
  * @note				If the high speed ADC is running it will be stopped. The Event subsystem is
  * 						disconnected from the high speed ADC and any binary semaphore event is forgotten.
  * @note				bufcount must be greater than countPerEvent (usually 2 or more times) otherwise
- * 						the buffer will be overwitten with new data while the application is still trying
+ * 						the buffer will be overwritten with new data while the application is still trying
  * 						to process the old data.
- * @note				Due to a bug in Chibi-OS countPerEvent must be even. If bufcount is not
+ * @note				Due to a bug/feature in Chibi-OS countPerEvent must be even. If bufcount is not
  * 						evenly divisable by countPerEvent, the remainder must also be even.
  * @note				The physdev parameter may be used to turn on more than one ADC channel.
  * 						Each channel is then interleaved into the provided buffer. Note 'bufcount'
@@ -143,8 +148,7 @@ extern "C" {
  * @note				While the high speed ADC is running, low speed conversions can only occur at
  * 						the frequency of the high speed events. Thus if high speed events are
  * 						being created at 50Hz (eg countPerEvent = 100, frequency = 5kHz) then the maximum
- * 						frequency for low speed conversions is likely to be 50Hz (although it might be
- * 						100Hz on some hardware).
+ * 						frequency for low speed conversions will be 50Hz.
  *
  * @api
  */
@@ -159,13 +163,27 @@ void gadcHighSpeedInit(uint32_t physdev, uint32_t frequency, adcsample_t *buffer
 	 * 						called first. This saves processing time if the application does
 	 * 						not want to use the GEVENT sub-system for the high speed ADC.
 	 * 						Once turned on it can only be turned off by calling @p gadcHighSpeedInit() again.
-	 * @note				The high speed ADC is capable of signalling via this method and a binary semaphore
-	 * 						at the same time.
+	 * @note				The high speed ADC is capable of signalling via this method, an ISR callback and a
+	 * 						binary semaphore at the same time.
 	 *
 	 * @api
 	 */
 	GSourceHandle gadcHighSpeedGetSource(void);
 #endif
+
+/**
+ * @brief				Allow retrieving of results from the high speed ADC using an ISR callback.
+ *
+ * @param[in] isrfn			The callback function (called in an ISR context).
+ *
+ * @note				Passing a NULL for isrfn will turn off signalling via this method as will calling
+ * 						@p gadcHighSpeedInit().
+ * @note				The high speed ADC is capable of signalling via this method, a binary semaphore and the GEVENT
+ * 						sub-system at the same time.
+ *
+ * @api
+ */
+void gadcHighSpeedSetISRCallback(GADCISRCallbackFunction isrfn);
 
 /**
  * @brief				Allow retrieving of results from the high speed ADC using a Binary Semaphore and a static event buffer.
@@ -175,7 +193,7 @@ void gadcHighSpeedInit(uint32_t physdev, uint32_t frequency, adcsample_t *buffer
  *
  * @note				Passing a NULL for pbsem or pEvent will turn off signalling via this method as will calling
  * 						@p gadcHighSpeedInit().
- * @note				The high speed ADC is capable of signalling via this method and the GEVENT
+ * @note				The high speed ADC is capable of signalling via this method, an ISR callback and the GEVENT
  * 						sub-system at the same time.
  *
  * @api
