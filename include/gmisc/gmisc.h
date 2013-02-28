@@ -36,7 +36,9 @@
 /*===========================================================================*/
 
 /**
- * @brief Sample data formats
+ * @brief	Sample data formats
+ * @note	These are defined regardless of whether you use the GMISC module
+ * 			or not as they are used in lots of places.
  */
 typedef enum ArrayDataFormat_e {
 	ARRAY_DATA_4BITUNSIGNED = 4,	ARRAY_DATA_4BITSIGNED = 5,

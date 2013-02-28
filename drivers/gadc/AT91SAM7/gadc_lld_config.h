@@ -60,6 +60,11 @@
  */
 #define GADC_BITS_PER_SAMPLE				AT91_ADC1_RESOLUTION
 
+/**
+ * @brief	The sample format
+ */
+#define GADC_SAMPLE_FORMAT					ARRAY_DATA_10BITUNSIGNED
+
 /* Pull in board specific defines */
 #if defined(GADC_USE_CUSTOM_BOARD) && GADC_USE_CUSTOM_BOARD
 	/* Include the user supplied board definitions */
@@ -73,6 +78,6 @@
 
 #endif	/* GFX_USE_GADC */
 
-#endif	/* _GDISP_LLD_CONFIG_H */
+#endif	/* GADC_LLD_CONFIG_H */
 /** @} */
 

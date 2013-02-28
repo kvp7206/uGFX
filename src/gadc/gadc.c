@@ -83,6 +83,7 @@ static struct hsdev {
 	size_t					remaining;
 	BinarySemaphore			*bsem;
 	GEventADC				*pEvent;
+	GADCISRCallbackFunction	isrfn;
 	} hs;
 
 static struct lsdev {
@@ -181,6 +182,11 @@ void GADC_ISR_CompleteI(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 				hs.pEvent->buffer = hs.lastbuffer;
 				hs.pEvent->flags = hs.lastflags;
 			}
+
+			/* Our three signalling mechanisms */
+			if (hs.isrfn)
+				hs.isrfn(buffer, n);
+
 			if (hs.bsem)
 				chBSemSignalI(hs.bsem);
 
@@ -344,6 +350,7 @@ void gadcHighSpeedInit(uint32_t physdev, uint32_t frequency, adcsample_t *buffer
 	hs.remaining = bufcount;
 	hs.bsem = 0;
 	hs.pEvent = 0;
+	hs.isrfn = 0;
 }
 
 #if GFX_USE_GEVENT
@@ -355,6 +362,10 @@ void gadcHighSpeedInit(uint32_t physdev, uint32_t frequency, adcsample_t *buffer
 		return (GSourceHandle)&HighSpeedGTimer;
 	}
 #endif
+
+void gadcHighSpeedSetISRCallback(GADCISRCallbackFunction isrfn) {
+	hs.isrfn = isrfn;
+}
 
 void gadcHighSpeedSetBSem(BinarySemaphore *pbsem, GEventADC *pEvent) {
 	DoInit();
