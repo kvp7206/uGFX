@@ -59,3 +59,4 @@ static void write_data(uint8_t data) {
 
 #endif /* _TDISP_LLD_BOARD_H */
 /** @} */
+

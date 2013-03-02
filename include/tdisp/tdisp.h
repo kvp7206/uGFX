@@ -50,7 +50,7 @@ typedef enum cursorshape_e {
 	cursorBlinkingUnderline,
 	cursorBar,
 	cursorBlinkingBar,
-	} cursorshape;
+} cursorshape;
 
 /**
  * @name	TDISP control values
@@ -68,7 +68,7 @@ typedef struct tdispStruct_t {
 	coord_t		columns, rows;
 	coord_t		charBitsX, charBitsY;
 	uint16_t	maxCustomChars;
-	} tdispStruct;
+} tdispStruct;
 
 /**
  * @brief	The TDISP structure
