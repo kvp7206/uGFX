@@ -108,6 +108,8 @@ void gwinDestroyWindow(GHandle gh) {
 			gh->flags &= ~GBTN_FLG_ALLOCTXT;		// To be sure, to be sure
 			chHeapFree((void *)((GButtonObject *)gh)->txt);
 		}
+		geventDetachSource(&((GButtonObject *)gh)->listener, 0);
+		geventDetachSourceListeners((GSourceHandle *)gh);
 		break;
 #endif
 	default:

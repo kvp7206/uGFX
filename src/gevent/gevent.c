@@ -108,7 +108,7 @@ bool_t geventAttachSource(GListener *pl, GSourceHandle gsh, unsigned flags) {
 }
 
 void geventDetachSource(GListener *pl, GSourceHandle gsh) {
-	if (pl && gsh) {
+	if (pl) {
 		chMtxLock(&geventMutex);
 		deleteAssignments(pl, gsh);
 		if (!gsh && chSemGetCounterI(&pl->waitqueue) < 0) {
