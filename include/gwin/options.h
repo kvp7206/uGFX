@@ -62,9 +62,12 @@
 /**
  * @}
  *
- * @name    GWIN Optional Sizing Parameters
+ * @name    GWIN Optional Parameters
  * @{
  */
+	#ifndef GWIN_BUTTON_LAZY_RELEASE
+		#define GWIN_BUTTON_LAZY_RELEASE		FALSE
+	#endif
 /** @} */
 
 #endif /* _GWIN_OPTIONS_H */

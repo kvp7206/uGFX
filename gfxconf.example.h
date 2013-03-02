@@ -87,6 +87,7 @@
 	#define GEVENT_MAX_SOURCE_LISTENERS		32
 	#define GTIMER_THREAD_WORKAREA_SIZE		512
 	#define GADC_MAX_LOWSPEED_DEVICES		4
+	#define GWIN_BUTTON_LAZY_RELEASE		FALSE
 */
 
 /* Optional Low Level Driver Definitions */

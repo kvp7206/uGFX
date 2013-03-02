@@ -87,12 +87,16 @@ static void gwinButtonCallback(void *param, GEvent *pe) {
 			gbw->state = GBTN_UP;
 			gwinButtonDraw((GHandle)param);
 
-			// If the mouse up was over the button then create the event
-			if (pme->x >= gbw->gwin.x && pme->x < gbw->gwin.x + gbw->gwin.width
-					&& pme->y >= gbw->gwin.y && pme->y < gbw->gwin.y + gbw->gwin.height)
+			#if GWIN_BUTTON_LAZY_RELEASE
 				break;
+			#else
+				// If the mouse up was over the button then create the event
+				if (pme->x >= gbw->gwin.x && pme->x < gbw->gwin.x + gbw->gwin.width
+						&& pme->y >= gbw->gwin.y && pme->y < gbw->gwin.y + gbw->gwin.height)
+					break;
 
-			return;
+				return;
+			#endif
 	#endif
 
 	#if defined(GINPUT_NEED_TOGGLE) && GINPUT_NEED_TOGGLE
