@@ -235,25 +235,26 @@ bool_t gdisp_lld_init(void) {
 }
 
 static void lld_lcdSetCursor(uint16_t x, uint16_t y) {
-    uint32_t addr;
-
-    addr = y * 0x100 + x;
 
 	switch(GDISP.Orientation) {
 		case GDISP_ROTATE_0:
-    		lld_lcdWriteReg(0x0020, addr & 0xff);   /* low addr */
-    		lld_lcdWriteReg(0x0021, (addr >> 8) & 0x1ff); /* high addr */
+			lld_lcdWriteReg(0x0020, x);
+			lld_lcdWriteReg(0x0021, y);
 			break;
 
 		case GDISP_ROTATE_90:
-            lld_lcdWriteReg(0x0020, (addr >> 8) & 0x1ff);   /* low addr */
-            lld_lcdWriteReg(0x0021, addr & 0xff); /* high addr */
+			lld_lcdWriteReg(0x0020, y);
+			lld_lcdWriteReg(0x0021, x);
 			break;
 
 		case GDISP_ROTATE_180:
+			lld_lcdWriteReg(0x0020, x);
+			lld_lcdWriteReg(0x0021, y);
 			break;
 
 		case GDISP_ROTATE_270:
+			lld_lcdWriteReg(0x0020, y);
+			lld_lcdWriteReg(0x0021, x);
 			break;
 	}
 }
@@ -275,11 +276,18 @@ static void lld_lcdSetViewPort(uint16_t x, uint16_t y, uint16_t cx, uint16_t cy)
 			break;
 
 		case GDISP_ROTATE_180:
+			lld_lcdWriteReg(0x0050, x);
+			lld_lcdWriteReg(0x0051, x + cx - 1);
+			lld_lcdWriteReg(0x0052, y);
+			lld_lcdWriteReg(0x0053, y + cy - 1);
 			break;
 
 		case GDISP_ROTATE_270:
+			lld_lcdWriteReg(0x0050, y);
+			lld_lcdWriteReg(0x0051, y + cy - 1);
+			lld_lcdWriteReg(0x0052, x);
+			lld_lcdWriteReg(0x0053, x + cx - 1);
 			break;
-
 	}
 
 	lld_lcdSetCursor(x, y);
@@ -516,25 +524,31 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 					case GDISP_ROTATE_0:
 						lld_lcdWriteReg(0x0001, 0x0100);
 						lld_lcdWriteReg(0x0003, 0x1038);
+						lld_lcdWriteReg(0x0060, 0x2700);
 						GDISP.Height = GDISP_SCREEN_HEIGHT;
 						GDISP.Width = GDISP_SCREEN_WIDTH;
 						break;
 
 					case GDISP_ROTATE_90:
-						lld_lcdWriteReg(0x0001, 0x0000);
+						lld_lcdWriteReg(0x0001, 0x0100);
 						lld_lcdWriteReg(0x0003, 0x1030);
+						lld_lcdWriteReg(0x0060, 0x2700);
 						GDISP.Height = GDISP_SCREEN_WIDTH;
 						GDISP.Width = GDISP_SCREEN_HEIGHT;
 						break;
 			
 					case GDISP_ROTATE_180:
-						/* ToDo */
+						lld_lcdWriteReg(0x0001, 0x0000);
+						lld_lcdWriteReg(0x0003, 0x1030);
+						lld_lcdWriteReg(0x0060, 0x2700);
 						GDISP.Height = GDISP_SCREEN_HEIGHT;
 						GDISP.Width = GDISP_SCREEN_WIDTH;
 						break;
 		
 					case GDISP_ROTATE_270:
-						/* ToDo */
+						lld_lcdWriteReg(0x0001, 0x0000);
+						lld_lcdWriteReg(0x0003, 0x1038);
+						lld_lcdWriteReg(0x0060, 0xA700);
 						GDISP.Height = GDISP_SCREEN_WIDTH;
 						GDISP.Width = GDISP_SCREEN_HEIGHT;
 						break;

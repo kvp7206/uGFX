@@ -33,14 +33,12 @@
 #if GFX_USE_TDISP /*|| defined(__DOXYGEN__)*/
 
 /* Include the hardware interface details */
-#if defined(TDISP_USE_CUSTOM_BOARD) && TDISP_USE_CUSTOM_BOARD
-	/* Include the user supplied board definitions */
-	#include "tdisp_lld_board.h"
-#elif defined(BOARD_UNKNOWN)
-	#include "gdisp_lld_board_unknown.h"
+#if defined(BOARD_OLIMEX_STM32_E407)
+	#include "tdisp_lld_board_olimex_e407.h"
+#elif defined(BOARD_ST_STM32F4_DISCOVERY)
+	#include "tdisp_lld_board_st_stm32f4_discovery.h"
 #else
-	/* Include the user supplied board definitions */
-	#include "gdisp_lld_board.h"
+	#include "tdisp_lld_board_example.h"
 #endif
 
 /* The user may override the default display size */
@@ -58,10 +56,10 @@
 
 /* Define the properties of our controller */
 tdispStruct	TDISP = {
-		TDISP_COLUMNS, TDISP_ROWS,				/* cols, rows */
-		CUSTOM_CHAR_XBITS, CUSTOM_CHAR_YBITS,	/* charBitsX, charBitsY */
-		CUSTOM_CHAR_COUNT						/* maxCustomChars */
-		};
+	TDISP_COLUMNS, TDISP_ROWS,				/* cols, rows */
+	CUSTOM_CHAR_XBITS, CUSTOM_CHAR_YBITS,	/* charBitsX, charBitsY */
+	CUSTOM_CHAR_COUNT						/* maxCustomChars */
+};
 
 /* Our display control */
 #define DISPLAY_ON		0x04
