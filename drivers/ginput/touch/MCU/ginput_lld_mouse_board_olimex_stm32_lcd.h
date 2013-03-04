@@ -63,7 +63,7 @@ static const ADCConversionGroup adc_x_config = {
  *
  * @notapi
  */
-static __inline void init_board(void) {
+static inline void init_board(void) {
 	adcStart(&ADCD1, NULL);
 }
 
@@ -73,7 +73,7 @@ static __inline void init_board(void) {
  *
  * @notapi
  */
-static __inline bool_t getpin_pressed(void) {
+static inline bool_t getpin_pressed(void) {
     palSetPadMode(GPIOC, 0, PAL_MODE_INPUT_PULLDOWN);
     palSetPadMode(GPIOC, 1, PAL_MODE_INPUT);
     palSetPadMode(GPIOC, 2, PAL_MODE_INPUT);
@@ -88,7 +88,7 @@ static __inline bool_t getpin_pressed(void) {
  *
  * @notapi
  */
-static __inline void aquire_bus(void) {
+static inline void aquire_bus(void) {
 
 }
 
@@ -97,7 +97,7 @@ static __inline void aquire_bus(void) {
  *
  * @notapi
  */
-static __inline void release_bus(void) {
+static inline void release_bus(void) {
 
 }
 
@@ -107,7 +107,7 @@ static __inline void release_bus(void) {
  *
  * @notapi
  */
-static __inline uint16_t read_x_value(void) {
+static inline uint16_t read_x_value(void) {
 	uint16_t val1, val2;
     adcsample_t samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 
@@ -137,7 +137,7 @@ static __inline uint16_t read_x_value(void) {
  *
  * @notapi
  */
-static __inline uint16_t read_y_value(void) {
+static inline uint16_t read_y_value(void) {
 	uint16_t val1, val2;
     adcsample_t samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
 

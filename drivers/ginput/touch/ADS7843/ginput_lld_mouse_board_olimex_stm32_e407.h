@@ -42,7 +42,7 @@ static const SPIConfig spicfg = {
  *
  * @notapi
  */
-static __inline void init_board(void) {
+static inline void init_board(void) {
 	spiStart(&SPID2, &spicfg);
 }
 
@@ -52,7 +52,7 @@ static __inline void init_board(void) {
  *
  * @notapi
  */
-static __inline bool_t getpin_pressed(void) {
+static inline bool_t getpin_pressed(void) {
 	return (!palReadPad(GPIOG, 0));
 }
 /**
@@ -60,7 +60,7 @@ static __inline bool_t getpin_pressed(void) {
  *
  * @notapi
  */
-static __inline void aquire_bus(void) {
+static inline void aquire_bus(void) {
 	spiAcquireBus(&SPID2);
     //TOUCHSCREEN_SPI_PROLOGUE();
     palClearPad(GPIOG, 10);
@@ -71,7 +71,7 @@ static __inline void aquire_bus(void) {
  *
  * @notapi
  */
-static __inline void release_bus(void) {
+static inline void release_bus(void) {
 	palSetPad(GPIOG, 10);
 	spiReleaseBus(&SPID2);
     //TOUCHSCREEN_SPI_EPILOGUE();
@@ -85,7 +85,7 @@ static __inline void release_bus(void) {
  *
  * @notapi
  */
-static __inline uint16_t read_value(uint16_t port) {
+static inline uint16_t read_value(uint16_t port) {
     static uint8_t txbuf[3] = {0};
     static uint8_t rxbuf[3] = {0};
     uint16_t ret;

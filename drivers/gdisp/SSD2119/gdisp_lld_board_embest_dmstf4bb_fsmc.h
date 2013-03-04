@@ -56,7 +56,7 @@ static const PWMConfig pwmcfg = {
  *
  * @notapi
  */
-static __inline void init_board(void) {
+static inline void init_board(void) {
 	unsigned char FSMC_Bank;
 
 	/* STM32F4 FSMC init */
@@ -98,7 +98,7 @@ static __inline void init_board(void) {
  *
  * @notapi
  */
-static __inline void setpin_reset(bool_t state) {
+static inline void setpin_reset(bool_t state) {
 	if (state) {
 		CLR_RST;
 	} else {
@@ -113,7 +113,7 @@ static __inline void setpin_reset(bool_t state) {
  *
  * @notapi
  */
-static __inline void set_backlight(uint8_t percent) {
+static inline void set_backlight(uint8_t percent) {
 	pwmEnableChannel(&PWMD4, 1, percent);
 }
 
@@ -123,7 +123,7 @@ static __inline void set_backlight(uint8_t percent) {
  *
  * @notapi
  */
-static __inline void acquire_bus(void) {
+static inline void acquire_bus(void) {
 	/* Nothing to do here since LCD is the only device on that bus */
 }
 
@@ -133,7 +133,7 @@ static __inline void acquire_bus(void) {
  *
  * @notapi
  */
-static __inline void release_bus(void) {
+static inline void release_bus(void) {
 	/* Nothing to do here since LCD is the only device on that bus */
 }
 
@@ -144,7 +144,7 @@ static __inline void release_bus(void) {
  *
  * @notapi
  */
-static __inline void write_index(uint16_t index) {
+static inline void write_index(uint16_t index) {
 	GDISP_REG = index;
 }
 
@@ -155,7 +155,7 @@ static __inline void write_index(uint16_t index) {
  *
  * @notapi
  */
-static __inline void write_data(uint16_t data) {
+static inline void write_data(uint16_t data) {
 	GDISP_RAM = data;
 }
 
@@ -169,7 +169,7 @@ static __inline void write_data(uint16_t data) {
  *
  * @notapi
  */
-static __inline uint16_t read_data(void) {
+static inline uint16_t read_data(void) {
 	return GDISP_RAM;
 }
 #endif
