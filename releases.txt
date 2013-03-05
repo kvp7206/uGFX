@@ -9,6 +9,9 @@ FIX:		tdispGotoXY() renamed to tdispSetCursor()
 FEATURE:	Addition of GADC, GMISC, GAUDIN, GAUDOUT subsystems
 FIX:		Removal of the GDISP_LLD() macro
 DEPRECATE:	Removal of the GDISP VMT
+FEATURE:	Added SSD2119 GDISP driver
+FEATRE:		Added GWIN_BUTTON_LAZY_RELEASE macro to disable cancel feature of buttons
+FIX:		Renamed every '__inline' macro to 'inline' for compiler compatibilities
 
 
 *** changes after 1.4 ***
