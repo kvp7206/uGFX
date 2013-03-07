@@ -35,9 +35,9 @@
 
 #define GINPUT_TOGGLE_SW1			0				// Switch 1
 #define GINPUT_TOGGLE_SW2			1				// Switch 2
-#define GINPUT_TOGGLE_LEFT			2				// Joystick Left
+#define GINPUT_TOGGLE_UP			2				// Joystick Up
 #define GINPUT_TOGGLE_DOWN			3				// Joystick Down
-#define GINPUT_TOGGLE_UP			4				// Joystick Up
+#define GINPUT_TOGGLE_LEFT			4				// Joystick Left
 #define GINPUT_TOGGLE_RIGHT			5				// Joystick Right
 #define GINPUT_TOGGLE_CENTER		6				// Joystick Center
 
