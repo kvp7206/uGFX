@@ -1,5 +1,5 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012, 2013
+    ChibiOS/GFX - Copyright (C) 2012
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -41,7 +41,7 @@
 
 #include "GE8.h"
 
-/* This controller is only ever used with a 130 x 130 display */
+/* This controller is only ever used with a 132 x 132 display */
 #if defined(GDISP_SCREEN_HEIGHT)
 	#warning "GDISP: This low level driver does not support setting a screen size. It is being ignored."
 	#undef GDISP_SCREEN_HEIGHT
@@ -50,14 +50,8 @@
 	#warning "GDISP: This low level driver does not support setting a screen size. It is being ignored."
 	#undef GDISP_SCREEN_WIDTH
 #endif
-#define GDISP_SCREEN_HEIGHT		130
-#define GDISP_SCREEN_WIDTH		130
-
-#define GDISP_SCAN_LINES		132		/* 130 lines + 2 invisible lines */
-#define GDISP_RAM_X_OFFSET		0		/* Offset in RAM of visible area */
-#define GDISP_RAM_Y_OFFSET		2		/* Offset in RAM of visible area */
-#define GDISP_SLEEP_SIZE		32		/* Sleep mode window lines */
-#define GDISP_SLEEP_POS			((GDISP_SCAN_LINES-GDISP_SLEEP_SIZE)/2)
+#define GDISP_SCREEN_HEIGHT		132
+#define GDISP_SCREEN_WIDTH		132
 
 #define GDISP_INITIAL_CONTRAST	38
 #define GDISP_INITIAL_BACKLIGHT	100
@@ -85,36 +79,18 @@
 #endif
 
 // Some macros just to make reading the code easier
-#define delayms(ms)						chThdSleepMilliseconds(ms)
-#define write_data2(d1, d2)				{ write_data(d1); write_data(d2); }
-#define write_data3(d1, d2, d3)			{ write_data(d1); write_data(d2); write_data(d3); }
-#define write_data4(d1, d2, d3, d4)		{ write_data(d1); write_data(d2); write_data(d3); write_data(d4); }
-#define write_cmd1(cmd, d1)				{ write_cmd(cmd); write_data(d1); }
-#define write_cmd2(cmd, d1, d2)			{ write_cmd(cmd); write_data2(d1, d2); }
-#define write_cmd3(cmd, d1, d2, d3)		{ write_cmd(cmd); write_data3(d1, d2, d3); }
-#define write_cmd4(cmd, d1, d2, d3, d4)	{ write_cmd(cmd); write_data4(d1, d2, d3, d4); }
+#define delayms(ms)					chThdSleepMilliseconds(ms)
+#define write_data2(d1, d2)			{ write_data(d1); write_data(d2); }
+#define write_data3(d1, d2, d3)		{ write_data(d1); write_data(d2); write_data(d3); }
+#define write_cmd1(cmd, d1)			{ write_cmd(cmd); write_data(d1); }
+#define write_cmd2(cmd, d1, d2)		{ write_cmd(cmd); write_data2(d1, d2); }
+#define write_cmd3(cmd, d1, d2, d3)	{ write_cmd(cmd); write_data3(d1, d2, d3); }
 
-// Set the drawing window on the controller.
+// A very common thing to do.
 // An inline function has been used here incase the parameters have side effects with the internal calculations.
 static __inline void setviewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
-	switch(GDISP.Orientation) {
-		case GDISP_ROTATE_0:
-			write_cmd2(CASET, GDISP_RAM_X_OFFSET+x, GDISP_RAM_X_OFFSET+x+cx-1);			// Column address set
-			write_cmd2(PASET, GDISP_RAM_Y_OFFSET+y, GDISP_RAM_Y_OFFSET+y+cy-1);			// Page address set
-			break;
-		case GDISP_ROTATE_90:
-			write_cmd2(CASET, GDISP_RAM_X_OFFSET+GDISP.Height-y-cy, GDISP_RAM_X_OFFSET+GDISP.Height-y-1);
-			write_cmd2(PASET, GDISP_RAM_Y_OFFSET+x, GDISP_RAM_Y_OFFSET+x+cx-1);
-			break;
-		case GDISP_ROTATE_180:
-			write_cmd2(CASET, GDISP_RAM_X_OFFSET+GDISP.Width-x-cx, GDISP_RAM_X_OFFSET+GDISP.Width-x-1);
-			write_cmd2(PASET, GDISP_RAM_Y_OFFSET+GDISP.Height-y-cy, GDISP_RAM_Y_OFFSET+GDISP.Height-y-1);
-			break;
-		case GDISP_ROTATE_270:
-			write_cmd2(CASET, GDISP_RAM_X_OFFSET+y, GDISP_RAM_X_OFFSET+y+cy-1);
-			write_cmd2(PASET, GDISP_RAM_Y_OFFSET+GDISP.Width-x-cx, GDISP_RAM_Y_OFFSET+GDISP.Width-x-1);
-			break;
-	}
+	write_cmd2(CASET, x, x+cx-1);			// Column address set
+	write_cmd2(PASET, y, y+cy-1);			// Page address set
 }
 
 /*===========================================================================*/
@@ -125,8 +101,14 @@ static __inline void setviewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
+/* ---- Required Routines ---- */
+/*
+	The following 2 routines are required.
+	All other routines are optional.
+*/
+
 /**
- * @brief   Low level GDISP driver initialisation.
+ * @brief   Low level GDISP driver initialization.
  *
  * @notapi
  */
@@ -143,24 +125,22 @@ bool_t gdisp_lld_init(void) {
 	// Get the bus for the following initialisation commands
 	acquire_bus();
 	
-	write_cmd4(DISCTL, 0x00, GDISP_SCAN_LINES/4-1, 0x0A, 0x00);	// Display control - How the controller drives the LCD
+	write_cmd3(DISCTL, 0x00, 0x20, 0x00);				// Display control
 															// P1: 0x00 = 2 divisions, switching period=8 (default)
 															// P2: 0x20 = nlines/4 - 1 = 132/4 - 1 = 32)
-															// P3: 0x0A = standard inverse highlight, inversion every frame
-															// P4: 0x00 = dispersion on
-	write_cmd1(COMSCN, 0x01);							// COM scan - How the LCD is connected to the controller
-															// P1: 0x01 = Scan 1->80, 160<-81
-	write_cmd(OSCON);									// Internal oscillator ON
+															// P3: 0x00 = no inversely highlighted lines
+	write_cmd1(COMSCN, 0x01);							// COM scan		P1: 0x01 = Scan 1->80, 160<-81
+	write_cmd(OSCON);									// Internal oscilator ON
 	write_cmd(SLPOUT);									// Sleep out
 	write_cmd1(PWRCTR, 0x0F);							// Power control - reference voltage regulator on, circuit voltage follower on, BOOST ON
-	write_cmd3(DATCTL, 0x00, 0x00, 0x02);				// Data control
-															// P1: 0x00 = page address normal, column address normal, address scan in column direction
+	write_cmd3(DATCTL, 0x48, 0x00, 0x02);				// Data control
+															// P1: 0x01 = page address inverted, column address normal, address scan in column direction
 															// P2: 0x00 = RGB sequence (default value)
-															// P3: 0x02 = 4 bits per colour (Type A)
+															// P3: 0x02 = Grayscale -> 16 (selects 12-bit color, type A)
 	write_cmd2(VOLCTR, GDISP_INITIAL_CONTRAST, 0x03);	// Voltage control (contrast setting)
 															// P1 = Contrast
 															// P2 = 3 resistance ratio (only value that works)
-	delayms(100);										// Allow power supply to stabilise
+	delayms(100);						// allow power supply to stabilize
 	write_cmd(DISON);									// Turn on the display
 
 	// Release the bus
@@ -217,7 +197,7 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void gdisp_lld_fill_area(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
-		unsigned tuples;
+		unsigned i, tuples;
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; x = GDISP.clipx0; }
@@ -227,13 +207,13 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
 
-		tuples = (cx*cy+1)>>1;				// With an odd sized area we over-print by one pixel.
-											// This extra pixel overwrites the first pixel (harmless as it is the same colour)
+		tuples = (cx*cy+1)/2;				// With an odd sized area we over-print by one pixel.
+											// This extra pixel is ignored by the controller.
 
 		acquire_bus();
 		setviewport(x, y, cx, cy);
 		write_cmd(RAMWR);
-		while(tuples--)
+		for(i=0; i < tuples; i++)
 			write_data3(((color >> 4) & 0xFF), (((color << 4) & 0xF0)|((color >> 8) & 0x0F)), (color & 0xFF));
 		release_bus();
 	}
@@ -243,23 +223,20 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	/**
 	 * @brief   Fill an area with a bitmap.
 	 *
-	 * @param[in] x, y			The start filled area
-	 * @param[in] cx, cy		The width and height to be filled
-	 * @param[in] srcx, srcy	The bitmap position to start the fill from
-	 * @param[in] srccx			The width of a line in the bitmap.
-	 * @param[in] buffer		The pixels to use to fill the area.
+	 * @param[in] x, y     The start filled area
+	 * @param[in] cx, cy   The width and height to be filled
+	 * @param[in] srcx, srcy   The bitmap position to start the fill from
+	 * @param[in] srccx    The width of a line in the bitmap.
+	 * @param[in] buffer   The pixels to use to fill the area.
 	 *
 	 * @notapi
 	 */
 	void gdisp_lld_blit_area_ex(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
-		coord_t		lg;
-		color_t		c1, c2;
-		unsigned	tuples;
+		coord_t endx, endy, lg;
+		color_t	c1, c2;
 		#if GDISP_PACKED_PIXELS
-			unsigned		pnum, pstart;
-			const uint8_t	*p;
-		#else
-			const pixel_t	*p;
+			coord_t pos;
+			const uint8_t *p;
 		#endif
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
@@ -271,123 +248,86 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
 
-		/* Set up the data window to transfer */
-		tuples = (cx * cy + 1)>>1;
+		/* What are our end points */
+		endx = srcx + cx;
+		endy = y + cy;
+
 		acquire_bus();
 		setviewport(x, y, cx, cy);
 		write_cmd(RAMWR);
 
-		/*
-		 * Due to the way the Nokia6610 handles a decrementing column or page,
-		 * we have to make adjustments as to where it is actually drawing from in the bitmap.
-		 * For example, for 90 degree rotation the column is decremented on each
-		 * memory write. The controller always starts with column 0 and then decrements
-		 * to column cx-1, cx-2 etc. We therefore have to write-out the last bitmap line first.
-		 */
-		switch(GDISP.Orientation) {
-		case GDISP_ROTATE_0:		x = 0;		y = 0;		break;
-		case GDISP_ROTATE_90:		x = 0;		y = cy-1;	break;
-		case GDISP_ROTATE_180:		x = cx-1;	y = cy-1;	break;
-		case GDISP_ROTATE_270:		x = cx-1;	y = 0;		break;
-		}
-
 		#if !GDISP_PACKED_PIXELS
 			// Although this controller uses packed pixels we support unpacked pixel
 			//  formats in this blit by packing the data as we feed it to the controller.
-
-			lg = srccx - cx;						// The buffer gap between lines
-			buffer += srcy * srccx + srcx;			// The buffer start position
-			p = buffer + srccx*y + x;				// Adjustment for controller craziness
-
-			while(tuples--) {
+			lg = srccx - cx;
+			buffer += srcy * srccx + srcx;
+			x = srcx;
+			while (1) {
 				/* Get a pixel */
-				c1 = *p++;
-
-				/* Check for line or buffer wrapping */
-				if (++x >= cx) {
-					x = 0;
-					p += lg;
-					if (++y >= cy) {
-						y = 0;
-						p = buffer;
+				c1 = *buffer++;
+				if (++x >= endx) {
+					if (++y >= endy) {
+						/* Odd pixel at end */
+						write_data3(0, ((c1 >> 8) & 0x0F), (c1 & 0xFF));
+						break;
 					}
+					x = srcx;
+					buffer += lg;
 				}
-
 				/* Get the next pixel */
-				c2 = *p++;
-
-				/* Check for line or buffer wrapping */
-				if (++x >= cx) {
-					x = 0;
-					p += lg;
-					if (++y >= cy) {
-						y = 0;
-						p = buffer;
-					}
-				}
-
-				/* Write the pair of pixels to the display */
+				c2 = *buffer++;
 				write_data3(((c1 >> 4) & 0xFF), (((c1 << 4) & 0xF0)|((c2 >> 8) & 0x0F)), (c2 & 0xFF));
+				if (++x >= endx) {
+					if (++y >= endy)
+						break;
+					x = srcx;
+					buffer += lg;
+				}
 			}
 
 		#else
 
 			// Although this controller uses packed pixels, we may have to feed it into
 			//  the controller with different packing to the source bitmap
-			// There are 2 pixels per 3 bytes
-
 			#if !GDISP_PACKED_LINES
 				srccx = (srccx + 1) & ~1;
 			#endif
-			pstart = srcy * srccx + srcx;												// The starting pixel number
-			buffer = (const pixel_t)(((const uint8_t *)buffer) + ((pstart>>1) * 3));	// The buffer start position
-			lg = ((srccx-cx)>>1)*3;														// The buffer gap between lines
-			pnum = pstart + srccx*y + x;												// Adjustment for controller craziness
-			p = ((const uint8_t *)buffer) + (((srccx*y + x)>>1)*3);						// Adjustment for controller craziness
+			pos = srcy*srccx;
+			lg = (srccx - cx)/2*3;
+			p = ((const uint8_t *)buffer) + ((pos+srcx)/2 * 3);
 
-			while (tuples--) {
+			x = srcx;
+			while (1) {
 				/* Get a pixel */
-				switch(pnum++ & 1) {
-				case 0:		c1 = (((color_t)p[0]) << 4)|(((color_t)p[1])>>4);				break;
-				case 1:		c1 = (((color_t)p[1]&0x0F) << 8)|((color_t)p[1]);	p += 3;		break;
+				switch((pos+x)&1) {
+				case 0:		c1 = (((color_t)p[0]) << 4)|(((color_t)p[1])>>4);	break;
+				case 1:		c1 = (((color_t)p[1]&0x0F) << 8)|((color_t)p[1]);	break;
 				}
-
-				/* Check for line or buffer wrapping */
-				if (++x >= cx) {
-					x = 0;
-					p += lg;
-					pnum += srccx - cx;
-					if (++y >= cy) {
-						y = 0;
-						p = (const uint8_t *)buffer;
-						pnum = pstart;
+				if (++x >= endx) {
+					if (++y >= endy) {
+						/* Odd pixel at end */
+						write_data3(0, ((c1 >> 8) & 0x0F), (c1 & 0xFF));
+						break;
 					}
+					x = srcx;
+					p += lg;
+					pos += srccx;
 				}
-
 				/* Get the next pixel */
-				switch(pnum++ & 1) {
-				case 0:		c1 = (((color_t)p[0]) << 4)|(((color_t)p[1])>>4);				break;
-				case 1:		c1 = (((color_t)p[1]&0x0F) << 8)|((color_t)p[1]);	p += 3;		break;
+				switch((pos+x)&1) {
+				case 0:		c2 = (((color_t)p[0]) << 4)|(((color_t)p[1])>>4);	break;
+				case 1:		c2 = (((color_t)p[1]&0x0F) << 8)|((color_t)p[1]);	break;
 				}
-
-				/* Check for line or buffer wrapping */
-				if (++x >= cx) {
-					x = 0;
-					p += lg;
-					pnum += srccx - cx;
-					if (++y >= cy) {
-						y = 0;
-						p = (const uint8_t *)buffer;
-						pnum = pstart;
-					}
-				}
-
-				/* Write the pair of pixels to the display */
 				write_data3(((c1 >> 4) & 0xFF), (((c1 << 4) & 0xF0)|((c2 >> 8) & 0x0F)), (c2 & 0xFF));
+				if (++x >= endx) {
+					if (++y >= endy)
+						break;
+					x = srcx;
+					p += lg;
+					pos += srccx;
+				}
 			}
 		#endif
-
-		/* All done */
 		release_bus();
 	}
 #endif
@@ -403,8 +343,8 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 */
 	color_t gdisp_lld_get_pixel_color(coord_t x, coord_t y) {
 		/* NOT IMPLEMENTED */
-		/* This controller does not support reading back over the SPI interface.
-		 * Additionally, the Olimex board doesn't even connect the pin.
+		/* Some board hardware might support this in the future.
+		 * The Olimex board doesn't.
 		 */
 	}
 #endif
@@ -424,11 +364,8 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 */
 	void gdisp_lld_vertical_scroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
 		/* NOT IMPLEMENTED */
-		/**
-		 * The hardware is capable of doing full width vertical scrolls aligned
-		 * on a 4 line boundary however that is not sufficient to support this routine.
-		 *
-		 * We also can't manually do read/modify scrolling because we can't read in SPI mode.
+		/* The hardware seems capable of doing this.
+		 * It is just really complex so we leave it out for now.
 		 */
 	}
 #endif
@@ -455,91 +392,68 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 */
 	void gdisp_lld_control(unsigned what, void *value) {
 		/* The hardware is capable of supporting...
-		 * 	GDISP_CONTROL_POWER				- supported
-		 * 	GDISP_CONTROL_ORIENTATION		- supported
-		 * 	GDISP_CONTROL_BACKLIGHT			- supported
+		 * 	GDISP_CONTROL_POWER				- not implemented yet
+		 * 	GDISP_CONTROL_ORIENTATION		- not implemented yet
+		 * 	GDISP_CONTROL_BACKLIGHT			- supported (the OlimexSAM7EX256 board.h currently only implements off/on although PWM is supported by the hardware)
 		 * 	GDISP_CONTROL_CONTRAST			- supported
 		 */
 		switch(what) {
+#if 0
+		// NOT IMPLEMENTED YET
 		case GDISP_CONTROL_POWER:
 			if (GDISP.Powermode == (gdisp_powermode_t)value)
 				return;
-			acquire_bus();
 			switch((gdisp_powermode_t)value) {
 				case powerOff:
-					set_backlight(0);									// Turn off the backlight
-					write_cmd(DISOFF);									// Turn off the display
-					write_cmd1(PWRCTR, 0x00);							// Power control - all off
-					write_cmd(SLPIN);									// Sleep in
-					write_cmd(OSCOFF);									// Internal oscillator off
+					// 	Code here
 					break;
 				case powerOn:
-					write_cmd(OSCON);									// Internal oscillator on
-					write_cmd(SLPOUT);									// Sleep out
-					write_cmd1(PWRCTR, 0x0F);							// Power control - reference voltage regulator on, circuit voltage follower on, BOOST ON
-					write_cmd2(VOLCTR, GDISP.Contrast, 0x03);			// Voltage control (contrast setting)
-					delayms(100);										// Allow power supply to stabilise
-					write_cmd(DISON);									// Turn on the display
-					write_cmd(PTLOUT);									// Remove sleep window
-					set_backlight(GDISP.Backlight);						// Turn on the backlight
+					// 	Code here
+					/* You may need this ---
+					 *	if (GDISP.Powermode != powerSleep)
+					 *		gdisp_lld_init();
+					 */
 					break;
 				case powerSleep:
-					write_cmd(OSCON);									// Internal oscillator on
-					write_cmd(SLPOUT);									// Sleep out
-					write_cmd1(PWRCTR, 0x0F);							// Power control - reference voltage regulator on, circuit voltage follower on, BOOST ON
-					write_cmd2(VOLCTR, GDISP.Contrast, 0x03);			// Voltage control (contrast setting)
-					delayms(100);										// Allow power supply to stabilise
-					write_cmd(DISON);									// Turn on the display
-					write_cmd2(PTLIN, GDISP_SLEEP_POS/4, (GDISP_SLEEP_POS+GDISP_SLEEP_SIZE)/4);	// Sleep Window
-					set_backlight(GDISP.Backlight);						// Turn on the backlight
-					break;
-				case powerDeepSleep:
-					write_cmd(OSCON);									// Internal oscillator on
-					write_cmd(SLPOUT);									// Sleep out
-					write_cmd1(PWRCTR, 0x0F);							// Power control - reference voltage regulator on, circuit voltage follower on, BOOST ON
-					write_cmd2(VOLCTR, GDISP.Contrast, 0x03);			// Voltage control (contrast setting)
-					delayms(100);										// Allow power supply to stabilise
-					write_cmd(DISON);									// Turn on the display
-					write_cmd2(PTLIN, GDISP_SLEEP_POS/4, (GDISP_SLEEP_POS+GDISP_SLEEP_SIZE)/4);	// Sleep Window
-					set_backlight(0);									// Turn off the backlight
+					/* 	Code here */
 					break;
 				default:
-					release_bus();
 					return;
 			}
-			release_bus();
 			GDISP.Powermode = (gdisp_powermode_t)value;
 			return;
+#endif
+#if 0
+		// NOT IMPLEMENTED YET
 		case GDISP_CONTROL_ORIENTATION:
 			if (GDISP.Orientation == (gdisp_orientation_t)value)
 				return;
-			acquire_bus();
+	//		WriteSpiData(0x48); // no mirror Y (temporary to satisfy Olimex bmptoarray utility)
+	//		WriteSpiData(0xC8); // restore to (mirror x and y, reverse rgb)
 			switch((gdisp_orientation_t)value) {
 				case GDISP_ROTATE_0:
-					write_cmd3(DATCTL, 0x00, 0x00, 0x02);	// P1: page normal, column normal, scan in column direction
+					// 	Code here
 					GDISP.Height = GDISP_SCREEN_HEIGHT;
 					GDISP.Width = GDISP_SCREEN_WIDTH;
 					break;
 				case GDISP_ROTATE_90:
-					write_cmd3(DATCTL, 0x06, 0x00, 0x02);	// P1: page normal, column reverse, scan in page direction
+					// 	Code here
 					GDISP.Height = GDISP_SCREEN_WIDTH;
 					GDISP.Width = GDISP_SCREEN_HEIGHT;
 					break;
 				case GDISP_ROTATE_180:
-					write_cmd3(DATCTL, 0x03, 0x00, 0x02);	// P1: page reverse, column reverse, scan in column direction
+					// 	Code here
 					GDISP.Height = GDISP_SCREEN_HEIGHT;
 					GDISP.Width = GDISP_SCREEN_WIDTH;
 					break;
 				case GDISP_ROTATE_270:
-					write_cmd3(DATCTL, 0x05, 0x00, 0x02);	// P1: page reverse, column normal, scan in page direction
+					// 	Code here
 					GDISP.Height = GDISP_SCREEN_WIDTH;
 					GDISP.Width = GDISP_SCREEN_HEIGHT;
 					break;
 				default:
-					release_bus();
 					return;
 			}
-			release_bus();
 			#if GDISP_NEED_CLIP || GDISP_NEED_VALIDATION
 				GDISP.clipx0 = 0;
 				GDISP.clipy0 = 0;
@@ -548,6 +462,7 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 			#endif
 			GDISP.Orientation = (gdisp_orientation_t)value;
 			return;
+#endif
 		case GDISP_CONTROL_BACKLIGHT:
 			if ((unsigned)value > 100) value = (void *)100;
 			set_backlight((unsigned)value);
