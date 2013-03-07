@@ -12,6 +12,7 @@ DEPRECATE:	Removal of the GDISP VMT
 FEATURE:	Added SSD2119 GDISP driver
 FEATRE:		Added GWIN_BUTTON_LAZY_RELEASE macro to disable cancel feature of buttons
 FIX:		Renamed every '__inline' macro to 'inline' for compiler compatibilities
+FEATURE:	Complete all standard functions in GDISP Nokia6610GE8 driver
 
 
 *** changes after 1.4 ***
