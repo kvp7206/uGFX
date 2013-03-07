@@ -109,7 +109,7 @@ void gwinDestroyWindow(GHandle gh) {
 			chHeapFree((void *)((GButtonObject *)gh)->txt);
 		}
 		geventDetachSource(&((GButtonObject *)gh)->listener, 0);
-		geventDetachSourceListeners((GSourceHandle *)gh);
+		geventDetachSourceListeners((GSourceHandle)gh);
 		break;
 #endif
 	default:
