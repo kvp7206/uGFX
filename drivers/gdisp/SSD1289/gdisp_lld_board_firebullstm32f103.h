@@ -1,5 +1,5 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012, 2013
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -44,7 +44,7 @@
  *
  * @notapi
  */
-static __inline void init_board(void) {
+static inline void init_board(void) {
 	palSetGroupMode(GPIOE, PAL_WHOLE_PORT, 0, PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOD, 12, PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode(GPIOD, 13, PAL_MODE_OUTPUT_PUSHPULL);
@@ -66,7 +66,7 @@ static __inline void init_board(void) {
  * 
  * @notapi
  */
-static __inline void setpin_reset(bool_t state) {
+static inline void setpin_reset(bool_t state) {
 	(void) state;
 	/* Nothing to do here - reset pin tied to Vcc */
 }
@@ -78,7 +78,7 @@ static __inline void setpin_reset(bool_t state) {
  * 
  * @notapi
  */
-static __inline void set_backlight(uint8_t percent) {
+static inline void set_backlight(uint8_t percent) {
 	(void) percent;
 	/* Nothing to do here - Backlight always on */
 }
@@ -88,7 +88,7 @@ static __inline void set_backlight(uint8_t percent) {
  *
  * @notapi
  */
-static __inline void acquire_bus(void) {
+static inline void acquire_bus(void) {
 	/* Nothing to do here since LCD is the only device on that bus */
 }
 
@@ -97,7 +97,7 @@ static __inline void acquire_bus(void) {
  *
  * @notapi
  */
-static __inline void release_bus(void) {
+static inline void release_bus(void) {
 	/* Nothing to do here since LCD is the only device on that bus */
 }
 
@@ -108,7 +108,7 @@ static __inline void release_bus(void) {
  *
  * @notapi
  */
-static __inline void write_index(uint16_t index) {
+static inline void write_index(uint16_t index) {
 	palWritePort(GPIOE, index);
 	CLR_RS; CLR_WR; SET_WR; SET_RS;
 }
@@ -120,7 +120,7 @@ static __inline void write_index(uint16_t index) {
  * 
  * @notapi
  */
-static __inline void write_data(uint16_t data) {
+static inline void write_data(uint16_t data) {
 	palWritePort(GPIOE, data);
 	CLR_WR; SET_WR;
 }
@@ -135,7 +135,7 @@ static __inline void write_data(uint16_t data) {
  * 
  * @notapi
  */
-static __inline uint16_t read_data(void) {
+static inline uint16_t read_data(void) {
 	uint16_t	value;
 	
 	// change pin mode to digital input

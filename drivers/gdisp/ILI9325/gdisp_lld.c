@@ -1,5 +1,5 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012, 2013
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -76,30 +76,30 @@ uint32_t DISPLAY_CODE;
 /*===========================================================================*/
 /* Driver local functions.                                                   */
 /*===========================================================================*/
-static __inline void lld_lcdDelay(uint16_t us) {
+static inline void lld_lcdDelay(uint16_t us) {
     chThdSleepMicroseconds(us);
 }
 
-static __inline void lld_lcdWriteIndex(uint16_t index) {
+static inline void lld_lcdWriteIndex(uint16_t index) {
 	gdisp_lld_write_index(index);
 }
 
-static __inline void lld_lcdWriteData(uint16_t data) {
+static inline void lld_lcdWriteData(uint16_t data) {
 	gdisp_lld_write_data(data);
 }
 
-static __inline void lld_lcdWriteReg(uint16_t lcdReg, uint16_t lcdRegValue) {
+static inline void lld_lcdWriteReg(uint16_t lcdReg, uint16_t lcdRegValue) {
 	gdisp_lld_write_index(lcdReg);
 	gdisp_lld_write_data(lcdRegValue);
 }
 
-static __inline uint16_t lld_lcdReadData(void) {
+static inline uint16_t lld_lcdReadData(void) {
 	/* fix this! */
 	//return gdisp_lld_read_data;
 	return GDISP_RAM;
 }
 
-static __inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
+static inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
     volatile uint16_t dummy;
 
     gdisp_lld_write_index(lcdReg);
@@ -109,30 +109,30 @@ static __inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
     return lld_lcdReadData();
 }
 
-static __inline void lld_lcdWriteStreamStart(void) {
+static inline void lld_lcdWriteStreamStart(void) {
 	lld_lcdWriteIndex(0x0022);
 }
 	
-static __inline void lld_lcdWriteStreamStop(void) {
+static inline void lld_lcdWriteStreamStop(void) {
 
 }
 
-static __inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
+static inline void lld_lcdWriteStream(uint16_t *buffer, uint16_t size) {
 	uint16_t i;
 
 	for(i = 0; i < size; i++)
 		lld_lcdWriteData(buffer[i]);
 }
 
-static __inline void lld_lcdReadStreamStart(void) {
+static inline void lld_lcdReadStreamStart(void) {
 	lld_lcdWriteIndex(0x0022);
 }
 
-static __inline void lld_lcdReadStreamStop(void) {
+static inline void lld_lcdReadStreamStop(void) {
 
 }
 
-static __inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
+static inline void lld_lcdReadStream(uint16_t *buffer, size_t size) {
 	uint16_t i;
 	volatile uint16_t dummy;
 
@@ -289,7 +289,7 @@ static void lld_lcdSetViewPort(uint16_t x, uint16_t y, uint16_t cx, uint16_t cy)
 	lld_lcdSetCursor(x, y);
 }
 
-static __inline void lld_lcdResetViewPort(void) { 
+static inline void lld_lcdResetViewPort(void) { 
     switch(GDISP.Orientation) {
         case GDISP_ROTATE_0:
         case GDISP_ROTATE_180:

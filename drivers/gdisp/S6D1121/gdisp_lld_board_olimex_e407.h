@@ -1,5 +1,5 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012, 2013
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -32,7 +32,7 @@
 #define GDISP_REG              (*((volatile uint16_t *) 0x60000000)) /* RS = 0 */
 #define GDISP_RAM              (*((volatile uint16_t *) 0x60020000)) /* RS = 1 */
 
-static __inline void init_board(void) {
+static inline void init_board(void) {
 	int FSMC_Bank = 0;
 
 	/* STM32F4 FSMC init */
@@ -55,36 +55,36 @@ static __inline void init_board(void) {
 	FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;	
 }
 
-static __inline void setpin_reset(bool_t state) {
+static inline void setpin_reset(bool_t state) {
 	(void)state;
 
 	/* Nothing to do here */
 }
 
-static __inline void set_backlight(uint8_t percent) {
+static inline void set_backlight(uint8_t percent) {
 	(void)percent;
 
 	/* Nothing to do here */
 }
 
-static __inline void acquire_bus(void) {
+static inline void acquire_bus(void) {
 	/* Nothing to do here */
 }
 
-static __inline void release_bus(void) {
+static inline void release_bus(void) {
 	/* Nothing to do here */
 }
 
-static __inline void write_index(uint16_t index) {
+static inline void write_index(uint16_t index) {
 	GDISP_REG = index;
 }
 
-static __inline void write_data(uint16_t data) {
+static inline void write_data(uint16_t data) {
 	GDISP_RAM = data;
 }
 
 #if GDISP_HARDWARE_READPIXEL || GDISP_HARDWARE_SCROLL || defined(__DOXYGEN__)
-static __inline uint16_t read_data(void) {
+static inline uint16_t read_data(void) {
 	return GDISP_RAM;
 }
 #endif

@@ -1,5 +1,5 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012, 2013
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -64,43 +64,43 @@
 
 
 #if defined(GDISP_USE_FSMC)
-__inline void GDISP_LLD(writeindex)(uint8_t cmd) {
+inline void GDISP_LLD(writeindex)(uint8_t cmd) {
   GDISP_REG = cmd;
 }
 
-__inline void GDISP_LLD(writereg)(uint16_t lcdReg,uint16_t lcdRegValue) {
+inline void GDISP_LLD(writereg)(uint16_t lcdReg,uint16_t lcdRegValue) {
 	GDISP_REG = lcdReg;
 	GDISP_RAM = lcdRegValue;
 }
 
-__inline void GDISP_LLD(writedata)(uint16_t data) {
+inline void GDISP_LLD(writedata)(uint16_t data) {
 	GDISP_RAM = data;
 }
 
-__inline uint16_t GDISP_LLD(readdata)(void) {
+inline uint16_t GDISP_LLD(readdata)(void) {
 	return (GDISP_RAM);
 }
 
-__inline uint8_t GDISP_LLD(readreg)(uint8_t lcdReg) {
+inline uint8_t GDISP_LLD(readreg)(uint8_t lcdReg) {
 	GDISP_REG = lcdReg;
 	return (GDISP_RAM);
 }
 
-__inline void GDISP_LLD(writestreamstart)(void) {
+inline void GDISP_LLD(writestreamstart)(void) {
 	GDISP_LLD(writeindex)(SSD1963_WRITE_MEMORY_START);
 }
 
-__inline void GDISP_LLD(readstreamstart)(void) {
+inline void GDISP_LLD(readstreamstart)(void) {
 	GDISP_LLD(writeindex)(SSD1963_READ_MEMORY_START);
 }
 
-__inline void GDISP_LLD(writestream)(uint16_t *buffer, uint16_t size) {
+inline void GDISP_LLD(writestream)(uint16_t *buffer, uint16_t size) {
 	uint16_t i;
 	for(i = 0; i < size; i++)
 		GDISP_RAM = buffer[i];
 }
 
-__inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
+inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
 	uint16_t i;
 
 	for(i = 0; i < size; i++) {
@@ -110,33 +110,33 @@ __inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
 
 #elif defined(GDISP_USE_GPIO)
 
-__inline void GDISP_LLD(writeindex)(uint8_t cmd) {
+inline void GDISP_LLD(writeindex)(uint8_t cmd) {
 	Set_CS; Set_RS; Set_WR; Clr_RD;
 	palWritePort(GDISP_DATA_PORT, cmd);
 	Clr_CS;
 }
 
-__inline void GDISP_LLD(writereg)(uint16_t lcdReg,uint16_t lcdRegValue) {
+inline void GDISP_LLD(writereg)(uint16_t lcdReg,uint16_t lcdRegValue) {
 	Set_CS; Set_RS; Set_WR; Clr_RD;
 	palWritePort(GDISP_DATA_PORT, lcdReg);
 	Clr_RS;
 	palWritePort(GDISP_DATA_PORT, lcdRegValue);
 	Clr_CS;
 }
-__inline void GDISP_LLD(writedata)(uint16_t data) {
+inline void GDISP_LLD(writedata)(uint16_t data) {
 	Set_CS; Clr_RS; Set_WR; Clr_RD;
 	palWritePort(GDISP_DATA_PORT, data);
 	Clr_CS;
 }
 
-__inline uint16_t GDISP_LLD(readdata)(void) {
+inline uint16_t GDISP_LLD(readdata)(void) {
 	Set_CS; Clr_RS; Clr_WR; Set_RD;
 	uint16_t data = palReadPort(GDISP_DATA_PORT); 
 	Clr_CS;
 	return data;
 }
 
-__inline uint8_t GDISP_LLD(readreg)(uint8_t lcdReg) {
+inline uint8_t GDISP_LLD(readreg)(uint8_t lcdReg) {
 	Set_CS; Set_RS; Clr_WR; Set_RD;
 	palWritePort(GDISP_DATA_PORT, lcdReg);
 	Clr_RS;
@@ -145,15 +145,15 @@ __inline uint8_t GDISP_LLD(readreg)(uint8_t lcdReg) {
 	return data;
 }
 
-__inline void GDISP_LLD(writestreamstart)(void) {
+inline void GDISP_LLD(writestreamstart)(void) {
 	GDISP_LLD(writeindex)(SSD1963_WRITE_MEMORY_START);
 }
 
-__inline void GDISP_LLD(readstreamstart)(void) {
+inline void GDISP_LLD(readstreamstart)(void) {
 	GDISP_LLD(writeindex)(SSD1963_READ_MEMORY_START);
 }
 
-__inline void GDISP_LLD(writestream)(uint16_t *buffer, uint16_t size) {
+inline void GDISP_LLD(writestream)(uint16_t *buffer, uint16_t size) {
 	uint16_t i;
 	Set_CS; Clr_RS; Set_WR; Clr_RD;
 	for(i = 0; i < size; i++) {
@@ -164,7 +164,7 @@ __inline void GDISP_LLD(writestream)(uint16_t *buffer, uint16_t size) {
 	Clr_CS;
 }
 
-__inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
+inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
 	uint16_t i;
 	Set_CS; Clr_RS; Clr_WR; Set_RD;
 	for(i = 0; i < size; i++) {

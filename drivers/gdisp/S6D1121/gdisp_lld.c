@@ -1,5 +1,5 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012, 2013
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -74,7 +74,7 @@
 #define delay(us)                   chThdSleepMicroseconds(us)
 #define delayms(ms)                 chThdSleepMilliseconds(ms)
 
-static __inline void set_cursor(coord_t x, coord_t y) {
+static inline void set_cursor(coord_t x, coord_t y) {
     /* R20h - 8 bit
      * R21h - 9 bit
      */
@@ -99,7 +99,7 @@ static __inline void set_cursor(coord_t x, coord_t y) {
     } 
 }
 
-static __inline void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
+static inline void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
     /* HSA / HEA are 8 bit
      * VSA / VEA are 9 bit
      * use masks 0x00FF and 0x01FF to enforce this
@@ -137,7 +137,7 @@ static __inline void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) 
     set_cursor(x, y);
 }
 
-static __inline void reset_viewport(void) {
+static inline void reset_viewport(void) {
 	switch(GDISP.Orientation) {
 		case GDISP_ROTATE_0:
 		case GDISP_ROTATE_180:

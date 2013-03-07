@@ -1,5 +1,5 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012, 2013
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -42,7 +42,7 @@
  *
  * @notapi
  */
-static __inline void init_board(void) {
+static inline void init_board(void) {
 	const unsigned char FSMC_Bank;
 	
 	#if defined(STM32F1XX) || defined(STM32F3XX)
@@ -94,7 +94,7 @@ static __inline void init_board(void) {
  * 
  * @notapi
  */
-static __inline void setpin_reset(bool_t state) {
+static inline void setpin_reset(bool_t state) {
 	(void) state;
 	/* Nothing to do here */
 }
@@ -106,7 +106,7 @@ static __inline void setpin_reset(bool_t state) {
  * 
  * @notapi
  */
-static __inline void set_backlight(uint8_t percent) {
+static inline void set_backlight(uint8_t percent) {
 	(void) percent;
 	/* Nothing to do here */
 }
@@ -116,7 +116,7 @@ static __inline void set_backlight(uint8_t percent) {
  *
  * @notapi
  */
-static __inline void acquire_bus(void) {
+static inline void acquire_bus(void) {
 	/* Nothing to do here */
 }
 
@@ -125,7 +125,7 @@ static __inline void acquire_bus(void) {
  *
  * @notapi
  */
-static __inline void release_bus(void) {
+static inline void release_bus(void) {
 	/* Nothing to do here */
 }
 
@@ -136,7 +136,7 @@ static __inline void release_bus(void) {
  *
  * @notapi
  */
-static __inline void write_index(uint16_t index) { GDISP_REG = index; }
+static inline void write_index(uint16_t index) { GDISP_REG = index; }
 
 /**
  * @brief   Send data to the lcd.
@@ -145,7 +145,7 @@ static __inline void write_index(uint16_t index) { GDISP_REG = index; }
  * 
  * @notapi
  */
-static __inline void write_data(uint16_t data) { GDISP_RAM = data; }
+static inline void write_data(uint16_t data) { GDISP_RAM = data; }
 
 #if GDISP_HARDWARE_READPIXEL || GDISP_HARDWARE_SCROLL || defined(__DOXYGEN__)
 /**
@@ -157,7 +157,7 @@ static __inline void write_data(uint16_t data) { GDISP_RAM = data; }
  * 
  * @notapi
  */
-static __inline uint16_t read_data(void) { return GDISP_RAM; }
+static inline uint16_t read_data(void) { return GDISP_RAM; }
 #endif
 
 #endif /* _GDISP_LLD_BOARD_H */

@@ -1,5 +1,5 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012, 2013
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -88,7 +88,7 @@ static struct MouseConfig_t {
 	} MouseConfig;
 
 #if GINPUT_MOUSE_NEED_CALIBRATION
-	static __inline void _tsDrawCross(const MousePoint *pp) {
+	static inline void _tsDrawCross(const MousePoint *pp) {
 		gdispDrawLine(pp->x-15, pp->y, pp->x-2, pp->y, White);
 		gdispDrawLine(pp->x+2, pp->y, pp->x+15, pp->y, White);
 		gdispDrawLine(pp->x, pp->y-15, pp->x, pp->y-2, White);
@@ -107,16 +107,16 @@ static struct MouseConfig_t {
 		gdispDrawLine(pp->x+15, pp->y-15, pp->x+15, pp->y-7, RGB2COLOR(184,158,131));
 	}
 
-	static __inline void _tsClearCross(const MousePoint *pp) {
+	static inline void _tsClearCross(const MousePoint *pp) {
 		gdispFillArea(pp->x - 15, pp->y - 15, 42, 42, Blue);
 	}
 
-	static __inline void _tsTransform(MouseReading *pt, const Calibration *c) {
+	static inline void _tsTransform(MouseReading *pt, const Calibration *c) {
 		pt->x = (coord_t) (c->ax * pt->x + c->bx * pt->y + c->cx);
 		pt->y = (coord_t) (c->ay * pt->x + c->by * pt->y + c->cy);
 	}
 
-	static __inline void _tsDo3PointCalibration(const MousePoint *cross, const MousePoint *points, Calibration *c) {
+	static inline void _tsDo3PointCalibration(const MousePoint *cross, const MousePoint *points, Calibration *c) {
 		float dx, dx0, dx1, dx2, dy0, dy1, dy2;
 
 		/* Compute all the required determinants */

@@ -1,5 +1,5 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012, 2013
+    ChibiOS/GFX - Copyright (C) 2012, 2013, 2013
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -99,7 +99,7 @@ static struct lsdev {
 static struct lsdev *curlsdev;
 
 /* Find the next conversion to activate */
-static __inline void FindNextConversionI(void) {
+static inline void FindNextConversionI(void) {
 	if (curlsdev) {
 		/**
 		 * Now we have done a low speed conversion - start looking for the next conversion
@@ -251,14 +251,14 @@ void GADC_ISR_ErrorI(ADCDriver *adcp, adcerror_t err) {
 	FindNextConversionI();
 }
 
-static __inline void DoInit(void) {
+static inline void DoInit(void) {
 	if (!(gflags & GADC_GFLG_INITDONE)) {
 		gflags |= GADC_GFLG_INITDONE;
 		gadc_lld_init();
 	}
 }
 
-static __inline void StartADC(bool_t onNoHS) {
+static inline void StartADC(bool_t onNoHS) {
 	chSysLock();
 	if (!(gflags & GADC_GFLG_ISACTIVE) || (onNoHS && !curlsdev))
 		FindNextConversionI();

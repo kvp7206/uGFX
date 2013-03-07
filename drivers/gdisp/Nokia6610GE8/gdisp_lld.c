@@ -1,5 +1,5 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012, 2013
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -88,7 +88,7 @@
 
 // A very common thing to do.
 // An inline function has been used here incase the parameters have side effects with the internal calculations.
-static __inline void setviewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
+static inline void setviewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
 	write_cmd2(CASET, x, x+cx-1);			// Column address set
 	write_cmd2(PASET, y, y+cy-1);			// Page address set
 }

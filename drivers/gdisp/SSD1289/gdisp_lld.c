@@ -1,5 +1,5 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012, 2013
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -70,7 +70,7 @@
 #define delay(us)					chThdSleepMicroseconds(us)
 #define delayms(ms)					chThdSleepMilliseconds(ms)
 
-static __inline void set_cursor(coord_t x, coord_t y) {
+static inline void set_cursor(coord_t x, coord_t y) {
 	/* Reg 0x004E is an 8 bit value
 	 * Reg 0x004F is 9 bit
 	 * Use a bit mask to make sure they are not set too high
@@ -134,7 +134,7 @@ static void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
 	set_cursor(x, y);
 }
 
-static __inline void reset_viewport(void) {
+static inline void reset_viewport(void) {
 	set_viewport(0, 0, GDISP.Width, GDISP.Height);
 }
 

@@ -1,5 +1,5 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012, 2013
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -34,7 +34,7 @@
  *
  * @notapi
  */
-static __inline void init_board(void) {
+static inline void init_board(void) {
 	/* Code here */
 #error "SSD1289: You must supply a definition for init_board for your board"
 }
@@ -46,7 +46,7 @@ static __inline void init_board(void) {
  * 
  * @notapi
  */
-static __inline void setpin_reset(bool_t state) {
+static inline void setpin_reset(bool_t state) {
 	/* Code here */
 #error "SSD1289: You must supply a definition for setpin_reset for your board"
 }
@@ -58,7 +58,7 @@ static __inline void setpin_reset(bool_t state) {
  * 
  * @notapi
  */
-static __inline void set_backlight(uint8_t percent) {
+static inline void set_backlight(uint8_t percent) {
 	/* Code here */
 #error "SSD1289: You must supply a definition for set_backlight for your board"
 }
@@ -68,7 +68,7 @@ static __inline void set_backlight(uint8_t percent) {
  *
  * @notapi
  */
-static __inline void acquire_bus(void) {
+static inline void acquire_bus(void) {
 #error "SSD1289: You must supply a definition for acquire_bus for your board"
 }
 
@@ -77,7 +77,7 @@ static __inline void acquire_bus(void) {
  *
  * @notapi
  */
-static __inline void release_bus(void) {
+static inline void release_bus(void) {
 #error "SSD1289: You must supply a definition for release_bus for your board"
 }
 
@@ -88,7 +88,7 @@ static __inline void release_bus(void) {
  *
  * @notapi
  */
-static __inline void write_index(uint16_t index) {
+static inline void write_index(uint16_t index) {
 	/* Code here */
 #error "SSD1289: You must supply a definition for write_index for your board"
 }
@@ -100,7 +100,7 @@ static __inline void write_index(uint16_t index) {
  * 
  * @notapi
  */
-static __inline void write_data(uint16_t data) {
+static inline void write_data(uint16_t data) {
 	/* Code here */
 #error "SSD1289: You must supply a definition for write_data for your board"
 }
@@ -115,7 +115,7 @@ static __inline void write_data(uint16_t data) {
  * 
  * @notapi
  */
-static __inline uint16_t read_data(void) {
+static inline uint16_t read_data(void) {
 	/* Code here */
 #error "SSD1289: You must supply a definition for read_data for your board"
 }

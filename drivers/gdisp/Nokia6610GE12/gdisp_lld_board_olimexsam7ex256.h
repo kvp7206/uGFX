@@ -1,5 +1,5 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012, 2013
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -48,7 +48,7 @@ volatile AT91PS_PDC pPDC = AT91C_BASE_PDC_SPI0;
  *
  * @notapi
  */
-static __inline void init_board(void) {
+static inline void init_board(void) {
 	// *********************************************************************************************
 	// InitSpi( )
 	//
@@ -108,7 +108,7 @@ static __inline void init_board(void) {
  * 
  * @notapi
  */
-static __inline void setpin_reset(bool_t state) {
+static inline void setpin_reset(bool_t state) {
 	if (state)
 		palClearPad(IOPORT1, PIOA_LCD_RESET);
 	else
@@ -125,7 +125,7 @@ static __inline void setpin_reset(bool_t state) {
  * 
  * @notapi
  */
-static __inline void set_backlight(uint8_t percent) {
+static inline void set_backlight(uint8_t percent) {
 	if (percent)
 		palSetPad(IOPORT2, PIOB_LCD_BL);
 	else
@@ -137,7 +137,7 @@ static __inline void set_backlight(uint8_t percent) {
  *
  * @notapi
  */
-static __inline void acquire_bus(void) {
+static inline void acquire_bus(void) {
 	/* Nothing to do for this board as the LCD is the only device on the SPI port */
 }
 
@@ -146,7 +146,7 @@ static __inline void acquire_bus(void) {
  *
  * @notapi
  */
-static __inline void release_bus(void) {
+static inline void release_bus(void) {
 	// Nothing to do for this board as the LCD is the only device on the SPI port
 }
 
@@ -157,7 +157,7 @@ static __inline void release_bus(void) {
  *
  * @notapi
  */
-static __inline void write_cmd(uint16_t cmd) {
+static inline void write_cmd(uint16_t cmd) {
 	// wait for the previous transfer to complete
 	while((pSPI->SPI_SR & AT91C_SPI_TXEMPTY) == 0);
 	// send the command
@@ -171,7 +171,7 @@ static __inline void write_cmd(uint16_t cmd) {
  * 
  * @notapi
  */
-static __inline void write_data(uint16_t data) {
+static inline void write_data(uint16_t data) {
 	// wait for the previous transfer to complete
 	while((pSPI->SPI_SR & AT91C_SPI_TXEMPTY) == 0);
 	// send the data
@@ -186,7 +186,7 @@ static __inline void write_data(uint16_t data) {
  * 
  * @notapi
  */
-static __inline uint16_t read_data(void) {
+static inline uint16_t read_data(void) {
 	#error "gdispNokia6610GE12: GDISP_HARDWARE_READPIXEL and GDISP_HARDWARE_SCROLL are not supported on this board"
 	return 0;
 }

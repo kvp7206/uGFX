@@ -1,5 +1,5 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012
+    ChibiOS/GFX - Copyright (C) 2012, 2013
                  Joel Bodenmann aka Tectu <joel@unormal.org>
 
     This file is part of ChibiOS/GFX.
@@ -36,7 +36,7 @@
  *
  * @notapi
  */
-static __inline void init_board(void) {
+static inline void init_board(void) {
 	/* Code here */
 	#error "ginputMCU: You must supply a definition for init_board for your board"
 }
@@ -47,7 +47,7 @@ static __inline void init_board(void) {
  *
  * @notapi
  */
-static __inline bool_t getpin_pressed(void) {
+static inline bool_t getpin_pressed(void) {
 	/* Code here */
 	#error "ginputMCU: You must supply a definition for getpin_pressed for your board"
 }
@@ -57,7 +57,7 @@ static __inline bool_t getpin_pressed(void) {
  *
  * @notapi
  */
-static __inline void aquire_bus(void) {
+static inline void aquire_bus(void) {
 	/* Code here */
 	#error "ginputMCU: You must supply a definition for aquire_bus for your board"
 }
@@ -67,7 +67,7 @@ static __inline void aquire_bus(void) {
  *
  * @notapi
  */
-static __inline void release_bus(void) {
+static inline void release_bus(void) {
 	/* Code here */
 	#error "ginputMCU: You must supply a definition for release_bus for your board"
 }
@@ -78,7 +78,7 @@ static __inline void release_bus(void) {
  *
  * @notapi
  */
-static __inline uint16_t read_x_value(void) {
+static inline uint16_t read_x_value(void) {
 	/* Code here */
 	#error "ginputMCU: You must supply a definition for read_x_value for your board"
 }
@@ -89,7 +89,7 @@ static __inline uint16_t read_x_value(void) {
  *
  * @notapi
  */
-static __inline uint16_t read_y_value(void) {
+static inline uint16_t read_y_value(void) {
 	/* Code here */
 	#error "ginputMCU: You must supply a definition for read_y_value for your board"
 }
