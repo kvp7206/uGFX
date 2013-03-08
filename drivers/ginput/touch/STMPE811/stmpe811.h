@@ -20,7 +20,7 @@
 
 /**
  * @file    drivers/ginput/touch/STMPE811/stmpe811.h
- * @brief   GINPUT Input Driver support header for the STMPE811 touch controller.
+ * @brief   Register definition header for the STMPE811 touch controller.
  *
  * @addtogroup GINPUT
  * @{
@@ -98,3 +98,4 @@
 
 #endif /* _STMPE811_H */
 /** @} */
+
