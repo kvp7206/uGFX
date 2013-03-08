@@ -42,7 +42,9 @@ static const I2CConfig i2ccfg2 = {
  * @notapi
  */
 static inline void init_board(void) {
-	palSetPadMode(GPIOC, 13, PAL_MODE_INPUT);
+	palSetPadMode(GPIOC, 13, PAL_MODE_INPUT);			/* TP IRQ */
+	palSetPadMode(GPIOB, 10, PAL_MODE_ALTERNATE(4));	/* I2C2 SCL */
+	palSetPadMode(GPIOB, 11, PAL_MODE_ALTERNATE(4));	/* I2C2 SDA */
 
 	i2cStart(&I2CD2, &i2ccfg2);
 }
