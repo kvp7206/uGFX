@@ -31,12 +31,19 @@
 #include "hal.h"
 #include "gfx.h"
 
+#include "stmpe811.h"
+
 #if (GFX_USE_GINPUT && GINPUT_NEED_MOUSE) /*|| defined(__DOXYGEN__)*/
 
 #include "ginput/lld/mouse.h"
 
-//#include "ginput_lld_mouse_board_example.h"
-#include "ginput_lld_mouse_board_embest_lcd.h"
+#if defined(GINPUT_MOUSE_USE_CUSTOM_BOARD) && GINPUT_MOUSE_USE_CUSTOM_BOARD
+	#include "ginput_lld_mouse_board.h"
+#elif defined(BOARD_EMBEST_DMSTF4BB)
+	#include "ginput_lld_mouse_board_embest_dmstf4bb.h"
+#else
+	#include "ginput_lld_mouse_board_example.h"
+#endif
 
 static uint16_t sampleBuf[7];
 static coord_t	lastx, lasty;
@@ -135,4 +142,3 @@ void ginput_lld_mouse_get_reading(MouseReading *pt) {
 
 #endif /* GFX_USE_GINPUT && GINPUT_NEED_MOUSE */
 /** @} */
-

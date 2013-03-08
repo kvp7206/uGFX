@@ -19,8 +19,8 @@
 */
 
 /**
- * @file    drivers/ginput/touch/STMPE811/ginput_lld_mouse_board_example.h
- * @brief   GINPUT Touch low level driver source for the STMPE811 on the example board.
+ * @file    drivers/ginput/touch/STMPE811/ginput_lld_mouse_board_embest_dmstf4bb.h
+ * @brief   GINPUT Touch low level driver source for the STMPE811 on the Embest DM-STF4BB board.
  *
  * @defgroup Mouse Mouse
  * @ingroup GINPUT
@@ -89,4 +89,3 @@ static inline uint16_t read_value(uint16_t port) {
 
 #endif /* _GINPUT_LLD_MOUSE_BOARD_H */
 /** @} */
-
