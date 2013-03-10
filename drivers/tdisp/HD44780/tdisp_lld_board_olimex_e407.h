@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    drivers/tdisp/HD44780/tdisp_lld_board_unknown.h
+ * @file    drivers/tdisp/HD44780/tdisp_lld_board_olimex_e407.h
  * @brief   TDISP driver subsystem board interface for the HD44780 display
  *
  * @addtogroup TDISP

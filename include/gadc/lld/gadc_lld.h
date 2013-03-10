@@ -103,11 +103,12 @@ void gadc_lld_init(void);
  * @brief				Get the number of samples in a conversion.
  * @details				Calculates and returns the number of samples per conversion for the specified physdev.
  *
- * @param[in] physdev		A value passed to describe which physical ADC devices/channels to use.
- *
  * @note				A physdev describing a mono device would return 1, a stereo device would return 2.
  * 						For most ADC's physdev is a bitmap so it is only a matter of counting the bits.
  *
+ * @param[in] physdev	A value passed to describe which physical ADC devices/channels to use.
+ *
+ * @return				Number of samples of the convesion
  * @api
  */
 size_t gadc_lld_samples_per_conversion(uint32_t physdev);
