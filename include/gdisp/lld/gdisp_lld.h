@@ -32,6 +32,73 @@
 #if GFX_USE_GDISP || defined(__DOXYGEN__)
 
 /*===========================================================================*/
+/* Low level driver configuration needs					                     */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Include the low level driver configuration information                    */
+/*===========================================================================*/
+
+#include "gdisp_lld_config.h"
+
+/*===========================================================================*/
+/* Constants.                                                                */
+/*===========================================================================*/
+
+/**
+ * @brief   Driver Control Constants
+ * @details	Unsupported control codes are ignored.
+ * @note	The value parameter should always be typecast to (void *).
+ * @note	There are some predefined and some specific to the low level driver.
+ * @note	GDISP_CONTROL_POWER			- Takes a gdisp_powermode_t
+ * 			GDISP_CONTROL_ORIENTATION	- Takes a gdisp_orientation_t
+ * 			GDISP_CONTROL_BACKLIGHT -	 Takes an int from 0 to 100. For a driver
+ * 											that only supports off/on anything other
+ * 											than zero is on.
+ * 			GDISP_CONTROL_CONTRAST		- Takes an int from 0 to 100.
+ * 			GDISP_CONTROL_LLD			- Low level driver control constants start at
+ * 											this value.
+ */
+#define GDISP_CONTROL_POWER			0
+#define GDISP_CONTROL_ORIENTATION	1
+#define GDISP_CONTROL_BACKLIGHT		2
+#define GDISP_CONTROL_CONTRAST		3
+#define GDISP_CONTROL_LLD			1000
+
+/**
+ * @brief   Driver Query Constants
+ * @details	Unsupported query codes return (void *)-1.
+ * @note	There are some predefined and some specific to the low level driver.
+ * @note	The result should be typecast the required type.
+ * @note	GDISP_QUERY_WIDTH			- Gets the width of the screen
+ * 			GDISP_QUERY_HEIGHT			- Gets the height of the screen
+ * 			GDISP_QUERY_POWER			- Get the current powermode
+ * 			GDISP_QUERY_ORIENTATION		- Get the current orientation
+ * 			GDISP_QUERY_BACKLIGHT		- Get the backlight state (0 to 100)
+ * 			GDISP_QUERY_CONTRAST		- Get the contrast.
+ * 			GDISP_QUERY_LLD				- Low level driver control constants start at
+ * 											this value.
+ */
+#define GDISP_QUERY_WIDTH			0
+#define GDISP_QUERY_HEIGHT			1
+#define GDISP_QUERY_POWER			2
+#define GDISP_QUERY_ORIENTATION		3
+#define GDISP_QUERY_BACKLIGHT		4
+#define GDISP_QUERY_CONTRAST		5
+#define GDISP_QUERY_LLD				1000
+
+/**
+ * @brief   Driver Pixel Format Constants
+ */
+#define GDISP_PIXELFORMAT_RGB565	565
+#define GDISP_PIXELFORMAT_RGB888	888
+#define GDISP_PIXELFORMAT_RGB444	444
+#define GDISP_PIXELFORMAT_RGB332	332
+#define GDISP_PIXELFORMAT_RGB666	666
+#define GDISP_PIXELFORMAT_CUSTOM	99999
+#define GDISP_PIXELFORMAT_ERROR		88888
+
+/*===========================================================================*/
 /* Error checks.                                                             */
 /*===========================================================================*/
 
@@ -254,6 +321,140 @@
 /** @} */
 
 /*===========================================================================*/
+/* Define the macro's for the various pixel formats */
+/*===========================================================================*/
+
+#if defined(__DOXYGEN__)
+	/**
+	 * @brief   The color of a pixel.
+	 */
+	typedef uint16_t color_t;
+	/**
+	 * @brief   Convert a number (of any type) to a color_t.
+	 * @details Masks any invalid bits in the color
+	 */
+	#define COLOR(c)			((color_t)(c))
+	/**
+	 * @brief   Does the color_t type contain invalid bits that need masking.
+	 */
+	#define MASKCOLOR			FALSE
+	/**
+	 * @brief   Convert red, green, blue (each 0 to 255) into a color value.
+	 */
+	#define RGB2COLOR(r,g,b)	((color_t)((((r) & 0xF8)<<8) | (((g) & 0xFC)<<3) | (((b) & 0xF8)>>3)))
+	/**
+	 * @brief   Convert a 6 digit HTML code (hex) into a color value.
+	 */
+	#define HTML2COLOR(h)		((color_t)((((h) & 0xF80000)>>8) | (((h) & 0x00FC00)>>5) | (((h) & 0x0000F8)>>3)))
+	/**
+	 * @brief   Extract the red component (0 to 255) of a color value.
+	 */
+	#define RED_OF(c)			(((c) & 0xF800)>>8)
+	/**
+	 * @brief   Extract the green component (0 to 255) of a color value.
+	 */
+	#define GREEN_OF(c)			(((c)&0x007E)>>3)
+	/**
+	 * @brief   Extract the blue component (0 to 255) of a color value.
+	 */
+	#define BLUE_OF(c)			(((c)&0x001F)<<3)
+
+#elif GDISP_PIXELFORMAT == GDISP_PIXELFORMAT_RGB565
+	typedef uint16_t color_t;
+	#define COLOR(c)			((color_t)(c))
+	#define MASKCOLOR			FALSE
+	#define RGB2COLOR(r,g,b)	((color_t)((((r) & 0xF8)<<8) | (((g) & 0xFC)<<3) | (((b) & 0xF8)>>3)))
+	#define HTML2COLOR(h)		((color_t)((((h) & 0xF80000)>>8) | (((h) & 0x00FC00)>>5) | (((h) & 0x0000F8)>>3)))
+	#define RED_OF(c)			(((c) & 0xF800)>>8)
+	#define GREEN_OF(c)			(((c)&0x07E0)>>3)
+	#define BLUE_OF(c)			(((c)&0x001F)<<3)
+
+#elif GDISP_PIXELFORMAT == GDISP_PIXELFORMAT_RGB888
+	typedef uint32_t color_t;
+	#define COLOR(c)			((color_t)(((c) & 0xFFFFFF)))
+	#define MASKCOLOR			TRUE
+	#define RGB2COLOR(r,g,b)	((color_t)((((r) & 0xFF)<<16) | (((g) & 0xFF) << 8) | ((b) & 0xFF)))
+	#define HTML2COLOR(h)		((color_t)(h))
+	#define RED_OF(c)			(((c) & 0xFF0000)>>16)
+	#define GREEN_OF(c)			(((c)&0x00FF00)>>8)
+	#define BLUE_OF(c)			((c)&0x0000FF)
+
+#elif GDISP_PIXELFORMAT == GDISP_PIXELFORMAT_RGB444
+	typedef uint16_t color_t;
+	#define COLOR(c)			((color_t)(((c) & 0x0FFF)))
+	#define MASKCOLOR			TRUE
+	#define RGB2COLOR(r,g,b)	((color_t)((((r) & 0xF0)<<4) | ((g) & 0xF0) | (((b) & 0xF0)>>4)))
+	#define HTML2COLOR(h)		((color_t)((((h) & 0xF00000)>>12) | (((h) & 0x00F000)>>8) | (((h) & 0x0000F0)>>4)))
+	#define RED_OF(c)			(((c) & 0x0F00)>>4)
+	#define GREEN_OF(c)			((c)&0x00F0)
+	#define BLUE_OF(c)			(((c)&0x000F)<<4)
+
+#elif GDISP_PIXELFORMAT == GDISP_PIXELFORMAT_RGB332
+	typedef uint8_t color_t;
+	#define COLOR(c)			((color_t)(c))
+	#define MASKCOLOR			FALSE
+	#define RGB2COLOR(r,g,b)	((color_t)(((r) & 0xE0) | (((g) & 0xE0)>>3) | (((b) & 0xC0)>>6)))
+	#define HTML2COLOR(h)		((color_t)((((h) & 0xE00000)>>16) | (((h) & 0x00E000)>>11) | (((h) & 0x0000C0)>>6)))
+	#define RED_OF(c)			((c) & 0xE0)
+	#define GREEN_OF(c)			(((c)&0x1C)<<3)
+	#define BLUE_OF(c)			(((c)&0x03)<<6)
+
+#elif GDISP_PIXELFORMAT == GDISP_PIXELFORMAT_RGB666
+	typedef uint32_t color_t;
+	#define COLOR(c)			((color_t)(((c) & 0x03FFFF)))
+	#define MASKCOLOR			TRUE
+	#define RGB2COLOR(r,g,b)	((color_t)((((r) & 0xFC)<<10) | (((g) & 0xFC)<<4) | (((b) & 0xFC)>>2)))
+	#define HTML2COLOR(h)		((color_t)((((h) & 0xFC0000)>>6) | (((h) & 0x00FC00)>>4) | (((h) & 0x0000FC)>>2)))
+	#define RED_OF(c)			(((c) & 0x03F000)>>12)
+	#define GREEN_OF(c)			(((c)&0x00FC00)>>8)
+	#define BLUE_OF(c)			(((c)&0x00003F)<<2)
+
+#elif GDISP_PIXELFORMAT != GDISP_PIXELFORMAT_CUSTOM
+	#error "GDISP: No supported pixel format has been specified."
+#endif
+
+/* Verify information for packed pixels and define a non-packed pixel macro */
+#if !GDISP_PACKED_PIXELS
+	#define gdispPackPixels(buf,cx,x,y,c)	{ ((color_t *)(buf))[(y)*(cx)+(x)] = (c); }
+#elif !GDISP_HARDWARE_BITFILLS
+	#error "GDISP: packed pixel formats are only supported for hardware accelerated drivers."
+#elif GDISP_PIXELFORMAT != GDISP_PIXELFORMAT_RGB888 \
+		&& GDISP_PIXELFORMAT != GDISP_PIXELFORMAT_RGB444 \
+		&& GDISP_PIXELFORMAT != GDISP_PIXELFORMAT_RGB666 \
+		&& GDISP_PIXELFORMAT != GDISP_PIXELFORMAT_CUSTOM
+	#error "GDISP: A packed pixel format has been specified for an unsupported pixel format."
+#endif
+
+#if GDISP_NEED_SCROLL && !GDISP_HARDWARE_SCROLL
+	#error "GDISP: Hardware scrolling is wanted but not supported."
+#endif
+
+#if GDISP_NEED_PIXELREAD && !GDISP_HARDWARE_PIXELREAD
+	#error "GDISP: Pixel read-back is wanted but not supported."
+#endif
+
+/*===========================================================================*/
+/* Driver types.                                                             */
+/*===========================================================================*/
+
+/**
+ * @brief   The type of a pixel.
+ */
+typedef color_t		pixel_t;
+/**
+ * @brief   The type of a font.
+ */
+typedef const struct font *font_t;
+/**
+ * @brief   Type for the screen orientation.
+ */
+typedef enum orientation {GDISP_ROTATE_0, GDISP_ROTATE_90, GDISP_ROTATE_180, GDISP_ROTATE_270} gdisp_orientation_t;
+/**
+ * @brief   Type for the available power modes for the screen.
+ */
+typedef enum powermode {powerOff, powerSleep, powerDeepSleep, powerOn} gdisp_powermode_t;
+
+/*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
 
@@ -314,9 +515,7 @@ extern "C" {
 	#endif
 
 	/* Query driver specific data */
-	#if GDISP_NEED_QUERY
 	extern void *gdisp_lld_query(unsigned what);
-	#endif
 
 	/* Clipping Functions */
 	#if GDISP_NEED_CLIP

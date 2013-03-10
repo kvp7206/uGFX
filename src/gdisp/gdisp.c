@@ -29,14 +29,11 @@
 #include "hal.h"
 #include "gfx.h"
 
-#if GFX_USE_GDISP
+#if GFX_USE_GDISP || defined(__DOXYGEN__)
 
 #ifdef GDISP_NEED_TEXT
 	#include "gdisp/fonts.h"
 #endif
-
-/* Include the low level driver information */
-#include "gdisp/lld/gdisp_lld.h"
 
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
@@ -138,7 +135,16 @@
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
-#if GDISP_NEED_MULTITHREAD
+#if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
+	/**
+	 * @brief   GDISP Driver initialization.
+	 * @note    This function is NOT currently implicitly invoked by @p halInit().
+	 *			It must be called manually.
+	 *
+	 * @return	True if succeeded, False otherwise
+	 *
+	 * @init
+	 */
 	bool_t gdispInit(void) {
 		bool_t	res;
 
@@ -181,7 +187,16 @@
 	}
 #endif
 
-#if GDISP_NEED_MULTITHREAD
+#if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
+	/**
+	 * @brief   Test if the GDISP engine is currently drawing.
+	 * @note    This function will always return FALSE if
+	 * 			GDISP_NEED_ASYNC is not defined.
+	 *
+	 * @return	TRUE if gdisp is busy, FALSE otherwise
+	 *
+	 * @init
+	 */
 	bool_t gdispIsBusy(void) {
 		return FALSE;
 	}
@@ -191,7 +206,14 @@
 	}
 #endif
 
-#if GDISP_NEED_MULTITHREAD
+#if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
+	/**
+	 * @brief   Clear the display to the specified color.
+	 *
+	 * @param[in] color The color to use when clearing the screen
+	 *
+	 * @api
+	 */
 	void gdispClear(color_t color) {
 		chMtxLock(&gdispMutex);
 		gdisp_lld_clear(color);
@@ -205,7 +227,15 @@
 	}
 #endif
 
-#if GDISP_NEED_MULTITHREAD
+#if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
+	/**
+	 * @brief   Set a pixel in the specified color.
+	 *
+	 * @param[in] x,y   The position to set the pixel.
+	 * @param[in] color The color to use
+	 *
+	 * @api
+	 */
 	void gdispDrawPixel(coord_t x, coord_t y, color_t color) {
 		chMtxLock(&gdispMutex);
 		gdisp_lld_draw_pixel(x, y, color);
@@ -221,7 +251,16 @@
 	}
 #endif
 	
-#if GDISP_NEED_MULTITHREAD
+#if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
+	/**
+	 * @brief   Draw a line.
+	 *
+	 * @param[in] x0,y0		The start position
+	 * @param[in] x1,y1 	The end position
+	 * @param[in] color		The color to use
+	 *
+	 * @api
+	 */
 	void gdispDrawLine(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
 		chMtxLock(&gdispMutex);
 		gdisp_lld_draw_line(x0, y0, x1, y1, color);
@@ -239,7 +278,16 @@
 	}
 #endif
 
-#if GDISP_NEED_MULTITHREAD
+#if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
+	/**
+	 * @brief   Fill an area with a color.
+	 *
+	 * @param[in] x,y   The start position
+	 * @param[in] cx,cy   The size of the box (outside dimensions)
+	 * @param[in] color   The color to use
+	 *
+	 * @api
+	 */
 	void gdispFillArea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		chMtxLock(&gdispMutex);
 		gdisp_lld_fill_area(x, y, cx, cy, color);
@@ -257,7 +305,25 @@
 	}
 #endif
 	
-#if GDISP_NEED_MULTITHREAD
+#if GDISP_NEED_MULTITHREAD || defined(__DOXYGEN__)
+	/**
+	 * @brief   Fill an area using the supplied bitmap.
+	 * @details The bitmap is in the pixel format specified by the low level driver
+	 * @note	If a packed pixel format is used and the width doesn't
+	 *			match a whole number of bytes, the next line will start on a
+	 *			non-byte boundary (no end-of-line padding).
+	 * @note	If GDISP_NEED_ASYNC is defined then the buffer must be static
+	 * 			or at least retained until this call has finished the blit. You can
+	 * 			tell when all graphics drawing is finished by @p gdispIsBusy() going FALSE.
+	 *
+	 * @param[in] x,y		The start position
+	 * @param[in] cx,cy		The size of the filled area
+	 * @param[in] srcx,srcy The bitmap position to start the fill form	
+	 * @param[in] srccx		The width of a line in the bitmap
+	 * @param[in] buffer	The bitmap in the driver's pixel format
+	 *
+	 * @api
+	 */
 	void gdispBlitAreaEx(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
 		chMtxLock(&gdispMutex);
 		gdisp_lld_blit_area_ex(x, y, cx, cy, srcx, srcy, srccx, buffer);
@@ -278,7 +344,15 @@
 	}
 #endif
 	
-#if (GDISP_NEED_CLIP && GDISP_NEED_MULTITHREAD)
+#if (GDISP_NEED_CLIP && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Clip all drawing to the defined area.
+	 *
+	 * @param[in] x,y     The start position
+	 * @param[in] cx,cy   The size of the clip area
+	 *
+	 * @api
+	 */
 	void gdispSetClip(coord_t x, coord_t y, coord_t cx, coord_t cy) {
 		chMtxLock(&gdispMutex);
 		gdisp_lld_set_clip(x, y, cx, cy);
@@ -295,7 +369,16 @@
 	}
 #endif
 
-#if (GDISP_NEED_CIRCLE && GDISP_NEED_MULTITHREAD)
+#if (GDISP_NEED_CIRCLE && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Draw a circle.
+	 *
+	 * @param[in] x,y   The center of the circle
+	 * @param[in] radius  The radius of the circle
+	 * @param[in] color   The color to use
+	 *
+	 * @api
+	 */
 	void gdispDrawCircle(coord_t x, coord_t y, coord_t radius, color_t color) {
 		chMtxLock(&gdispMutex);
 		gdisp_lld_draw_circle(x, y, radius, color);
@@ -312,7 +395,16 @@
 	}
 #endif
 	
-#if (GDISP_NEED_CIRCLE && GDISP_NEED_MULTITHREAD)
+#if (GDISP_NEED_CIRCLE && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Draw a filled circle.
+	 *
+	 * @param[in] x,y   The center of the circle
+	 * @param[in] radius  The radius of the circle
+	 * @param[in] color   The color to use
+	 *
+	 * @api
+	 */
 	void gdispFillCircle(coord_t x, coord_t y, coord_t radius, color_t color) {
 		chMtxLock(&gdispMutex);
 		gdisp_lld_fill_circle(x, y, radius, color);
@@ -329,7 +421,16 @@
 	}
 #endif
 
-#if (GDISP_NEED_ELLIPSE && GDISP_NEED_MULTITHREAD)
+#if (GDISP_NEED_ELLIPSE && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Draw an ellipse.
+	 *
+	 * @param[in] x,y   The center of the ellipse
+	 * @param[in] a,b     The dimensions of the ellipse
+	 * @param[in] color   The color to use
+	 *
+	 * @api
+	 */
 	void gdispDrawEllipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
 		chMtxLock(&gdispMutex);
 		gdisp_lld_draw_ellipse(x, y, a, b, color);
@@ -347,7 +448,16 @@
 	}
 #endif
 	
-#if (GDISP_NEED_ELLIPSE && GDISP_NEED_MULTITHREAD)
+#if (GDISP_NEED_ELLIPSE && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Draw a filled ellipse.
+	 *
+	 * @param[in] x,y   The center of the ellipse
+	 * @param[in] a,b     The dimensions of the ellipse
+	 * @param[in] color   The color to use
+	 *
+	 * @api
+	 */
 	void gdispFillEllipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
 		chMtxLock(&gdispMutex);
 		gdisp_lld_fill_ellipse(x, y, a, b, color);
@@ -365,7 +475,18 @@
 	}
 #endif
 
-#if (GDISP_NEED_ARC && GDISP_NEED_MULTITHREAD)
+#if (GDISP_NEED_ARC && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+	/*
+	 * @brief	Draw an arc.
+	 *
+	 * @param[in] x0,y0		The center point
+	 * @param[in] radius	The radius of the arc
+	 * @param[in] start		The start angle (0 to 360)
+	 * @param[in] end		The end angle (0 to 360)
+	 * @param[in] color		The color of the arc
+	 *
+	 * @api
+	 */
 	void gdispDrawArc(coord_t x, coord_t y, coord_t radius, coord_t start, coord_t end, color_t color) {
 		chMtxLock(&gdispMutex);
 		gdisp_lld_draw_arc(x, y, radius, start, end, color);
@@ -384,7 +505,19 @@
 	}
 #endif
 
-#if (GDISP_NEED_ARC && GDISP_NEED_MULTITHREAD)
+#if (GDISP_NEED_ARC && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+	/*
+	 * @brief	Draw a filled arc.
+	 * @note				Not very efficient currently - does lots of overdrawing
+	 *
+	 * @param[in] x0,y0		The center point
+	 * @param[in] radius	The radius of the arc
+	 * @param[in] start		The start angle (0 to 360)
+	 * @param[in] end		The end angle (0 to 360)
+	 * @param[in] color		The color of the arc
+	 *
+	 * @api
+	 */
 	void gdispFillArc(coord_t x, coord_t y, coord_t radius, coord_t start, coord_t end, color_t color) {
 		chMtxLock(&gdispMutex);
 		gdisp_lld_fill_arc(x, y, radius, start, end, color);
@@ -403,7 +536,17 @@
 	}
 #endif
 
-#if GDISP_NEED_ARC
+#if GDISP_NEED_ARC || defined(__DOXYGEN__)
+/**
+ * @brief   Draw a rectangular box with rounded corners
+ *
+ * @param[in] x,y		The start position
+ * @param[in] cx,cy		The size of the box (outside dimensions)
+ * @param[in] radius	The radius of the rounded corners
+ * @param[in] color		The color to use
+ *
+ * @api
+ */
 void gdispDrawRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t radius, color_t color) {
 	if (2*radius > cx || 2*radius > cy) {
 		gdispDrawBox(x, y, cx, cy, color);
@@ -420,7 +563,17 @@ void gdispDrawRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 }
 #endif
 
-#if GDISP_NEED_ARC
+#if GDISP_NEED_ARC || defined(__DOXYGEN__)
+/**
+ * @brief   Draw a filled rectangular box with rounded corners
+ *
+ * @param[in] x,y		The start position
+ * @param[in] cx,cy		The size of the box (outside dimensions)
+ * @param[in] radius	The radius of the rounded corners
+ * @param[in] color		The color to use
+ *
+ * @api
+ */
 void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t radius, color_t color) {
 	coord_t radius2;
 
@@ -439,7 +592,17 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 }
 #endif
 
-#if (GDISP_NEED_TEXT && GDISP_NEED_MULTITHREAD)
+#if (GDISP_NEED_TEXT && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Draw a text character.
+	 *
+	 * @param[in] x,y		The position for the text
+	 * @param[in] c			The character to draw
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color to use
+	 *
+	 * @api
+	 */
 	void gdispDrawChar(coord_t x, coord_t y, char c, font_t font, color_t color) {
 		chMtxLock(&gdispMutex);
 		gdisp_lld_draw_char(x, y, c, font, color);
@@ -457,7 +620,18 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 	}
 #endif
 
-#if (GDISP_NEED_TEXT && GDISP_NEED_MULTITHREAD)
+#if (GDISP_NEED_TEXT && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Draw a text character with a filled background.
+	 *
+	 * @param[in] x,y		The position for the text
+	 * @param[in] c			The character to draw
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color to use
+	 * @param[in] bgcolor	The background color to use
+	 *
+	 * @api
+	 */
 	void gdispFillChar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
 		chMtxLock(&gdispMutex);
 		gdisp_lld_fill_char(x, y, c, font, color, bgcolor);
@@ -476,7 +650,15 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 	}
 #endif
 	
-#if (GDISP_NEED_PIXELREAD && (GDISP_NEED_MULTITHREAD || GDISP_NEED_ASYNC))
+#if (GDISP_NEED_PIXELREAD && (GDISP_NEED_MULTITHREAD || GDISP_NEED_ASYNC)) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Get the color of a pixel.
+	 * @return  The color of the pixel.
+	 *
+	 * @param[in] x,y     The position of the pixel
+	 *
+	 * @api
+	 */
 	color_t gdispGetPixelColor(coord_t x, coord_t y) {
 		color_t		c;
 
@@ -489,7 +671,20 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 	}
 #endif
 
-#if (GDISP_NEED_SCROLL && GDISP_NEED_MULTITHREAD)
+#if (GDISP_NEED_SCROLL && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Scroll vertically a section of the screen.
+	 * @pre		GDISP_NEED_SCROLL must be set to TRUE in halconf.h
+	 * @note    Optional.
+	 * @note    If lines is >= cy, it is equivelent to a area fill with bgcolor.
+	 *
+	 * @param[in] x, y     The start of the area to be scrolled
+	 * @param[in] cx, cy   The size of the area to be scrolled
+	 * @param[in] lines    The number of lines to scroll (Can be positive or negative)
+	 * @param[in] bgcolor  The color to fill the newly exposed area.
+	 *
+	 * @api
+	 */
 	void gdispVerticalScroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
 		chMtxLock(&gdispMutex);
 		gdisp_lld_vertical_scroll(x, y, cx, cy, lines, bgcolor);
@@ -508,11 +703,23 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 	}
 #endif
 
-#if (GDISP_NEED_CONTROL && GDISP_NEED_MULTITHREAD)
+#if (GDISP_NEED_CONTROL && GDISP_NEED_MULTITHREAD) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Set the power mode for the display.
+	 * @pre     The GDISP unit must have been initialised using @p gdispInit().
+	 * @note    Depending on the hardware implementation this function may not
+	 *          support some codes. They will be ignored.
+	 *
+	 * @param[in] what		what you want to control
+	 * @param[in] value		The value to be assigned
+	 *
+	 * @api
+	 */
 	void gdispControl(unsigned what, void *value) {
 		chMtxLock(&gdispMutex);
 		gdisp_lld_control(what, value);
 		chMtxUnlock();
+		chThdSleepMilliseconds(100);
 	}
 #elif GDISP_NEED_CONTROL && GDISP_NEED_ASYNC
 	void gdispControl(unsigned what, void *value) {
@@ -524,7 +731,17 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 	}
 #endif
 
-#if (GDISP_NEED_MULTITHREAD || GDISP_NEED_ASYNC) && GDISP_NEED_QUERY
+#if (GDISP_NEED_MULTITHREAD || GDISP_NEED_ASYNC) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Query a property of the display.
+	 * @pre     The GDISP unit must have been initialised using @p gdispInit().
+	 * @note    The result must be typecast to the correct type.
+	 * @note    An uunsupported query will return (void *)-1.
+	 *
+	 * @param[in] what		What to query
+	 *
+	 * @api
+	 */
 	void *gdispQuery(unsigned what) {
 		void *res;
 
@@ -539,6 +756,15 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 /* High Level Driver Routines.                                               */
 /*===========================================================================*/
 
+/**
+ * @brief   Draw a rectangular box.
+ *
+ * @param[in] x,y		The start position
+ * @param[in] cx,cy		The size of the box (outside dimensions)
+ * @param[in] color		The color to use
+ *
+ * @api
+ */
 void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	/* No mutex required as we only call high level functions which have their own mutex */
 	coord_t	x1, y1;
@@ -565,102 +791,18 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	}
 }
 
-#if GDISP_NEED_CONVEX_POLYGON
-	void gdispDrawPoly(const point *pntarray, unsigned cnt, color_t color) {
-		const point	*epnt, *p;
 
-		epnt = &pntarray[cnt-1];
-		for(p = pntarray; p < epnt; p++)
-			gdispDrawLine(p->x, p->y, p[1].x, p[1].y, color);
-		gdispDrawLine(p->x, p->y, pntarray->x, pntarray->y, color);
-	}
-
-	void gdispFillConvexPoly(const point *pntarray, unsigned cnt, color_t color) {
-		const point	*lpnt, *rpnt, *epnts;
-		fpcoord_t	lx, rx, lk, rk;
-		coord_t		y, ymax, lxc, rxc;
-
-		epnts = &pntarray[cnt-1];
-
-		/* Find a top point */
-		rpnt = pntarray;
-		for(lpnt=pntarray+1; lpnt <= epnts; lpnt++) {
-			if (lpnt->y < rpnt->y)
-				rpnt = lpnt;
-		}
-		lx = rx = rpnt->x<<16;
-		y = rpnt->y;
-
-		/* Work out the slopes of the two attached line segs */
-		lpnt = rpnt <= pntarray ? epnts : rpnt-1;
-		while (lpnt->y == y) {
-			lx = lpnt->x<<16;
-			lpnt = lpnt <= pntarray ? epnts : lpnt-1;
-			if (!cnt--) return;
-		}
-		rpnt = rpnt >= epnts ? pntarray : rpnt+1;
-		while (rpnt->y == y) {
-			rx = rpnt->x<<16;
-			rpnt = rpnt >= epnts ? pntarray : rpnt+1;
-			if (!cnt--) return;
-		}
-		lk = (((fpcoord_t)(lpnt->x)<<16) - lx) / (lpnt->y - y);
-		rk = (((fpcoord_t)(rpnt->x)<<16) - rx) / (rpnt->y - y);
-
-		while(1) {
-			/* Determine our boundary */
-			ymax = rpnt->y < lpnt->y ? rpnt->y : lpnt->y;
-
-			/* Scan down the line segments until we hit a boundary */
-			for(; y < ymax; y++) {
-				lxc = lx>>16;
-				rxc = rx>>16;
-				/*
-				 * Doesn't print the right hand point in order to allow polygon joining.
-				 * Also ensures that we draw from left to right with the minimum number
-				 * of pixels.
-				 */
-				if (lxc < rxc) {
-					if (rxc - lxc == 1)
-						gdispDrawPixel(lxc, y, color);
-					else
-						gdispDrawLine(lxc, y, rxc-1, y, color);
-				} else if (lxc > rxc) {
-					if (lxc - rxc == 1)
-						gdispDrawPixel(rxc, y, color);
-					else
-						gdispDrawLine(rxc, y, lxc-1, y, color);
-				}
-
-				lx += lk;
-				rx += rk;
-			}
-
-			if (!cnt--) return;
-
-			/* Replace the appropriate point */
-			if (ymax == lpnt->y) {
-				lpnt = lpnt <= pntarray ? epnts : lpnt-1;
-				while (lpnt->y == y) {
-					lx = lpnt->x<<16;
-					lpnt = lpnt <= pntarray ? epnts : lpnt-1;
-					if (!cnt--) return;
-				}
-				lk = (((fpcoord_t)(lpnt->x)<<16) - lx) / (lpnt->y - y);
-			} else {
-				rpnt = rpnt >= epnts ? pntarray : rpnt+1;
-				while (rpnt->y == y) {
-					rx = rpnt->x<<16;
-					rpnt = rpnt >= epnts ? pntarray : rpnt+1;
-					if (!cnt--) return;
-				}
-				rk = (((fpcoord_t)(rpnt->x)<<16) - rx) / (rpnt->y - y);
-			}
-		}
-	}
-#endif
-
-	#if GDISP_NEED_TEXT
+#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
+	/**
+	 * @brief   Draw a text string.
+	 *
+	 * @param[in] x,y		The position for the text
+	 * @param[in] font		The font to use
+	 * @param[in] str		The string to draw
+	 * @param[in] color		The color to use
+	 *
+	 * @api
+	 */
 	void gdispDrawString(coord_t x, coord_t y, const char *str, font_t font, color_t color) {
 		/* No mutex required as we only call high level functions which have their own mutex */
 		coord_t		w, p;
@@ -692,7 +834,18 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	}
 #endif
 	
-#if GDISP_NEED_TEXT
+#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
+	/**
+	 * @brief   Draw a text string.
+	 *
+	 * @param[in] x,y		The position for the text
+	 * @param[in] str		The string to draw
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color to use
+	 * @param[in] bgcolor	The background color to use
+	 *
+	 * @api
+	 */
 	void gdispFillString(coord_t x, coord_t y, const char *str, font_t font, color_t color, color_t bgcolor) {
 		/* No mutex required as we only call high level functions which have their own mutex */
 		coord_t		w, h, p;
@@ -726,7 +879,19 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	}
 #endif
 	
-#if GDISP_NEED_TEXT
+#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
+	/**
+	 * @brief   Draw a text string verticly centered within the specified box.
+	 *
+	 * @param[in] x,y		The position for the text (need to define top-right or base-line - check code)
+	 * @param[in] cx,cy		The width and height of the box
+	 * @param[in] str		The string to draw
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color to use
+	 * @param[in] justify	Justify the text left, center or right within the box
+	 *
+	 * @api
+	 */
 	void gdispDrawStringBox(coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, justify_t justify) {
 		/* No mutex required as we only call high level functions which have their own mutex */
 		coord_t		w, h, p, ypos, xpos;
@@ -846,7 +1011,21 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	}
 #endif
 	
-#if GDISP_NEED_TEXT
+#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
+	/**
+	 * @brief   Draw a text string verticly centered within the specified box. The box background is filled with the specified background color.
+	 * @note    The entire box is filled
+	 *
+	 * @param[in] x,y		The position for the text (need to define top-right or base-line - check code)
+	 * @param[in] cx,cy		The width and height of the box
+	 * @param[in] str		The string to draw
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color to use
+	 * @param[in] bgcolor	The background color to use
+	 * @param[in] justify	Justify the text left, center or right within the box
+	 *
+	 * @api
+	 */
 	void gdispFillStringBox(coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, color_t bgcolor, justify_t justify) {
 		/* No mutex required as we only call high level functions which have their own mutex */
 		coord_t		w, h, p, ypos, xpos;
@@ -978,7 +1157,16 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	}
 #endif
 	
-#if GDISP_NEED_TEXT
+#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
+	/**
+	 * @brief   Get a metric of a font.
+	 * @return  The metric requested in pixels.
+	 *
+	 * @param[in] font    The font to test
+	 * @param[in] metric  The metric to measure
+	 *
+	 * @api
+	 */
 	coord_t gdispGetFontMetric(font_t font, fontmetric_t metric) {
 		/* No mutex required as we only read static data */
 		switch(metric) {
@@ -993,14 +1181,32 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	}
 #endif
 	
-#if GDISP_NEED_TEXT
+#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
+	/**
+	 * @brief   Get the pixel width of a character.
+	 * @return  The width of the character in pixels. Does not include any between character padding.
+	 *
+	 * @param[in] c       The character to draw
+	 * @param[in] font    The font to use
+	 *
+	 * @api
+	 */
 	coord_t gdispGetCharWidth(char c, font_t font) {
 		/* No mutex required as we only read static data */
 		return _getCharWidth(font, c) * font->xscale;
 	}
 #endif
 	
-#if GDISP_NEED_TEXT
+#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
+	/**
+	 * @brief   Get the pixel width of a string.
+	 * @return  The width of the string in pixels.
+	 *
+	 * @param[in] str     The string to measure
+	 * @param[in] font    The font to use
+	 *
+	 * @api
+	 */
 	coord_t gdispGetStringWidth(const char* str, font_t font) {
 		/* No mutex required as we only read static data */
 		coord_t		w, p, x;
@@ -1031,7 +1237,19 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	}
 #endif
 
-#if (!defined(gdispPackPixels) && !defined(GDISP_PIXELFORMAT_CUSTOM))
+#if (!defined(gdispPackPixels) && !defined(GDISP_PIXELFORMAT_CUSTOM)) || defined(__DOXYGEN__)
+	/**
+	 * @brief   Pack a pixel into a pixel buffer.
+	 * @note    This function performs no buffer boundary checking
+	 *			regardless of whether GDISP_NEED_CLIP has been specified.
+	 *
+	 * @param[in] buf		The buffer to put the pixel in
+	 * @param[in] cx		The width of a pixel line
+	 * @param[in] x, y		The location of the pixel to place
+	 * @param[in] color		The color to put into the buffer
+	 *
+	 * @api
+	 */
 	void gdispPackPixels(pixel_t *buf, coord_t cx, coord_t x, coord_t y, color_t color) {
 		/* No mutex required as we only read static data */
 		#if defined(GDISP_PIXELFORMAT_RGB888)

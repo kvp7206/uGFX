@@ -84,16 +84,6 @@
 		#define GDISP_NEED_ARC			FALSE
 	#endif
 	/**
-	 * @brief   Are convex polygon functions needed.
-	 * @details	Defaults to FALSE
-	 * @note	Convex polygons are those that have no internal angles. That is;
-	 * 			you can draw a line from any point on the polygon to any other point
-	 * 			on the polygon without it going outside the polygon.
-	 */
-	#ifndef GDISP_NEED_CONVEX_POLYGON
-		#define GDISP_NEED_CONVEX_POLYGON		FALSE
-	#endif
-	/**
 	 * @brief   Are scrolling functions needed.
 	 * @details	Defaults to FALSE
 	 * @note	This function must be supported by the low level GDISP driver
@@ -121,14 +111,6 @@
 	 */
 	#ifndef GDISP_NEED_CONTROL
 		#define GDISP_NEED_CONTROL		FALSE
-	#endif
-	/**
-	 * @brief   Query some aspect of the hardware operation.
-	 * @details	Defaults to FALSE
-	 * @note	This allows query of hardware specific features
-	 */
-	#ifndef GDISP_NEED_QUERY
-		#define GDISP_NEED_QUERY		FALSE
 	#endif
 	/**
 	 * @brief   Is the messaging api interface required.
@@ -173,6 +155,13 @@
  * @name    GDISP Fonts
  * @{
  */
+	/**
+	 * @brief   Include the old global font variable definitions
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GDISP_OLD_FONT_DEFINITIONS
+		#define GDISP_OLD_FONT_DEFINITIONS		FALSE
+	#endif
 	/**
 	 * @brief   Predefined built in fonts
 	 * @note	Turning off the ones you are not using can save program size.

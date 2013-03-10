@@ -34,13 +34,22 @@
 #ifndef GDISP_EMULATION_C
 #define GDISP_EMULATION_C
 
-#if GFX_USE_GDISP
+#if GFX_USE_GDISP /*|| defined(__DOXYGEN__) */
 
-/* Include the low level driver information */
-#include "gdisp/lld/gdisp_lld.h"
-
-/* Declare the GDISP structure */
-GDISPDriver	GDISP;
+#ifndef GDISP_LLD_NO_STRUCT
+	static struct GDISPDriver {
+		coord_t				Width;
+		coord_t				Height;
+		gdisp_orientation_t	Orientation;
+		gdisp_powermode_t	Powermode;
+		uint8_t				Backlight;
+		uint8_t				Contrast;
+		#if GDISP_NEED_CLIP || GDISP_NEED_VALIDATION
+			coord_t				clipx0, clipy0;
+			coord_t				clipx1, clipy1;		/* not inclusive */
+		#endif
+		} GDISP;
+#endif
 
 #if !GDISP_HARDWARE_CLEARS 
 	void gdisp_lld_clear(color_t color) {
@@ -661,10 +670,17 @@ GDISPDriver	GDISP;
 	}
 #endif
 
-#if GDISP_NEED_QUERY && !GDISP_HARDWARE_QUERY
+#if !GDISP_HARDWARE_QUERY
 void *gdisp_lld_query(unsigned what) {
-	(void) what;
-	return (void *)-1;
+	switch(what) {
+	case GDISP_QUERY_WIDTH:			return (void *)(unsigned)GDISP.Width;
+	case GDISP_QUERY_HEIGHT:		return (void *)(unsigned)GDISP.Height;
+	case GDISP_QUERY_POWER:			return (void *)(unsigned)GDISP.Powermode;
+	case GDISP_QUERY_ORIENTATION:	return (void *)(unsigned)GDISP.Orientation;
+	case GDISP_QUERY_BACKLIGHT:		return (void *)(unsigned)GDISP.Backlight;
+	case GDISP_QUERY_CONTRAST:		return (void *)(unsigned)GDISP.Contrast;
+	default:						return (void *)-1;
+	}
 }
 #endif
 
@@ -743,11 +759,9 @@ void *gdisp_lld_query(unsigned what) {
 				gdisp_lld_control(msg->control.what, msg->control.value);
 				break;
 		#endif
-		#if GDISP_NEED_QUERY
 			case GDISP_LLD_MSG_QUERY:
 				msg->query.result = gdisp_lld_query(msg->query.what);
 				break;
-		#endif
 		}
 	}
 #endif
