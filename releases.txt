@@ -15,6 +15,9 @@ FEATURE:	Implemented all four orientation modes for the ILI9320 GDISP driver
 FIX:		Renamed every '__inline' macro to 'inline' for compiler compatibilities
 FEATURE:	Supporting all standard functions in GDISP Nokia6610GE8 driver
 FEATURE:	Added STMPE811 GINPUT driver
+FEATURE:	Added gdispDrawPoly() and gdispFillConvexPoly()
+FEATURE:	Added arrow button style to GWIN buttons
+FEATURE:	Added the ability to specify a custom button drawing routine
 
 
 *** changes after 1.4 ***
