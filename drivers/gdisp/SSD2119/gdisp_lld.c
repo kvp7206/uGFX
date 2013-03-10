@@ -58,8 +58,8 @@
 #if defined(GDISP_USE_CUSTOM_BOARD) && GDISP_USE_CUSTOM_BOARD
 	/* Include the user supplied board definitions */
 	#include "gdisp_lld_board.h"
-#elif defined(BOARD_EMBEST_DMSTF4BB_FSMC)
-	#include "gdisp_lld_board_embest_dmstf4bb_fsmc.h"
+#elif defined(BOARD_EMBEST_DMSTF4BB)
+	#include "gdisp_lld_board_embest_dmstf4bb.h"
 #else
 	/* Include the user supplied board definitions */
 	#include "gdisp_lld_board.h"
