@@ -57,18 +57,15 @@ typedef struct GEventGWinButton_t {
 // There are currently no GEventGWinButton listening flags - use 0
 
 typedef enum GButtonShape_e {
-	GBTN_3D, GBTN_SQUARE, GBTN_ROUNDED, GBTN_ELLIPSE
+	GBTN_3D, GBTN_SQUARE, GBTN_ROUNDED, GBTN_ELLIPSE, GBTN_CUSTOM,
+	GBTN_ARROW_UP, GBTN_ARROW_DOWN, GBTN_ARROW_LEFT, GBTN_ARROW_RIGHT,
 } GButtonShape;
 
-typedef struct GButtonStyle_t {
-	GButtonShape		shape;
-	color_t				color_up_edge;
-	color_t				color_up_fill;
-	color_t				color_up_txt;
-	color_t				color_dn_edge;
-	color_t				color_dn_fill;
-	color_t				color_dn_txt;
-} GButtonStyle;
+typedef struct GButtonDrawStyle_t {
+	color_t				color_edge;
+	color_t				color_fill;
+	color_t				color_txt;
+} GButtonDrawStyle;
 
 typedef enum GButtonType_e {
 	GBTN_NORMAL, GBTN_TOGGLE
@@ -78,14 +75,19 @@ typedef enum GButtonState_e {
 	GBTN_UP, GBTN_DOWN
 } GButtonState;
 
+typedef void (*GButtonDrawFunction)(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+
 // A button window
 typedef struct GButtonObject_t {
 	GWindowObject		gwin;
 
-	GButtonStyle		style;
+	GButtonDrawStyle	up;
+	GButtonDrawStyle	dn;
 	GButtonState		state;
 	GButtonType			type;
-	const char *		txt;
+	const char			*txt;
+	GButtonDrawFunction	fn;
+	void				*param;
 	GListener			listener;
 } GButtonObject;
 
@@ -120,12 +122,19 @@ GHandle gwinCreateButton(GButtonObject *gb, coord_t x, coord_t y, coord_t width,
  * @details	The button style is defined by its shape and colours.
  *
  * @param[in] gh		The window handle (must be a button window)
- * @param[in] style		The button style to set.
+ * @param[in] shape		The shape of the button.
+ * @param[in] pUp		The styling for the button when in the up state.
+ * @param[in] pDown		The styling for the button when in the down state.
+ *
  * @note				The button is not automatically redrawn. Call gwinButtonDraw() after changing the button style
+ * @note				The button style is copied into the internal button structure - there is no need to
+ * 						maintain a static style structures.
+ * @note				The pUp and pDown parameters can be NULL. If they are then the existing color styles
+ * 						are not changed for that button state.
  *
  * @api
  */
-void gwinSetButtonStyle(GHandle gh, const GButtonStyle *style);
+void gwinSetButtonStyle(GHandle gh, GButtonShape shape, const GButtonDrawStyle *pUp, const GButtonDrawStyle *pDown);
 
 /**
  * @brief   Set the text of a button.
@@ -148,13 +157,26 @@ void gwinSetButtonText(GHandle gh, const char *txt, bool_t useAlloc);
  */
 void gwinButtonDraw(GHandle gh);
 
+/**
+ * @brief   Set the callback routine to perform a custom button drawing.
+ *
+ * @param[in] gh		The window handle (must be a button window)
+ * @param[in] fn		The function to use to draw the button
+ * @param[in] param		A parameter to pass to the button drawing function
+ *
+ * @api
+ */
+void gwinSetButtonCustom(GHandle gh, GButtonDrawFunction fn, void *param);
+
 #define gwinGetButtonState(gh)		(((GButtonObject *)(gh))->state)
 
 /**
  * @brief Get the source handle of a button
  * @details Get the source handle of a button so the application can listen for events
  *
- * @param[in] gh	The Hanlde
+ * @param[in] gh	The window handle
+ *
+ * @api
  */
 #define gwinGetButtonSource(gh)		((GSourceHandle)(gh))
 
@@ -166,7 +188,7 @@ void gwinButtonDraw(GHandle gh);
 	 * @param[in] gh	The button handle
 	 * @param[in] gsh	The source handle
 	 *
-	 * @return
+	 * @api
 	 */
 	bool_t gwinAttachButtonMouseSource(GHandle gh, GSourceHandle gsh);
 #endif
@@ -176,13 +198,49 @@ void gwinButtonDraw(GHandle gh);
 	 * @brief	Attach a toggle source
 	 * @details	Attach a toggle source to this button
 	 *
-	 * @gh		The button handle
-	 * @gsh		The source handle
+	 * @param[in] gh	The button handle
+	 * @param[in] gsh	The source handle
 	 *
-	 * @return
+	 * @api
 	 */
 	bool_t gwinAttachButtonToggleSource(GHandle gh, GSourceHandle gsh);
 #endif
+
+/**
+ * @brief	Standard button drawing routines
+ * @details	These routines are called to draw the standard button styles.
+ *
+ * @param[in] gh		The button handle
+ * @param[in] isdown	Is the button currently down (depressed)
+ * @param[in] pstyle	The current drawing style for the state we are in
+ * @param[in] param		A parameter passed in from the user
+ *
+ * @note				In your custom button drawing function you may optionally call these
+ * 						standard functions and then draw your extra details on top.
+ * @note				The standard functions below ignore the param parameter. It is there
+ * 						only to ensure the functions match the GButtonDrawFunction type.
+ * @note				When called by a button press/release the framework ensure that it is
+ * 						a button object and sets up clipping to the button object window. These
+ * 						drawing routines then don't have to worry about explicitly doing that.
+ *
+ * @api
+ * @{
+ */
+void gwinButtonDraw_3D(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+void gwinButtonDraw_Square(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+#if GDISP_NEED_ARC || defined(__DOXYGEN__)
+	void gwinButtonDraw_Rounded(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+#endif
+#if GDISP_NEED_ELLIPSE || defined(__DOXYGEN__)
+	void gwinButtonDraw_Ellipse(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+#endif
+#if GDISP_NEED_CONVEX_POLYGON || defined(__DOXYGEN__)
+	void gwinButtonDraw_ArrowUp(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+	void gwinButtonDraw_ArrowDown(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+	void gwinButtonDraw_ArrowLeft(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+	void gwinButtonDraw_ArrowRight(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+#endif
+/** @} */
 
 #ifdef __cplusplus
 }
