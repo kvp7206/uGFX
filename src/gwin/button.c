@@ -306,16 +306,16 @@ void gwinButtonDraw_Square(GHandle gh, bool_t isdown, const char *txt, const GBu
 		(void) param;
 		point	arw[7];
 
-		arw[0].x = gh->x+gh->width/2; arw[0].y = gh->y;
-		arw[1].x = gh->x+gh->width-1; arw[1].y = gh->y+gh->height/ARROWHEAD_DIVIDER;
-		arw[2].x = gh->x+(gh->width + gh->width/ARROWBODY_DIVIDER)/2; arw[2].y = gh->y+gh->height/ARROWHEAD_DIVIDER;
-		arw[3].x = gh->x+(gh->width + gh->width/ARROWBODY_DIVIDER)/2; arw[3].y = gh->y+gh->height-1;
-		arw[4].x = gh->x+(gh->width - gh->width/ARROWBODY_DIVIDER)/2; arw[4].y = gh->y+gh->height-1;
-		arw[5].x = gh->x+(gh->width - gh->width/ARROWBODY_DIVIDER)/2; arw[5].y = gh->y+gh->height/ARROWHEAD_DIVIDER;
-		arw[6].x = gh->x; arw[6].y = gh->y+gh->height/ARROWHEAD_DIVIDER;
+		arw[0].x = gh->width/2; arw[0].y = 0;
+		arw[1].x = gh->width-1; arw[1].y = gh->height/ARROWHEAD_DIVIDER;
+		arw[2].x = (gh->width + gh->width/ARROWBODY_DIVIDER)/2; arw[2].y = gh->height/ARROWHEAD_DIVIDER;
+		arw[3].x = (gh->width + gh->width/ARROWBODY_DIVIDER)/2; arw[3].y = gh->height-1;
+		arw[4].x = (gh->width - gh->width/ARROWBODY_DIVIDER)/2; arw[4].y = gh->height-1;
+		arw[5].x = (gh->width - gh->width/ARROWBODY_DIVIDER)/2; arw[5].y = gh->height/ARROWHEAD_DIVIDER;
+		arw[6].x = 0; arw[6].y = gh->height/ARROWHEAD_DIVIDER;
 
-		gdispFillConvexPoly(arw, 7, pstyle->color_fill);
-		gdispDrawPoly(arw, 7, pstyle->color_edge);
+		gdispFillConvexPoly(gh->x, gh->y, arw, 7, pstyle->color_fill);
+		gdispDrawPoly(gh->x, gh->y, arw, 7, pstyle->color_edge);
 		gdispDrawStringBox(gh->x+1, gh->y+1, gh->width-2, gh->height-2, txt, gh->font, pstyle->color_txt, justifyCenter);
 	}
 
@@ -324,16 +324,16 @@ void gwinButtonDraw_Square(GHandle gh, bool_t isdown, const char *txt, const GBu
 		(void) param;
 		point	arw[7];
 
-		arw[0].x = gh->x+gh->width/2; arw[0].y = gh->y+gh->height-1;
-		arw[1].x = gh->x+gh->width-1; arw[1].y = gh->y+gh->height-1-gh->height/ARROWHEAD_DIVIDER;
-		arw[2].x = gh->x+(gh->width + gh->width/ARROWBODY_DIVIDER)/2; arw[2].y = gh->y+gh->height-1-gh->height/ARROWHEAD_DIVIDER;
-		arw[3].x = gh->x+(gh->width + gh->width/ARROWBODY_DIVIDER)/2; arw[3].y = gh->y;
-		arw[4].x = gh->x+(gh->width - gh->width/ARROWBODY_DIVIDER)/2; arw[4].y = gh->y;
-		arw[5].x = gh->x+(gh->width - gh->width/ARROWBODY_DIVIDER)/2; arw[5].y = gh->y+gh->height-1-gh->height/ARROWHEAD_DIVIDER;
-		arw[6].x = gh->x; arw[6].y = gh->y+gh->height-1-gh->height/ARROWHEAD_DIVIDER;
+		arw[0].x = gh->width/2; arw[0].y = gh->height-1;
+		arw[1].x = gh->width-1; arw[1].y = gh->height-1-gh->height/ARROWHEAD_DIVIDER;
+		arw[2].x = (gh->width + gh->width/ARROWBODY_DIVIDER)/2; arw[2].y = gh->height-1-gh->height/ARROWHEAD_DIVIDER;
+		arw[3].x = (gh->width + gh->width/ARROWBODY_DIVIDER)/2; arw[3].y = 0;
+		arw[4].x = (gh->width - gh->width/ARROWBODY_DIVIDER)/2; arw[4].y = 0;
+		arw[5].x = (gh->width - gh->width/ARROWBODY_DIVIDER)/2; arw[5].y = gh->height-1-gh->height/ARROWHEAD_DIVIDER;
+		arw[6].x = 0; arw[6].y = gh->height-1-gh->height/ARROWHEAD_DIVIDER;
 
-		gdispFillConvexPoly(arw, 7, pstyle->color_fill);
-		gdispDrawPoly(arw, 7, pstyle->color_edge);
+		gdispFillConvexPoly(gh->x, gh->y, arw, 7, pstyle->color_fill);
+		gdispDrawPoly(gh->x, gh->y, arw, 7, pstyle->color_edge);
 		gdispDrawStringBox(gh->x+1, gh->y+1, gh->width-2, gh->height-2, txt, gh->font, pstyle->color_txt, justifyCenter);
 	}
 
@@ -342,16 +342,16 @@ void gwinButtonDraw_Square(GHandle gh, bool_t isdown, const char *txt, const GBu
 		(void) param;
 		point	arw[7];
 
-		arw[0].x = gh->x; arw[0].y = gh->y+gh->height/2;
-		arw[1].x = gh->x+gh->width/ARROWHEAD_DIVIDER; arw[1].y = gh->y;
-		arw[2].x = gh->x+gh->width/ARROWHEAD_DIVIDER; arw[2].y = gh->y+(gh->height - gh->height/ARROWBODY_DIVIDER)/2;
-		arw[3].x = gh->x+gh->width-1; arw[3].y = gh->y+(gh->height - gh->height/ARROWBODY_DIVIDER)/2;
-		arw[4].x = gh->x+gh->width-1; arw[4].y = gh->y+(gh->height + gh->height/ARROWBODY_DIVIDER)/2;
-		arw[5].x = gh->x+gh->width/ARROWHEAD_DIVIDER; arw[5].y = gh->y+(gh->height + gh->height/ARROWBODY_DIVIDER)/2;
-		arw[6].x = gh->x+gh->width/ARROWHEAD_DIVIDER; arw[6].y = gh->y+gh->height-1;
+		arw[0].x = 0; arw[0].y = gh->height/2;
+		arw[1].x = gh->width/ARROWHEAD_DIVIDER; arw[1].y = 0;
+		arw[2].x = gh->width/ARROWHEAD_DIVIDER; arw[2].y = (gh->height - gh->height/ARROWBODY_DIVIDER)/2;
+		arw[3].x = gh->width-1; arw[3].y = (gh->height - gh->height/ARROWBODY_DIVIDER)/2;
+		arw[4].x = gh->width-1; arw[4].y = (gh->height + gh->height/ARROWBODY_DIVIDER)/2;
+		arw[5].x = gh->width/ARROWHEAD_DIVIDER; arw[5].y = (gh->height + gh->height/ARROWBODY_DIVIDER)/2;
+		arw[6].x = gh->width/ARROWHEAD_DIVIDER; arw[6].y = gh->height-1;
 
-		gdispFillConvexPoly(arw, 7, pstyle->color_fill);
-		gdispDrawPoly(arw, 7, pstyle->color_edge);
+		gdispFillConvexPoly(gh->x, gh->y, arw, 7, pstyle->color_fill);
+		gdispDrawPoly(gh->x, gh->y, arw, 7, pstyle->color_edge);
 		gdispDrawStringBox(gh->x+1, gh->y+1, gh->width-2, gh->height-2, txt, gh->font, pstyle->color_txt, justifyCenter);
 	}
 
@@ -360,16 +360,16 @@ void gwinButtonDraw_Square(GHandle gh, bool_t isdown, const char *txt, const GBu
 		(void) param;
 		point	arw[7];
 
-		arw[0].x = gh->x+gh->width-1; arw[0].y = gh->y+gh->height/2;
-		arw[1].x = gh->x+gh->width-1-gh->width/ARROWHEAD_DIVIDER; arw[1].y = gh->y;
-		arw[2].x = gh->x+gh->width-1-gh->width/ARROWHEAD_DIVIDER; arw[2].y = gh->y+(gh->height - gh->height/ARROWBODY_DIVIDER)/2;
-		arw[3].x = gh->x; arw[3].y = gh->y+(gh->height - gh->height/ARROWBODY_DIVIDER)/2;
-		arw[4].x = gh->x; arw[4].y = gh->y+(gh->height + gh->height/ARROWBODY_DIVIDER)/2;
-		arw[5].x = gh->x+gh->width-1-gh->width/ARROWHEAD_DIVIDER; arw[5].y = gh->y+(gh->height + gh->height/ARROWBODY_DIVIDER)/2;
-		arw[6].x = gh->x+gh->width-1-gh->width/ARROWHEAD_DIVIDER; arw[6].y = gh->y+gh->height-1;
+		arw[0].x = gh->width-1; arw[0].y = gh->height/2;
+		arw[1].x = gh->width-1-gh->width/ARROWHEAD_DIVIDER; arw[1].y = 0;
+		arw[2].x = gh->width-1-gh->width/ARROWHEAD_DIVIDER; arw[2].y = (gh->height - gh->height/ARROWBODY_DIVIDER)/2;
+		arw[3].x = 0; arw[3].y = (gh->height - gh->height/ARROWBODY_DIVIDER)/2;
+		arw[4].x = 0; arw[4].y = (gh->height + gh->height/ARROWBODY_DIVIDER)/2;
+		arw[5].x = gh->width-1-gh->width/ARROWHEAD_DIVIDER; arw[5].y = (gh->height + gh->height/ARROWBODY_DIVIDER)/2;
+		arw[6].x = gh->width-1-gh->width/ARROWHEAD_DIVIDER; arw[6].y = gh->height-1;
 
-		gdispFillConvexPoly(arw, 7, pstyle->color_fill);
-		gdispDrawPoly(arw, 7, pstyle->color_edge);
+		gdispFillConvexPoly(gh->x, gh->y, arw, 7, pstyle->color_fill);
+		gdispDrawPoly(gh->x, gh->y, arw, 7, pstyle->color_edge);
 		gdispDrawStringBox(gh->x+1, gh->y+1, gh->width-2, gh->height-2, txt, gh->font, pstyle->color_txt, justifyCenter);
 	}
 #endif

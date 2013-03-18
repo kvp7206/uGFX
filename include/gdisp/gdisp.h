@@ -658,30 +658,35 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 	/**
 	 * @brief   Draw an enclosed polygon (convex, non-convex or complex).
 	 *
+	 * @param[in] tx, ty	Transform all points in pntarray by tx, ty
 	 * @param[in] pntarray	An array of points
 	 * @param[in] cnt		The number of points in the array
 	 * @param[in] color		The color to use
 	 *
 	 * @api
 	 */
-	void gdispDrawPoly(const point *pntarray, unsigned cnt, color_t color);
+	void gdispDrawPoly(coord_t tx, coord_t ty, const point *pntarray, unsigned cnt, color_t color);
 
 	/**
 	 * @brief   Fill a convex polygon
 	 * @details Doesn't handle non-convex or complex polygons.
 	 *
+	 * @param[in] tx, ty	Transform all points in pntarray by tx, ty
 	 * @param[in] pntarray	An array of points
 	 * @param[in] cnt		The number of points in the array
 	 * @param[in] color		The color to use
 	 *
 	 * @note	Convex polygons are those that have no internal angles. That is;
 	 * 			you can draw a line from any point on the polygon to any other point
-	 * 			on the polygon without it going outside the polygon.
+	 * 			on the polygon without it going outside the polygon. In our case we generalise
+	 * 			this a little by saying that an infinite horizontal line (at any y value) will cross
+	 * 			no more than two edges on the polygon. Some non-convex polygons do fit this criteria
+	 * 			and can therefore be drawn.
 	 * @note	This routine is designed to be very efficient with even simple display hardware.
 	 *
 	 * @api
 	 */
-	void gdispFillConvexPoly(const point *pntarray, unsigned cnt, color_t color);
+	void gdispFillConvexPoly(coord_t tx, coord_t ty, const point *pntarray, unsigned cnt, color_t color);
 #endif
 
 /* Extra Text Functions */
