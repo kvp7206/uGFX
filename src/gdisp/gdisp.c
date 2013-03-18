@@ -566,16 +566,16 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 }
 
 #if GDISP_NEED_CONVEX_POLYGON
-	void gdispDrawPoly(const point *pntarray, unsigned cnt, color_t color) {
+	void gdispDrawPoly(coord_t tx, coord_t ty, const point *pntarray, unsigned cnt, color_t color) {
 		const point	*epnt, *p;
 
 		epnt = &pntarray[cnt-1];
 		for(p = pntarray; p < epnt; p++)
-			gdispDrawLine(p->x, p->y, p[1].x, p[1].y, color);
-		gdispDrawLine(p->x, p->y, pntarray->x, pntarray->y, color);
+			gdispDrawLine(tx+p->x, ty+p->y, tx+p[1].x, ty+p[1].y, color);
+		gdispDrawLine(tx+p->x, ty+p->y, tx+pntarray->x, ty+pntarray->y, color);
 	}
 
-	void gdispFillConvexPoly(const point *pntarray, unsigned cnt, color_t color) {
+	void gdispFillConvexPoly(coord_t tx, coord_t ty, const point *pntarray, unsigned cnt, color_t color) {
 		const point	*lpnt, *rpnt, *epnts;
 		fpcoord_t	lx, rx, lk, rk;
 		coord_t		y, ymax, lxc, rxc;
@@ -622,14 +622,14 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 				 */
 				if (lxc < rxc) {
 					if (rxc - lxc == 1)
-						gdispDrawPixel(lxc, y, color);
+						gdispDrawPixel(tx+lxc, ty+y, color);
 					else
-						gdispDrawLine(lxc, y, rxc-1, y, color);
+						gdispDrawLine(tx+lxc, ty+y, tx+rxc-1, ty+y, color);
 				} else if (lxc > rxc) {
 					if (lxc - rxc == 1)
-						gdispDrawPixel(rxc, y, color);
+						gdispDrawPixel(tx+rxc, ty+y, color);
 					else
-						gdispDrawLine(rxc, y, lxc-1, y, color);
+						gdispDrawLine(tx+rxc, ty+y, tx+lxc-1, ty+y, color);
 				}
 
 				lx += lk;

@@ -323,10 +323,10 @@ void gwinGraphDrawPoint(GHandle gh, coord_t x, coord_t y) {
 	#undef gg
 }
 
-void gwinGraphDrawPoints(GHandle gh, const GGraphPoint *points, unsigned count) {
+void gwinGraphDrawPoints(GHandle gh, const point *points, unsigned count) {
 	#define gg	((GGraphObject *)gh)
-	unsigned			i;
-	const GGraphPoint	*p;
+	unsigned		i;
+	const point		*p;
 
 	if (gh->type != GW_GRAPH)
 		return;
