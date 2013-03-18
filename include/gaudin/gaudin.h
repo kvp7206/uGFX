@@ -76,7 +76,8 @@ typedef struct GEventAudioIn_t {
 	 * @brief The buffer containing the audio samples
 	 */
 	audin_sample_t			*buffer;
-	} GEventAudioIn;
+} GEventAudioIn;
+/** @} */
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -90,11 +91,11 @@ extern "C" {
  * @brief		Initialise (but not start) the Audio Input Subsystem.
  * @details		Returns FALSE for an invalid channel or other invalid parameter.
  *
- * @param[in] channel		The channel to convert. Can be set from 0 to GAUDIN_NUM_CHANNELS - 1.
- * @param[in] frequency		The sample frequency
- * @param[in] buffer		The static buffer to put the samples into.
- * @param[in] bufcount		The total number of conversions that will fit in the buffer.
- * @param[in] countPerEvent	The number of conversions to do before returning an event.
+ * @param[in] channel			The channel to convert. Can be set from 0 to GAUDIN_NUM_CHANNELS - 1.
+ * @param[in] frequency			The sample frequency
+ * @param[in] buffer			The static buffer to put the samples into.
+ * @param[in] bufcount			The total number of conversions that will fit in the buffer.
+ * @param[in] samplesPerEvent	The number of conversions to do before returning an event.
  *
  * @note				Only one channel is active at a time. If an audio input is running it will be stopped.
  * 						The Event subsystem is disconnected from the audio subsystem and any binary semaphore
@@ -119,6 +120,8 @@ extern "C" {
  * 						a block of samples containing less than countPerEvent samples when it reaches the
  * 						end of the buffer.
  *
+ * @return				FALSE if invalid channel or parameter
+ *
  * @api
  */
 bool_t gaudinInit(uint16_t channel, uint32_t frequency, audin_sample_t *buffer, size_t bufcount, size_t samplesPerEvent);
@@ -134,6 +137,8 @@ bool_t gaudinInit(uint16_t channel, uint32_t frequency, audin_sample_t *buffer, 
 	 * 						Once turned on it can only be turned off by calling @p gadcHighSpeedInit() again.
 	 * @note				The audio input is capable of signalling via this method and a binary semaphore
 	 * 						at the same time.
+	 *
+	 * @return				The GSourceHandle
 	 *
 	 * @api
 	 */

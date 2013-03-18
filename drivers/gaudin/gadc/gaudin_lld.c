@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
- * @file    drivers/gaudin/gadc/gaudin.c
+ * @file    drivers/gaudin/gadc/gaudin_lld.c
  * @brief   GAUDIN - Driver file for using the cpu ADC (via GADC).
  *
  * @addtogroup GAUDIN

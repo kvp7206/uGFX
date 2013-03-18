@@ -36,10 +36,10 @@
 #include "gdisp/lld/emulation.c"
 
 #ifndef GDISP_SCREEN_HEIGHT
-	#define GDISP_SCREEN_HEIGHT		320
+	#define GDISP_SCREEN_HEIGHT		480
 #endif
 #ifndef GDISP_SCREEN_WIDTH
-	#define GDISP_SCREEN_WIDTH		240
+	#define GDISP_SCREEN_WIDTH		800
 #endif
 
 /* All the board specific code should go in these include file so the driver
@@ -64,43 +64,43 @@
 
 
 #if defined(GDISP_USE_FSMC)
-inline void GDISP_LLD(writeindex)(uint8_t cmd) {
+__inline void GDISP_LLD(writeindex)(uint8_t cmd) {
   GDISP_REG = cmd;
 }
 
-inline void GDISP_LLD(writereg)(uint16_t lcdReg,uint16_t lcdRegValue) {
+__inline void GDISP_LLD(writereg)(uint16_t lcdReg,uint16_t lcdRegValue) {
 	GDISP_REG = lcdReg;
 	GDISP_RAM = lcdRegValue;
 }
 
-inline void GDISP_LLD(writedata)(uint16_t data) {
+__inline void GDISP_LLD(writedata)(uint16_t data) {
 	GDISP_RAM = data;
 }
 
-inline uint16_t GDISP_LLD(readdata)(void) {
+__inline uint16_t GDISP_LLD(readdata)(void) {
 	return (GDISP_RAM);
 }
 
-inline uint8_t GDISP_LLD(readreg)(uint8_t lcdReg) {
+__inline uint8_t GDISP_LLD(readreg)(uint8_t lcdReg) {
 	GDISP_REG = lcdReg;
 	return (GDISP_RAM);
 }
 
-inline void GDISP_LLD(writestreamstart)(void) {
+__inline void GDISP_LLD(writestreamstart)(void) {
 	GDISP_LLD(writeindex)(SSD1963_WRITE_MEMORY_START);
 }
 
-inline void GDISP_LLD(readstreamstart)(void) {
+__inline void GDISP_LLD(readstreamstart)(void) {
 	GDISP_LLD(writeindex)(SSD1963_READ_MEMORY_START);
 }
 
-inline void GDISP_LLD(writestream)(uint16_t *buffer, uint16_t size) {
+__inline void GDISP_LLD(writestream)(uint16_t *buffer, uint16_t size) {
 	uint16_t i;
 	for(i = 0; i < size; i++)
 		GDISP_RAM = buffer[i];
 }
 
-inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
+__inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
 	uint16_t i;
 
 	for(i = 0; i < size; i++) {
@@ -110,33 +110,33 @@ inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
 
 #elif defined(GDISP_USE_GPIO)
 
-inline void GDISP_LLD(writeindex)(uint8_t cmd) {
+__inline void GDISP_LLD(writeindex)(uint8_t cmd) {
 	Set_CS; Set_RS; Set_WR; Clr_RD;
 	palWritePort(GDISP_DATA_PORT, cmd);
 	Clr_CS;
 }
 
-inline void GDISP_LLD(writereg)(uint16_t lcdReg,uint16_t lcdRegValue) {
+__inline void GDISP_LLD(writereg)(uint16_t lcdReg,uint16_t lcdRegValue) {
 	Set_CS; Set_RS; Set_WR; Clr_RD;
 	palWritePort(GDISP_DATA_PORT, lcdReg);
 	Clr_RS;
 	palWritePort(GDISP_DATA_PORT, lcdRegValue);
 	Clr_CS;
 }
-inline void GDISP_LLD(writedata)(uint16_t data) {
+__inline void GDISP_LLD(writedata)(uint16_t data) {
 	Set_CS; Clr_RS; Set_WR; Clr_RD;
 	palWritePort(GDISP_DATA_PORT, data);
 	Clr_CS;
 }
 
-inline uint16_t GDISP_LLD(readdata)(void) {
+__inline uint16_t GDISP_LLD(readdata)(void) {
 	Set_CS; Clr_RS; Clr_WR; Set_RD;
 	uint16_t data = palReadPort(GDISP_DATA_PORT); 
 	Clr_CS;
 	return data;
 }
 
-inline uint8_t GDISP_LLD(readreg)(uint8_t lcdReg) {
+__inline uint8_t GDISP_LLD(readreg)(uint8_t lcdReg) {
 	Set_CS; Set_RS; Clr_WR; Set_RD;
 	palWritePort(GDISP_DATA_PORT, lcdReg);
 	Clr_RS;
@@ -145,15 +145,15 @@ inline uint8_t GDISP_LLD(readreg)(uint8_t lcdReg) {
 	return data;
 }
 
-inline void GDISP_LLD(writestreamstart)(void) {
+__inline void GDISP_LLD(writestreamstart)(void) {
 	GDISP_LLD(writeindex)(SSD1963_WRITE_MEMORY_START);
 }
 
-inline void GDISP_LLD(readstreamstart)(void) {
+__inline void GDISP_LLD(readstreamstart)(void) {
 	GDISP_LLD(writeindex)(SSD1963_READ_MEMORY_START);
 }
 
-inline void GDISP_LLD(writestream)(uint16_t *buffer, uint16_t size) {
+__inline void GDISP_LLD(writestream)(uint16_t *buffer, uint16_t size) {
 	uint16_t i;
 	Set_CS; Clr_RS; Set_WR; Clr_RD;
 	for(i = 0; i < size; i++) {
@@ -164,7 +164,7 @@ inline void GDISP_LLD(writestream)(uint16_t *buffer, uint16_t size) {
 	Clr_CS;
 }
 
-inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
+__inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
 	uint16_t i;
 	Set_CS; Clr_RS; Clr_WR; Set_RD;
 	for(i = 0; i < size; i++) {
@@ -174,6 +174,20 @@ inline void GDISP_LLD(readstream)(uint16_t *buffer, size_t size) {
 	}
 }
 #endif
+
+__inline void gdisp_lld_bg_dimmer(uint8_t duty_cycle){//duty_cycle is 00..FF
+	//Work in progress: the SSD1963 has a built-in PWM, its output can
+	//be used by a Dynamic Background Control or by a host (user)
+	//Check your LCD's hardware, the PWM connection is default left open and instead
+	//connected to a LED connection on the breakout board
+	GDISP_LLD(writeindex)(SSD1963_SET_PWM_CONF);//set PWM for BackLight
+	GDISP_LLD(writedata)(0x0001);
+	GDISP_LLD(writedata)(duty_cycle & 0x00FF);
+	GDISP_LLD(writedata)(0x0001);//controlled by host (not DBC), enabled
+	GDISP_LLD(writedata)(0x00FF);
+	GDISP_LLD(writedata)(0x0060);//don't let it go too dark, avoid a useless LCD
+	GDISP_LLD(writedata)(0x000F);//prescaler ???
+}
 
 /* ---- Required Routines ---- */
 /*
@@ -192,7 +206,12 @@ bool_t gdisp_lld_init(void) {
 
 #if defined(GDISP_USE_FSMC)
 	
-	#if defined(STM32F1XX) || defined(STM32F3XX)
+	/* set pins to FSMC mode */
+	IOBus busD = {GPIOD, (1 << 0) | (1 << 1) | (1 << 4) | (1 << 5) | (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10) | (1 << 11) | (1 << 14) | (1 << 15), 0};
+	IOBus busE = {GPIOE, (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10) | (1 << 11) | (1 << 12) | (1 << 13) | (1 << 14) | (1 << 15), 0};
+	const unsigned char FSMC_Bank = 0;
+	
+	#if defined(STM32F1XX) || defined(STM32F3XX) || defined(STM32F10X_HD)
 		/* FSMC setup for F1/F3 */
 		rccEnableAHB(RCC_AHBENR_FSMCEN, 0);
 	
@@ -211,18 +230,13 @@ bool_t gdisp_lld_init(void) {
 	#else
 		#error "FSMC not implemented for this device"
 	#endif
-	
-	/* set pins to FSMC mode */
-	IOBus busD = {GPIOD, (1 << 0) | (1 << 1) | (1 << 4) | (1 << 5) | (1 << 7) | (1 << 8) |
-							(1 << 9) | (1 << 10) | (1 << 11) | (1 << 14) | (1 << 15), 0};
 
-	IOBus busE = {GPIOE, (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10) | (1 << 11) | (1 << 12) |
-						(1 << 13) | (1 << 14) | (1 << 15), 0};
-
-	palSetBusMode(&busD, PAL_MODE_ALTERNATE(12));
-	palSetBusMode(&busE, PAL_MODE_ALTERNATE(12));
+	//palSetBusMode(&busD, PAL_MODE_ALTERNATE(12));
+	//palSetBusMode(&busE, PAL_MODE_ALTERNATE(12));
+	palSetBusMode(&busD, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
+	palSetBusMode(&busE, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
 	
-	const unsigned char FSMC_Bank = 0;
+		
 	/* FSMC timing */
 	FSMC_Bank1->BTCR[FSMC_Bank+1] = (FSMC_BTR1_ADDSET_1 | FSMC_BTR1_ADDSET_3) \
 			| (FSMC_BTR1_DATAST_1 | FSMC_BTR1_DATAST_3) \
@@ -240,72 +254,92 @@ bool_t gdisp_lld_init(void) {
 	
 #else
 	#error "Please define GDISP_USE_FSMC or GDISP_USE_GPIO"
-#endif	
-	GDISP_LLD(writeindex)(SSD1963_SOFT_RESET);	
-	chThdSleepMicroseconds(100);
+#endif
 
-	/* Driver PLL config */
-	GDISP_LLD(writeindex)(SSD1963_SET_PLL_MN);
-	GDISP_LLD(writedata)(35);								 // PLLclk = REFclk (10Mhz) * 36 (360Mhz)
-	GDISP_LLD(writedata)(2);								 // SYSclk = PLLclk / 3  (120MHz)
-	GDISP_LLD(writedata)(4);								 // Apply calculation bit, else it is ignored
+	palClearPad(GPIOB, GPIOB_LCD_RESET);	//reset
+	chThdSleepMilliseconds(500);			//
+	palSetPad(GPIOB, GPIOB_LCD_RESET);		//
+	chThdSleepMilliseconds(100);
+	
+	GDISP_LLD(writeindex)(SSD1963_SET_PLL_MN);//set PLL frequency
+	GDISP_LLD(writedata)(0x0023);//multiplier, VCO = Reference input clock x this value
+	GDISP_LLD(writedata)(0x0002);//divider, PLL frequency = VCO / this value
+	GDISP_LLD(writedata)(0x0004);//Effectuate the multiplier and divider value
+	
+	//Enabling the PLL is a 2-step procedure
+	//First use system clock and wait for the PLL to stabilize, then enable PLL
+	GDISP_LLD(writeindex)(SSD1963_SET_PLL);// Enable PLL
+	GDISP_LLD(writedata)(0x0001);//Use reference clock as system clock and Enable PLL
+	chThdSleepMilliseconds(1);
+	GDISP_LLD(writeindex)(SSD1963_SET_PLL);// Use PLL
+	GDISP_LLD(writedata)(0x0003);//Use PLL output as system clock
+	chThdSleepMilliseconds(5);
+	
+	GDISP_LLD(writeindex)(SSD1963_SOFT_RESET);//Software reset
+	chThdSleepMilliseconds(5);
+	
+	GDISP_LLD(writeindex)(SSD1963_SET_LSHIFT_FREQ);//Set the LSHIFT (pixel clock) frequency called PCLK
+	GDISP_LLD(writedata)(0x0004);//this and the next 2 parameters form a 20-bit value called LCDC_FPR
+	GDISP_LLD(writedata)(0x0093);// PCLK = PLL Frequency * LCDC_FPR / 2^20
+	GDISP_LLD(writedata)(0x00E0);
 
-	GDISP_LLD(writeindex)(SSD1963_SET_PLL);					// Enable PLL
-	GDISP_LLD(writedata)(0x01);
-	chThdSleepMicroseconds(200);
-
-	GDISP_LLD(writeindex)(SSD1963_SET_PLL);					// Use PLL
-	GDISP_LLD(writedata)(0x03);
-	chThdSleepMicroseconds(200);
-
-	GDISP_LLD(writeindex)(SSD1963_SOFT_RESET);	
-	chThdSleepMicroseconds(100);
-
-	/* Screen size */
-	GDISP_LLD(writeindex)(SSD1963_SET_GDISP_MODE);
-//	GDISP_LLD(writedata)(0x0000);
-	GDISP_LLD(writedata)(0b00011000); //Enabled dithering
+	GDISP_LLD(writeindex)(SSD1963_SET_GDISP_MODE); //Set the LCD panel mode (RGB TFT or TTL) and pad strength
+	GDISP_LLD(writedata)(0x0020);//TFT panel data width: 24-bit ; TFT color depth enhancement: Disable FRC or dithering
+	GDISP_LLD(writedata)(0x0000);//LCD panel mode: Hsync+Vsync +DE mode & TFT mode
+	GDISP_LLD(writedata)(mHIGH(GDISP_SCREEN_WIDTH-1) & 0x00FF);
+	GDISP_LLD(writedata)((GDISP_SCREEN_WIDTH-1) & 0x00FF);
+	GDISP_LLD(writedata)(mHIGH(GDISP_SCREEN_HEIGHT-1) & 0x00FF);
+	GDISP_LLD(writedata)((GDISP_SCREEN_HEIGHT-1) & 0x00FF);
 	GDISP_LLD(writedata)(0x0000);
-	GDISP_LLD(writedata)(mHIGH((GDISP_SCREEN_WIDTH+1)));
-	GDISP_LLD(writedata)((GDISP_SCREEN_WIDTH+1));
-	GDISP_LLD(writedata)(mHIGH((GDISP_SCREEN_HEIGHT+1)));
-	GDISP_LLD(writedata)((GDISP_SCREEN_HEIGHT+1));
-	GDISP_LLD(writedata)(0x0000);
-
-	GDISP_LLD(writeindex)(SSD1963_SET_PIXEL_DATA_INTERFACE);
-	GDISP_LLD(writedata)(SSD1963_PDI_16BIT565);
-
-	/* LCD Clock specs */
-	GDISP_LLD(writeindex)(SSD1963_SET_LSHIFT_FREQ);
-	GDISP_LLD(writedata)((GDISP_FPR >> 16) & 0xFF);
-	GDISP_LLD(writedata)((GDISP_FPR >> 8) & 0xFF);
-	GDISP_LLD(writedata)(GDISP_FPR & 0xFF);
-
-	GDISP_LLD(writeindex)(SSD1963_SET_HORI_PERIOD);
-	GDISP_LLD(writedata)(mHIGH(SCREEN_HSYNC_PERIOD));
-	GDISP_LLD(writedata)(mLOW(SCREEN_HSYNC_PERIOD));
-	GDISP_LLD(writedata)(mHIGH((SCREEN_HSYNC_PULSE + SCREEN_HSYNC_BACK_PORCH)));
-	GDISP_LLD(writedata)(mLOW((SCREEN_HSYNC_PULSE + SCREEN_HSYNC_BACK_PORCH)));
+	
+	//Set horizontal timings
+	GDISP_LLD(writeindex)(SSD1963_SET_HORI_PERIOD);//Set Horizontal Period HSYNC
+	GDISP_LLD(writedata)(mHIGH(SCREEN_HSYNC_PERIOD) & 0x00FF);//Set HT
+	GDISP_LLD(writedata)(SCREEN_HSYNC_PERIOD & 0x00FF);
+	GDISP_LLD(writedata)(mHIGH(SCREEN_HSYNC_PULSE + SCREEN_HSYNC_BACK_PORCH) & 0x00FF);
+	GDISP_LLD(writedata)((SCREEN_HSYNC_PULSE + SCREEN_HSYNC_BACK_PORCH) & 0x00FF);
 	GDISP_LLD(writedata)(SCREEN_HSYNC_PULSE);
-	GDISP_LLD(writedata)(0x00);
-	GDISP_LLD(writedata)(0x00);
-	GDISP_LLD(writedata)(0x00);
-
-	GDISP_LLD(writeindex)(SSD1963_SET_VERT_PERIOD);
-	GDISP_LLD(writedata)(mHIGH(SCREEN_VSYNC_PERIOD));
-	GDISP_LLD(writedata)(mLOW(SCREEN_VSYNC_PERIOD));
-	GDISP_LLD(writedata)(mHIGH((SCREEN_VSYNC_PULSE + SCREEN_VSYNC_BACK_PORCH)));
-	GDISP_LLD(writedata)(mLOW((SCREEN_VSYNC_PULSE + SCREEN_VSYNC_BACK_PORCH)));
-	GDISP_LLD(writedata)(SCREEN_VSYNC_PULSE);
-	GDISP_LLD(writedata)(0x00);
-	GDISP_LLD(writedata)(0x00);
-
-	/* Tear effect indicator ON. This is used to tell the host MCU when the driver is not refreshing the panel */
-	GDISP_LLD(writeindex)(SSD1963_SET_TEAR_ON);
+	GDISP_LLD(writedata)(mHIGH(SCREEN_HSTART_POSITION) & 0x00FF);
+	GDISP_LLD(writedata)(SCREEN_HSTART_POSITION & 0x00FF);
 	GDISP_LLD(writedata)(0x0000);
+	//set vertical timings
+	GDISP_LLD(writeindex)(SSD1963_SET_VERT_PERIOD);//Set Vertical Period VSYNC
+	GDISP_LLD(writedata)(mHIGH(SCREEN_VSYNC_PERIOD) & 0x00FF);//Set VT
+	GDISP_LLD(writedata)(SCREEN_VSYNC_PERIOD & 0x00FF);
+	GDISP_LLD(writedata)(mHIGH(SCREEN_VSYNC_PULSE + SCREEN_VSYNC_BACK_PORCH) & 0x00FF);
+	GDISP_LLD(writedata)((SCREEN_VSYNC_PULSE + SCREEN_VSYNC_BACK_PORCH) & 0x00FF);
+	GDISP_LLD(writedata)(SCREEN_VSYNC_PULSE);
+	GDISP_LLD(writedata)(mHIGH(SCREEN_VSTART_POSITION) & 0x00FF);
+	GDISP_LLD(writedata)(SCREEN_VSTART_POSITION & 0x00FF);
+	
+	//Work in progress: the SSD1963 has 4 GPIO lines that can be configured for custom
+	//purpose. The following 5 lines illustrate its use
+	GDISP_LLD(writeindex)(SSD1963_SET_GPIO_VALUE);
+	GDISP_LLD(writedata)(0x000F);//GPIO[3:0] out 1
+	GDISP_LLD(writeindex)(SSD1963_SET_GPIO_CONF);
+	GDISP_LLD(writedata)(0x0007);//GPIO3=input, GPIO[2:0]=output
+	GDISP_LLD(writedata)(0x0001);//GPIO0 normal
+	
+	//Set the read order from host processor to frame buffer and from frame buffer to the display panel
+	//Use this to rotate, flip and mirror
+	GDISP_LLD(writeindex)(SSD1963_SET_ADDRESS_MODE);
+	GDISP_LLD(writedata)(0x0000);//Top to bottom, Left to right, Normal column order, LCD refresh from top line to bottom line and left side to right side, RGB, no Horizontal flip
+	
+	GDISP_LLD(writeindex)(SSD1963_SET_PIXEL_FORMAT);//Set the current pixel format for RGB image data
+	GDISP_LLD(writedata)(0x0050);//16-bit per pixel
+	chThdSleepMilliseconds(5);
+	
+	GDISP_LLD(writeindex)(SSD1963_SET_PIXEL_DATA_INTERFACE);//Set the pixel data format to 8-bit / 9-bit / 12-bit / 16-bit / 16-bit(565) / 18-bit / 24-bit in the parallel host processor interface
+	GDISP_LLD(writedata)(SSD1963_PDI_16BIT565);
+	chThdSleepMilliseconds(5);
+	
+	GDISP_LLD(writeindex)(SSD1963_SET_GAMMA_CURVE);//Selects the gamma curve used by the display device
+	GDISP_LLD(writedata)(0x0008);//Gamma curve 3
+	
+	GDISP_LLD(writeindex)(SSD1963_SET_DISPLAY_ON);//Show the image on the display device
+	
+	gdisp_lld_bg_dimmer(0xE5);//set to 90% brightness
 
-	/* Turn on */
-	GDISP_LLD(writeindex)(SSD1963_SET_DISPLAY_ON);
 	#if defined(GDISP_USE_FSMC)
 		/* FSMC delay reduced as the controller now runs at full speed */
 		FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_0 | FSMC_BTR1_DATAST_2 | FSMC_BTR1_BUSTURN_0 ;
@@ -382,6 +416,8 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void gdisp_lld_fill_area(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
+		uint32_t area;
+		uint32_t index;
     
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; x = GDISP.clipx0; }
@@ -391,7 +427,6 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
 		
-		uint32_t area;
 		area = cx*cy;
 
 		GDISP_LLD(setwindow)(x, y, x+cx-1, y+cy-1);
@@ -410,7 +445,6 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 			dmaStreamEnable(GDISP_DMA_STREAM);
 			dmaWaitCompletion(GDISP_DMA_STREAM);
 		#else
-			uint32_t index;
 			for(index = 0; index < area; index++)
 				GDISP_LLD(writedata)(color);
 		#endif  //#ifdef GDISP_USE_DMA
@@ -431,7 +465,9 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void gdisp_lld_blit_area_ex(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
-
+		coord_t endx, endy;
+		unsigned lg;
+			
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; srcx += GDISP.clipx0 - x; x = GDISP.clipx0; }
 			if (y < GDISP.clipy0) { cy -= GDISP.clipy0 - y; srcy += GDISP.clipy0 - y; y = GDISP.clipy0; }
@@ -460,8 +496,6 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 			dmaStreamEnable(GDISP_DMA_STREAM);
 			dmaWaitCompletion(GDISP_DMA_STREAM);
 		#else
-			coord_t endx, endy;
-			unsigned lg;
 			endx = srcx + cx;
 			endy = y + cy;
 			lg = srccx - cx;
@@ -539,71 +573,73 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 		/* NOT IMPLEMENTED YET */
 		switch(what) {
 			case GDISP_CONTROL_POWER:
-			if (GDISP.Powermode == (gdisp_powermode_t)value)
-				return;
-			switch((gdisp_powermode_t)value) {
-				case powerOff:
-					GDISP_LLD(writeindex)(SSD1963_EXIT_SLEEP_MODE); // leave sleep mode
-					chThdSleepMicroseconds(5000);
-					GDISP_LLD(writeindex)(SSD1963_SET_DISPLAY_OFF);
-					GDISP_LLD(writeindex)(SSD1963_SET_DEEP_SLEEP); // enter deep sleep mode
-					break;
-				case powerOn:
-					GDISP_LLD(readreg)(0x0000); chThdSleepMicroseconds(5000); // 2x Dummy reads to wake up from deep sleep
-					GDISP_LLD(readreg)(0x0000); chThdSleepMicroseconds(5000);
-					if (GDISP.Powermode != powerSleep)
-						gdisp_lld_init();
-					GDISP_LLD(writeindex)(SSD1963_SET_DISPLAY_ON);
-
-					break;
-				case powerSleep:
-					GDISP_LLD(writeindex)(SSD1963_SET_DISPLAY_OFF);
-					GDISP_LLD(writeindex)(SSD1963_ENTER_SLEEP_MODE); // enter sleep mode
-					chThdSleepMicroseconds(5000);
-					break;
-				default:
+				if (GDISP.Powermode == (gdisp_powermode_t)value)
 					return;
-			}
-			GDISP.Powermode = (gdisp_powermode_t)value;
-			return;
+				switch((gdisp_powermode_t)value) {
+					case powerOff:
+						GDISP_LLD(writeindex)(SSD1963_EXIT_SLEEP_MODE); // leave sleep mode
+						chThdSleepMilliseconds(5);
+						GDISP_LLD(writeindex)(SSD1963_SET_DISPLAY_OFF);
+						GDISP_LLD(writeindex)(SSD1963_SET_DEEP_SLEEP); // enter deep sleep mode
+						break;
+					case powerOn:
+						GDISP_LLD(readreg)(0x0000); chThdSleepMilliseconds(5); // 2x Dummy reads to wake up from deep sleep
+						GDISP_LLD(readreg)(0x0000); chThdSleepMilliseconds(5);
+						if (GDISP.Powermode != powerSleep)
+							gdisp_lld_init();
+						GDISP_LLD(writeindex)(SSD1963_SET_DISPLAY_ON);
+	
+						break;
+					case powerSleep:
+						GDISP_LLD(writeindex)(SSD1963_SET_DISPLAY_OFF);
+						GDISP_LLD(writeindex)(SSD1963_ENTER_SLEEP_MODE); // enter sleep mode
+						chThdSleepMilliseconds(5);
+						break;
+					default:
+						return;
+				}
+				GDISP.Powermode = (gdisp_powermode_t)value;
+				return;
 			case GDISP_CONTROL_ORIENTATION:
 				if (GDISP.Orientation == (gdisp_orientation_t)value)
 					return;
-			switch((gdisp_orientation_t)value) {
-				case GDISP_ROTATE_0:
-					/* 	Code here */
-					GDISP.Height = GDISP_SCREEN_HEIGHT;
-					GDISP.Width = GDISP_SCREEN_WIDTH;
-					break;
-				case GDISP_ROTATE_90:
-					/* 	Code here */
-					GDISP.Height = GDISP_SCREEN_WIDTH;
-					GDISP.Width = GDISP_SCREEN_HEIGHT;
-					break;
-				case GDISP_ROTATE_180:
-					/* 	Code here */
-					GDISP.Height = GDISP_SCREEN_HEIGHT;
-					GDISP.Width = GDISP_SCREEN_WIDTH;
-					break;
-				case GDISP_ROTATE_270:
-					/* 	Code here */
-					GDISP.Height = GDISP_SCREEN_WIDTH;
-					GDISP.Width = GDISP_SCREEN_HEIGHT;
-					break;
-				default:
-					return;
-			}
-			#if GDISP_NEED_CLIP || GDISP_NEED_VALIDATION
-				GDISP.clipx0 = 0;
-				GDISP.clipy0 = 0;
-				GDISP.clipx1 = GDISP.Width;
-				GDISP.clipy1 = GDISP.Height;
-			#endif
-			GDISP.Orientation = (gdisp_orientation_t)value;
-			return;
+				switch((gdisp_orientation_t)value) {
+					case GDISP_ROTATE_0:
+						/* 	Code here */
+						GDISP.Height = GDISP_SCREEN_HEIGHT;
+						GDISP.Width = GDISP_SCREEN_WIDTH;
+						break;
+					case GDISP_ROTATE_90:
+						/* 	Code here */
+						GDISP.Height = GDISP_SCREEN_WIDTH;
+						GDISP.Width = GDISP_SCREEN_HEIGHT;
+						break;
+					case GDISP_ROTATE_180:
+						/* 	Code here */
+						GDISP.Height = GDISP_SCREEN_HEIGHT;
+						GDISP.Width = GDISP_SCREEN_WIDTH;
+						break;
+					case GDISP_ROTATE_270:
+						/* 	Code here */
+						GDISP.Height = GDISP_SCREEN_WIDTH;
+						GDISP.Width = GDISP_SCREEN_HEIGHT;
+						break;
+					default:
+						return;
+				}
+				#if GDISP_NEED_CLIP || GDISP_NEED_VALIDATION
+					GDISP.clipx0 = 0;
+					GDISP.clipy0 = 0;
+					GDISP.clipx1 = GDISP.Width;
+					GDISP.clipy1 = GDISP.Height;
+				#endif
+				GDISP.Orientation = (gdisp_orientation_t)value;
+				return;
+			case GDISP_CONTROL_BACKLIGHT:
+				gdisp_lld_bg_dimmer(54 + ((uint8_t)value) << 1);//turn 0..100% in 54..255
+				return;
 /*
-		case GDISP_CONTROL_BACKLIGHT:
-		case GDISP_CONTROL_CONTRAST:
+			case GDISP_CONTROL_CONTRAST:
 */
 		}
 	}
@@ -611,3 +647,4 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 
 #endif /* GFX_USE_GDISP */
 /** @} */
+

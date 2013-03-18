@@ -735,7 +735,7 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 	 * @param[in] str		The string to draw
 	 * @param[in] font		The font to use
 	 * @param[in] color		The color to use
-	 * @param[in] bgcolor	The background color to use
+	 * @param[in] bgColor	The background color to use
 	 * @param[in] justify	Justify the text left, center or right within the box
 	 *
 	 * @api

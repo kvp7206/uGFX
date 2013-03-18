@@ -50,14 +50,15 @@ typedef struct gaudin_params_t {
 	size_t			bufcount;
 	size_t			samplesPerEvent;
 	} gaudin_params;
-/* @} */
+/** @} */
 
 /**
  * @brief				These routines are the callbacks that the driver uses.
  * @details				Defined in the high level GAUDIN code.
  *
- * @icode
+ * @iclass
  * @notapi
+ *
  * @{
  */
 extern void GAUDIN_ISR_CompleteI(audin_sample_t *buffer, size_t n);

@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    drivers/tdisp/HD44780/tdisp_lld_board_unknown.h
+ * @file    drivers/tdisp/HD44780/tdisp_lld_board_st_stm32f4_discovery.h
  * @brief   TDISP driver subsystem board interface for the HD44780 display
  *
  * @addtogroup TDISP

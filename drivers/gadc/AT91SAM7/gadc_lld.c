@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
- * @file    include/gadc/lld/gadc_lld.c
+ * @file    drivers/gadc/AT91SAM7/gadc_lld.c
  * @brief   GADC - Periodic ADC driver source file for the AT91SAM7 cpu.
  *
  * @defgroup Driver Driver

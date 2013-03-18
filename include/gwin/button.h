@@ -212,6 +212,7 @@ void gwinSetButtonCustom(GHandle gh, GButtonDrawFunction fn, void *param);
  *
  * @param[in] gh		The button handle
  * @param[in] isdown	Is the button currently down (depressed)
+ * @param[in] txt		The text to be display inside the button
  * @param[in] pstyle	The current drawing style for the state we are in
  * @param[in] param		A parameter passed in from the user
  *
