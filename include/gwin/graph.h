@@ -47,9 +47,8 @@
 /* Type definitions                                                          */
 /*===========================================================================*/
 
-typedef struct GGraphPoint_t {
-	coord_t		x, y;
-	} GGraphPoint;
+// GDISP now has its own point structure
+#define GGraphPoint		point
 
 typedef enum GGraphPointType_e {
 	GGRAPH_POINT_NONE, GGRAPH_POINT_DOT, GGRAPH_POINT_SQUARE, GGRAPH_POINT_CIRCLE
@@ -195,7 +194,7 @@ void gwinGraphDrawPoint(GHandle gh, coord_t x, coord_t y);
  *
  * @api
  */
-void gwinGraphDrawPoints(GHandle gh, const GGraphPoint *points, unsigned count);
+void gwinGraphDrawPoints(GHandle gh, const point *points, unsigned count);
 
 #ifdef __cplusplus
 }
