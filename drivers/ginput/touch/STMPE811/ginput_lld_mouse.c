@@ -37,38 +37,16 @@
 
 #include "ginput/lld/mouse.h"
 
-#if defined(GINPUT_MOUSE_USE_CUSTOM_BOARD) && GINPUT_MOUSE_USE_CUSTOM_BOARD
-	#include "ginput_lld_mouse_board.h"
-#elif defined(BOARD_EMBEST_DMSTF4BB)
 	#include "ginput_lld_mouse_board_embest_dmstf4bb.h"
-#else
-	#include "ginput_lld_mouse_board_example.h"
-#endif
 
-static uint16_t sampleBuf[7];
-static coord_t	lastx, lasty;
+static coord_t lastx, lasty, lastz;
 
-/**
- * @brief   7-point median filtering code for touch samples
- *
- * @note    This is an internally used routine only.
- *
- * @notapi
- */
-static void filter(void) {
-	uint16_t temp;
-	int i,j;
-
-	for(i = 0; i < 4; i++) {
-		for(j = i; j < 7; j++) {
-			if(sampleBuf[i] > sampleBuf[j]) {
-				/* Swap the values */
-				temp = sampleBuf[i];
-				sampleBuf[i] = sampleBuf[j];
-				sampleBuf[j] = temp;
-			}
-		}
-	}
+/* set the active window of the stmpe811. bl is bottom left, tr is top right */
+static void setActiveWindow(uint16_t bl_x, uint16_t bl_y, uint16_t tr_x, uint16_t tr_y) {
+	write_reg(STMPE811_REG_WDW_TR_X, 2, tr_x);
+	write_reg(STMPE811_REG_WDW_TR_Y, 2, tr_y);
+	write_reg(STMPE811_REG_WDW_BL_X, 2, bl_x);
+	write_reg(STMPE811_REG_WDW_BL_Y, 2, bl_y);
 }
 
 /**
@@ -78,6 +56,25 @@ static void filter(void) {
  */
 void ginput_lld_mouse_init(void) {
 	init_board();
+
+	write_reg(STMPE811_REG_SYS_CTRL1, 		1, 0x02);	// software chip reset
+	write_reg(STMPE811_REG_SYS_CTRL2, 		1, 0x04);	// temp. sensor clock on, GPIO clock off, touch clock on, ADC clock on
+	write_reg(STMPE811_REG_INT_EN, 			1, 0x03);  //0x03
+	write_reg(STMPE811_REG_ADC_CTRL1, 		1, 0x49);  //ADC conversion time = 80 clock ticks, 12-bit ADC, internacl voltage refernce
+
+	chThdSleepMicroseconds(1000);
+
+	write_reg(STMPE811_REG_ADC_CTRL2,  		1, 0x01);  //ADC speed 3.25MHz
+	write_reg(STMPE811_REG_GPIO_AF,   		1, 0x00);  //GPIO alternate function - OFF
+	write_reg(STMPE811_REG_TSC_CFG,   		1, 0xA3);  //avaraging 4, Touch detect delay 1ms, Panel driver settling time 1ms
+	write_reg(STMPE811_REG_FIFO_TH,   		1, 0x01);  //FIFO trashold =1
+	write_reg(STMPE811_REG_FIFO_STA,  		1, 0x01);  //FIFO reset enable
+	write_reg(STMPE811_REG_FIFO_STA, 		1, 0x00);  //FIFO reset disable
+	write_reg(STMPE811_REG_TSC_FRACT_XYZ,	1, 0x07); //Z axis data format
+	write_reg(STMPE811_REG_TSC_I_DRIVE,    	1, 0x01); //50mA touchscreen line current 
+	write_reg(STMPE811_REG_TSC_CTRL,  		1, 0x03);  //X&Y only, TSC enable
+	write_reg(STMPE811_REG_INT_STA,   		1, 0xFF);  //clear all interrupts
+	write_reg(STMPE811_REG_INT_CTRL,  		1, 0x01);  //level interrupt, enable intrrupts 
 }
 
 /**
@@ -95,44 +92,29 @@ void ginput_lld_mouse_init(void) {
  * @notapi
  */
 void ginput_lld_mouse_get_reading(MouseReading *pt) {
-	uint16_t i;
+	uint16_t buf;
 
-	// If touch-off return the previous results
-	if (!getpin_pressed()) {
+	// if not touched, return the previous results
+	if(!getpin_pressed()) {
 		pt->x = lastx;
 		pt->y = lasty;
 		pt->z = 0;
 		pt->buttons = 0;
 		return;
 	}
-	
-	// Read the port to get the touch settings
-	aquire_bus();
 
-	/* Get the X value
-	 * Discard the first conversion - very noisy and keep the ADC on hereafter
-	 * till we are done with the sampling. Note that PENIRQ is disabled while reading.
-	 * Finally switch on PENIRQ once again - perform a dummy read.
-	 * Once we have the readings, find the medium using our filter function
- 	 */
-	read_value(0xD1);
-	for(i = 0; i < 7; i++)
-		sampleBuf[i] = read_value(0xD1);
-	read_value(0xD0);
-	filter();
-	lastx = (coord_t)sampleBuf[3];
+	/* Get the X value */
+	buf = read_reg(STMPE811_REG_TSC_DATA_X, 2);
+	lastx = (coord_t)(buf);
 
-	/* Get the Y value using the same process as above */
-	read_value(0x91);
-	for(i = 0; i < 7; i++)
-		sampleBuf[i] = read_value(0x91);
-	read_value(0x90);
-	filter();
-	lasty = (coord_t)sampleBuf[3];
+	/* Get the Y value */
+	buf = read_reg(STMPE811_REG_TSC_DATA_Y, 2);
+	lasty = (coord_t)(buf);
 
-	// Release the bus
-	release_bus();
-	
+	/* Get the Z value */
+	buf = read_reg(STMPE811_REG_TSC_DATA_Z, 1);
+	lastz = (buf & 0x00FF);
+
 	// Return the results
 	pt->x = lastx;
 	pt->y = lasty;
@@ -142,3 +124,4 @@ void ginput_lld_mouse_get_reading(MouseReading *pt) {
 
 #endif /* GFX_USE_GINPUT && GINPUT_NEED_MOUSE */
 /** @} */
+
