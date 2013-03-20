@@ -69,7 +69,7 @@ static inline bool_t getpin_pressed(void) {
  * @notapi
  */
 static void write_reg(uint8_t reg, uint8_t n, uint16_t val) {
-	uint8_t txbuf[1];
+	uint8_t txbuf[2];
 
 	i2cAcquireBus(&I2CD1);
 	
@@ -79,7 +79,7 @@ static void write_reg(uint8_t reg, uint8_t n, uint16_t val) {
 	if(n == 1) {
 		txbuf[0] = val;
 		i2cMasterTransmitTimeout(&I2CD1, STMPE811_ADDR, txbuf, 1, NULL, 0, MS2ST(STMPE811_TIMEOUT));
-	} else if(n == 3) {
+	} else if(n == 2) {
 		txbuf[0] = ((val & 0xFF00) >> 8);
 		txbuf[1] = (val & 0x00FF);
 		i2cMasterTransmitTimeout(&I2CD1, STMPE811_ADDR, txbuf, 2, NULL, 0, MS2ST(STMPE811_TIMEOUT));
@@ -100,21 +100,26 @@ static uint16_t read_reg(uint8_t reg, uint8_t n) {
 	uint8_t txbuf[1], rxbuf[2];
 	uint16_t ret;
 
+	rxbuf[0] = 0;
+	rxbuf[1] = 0;
+
 	i2cAcquireBus(&I2CD1);
 
 	txbuf[0] = reg;
-	i2cMasterTransmitTimeout(&I2CD1, 0x82 >> 1, txbuf, 1, rxbuf, 2, MS2ST(STMPE811_TIMEOUT));
-		
-	i2cReleaseBus(&I2CD1);
+	i2cMasterTransmitTimeout(&I2CD1, STMPE811_ADDR, txbuf, 1, rxbuf, 0, MS2ST(STMPE811_TIMEOUT));
 
-	if(n == 1)
+	if(n == 1) {
+		i2cMasterReceiveTimeout(&I2CD1, STMPE811_ADDR, rxbuf, 1, MS2ST(STMPE811_TIMEOUT));
 		ret = rxbuf[0];
-	else if (n == 2)
+	} else if(n == 2) {
+		i2cMasterReceiveTimeout(&I2CD1, STMPE811_ADDR, rxbuf, 2, MS2ST(STMPE811_TIMEOUT));
 		ret = ((rxbuf[0] << 8) | (rxbuf[1] & 0xFF));
+	}
+
+	i2cReleaseBus(&I2CD1);
 
 	return ret;
 }
 
 #endif /* _GINPUT_LLD_MOUSE_BOARD_H */
 /** @} */
-
