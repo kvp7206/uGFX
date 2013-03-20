@@ -472,7 +472,7 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 		abslines = lines < 0 ? -lines : lines;
 
 		acquire_bus();
-		if (abslines >= cy) {
+		if ((coord_t)abslines >= cy) {
 			abslines = cy;
 			gap = 0;
 		} else {
@@ -490,20 +490,20 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 				set_viewport(x, row0, cx, 1);
 				stream_start();
 				j = read_data();			// dummy read
-				for (j = 0; j < cx; j++)
+				for (j = 0; (coord_t)j < cx; j++)
 					buf[j] = read_data();
 				stream_stop();
 
 				set_viewport(x, row1, cx, 1);
 				stream_start();
-				for (j = 0; j < cx; j++)
+				for (j = 0; (coord_t)j < cx; j++)
 					write_data(buf[j]);
 				stream_stop();
 			}
 		}
 
 		/* fill the remaining gap */
-		set_viewport(x, lines > 0 ? (y+gap) : y, cx, abslines);
+		set_viewport(x, lines > 0 ? (y+(coord_t)gap) : y, cx, abslines);
 		stream_start();
 		gap = cx*abslines;
 		for(i = 0; i < gap; i++) write_data(bgcolor);
