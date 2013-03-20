@@ -57,24 +57,25 @@ static void setActiveWindow(uint16_t bl_x, uint16_t bl_y, uint16_t tr_x, uint16_
 void ginput_lld_mouse_init(void) {
 	init_board();
 
-	write_reg(STMPE811_REG_SYS_CTRL1, 		1, 0x02);	// software chip reset
-	write_reg(STMPE811_REG_SYS_CTRL2, 		1, 0x04);	// temp. sensor clock on, GPIO clock off, touch clock on, ADC clock on
-	write_reg(STMPE811_REG_INT_EN, 			1, 0x03);  //0x03
-	write_reg(STMPE811_REG_ADC_CTRL1, 		1, 0x49);  //ADC conversion time = 80 clock ticks, 12-bit ADC, internacl voltage refernce
+	write_reg(STMPE811_REG_SYS_CTRL1,		1, 0x02);	// Software chip reset
+	write_reg(STMPE811_REG_SYS_CTRL2,		1, 0x0C);	// Temp. sensor clock off, GPIO clock off, touch clock on, ADC clock on
+	write_reg(STMPE811_REG_INT_EN,			1, 0x03);	// Interrupt on INT pin when FIFO is equal or above threshold value OR touch is detected
+	write_reg(STMPE811_REG_ADC_CTRL1,		1, 0x48);	// ADC conversion time = 80 clock ticks, 12-bit ADC, internaal voltage refernce
 
-	chThdSleepMicroseconds(1000);
+	chThdSleepMilliseconds(2);
 
-	write_reg(STMPE811_REG_ADC_CTRL2,  		1, 0x01);  //ADC speed 3.25MHz
-	write_reg(STMPE811_REG_GPIO_AF,   		1, 0x00);  //GPIO alternate function - OFF
-	write_reg(STMPE811_REG_TSC_CFG,   		1, 0xA3);  //avaraging 4, Touch detect delay 1ms, Panel driver settling time 1ms
-	write_reg(STMPE811_REG_FIFO_TH,   		1, 0x01);  //FIFO trashold =1
-	write_reg(STMPE811_REG_FIFO_STA,  		1, 0x01);  //FIFO reset enable
-	write_reg(STMPE811_REG_FIFO_STA, 		1, 0x00);  //FIFO reset disable
-	write_reg(STMPE811_REG_TSC_FRACT_XYZ,	1, 0x07); //Z axis data format
-	write_reg(STMPE811_REG_TSC_I_DRIVE,    	1, 0x01); //50mA touchscreen line current 
-	write_reg(STMPE811_REG_TSC_CTRL,  		1, 0x03);  //X&Y only, TSC enable
-	write_reg(STMPE811_REG_INT_STA,   		1, 0xFF);  //clear all interrupts
-	write_reg(STMPE811_REG_INT_CTRL,  		1, 0x01);  //level interrupt, enable intrrupts 
+	write_reg(STMPE811_REG_ADC_CTRL2,		1, 0x01);	// ADC speed 3.25MHz
+	write_reg(STMPE811_REG_GPIO_AF,			1, 0x00);	// GPIO alternate function - OFF
+	// @TODO: decide which value should STMPE811_REG_TSC_CFG have - either 0x9A or from comment;)
+	write_reg(STMPE811_REG_TSC_CFG,			1, 0x9A);	// Averaging 4, Touch detect delay 1ms, Panel driver settling time 1ms
+	write_reg(STMPE811_REG_FIFO_TH,			1, 0x01);	// FIFO threshold =1
+	write_reg(STMPE811_REG_FIFO_STA,		1, 0x01);	// FIFO reset enable
+	write_reg(STMPE811_REG_FIFO_STA,		1, 0x00);	// FIFO reset disable
+	write_reg(STMPE811_REG_TSC_FRACT_XYZ,	1, 0x07);	// Z axis data format
+	write_reg(STMPE811_REG_TSC_I_DRIVE,		1, 0x01);	// 50mA touchscreen line current
+	write_reg(STMPE811_REG_TSC_CTRL,		1, 0x03);	// X&Y only, TSC enable
+	write_reg(STMPE811_REG_INT_STA,			1, 0xFF);	// Clear all interrupts
+	write_reg(STMPE811_REG_INT_CTRL,		1, 0x01);	// Level interrupt, enable intrrupts
 }
 
 /**
