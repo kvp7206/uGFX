@@ -35,53 +35,53 @@
  *
  * @notapi
  */
-static inline void init_board(void) {
+static void init_board(void)
+{
 	/* Code here */
 	#error "ginputSTMPE811: You must supply a definition for init_board for your board"
 }
 
 /**
- * @brief   Check whether the surface is currently touched
- * @return	TRUE if the surface is currently touched
+ * @brief   Check whether an interrupt is raised
+ * @return	TRUE if there is an interrupt signal present
  *
  * @notapi
  */
-static inline bool_t getpin_pressed(void) {
+static inline bool_t getpin_pressed(void)
+{
 	/* Code here */
 	#error "ginputSTMPE811: You must supply a definition for getpin_pressed for your board"
 }
 
 /**
- * @brief   Aquire the bus ready for readings
+ * @brief	Write a value into a certain register
+ *
+ * @param[in] reg	The register address
+ * @param[in] n		The amount of bytes (one or two)
+ * @param[in] val	The value
  *
  * @notapi
  */
-static inline void aquire_bus(void) {
+static void write_reg(uint8_t reg, uint8_t n, uint16_t val)
+{
 	/* Code here */
-	#error "ginputSTMPE811: You must supply a definition for aquire_bus for your board"
+	#error "ginputSTMPE811: You must supply a definition for write_reg for your board"
 }
 
 /**
- * @brief   Release the bus after readings
+ * @brief	Read the value of a certain register
+ *
+ * @param[in] reg	The register address
+ * @param[in] n		The amount of bytes (one or two)
+ *
+ * @return Data read from device (one byte or two depending on n param)
  *
  * @notapi
  */
-static inline void release_bus(void) {
+static uint16_t read_reg(uint8_t reg, uint8_t n)
+{
 	/* Code here */
-	#error "ginputSTMPE811: You must supply a definition for release_bus for your board"
-}
-
-/**
- * @brief   Read a value from touch controller
- * @return	The value read from the controller
- *
- * params[in] port	The controller port to read.
- *
- * @notapi
- */
-static inline uint16_t read_value(uint16_t port) {
-	/* Code here */
-	#error "ginputSTMPE811: You must supply a definition for read_value for your board"
+	#error "ginputSTMPE811: You must supply a definition for read_reg for your board"
 }
 
 #endif /* _GINPUT_LLD_MOUSE_BOARD_H */
