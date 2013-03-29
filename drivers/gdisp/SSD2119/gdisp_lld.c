@@ -55,15 +55,7 @@
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
-#if defined(GDISP_USE_CUSTOM_BOARD) && GDISP_USE_CUSTOM_BOARD
-	/* Include the user supplied board definitions */
-	#include "gdisp_lld_board.h"
-#elif defined(BOARD_EMBEST_DMSTF4BB)
 	#include "gdisp_lld_board_embest_dmstf4bb.h"
-#else
-	/* Include the user supplied board definitions */
-	#include "gdisp_lld_board.h"
-#endif
 
 // Some common routines and macros
 #define write_reg(reg, data)		{ write_index(reg); write_data(data); }
