@@ -56,7 +56,7 @@ static void init_board(void)
  *
  * @notapi
  */
-static inline bool_t getpin_pressed(void) {
+static inline bool_t getpin_irq(void) {
 	return (!(palReadPad(GPIOC, 13)));
 }
 

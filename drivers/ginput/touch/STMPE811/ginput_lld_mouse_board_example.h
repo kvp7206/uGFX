@@ -47,10 +47,10 @@ static void init_board(void)
  *
  * @notapi
  */
-static inline bool_t getpin_pressed(void)
+static inline bool_t getpin_irq(void)
 {
 	/* Code here */
-	#error "ginputSTMPE811: You must supply a definition for getpin_pressed for your board"
+	#error "ginputSTMPE811: You must supply a definition for getpin_irq for your board"
 }
 
 /**

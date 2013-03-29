@@ -130,7 +130,7 @@ void ginput_lld_mouse_get_reading(MouseReading *pt)
 #else
 	// Check if the touch controller IRQ pin has gone off
 	clearfifo = false;
-	if(getpin_pressed()) {							// please rename this to getpin_irq
+	if(getpin_irq()) {							// please rename this to getpin_irq
 		write_reg(STMPE811_REG_INT_STA, 1, 0xFF);	// clear all interrupts
 		touched = (uint8_t)read_reg(STMPE811_REG_TSC_CTRL, 1) & 0x80;	// set the new touched status
 		clearfifo = true;							// only take the last FIFO reading
