@@ -69,19 +69,19 @@ void ginput_lld_mouse_init(void)
 	chThdSleepMilliseconds(10);
 
 	write_reg(STMPE811_REG_SYS_CTRL2,		1, 0x0C);	// Temperature sensor clock off, GPIO clock off, touch clock on, ADC clock on
-	write_reg(STMPE811_REG_INT_EN,			1, 0x01);	// Interrupt on INT pin when FIFO is equal or above threshold value OR touch is detected
-	write_reg(STMPE811_REG_ADC_CTRL1,		1, 0x48);	// ADC conversion time = 80 clock ticks, 12-bit ADC, internaal voltage refernce
+	write_reg(STMPE811_REG_INT_EN,			1, 0x02);	// Interrupt on INT pin when FIFO is equal or above threshold value OR touch is detected
+	write_reg(STMPE811_REG_ADC_CTRL1,		1, 0x48);	// ADC conversion time = 80 clock ticks, 12-bit ADC, internal voltage refernce
 	chThdSleepMilliseconds(2);
 
 	write_reg(STMPE811_REG_ADC_CTRL2,		1, 0x01);	// ADC speed 3.25MHz
 	write_reg(STMPE811_REG_GPIO_AF,			1, 0x00);	// GPIO alternate function - OFF
-	write_reg(STMPE811_REG_TSC_CFG,			1, 0x9A);	// Averaging 4, Touch detect delay 500 us, Panel driver settling time 500 us
+	write_reg(STMPE811_REG_TSC_CFG,			1, 0x9A);	// Averaging 4, touch detect delay 500 us, panel driver settling time 500 us
 	write_reg(STMPE811_REG_FIFO_TH,			1, 0x01);	// FIFO threshold = 1
 	write_reg(STMPE811_REG_FIFO_STA,		1, 0x01);	// FIFO reset enable
 	write_reg(STMPE811_REG_FIFO_STA,		1, 0x00);	// FIFO reset disable
 	write_reg(STMPE811_REG_TSC_FRACT_XYZ,	1, 0x07);	// Z axis data format
 	write_reg(STMPE811_REG_TSC_I_DRIVE,		1, 0x01);	// 50mA touchscreen line current
-	write_reg(STMPE811_REG_TSC_CTRL,		1, 0x03);	// X&Y only, TSC enable
+	write_reg(STMPE811_REG_TSC_CTRL,		1, 0x01);	// X&Y&Z, TSC enable
 	write_reg(STMPE811_REG_INT_STA,			1, 0xFF);	// Clear all interrupts
 	write_reg(STMPE811_REG_INT_CTRL,		1, 0x01);	// Level interrupt, enable intrrupts
 }
@@ -102,7 +102,7 @@ void ginput_lld_mouse_init(void)
  */
 void ginput_lld_mouse_get_reading(MouseReading *pt)
 {
-	uint16_t buf;
+	//uint16_t buf;
 	uint8_t int_status;
 
 	// If not touched, return the previous results
@@ -118,26 +118,39 @@ void ginput_lld_mouse_get_reading(MouseReading *pt)
 	int_status = read_reg(STMPE811_REG_INT_STA, 1);
 
 	// If it is TOUCH interrupt, clear it and go on
-	if (int_status & 0x01) {
-	   write_reg(STMPE811_REG_INT_STA, 1, 0x01);
+	if (int_status & 0x02) {
 
-		/* Get the X value */
-		buf = read_reg(STMPE811_REG_TSC_DATA_X, 2);
-		lastx = (coord_t)(buf);
+		uint8_t size = 0;
+		size = read_reg(STMPE811_REG_FIFO_SIZE, 1);
 
-		/* Get the Y value */
-		buf = read_reg(STMPE811_REG_TSC_DATA_Y, 2);
-		lasty = (coord_t)(buf);
+		if (size) {
+			uint8_t buffer[size * 4];
+			read_reg_n(STMPE811_REG_TSC_DATA_AI, size * 4, buffer);
 
-		/* Get the Z value */
-		buf = read_reg(STMPE811_REG_TSC_DATA_Z, 1);
-		lastz = (buf & 0x00FF);
+			lastx = (coord_t)((buffer[0] << 4) | (buffer[1] >> 4));
+			lasty = (coord_t)(((buffer[1] & 0x0F) << 8) | buffer[2]);
+			lastz = (coord_t)buffer[3];
 
-		// Return the results. ADC gives values from 0 to 2^12
-		pt->x = lastx / 13;
-		pt->y = lasty / 17;
-		pt->z = 100;
-		pt->buttons = GINPUT_TOUCH_PRESSED;
+			/* Get the X value */
+			//buf = read_reg(STMPE811_REG_TSC_DATA_X, 2);
+			//lastx = (coord_t)(buf);
+
+			/* Get the Y value */
+			//buf = read_reg(STMPE811_REG_TSC_DATA_Y, 2);
+			//lasty = (coord_t)(buf);
+
+			/* Get the Z value */
+			//buf = read_reg(STMPE811_REG_TSC_DATA_Z, 1);
+			//lastz = (buf & 0x00FF);
+
+			// Return the results. ADC gives values from 0 to 2^12
+			pt->x = 320 - lastx / 13;
+			pt->y = lasty / 17;
+			pt->z = lastz;
+			pt->buttons = GINPUT_TOUCH_PRESSED;
+		}
+
+		write_reg(STMPE811_REG_INT_STA, 1, 0x02);
 	}
 }
 
