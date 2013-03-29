@@ -37,8 +37,8 @@
 #define GINPUT_MOUSE_READ_CYCLES				1
 #define GINPUT_MOUSE_POLL_PERIOD				25
 #define GINPUT_MOUSE_MAX_CLICK_JITTER			10
-#define GINPUT_MOUSE_MAX_MOVE_JITTER			2
-#define GINPUT_MOUSE_CLICK_TIME					500
+#define GINPUT_MOUSE_MAX_MOVE_JITTER			5
+#define GINPUT_MOUSE_CLICK_TIME					450
 
 /* default values - over write these in your boad files */
 #define STMP811_SLOWER_RESPONSE 				FALSE
