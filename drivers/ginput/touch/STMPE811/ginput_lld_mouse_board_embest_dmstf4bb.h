@@ -123,5 +123,17 @@ static uint16_t read_reg(uint8_t reg, uint8_t n)
 	return ret;
 }
 
+static void read_reg_n(uint8_t reg, uint8_t n, uint8_t *rxbuf)
+{
+	uint8_t txbuf[1];
+
+	i2cAcquireBus(&I2CD1);
+
+	txbuf[0] = reg;
+	i2cMasterTransmitTimeout(&I2CD1, STMPE811_ADDR, txbuf, 1, rxbuf, n, MS2ST(STMPE811_TIMEOUT));
+
+	i2cReleaseBus(&I2CD1);
+}
+
 #endif /* _GINPUT_LLD_MOUSE_BOARD_H */
 /** @} */
