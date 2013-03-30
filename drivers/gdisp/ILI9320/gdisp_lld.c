@@ -460,16 +460,20 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 					return;
 				switch((gdisp_powermode_t)value) {
 					case powerOff:
+						acquire_bus();
 						lld_lcdWriteReg(0x0007, 0x0000);
 						lld_lcdWriteReg(0x0010, 0x0000);
 						lld_lcdWriteReg(0x0011, 0x0000);
 						lld_lcdWriteReg(0x0012, 0x0000);
 						lld_lcdWriteReg(0x0013, 0x0000);
+						release_bus();
+
 						gdisp_lld_backlight(0);
 						break;
 			
 					case powerOn:
 						//*************Power On sequence ******************//
+						acquire_bus();
 						lld_lcdWriteReg(0x0010, 0x0000); /* SAP, BT[3:0], AP, DSTB, SLP, STB */
 						lld_lcdWriteReg(0x0011, 0x0000); /* DC1[2:0], DC0[2:0], VC[2:0] */
 						lld_lcdWriteReg(0x0012, 0x0000); /* VREG1OUT voltage */
@@ -483,13 +487,16 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 						lld_lcdWriteReg(0x0013, 0x0E00); /* VDV[4:0] for VCOM amplitude */
 						lld_lcdWriteReg(0x0029, 0x0009); /* VCM[4:0] for VCOMH */
 						lld_lcdDelay(500);
-						lld_lcdWriteReg(0x0007, 0x0173); /* 262K color and display ON */	
+						lld_lcdWriteReg(0x0007, 0x0173); /* 262K color and display ON */
+						release_bus();
+
 						gdisp_lld_backlight(GDISP.Backlight);
 						if(GDISP.Powermode != powerSleep || GDISP.Powermode != powerDeepSleep)
 							gdisp_lld_init();
 						break;
 	
 					case powerSleep:
+						acquire_bus();
 	             		lld_lcdWriteReg(0x0007, 0x0000); /* display OFF */
 	                   	lld_lcdWriteReg(0x0010, 0x0000); /* SAP, BT[3:0], APE, AP, DSTB, SLP */
 	                  	lld_lcdWriteReg(0x0011, 0x0000); /* DC1[2:0], DC0[2:0], VC[2:0] */
@@ -497,10 +504,13 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	                  	lld_lcdWriteReg(0x0013, 0x0000); /* VDV[4:0] for VCOM amplitude */
 	                  	lld_lcdDelay(2000); /* Dis-charge capacitor power voltage */
 	                   	lld_lcdWriteReg(0x0010, 0x0002); /* SAP, BT[3:0], APE, AP, DSTB, SLP */				
+						release_bus();
+
 						gdisp_lld_backlight(0);
 						break;
 
 					case powerDeepSleep:
+						acquire_bus();
 					    lld_lcdWriteReg(0x0007, 0x0000); /* display OFF */
 					    lld_lcdWriteReg(0x0010, 0x0000); /* SAP, BT[3:0], APE, AP, DSTB, SLP */
 					    lld_lcdWriteReg(0x0011, 0x0000); /* DC1[2:0], DC0[2:0], VC[2:0] */
@@ -508,6 +518,8 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	   					lld_lcdWriteReg(0x0013, 0x0000); /* VDV[4:0] for VCOM amplitude */
 	   					lld_lcdDelay(2000); /* Dis-charge capacitor power voltage */
 	  					lld_lcdWriteReg(0x0010, 0x0004); /* SAP, BT[3:0], APE, AP, DSTB, SLP */
+	  					release_bus();
+
 						gdisp_lld_backlight(0);
 						break;
 
@@ -522,33 +534,45 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 					return;
 				switch((gdisp_orientation_t)value) {
 					case GDISP_ROTATE_0:
+						acquire_bus();
 						lld_lcdWriteReg(0x0001, 0x0100);
 						lld_lcdWriteReg(0x0003, 0x1038);
 						lld_lcdWriteReg(0x0060, 0x2700);
+						release_bus();
+
 						GDISP.Height = GDISP_SCREEN_HEIGHT;
 						GDISP.Width = GDISP_SCREEN_WIDTH;
 						break;
 
 					case GDISP_ROTATE_90:
+						acquire_bus();
 						lld_lcdWriteReg(0x0001, 0x0100);
 						lld_lcdWriteReg(0x0003, 0x1030);
 						lld_lcdWriteReg(0x0060, 0x2700);
+						release_bus();
+
 						GDISP.Height = GDISP_SCREEN_WIDTH;
 						GDISP.Width = GDISP_SCREEN_HEIGHT;
 						break;
 			
 					case GDISP_ROTATE_180:
+						acquire_bus();
 						lld_lcdWriteReg(0x0001, 0x0000);
 						lld_lcdWriteReg(0x0003, 0x1030);
 						lld_lcdWriteReg(0x0060, 0x2700);
+						release_bus();
+
 						GDISP.Height = GDISP_SCREEN_HEIGHT;
 						GDISP.Width = GDISP_SCREEN_WIDTH;
 						break;
 		
 					case GDISP_ROTATE_270:
+						acquire_bus();
 						lld_lcdWriteReg(0x0001, 0x0000);
 						lld_lcdWriteReg(0x0003, 0x1038);
 						lld_lcdWriteReg(0x0060, 0xA700);
+						release_bus();
+
 						GDISP.Height = GDISP_SCREEN_WIDTH;
 						GDISP.Width = GDISP_SCREEN_HEIGHT;
 						break;
