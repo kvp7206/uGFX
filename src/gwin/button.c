@@ -48,12 +48,13 @@ static const GButtonDrawStyle GButtonDefaultStyleUp = {
 	HTML2COLOR(0x404040),		// color_up_edge;
 	HTML2COLOR(0xE0E0E0),		// color_up_fill;
 	HTML2COLOR(0x000000),		// color_up_txt;
-	};
+};
+
 static const GButtonDrawStyle GButtonDefaultStyleDown = {
 	HTML2COLOR(0x404040),		// color_dn_edge;
 	HTML2COLOR(0x808080),		// color_dn_fill;
 	HTML2COLOR(0x404040),		// color_dn_txt;
-	};
+};
 
 // Process an event callback
 static void gwinButtonCallback(void *param, GEvent *pe) {
