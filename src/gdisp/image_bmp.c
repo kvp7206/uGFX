@@ -35,16 +35,16 @@
 	#define GDISP_NEED_IMAGE_BMP_4		TRUE
 #endif
 #ifndef GDISP_NEED_IMAGE_BMP_4_RLE
-	#define GDISP_NEED_IMAGE_BMP_4_RLE	FALSE		// Currently Broken
+	#define GDISP_NEED_IMAGE_BMP_4_RLE	TRUE
 #endif
 #ifndef GDISP_NEED_IMAGE_BMP_8
 	#define GDISP_NEED_IMAGE_BMP_8		TRUE
 #endif
 #ifndef GDISP_NEED_IMAGE_BMP_8_RLE
-	#define GDISP_NEED_IMAGE_BMP_8_RLE	FALSE		// Currently Broken
+	#define GDISP_NEED_IMAGE_BMP_8_RLE	TRUE
 #endif
 #ifndef GDISP_NEED_IMAGE_BMP_16
-	#define GDISP_NEED_IMAGE_BMP_16		FALSE		// Currently Broken
+	#define GDISP_NEED_IMAGE_BMP_16		TRUE
 #endif
 #ifndef GDISP_NEED_IMAGE_BMP_24
 	#define GDISP_NEED_IMAGE_BMP_24		TRUE
@@ -89,7 +89,6 @@ static const uint8_t	dwordOrder[4]	= { 1, 2, 3, 4 };
 	#define CONVERT_FROM_WORD_LE(w)		{ if (!isWordLittleEndian()) w = ((((uint16_t)(w))>>8)|(((uint16_t)(w))<<8)); }
 	#define CONVERT_FROM_DWORD_LE(dw)	{ if (!isDWordLittleEndian()) dw = (((uint32_t)(((const uint8_t *)(&dw))[0]))|(((uint32_t)(((const uint8_t *)(&dw))[1]))<<8)|(((uint32_t)(((const uint8_t *)(&dw))[2]))<<16)|(((uint32_t)(((const uint8_t *)(&dw))[3]))<<24)); }
 #endif
-#define CONVERT_FROM_WORD_BE(w)		{ if (isWordLittleEndian()) w = ((((uint16_t)(w))>>8)|(((uint16_t)(w))<<8)); }
 
 typedef struct gdispImagePrivate {
 	uint8_t		bmpflags;
@@ -372,9 +371,9 @@ gdispImageError gdispImageOpen_BMP(gdispImage *img) {
 			priv->maskalpha = 0;
 	} else if (priv->bitsperpixel == 16) {
 		priv->bmpflags |= BMP_COMP_MASK;
-		priv->maskred = 0x001F0000;
-		priv->maskgreen = 0x07E00000;
-		priv->maskblue = 0xF8000000;
+		priv->maskred = 0x7C00;
+		priv->maskgreen = 0x03E0;
+		priv->maskblue = 0x001F;
 		priv->maskalpha = 0;
 	} else if (priv->bitsperpixel == 32) {
 		priv->bmpflags |= BMP_COMP_MASK;
@@ -389,11 +388,6 @@ gdispImageError gdispImageOpen_BMP(gdispImage *img) {
 		priv->shiftred = 0;
 		priv->shiftgreen = 0;
 		priv->shiftblue = 0;
-		if (priv->bitsperpixel == 16) {
-			priv->maskred >>= 16;
-			priv->maskgreen >>= 16;
-			priv->maskblue >>= 16;
-		}
 		if (priv->maskred) {
 			if (priv->maskred < 256)
 				for(adword = priv->maskred;  adword < 128; priv->shiftred--, adword <<= 1);
@@ -528,6 +522,10 @@ static coord_t getPixels(gdispImage *img, coord_t x) {
 					}
 					if (priv->rlerun)			// Return if we have more run to do
 						return len;
+					if ((img->io.pos - priv->frame0pos)&1) {	// Make sure we are on a word boundary
+						if (img->io.fns->read(&img->io, &b, 1) != 1)
+							return 0;
+					}
 				}
 
 				// We have finished the current run - read a new run
@@ -618,6 +616,10 @@ static coord_t getPixels(gdispImage *img, coord_t x) {
 					}
 					if (priv->rlerun)			// Return if we have more run to do
 						return len;
+					if ((img->io.pos - priv->frame0pos)&1) {	// Make sure we are on a word boundary
+						if (img->io.fns->read(&img->io, &b, 1) != 1)
+							return 0;
+					}
 				}
 
 				// We have finished the current run - read a new run
@@ -683,8 +685,8 @@ static coord_t getPixels(gdispImage *img, coord_t x) {
 			while(x < img->width && len <= BLIT_BUFFER_SIZE-2) {
 				if (img->io.fns->read(&img->io, &w, 4) != 4)
 					return 0;
-				CONVERT_FROM_WORD_BE(w[0]);
-				CONVERT_FROM_WORD_BE(w[1]);
+				CONVERT_FROM_WORD_LE(w[0]);
+				CONVERT_FROM_WORD_LE(w[1]);
 				if (priv->shiftred < 0)
 					r = (color_t)((w[0] & priv->maskred) << -priv->shiftred);
 				else
