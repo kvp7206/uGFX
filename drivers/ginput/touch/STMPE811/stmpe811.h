@@ -29,7 +29,11 @@
 #ifndef _STMPE811_H
 #define _STMPE811_H
 
-/* STMPE811 registers */
+// Slave address
+#define STMPE811_ADDR				(0x82 >> 1)
+
+// Maximum timeout
+#define STMPE811_TIMEOUT			0x3000
 
 // Identification registers
 #define STMPE811_REG_CHP_ID         0x00 // 16-bit
@@ -88,6 +92,7 @@
 #define STMPE811_REG_TSC_DATA_XYZ   0x52 // 32-bit
 #define STMPE811_REG_TSC_FRACT_XYZ  0x56
 #define STMPE811_REG_TSC_DATA       0x57
+#define STMPE811_REG_TSC_DATA_AI    0xD7
 #define STMPE811_REG_TSC_I_DRIVE    0x58
 #define STMPE811_REG_TSC_SHIELD     0x59
 
@@ -98,4 +103,3 @@
 
 #endif /* _STMPE811_H */
 /** @} */
-

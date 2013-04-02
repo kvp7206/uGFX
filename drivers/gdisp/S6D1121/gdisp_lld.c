@@ -524,26 +524,38 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 				return;
 			switch((gdisp_orientation_t)value) {
 			case GDISP_ROTATE_0:
+				acquire_bus();
 				write_reg(0x0001,0x0127);
 				write_reg(0x03, 0b0011);
+				release_bus();
+
 				GDISP.Height = GDISP_SCREEN_HEIGHT;
 				GDISP.Width = GDISP_SCREEN_WIDTH;
 				break;
 			case GDISP_ROTATE_90:
+				acquire_bus();
 				write_reg(0x0001,0x0027);
 				write_reg(0x0003, 0b1011);
+				release_bus();
+
 				GDISP.Height = GDISP_SCREEN_WIDTH;
 				GDISP.Width = GDISP_SCREEN_HEIGHT;
 				break;
 			case GDISP_ROTATE_180:
+				acquire_bus();
 				write_reg(0x0001,0x0127);
 				write_reg(0x0003, 0b0000);
+				release_bus();
+
 				GDISP.Height = GDISP_SCREEN_HEIGHT;
 				GDISP.Width = GDISP_SCREEN_WIDTH;
 				break;
 			case GDISP_ROTATE_270:
+				acquire_bus();
 				write_reg(0x0001,0x0027);
 				write_reg(0x0003, 0b1000);
+				release_bus();
+
 				GDISP.Height = GDISP_SCREEN_WIDTH;
 				GDISP.Width = GDISP_SCREEN_HEIGHT;
 				break;
