@@ -966,6 +966,10 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 }
 #endif
 
+#if GDISP_NEED_IMAGE || defined(__DOXYGEN__)
+	#include "gdisp/image.h"
+#endif
+
 #endif /* GFX_USE_GDISP */
 
 #endif /* _GDISP_H */
