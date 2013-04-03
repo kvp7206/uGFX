@@ -131,11 +131,60 @@
 		#define GDISP_NEED_QUERY		FALSE
 	#endif
 	/**
+	 * @brief   Is the image interface required.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GDISP_NEED_IMAGE
+		#define GDISP_NEED_IMAGE		FALSE
+	#endif
+	/**
 	 * @brief   Is the messaging api interface required.
 	 * @details	Defaults to FALSE
 	 */
 	#ifndef GDISP_NEED_MSGAPI
 		#define GDISP_NEED_MSGAPI		FALSE
+	#endif
+/**
+ * @}
+ *
+ * @name    GDISP Image Options
+ * @pre		GDISP_NEED_IMAGE must be TRUE
+ * @{
+ */
+	/**
+	 * @brief   Is native image decoding required.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GDISP_NEED_IMAGE_NATIVE
+		#define GDISP_NEED_IMAGE_NATIVE	FALSE
+	#endif
+	/**
+	 * @brief   Is GIF image decoding required.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GDISP_NEED_IMAGE_GIF
+		#define GDISP_NEED_IMAGE_GIF	FALSE
+	#endif
+	/**
+	 * @brief   Is BMP image decoding required.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GDISP_NEED_IMAGE_BMP
+		#define GDISP_NEED_IMAGE_BMP	FALSE
+	#endif
+	/**
+	 * @brief   Is JPG image decoding required.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GDISP_NEED_IMAGE_JPG
+		#define GDISP_NEED_IMAGE_JPG	FALSE
+	#endif
+	/**
+	 * @brief   Is PNG image decoding required.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GDISP_NEED_IMAGE_PNG
+		#define GDISP_NEED_IMAGE_PNG	FALSE
 	#endif
 /**
  * @}
