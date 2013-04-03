@@ -135,7 +135,7 @@ extern "C" {
 	 *
 	 * @note	Always returns TRUE for a Memory Reader
 	 */
-	bool_t gdispImageSetMemoryReader(gdispImage *img, const char *memimage);
+	bool_t gdispImageSetMemoryReader(gdispImage *img, const void *memimage);
 
 	/**
 	 * @brief	Sets the io fields in the image structure to routines

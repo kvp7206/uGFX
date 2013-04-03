@@ -46,7 +46,7 @@ static char *filenameof(char *fname) {
 static char *clean4c(char *fname) {
 	char *p;
 
-	while((p = strpbrk(fname, "-+ `~!@#$%^&*(){}[]|:;'\",<>?/|="))) *p = '_';
+	while((p = strpbrk(fname, "-+ `~!@#$%^&*(){}[]|:;'\",<>?/|=.\\"))) *p = '_';
 	return fname;
 }
 
@@ -66,7 +66,7 @@ size_t		len;
 size_t		i;
 
 	/* Default values for our parameters */
-	opt_progname = argv[0];
+	opt_progname = filenameof(argv[0]);
 	opt_inputfile = 0;
 	opt_outputfile = 0;
 	opt_arrayname = 0;
@@ -79,6 +79,7 @@ size_t		i;
 		if (argv[0][0] == '-') {
 			while (*++(argv[0])) {
 				switch(argv[0][0]) {
+				case '?': case 'h':							goto usage;
 				case 'b':		opt_breakblocks = 1;		break;
 				case 'c':		opt_const = "const ";		break;
 				case 's':		opt_static = "static ";		break;
@@ -97,6 +98,7 @@ size_t		i;
 			fprintf(stderr, "Usage:\n\t%s -?\n"
 							"\t%s [-bs] [-n name] [inputfile] [outputfile]\n"
 							"\t\t-?\tThis help\n"
+							"\t\t-h\tThis help\n"
 							"\t\t-b\tBreak the arrays for compilers that won't handle large arrays\n"
 							"\t\t-c\tDeclare the arrays as const (useful to ensure they end up in Flash)\n"
 							"\t\t-s\tDeclare the arrays as static\n"
@@ -136,14 +138,33 @@ size_t		i;
 	} else
 		f_output = stdout;
 
-	/* Set the array name */
+	/* Print the comment header */
+	fprintf(f_output, "/**\n * This file was generated ");
+	if (opt_inputfile) fprintf(f_output, "from \"%s\" ", opt_inputfile);
+	fprintf(f_output, "using...\n *\n *\t%s", opt_progname);
+	if (opt_arrayname || opt_static[0] || opt_const[0] || opt_breakblocks) {
+		fprintf(f_output, " -");
+		if (opt_breakblocks) fprintf(f_output, "b");
+		if (opt_const[0]) fprintf(f_output, "c");
+		if (opt_static[0]) fprintf(f_output, "s");
+		if (opt_arrayname) fprintf(f_output, "n %s", opt_arrayname);
+	}
+	if (opt_inputfile) fprintf(f_output, " %s", opt_inputfile);
+	if (opt_outputfile) fprintf(f_output, " %s", opt_outputfile);
+	fprintf(f_output, "\n *\n */\n");
+
+	/*
+	 * Set the array name.
+	 *	We do this after printing opt_inputfile for the last time as we
+	 *  modify opt_inputfile in place to generate opt_arrayname.
+	 */
 	if (!opt_arrayname) {
 		if (opt_inputfile)
 			opt_arrayname = filenameof(opt_inputfile);
 		if (!opt_arrayname || !opt_arrayname[0])
 			opt_arrayname = "filearray";
-		opt_arrayname = clean4c(opt_arrayname);
 	}
+	opt_arrayname = clean4c(opt_arrayname);
 
 	/* Read the file processing 1K at a time */
 	blocknum = 0;

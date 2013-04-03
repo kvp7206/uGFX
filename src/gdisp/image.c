@@ -88,10 +88,10 @@ static void ImageMemoryClose(struct gdispImageIO *pio) {
 static const gdispImageIOFunctions ImageMemoryFunctions =
 	{ ImageMemoryRead, ImageMemorySeek, ImageMemoryClose };
 
-bool_t gdispImageSetMemoryReader(gdispImage *img, const char *memimage) {
+bool_t gdispImageSetMemoryReader(gdispImage *img, const void *memimage) {
 	img->io.fns = &ImageMemoryFunctions;
 	img->io.pos = 0;
-	img->io.fd = (void *)memimage;
+	img->io.fd = memimage;
 	return TRUE;
 }
 
