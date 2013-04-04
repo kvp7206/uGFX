@@ -151,6 +151,8 @@ bool_t gdisp_lld_init(void) {
 	gdisp_lld_reset_pin(FALSE);
 	lld_lcdDelay(1000);
 
+	DISPLAY_CODE = lld_lcdReadReg(0);
+
 	// chinese code starts here
 	lld_lcdWriteReg(0x0000,0x0001);
 	lld_lcdDelay(10);
