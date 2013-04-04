@@ -23,6 +23,13 @@ static char *filenameof(char *fname) {
 	return fname;
 }
 
+static char *clean4c(char *fname) {
+	char *p;
+
+	while((p = strpbrk(fname, "-+ `~!@#$%^&*(){}[]|:;'\",<>?/|="))) *p = '_';
+	return fname;
+}
+
 int main(int argc, char * argv[])
 {
 char *		opt_progname;
@@ -115,6 +122,7 @@ size_t		i;
 			opt_arrayname = filenameof(opt_inputfile);
 		if (!opt_arrayname || !opt_arrayname[0])
 			opt_arrayname = "filearray";
+		opt_arrayname = clean4c(opt_arrayname);
 	}
 
 	/* Read the file processing 1K at a time */
@@ -125,7 +133,7 @@ size_t		i;
 		else if (opt_breakblocks)
 			fprintf(f_output, "\n};\n%s%sunsigned char %s_p%u[] = {", opt_static, opt_const, opt_arrayname, blocknum);
 		for(i = 0; i < len; i++) {
-			fprintf(f_output, (i & 0x0F) ? ", 0x%02X" : "\n\t0x%02X", buf[i]);
+			fprintf(f_output, (i & 0x0F) ? " 0x%02X," : "\n\t0x%02X,", buf[i]);
 		}
 	}
 	fprintf(f_output, "\n};\n");
