@@ -23,23 +23,6 @@
 
 #include "gdisp_lld_panel.h"
 
-#if defined(GDISP_USE_GPIO)
-	#define Set_CS		palSetPad(GDISP_CMD_PORT, GDISP_CS);
-	#define Clr_CS		palClearPad(GDISP_CMD_PORT, GDISP_CS);
-	#define Set_RS		palSetPad(GDISP_CMD_PORT, GDISP_RS);
-	#define Clr_RS		palClearPad(GDISP_CMD_PORT, GDISP_RS);
-	#define Set_WR		palSetPad(GDISP_CMD_PORT, GDISP_WR);
-	#define Clr_WR		palClearPad(GDISP_CMD_PORT, GDISP_WR);
-	#define Set_RD		palSetPad(GDISP_CMD_PORT, GDISP_RD);
-	#define Clr_RD		palClearPad(GDISP_CMD_PORT, GDISP_RD);
-#endif
-
-#if defined(GDISP_USE_FSMC)
-	/* Using FSMC A16 as RS */
-	#define GDISP_REG              (*((volatile uint16_t *) 0x60000000)) /* RS = 0 */
-	#define GDISP_RAM              (*((volatile uint16_t *) 0x60020000)) /* RS = 1 */
-#endif
-
 #define mHIGH(x) (x >> 8)
 #define mLOW(x) (x & 0xFF)
 
