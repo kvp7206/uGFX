@@ -22,12 +22,22 @@
 #include "hal.h"
 #include "gfx.h"
 
+#ifdef WIN32
+	#define USE_MEMORY_FILE		FALSE				// Can be true or false for Win32
+#else
+	#define USE_MEMORY_FILE		TRUE				// Non-Win32 - use the compiled in image
+#endif
+
+#if USE_MEMORY_FILE
+	#include "test-pal8.h"
+#endif
+
 static gdispImage myImage;
 
 int main(void) {
 	coord_t			swidth, sheight;
 
-	halInit();			// Initialise the Hardware
+	halInit();			// Initialize the Hardware
 	chSysInit();		// Initialize the OS
 	gdispInit();		// Initialize the display
 
@@ -38,7 +48,11 @@ int main(void) {
 	sheight = gdispGetHeight();
 
 	// Set up IO for our image
+#if USE_MEMORY_FILE
+	gdispImageSetMemoryReader(&myImage, test_pal8);
+#else
 	gdispImageSetSimulFileReader(&myImage, "test-pal8.bmp");
+#endif
 
 	gdispImageOpen(&myImage);
 	gdispImageDraw(&myImage, 0, 0, swidth, sheight, 0, 0);
