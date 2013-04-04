@@ -40,6 +40,8 @@
 	#include "gdisp_lld_board.h"
 #elif defined(BOARD_OLIMEX_STM32_LCD)
 	#include "gdisp_lld_board_olimex_stm32_lcd.h"
+#elif defined(BOARD_OLIMEX_PIC32MX_LCD)
+	#include "gdisp_lld_board_olimex_pic32mx_lcd.h"
 #else
 	#include "gdisp_lld_board.h"
 #endif
