@@ -160,11 +160,6 @@ bool_t gdisp_lld_init(void) {
 	return TRUE;
 }
 
-
-__inline void read_stream_start(void) {
-	write_index(SSD1963_READ_MEMORY_START);
-}
-
 void gdisp_lld_setwindow(coord_t x0, coord_t y0, coord_t x1, coord_t y1) {
 	/* We don't need to validate here as the LLD routines will validate first.
 	 *
