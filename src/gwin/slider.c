@@ -74,7 +74,7 @@ static void gwinSliderCallback(void *param, GEvent *pe) {
 
 			// We are tracking the mouse
 
-			// Test for button up
+			// Test for slider up
 			if ((pme->meta & GMETA_MOUSE_UP)) {
 				gsw->tracking = FALSE;
 
@@ -104,7 +104,7 @@ static void gwinSliderCallback(void *param, GEvent *pe) {
 			}
 
 			// If mouse down - track movement
-			if ((pme->current_buttons & GINPUT_MOUSE_BTN_LEFT))
+			if ((pme->current_sliders & GINPUT_MOUSE_BTN_LEFT))
 				trackSliderDraw(gh, pme->x-gh->x, pme->y-gh->y);
 
 			return;
