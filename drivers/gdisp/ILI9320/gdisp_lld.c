@@ -40,6 +40,8 @@
 	#include "gdisp_lld_board.h"
 #elif defined(BOARD_OLIMEX_STM32_LCD)
 	#include "gdisp_lld_board_olimex_stm32_lcd.h"
+#elif defined(BOARD_OLIMEX_PIC32MX_LCD)
+	#include "gdisp_lld_board_olimex_pic32mx_lcd.h"
 #else
 	#include "gdisp_lld_board.h"
 #endif
@@ -94,9 +96,7 @@ static inline void lld_lcdWriteReg(uint16_t lcdReg, uint16_t lcdRegValue) {
 }
 
 static inline uint16_t lld_lcdReadData(void) {
-	/* fix this! */
-	//return gdisp_lld_read_data;
-	return GDISP_RAM;
+	return gdisp_lld_read_data();
 }
 
 static inline uint16_t lld_lcdReadReg(uint16_t lcdReg) {
