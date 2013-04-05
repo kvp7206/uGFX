@@ -61,6 +61,14 @@ static inline void gdisp_lld_reset_pin(bool_t state) {
 		palSetPad(GPIOE, GPIOE_TFT_RST);
 }
 
+static inline void acquire_bus(void) {
+			/* Nothing to do here since LCD is the only device on that bus */
+}
+
+static inline void release_bus(void) {
+			/* Nothing to do here since LCD is the only device on that bus */
+}
+
 static inline void gdisp_lld_write_index(uint16_t reg) {
 	GDISP_REG = reg;
 }

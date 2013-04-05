@@ -30,8 +30,6 @@
 #define _GDISP_LLD_PANEL_H
 
 /* LCD panel specs */
-#define GDISP_SCREEN_WIDTH 800
-#define GDISP_SCREEN_HEIGHT 480
 
 /* The timings need to follow the datasheet for your particular TFT/LCD screen (the actual screen, not the controller)
 *** Datasheets normally use a specific set of timings and acronyms, their value refers to the number of pixel clocks
@@ -64,22 +62,26 @@ VT - VPS = GDISP_SCREEN_HEIGHT + SCREEN_VSYNC_FRONT_PORCH
 	SCREEN_VSYNC_PERIOD = VT
 */
 
-//The following values are for a 5" TFT LCD
-#define SCREEN_HSYNC_BACK_PORCH		43
-#define SCREEN_HSYNC_FRONT_PORCH	149
-#define SCREEN_HSYNC_PULSE			8
+#define SCREEN_FPS 60ULL
 
-#define SCREEN_VSYNC_BACK_PORCH		21
-#define SCREEN_VSYNC_FRONT_PORCH	26
-#define SCREEN_VSYNC_PULSE			3
+//The following values are for a 4.3" TFT LCD
 
+#define GDISP_SCREEN_WIDTH 480
+#define GDISP_SCREEN_HEIGHT 272
 
-#define SCREEN_HSTART_POSITION	3	//Horizontal Display Period Start Position
-#define SCREEN_VSTART_POSITION	23	//Vertical Display Period Start Position
+#define SCREEN_HSYNC_BACK_PORCH		2
+#define SCREEN_HSYNC_FRONT_PORCH	2
+#define SCREEN_HSYNC_PULSE			41
+
+#define SCREEN_VSYNC_BACK_PORCH		2
+#define SCREEN_VSYNC_FRONT_PORCH	2
+#define SCREEN_VSYNC_PULSE			10
 
 #define	SCREEN_HSYNC_PERIOD	(SCREEN_HSYNC_PULSE + SCREEN_HSYNC_BACK_PORCH + GDISP_SCREEN_WIDTH  + SCREEN_HSYNC_FRONT_PORCH)
 #define	SCREEN_VSYNC_PERIOD	(SCREEN_VSYNC_PULSE + SCREEN_VSYNC_BACK_PORCH + GDISP_SCREEN_HEIGHT + SCREEN_VSYNC_FRONT_PORCH)
 
+#define SCREEN_PCLK	(SCREEN_HSYNC_PERIOD * SCREEN_VSYNC_PERIOD * SCREEN_FPS)
+#define GDISP_FPR		((SCREEN_PCLK * 1048576)/100000000)
+
 #endif
 /** @} */
-

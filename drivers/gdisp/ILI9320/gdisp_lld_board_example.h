@@ -37,6 +37,14 @@ static inline void gdisp_lld_reset_pin(bool_t state) {
 	#error "ILI9320: You must implement setpin_reset routine for your board"
 }
 
+static inline void acquire_bus(void) {
+	#error "ILI9320: You must implement setpin_reset routine for your board"
+}
+
+static inline void release_bus(void) {
+	#error "ILI9320: You must implement setpin_reset routine for your board"
+}
+
 static inline void gdisp_lld_write_index(uint16_t data) {
 	#error "ILI9320: You must implement write_index routine for your board"
 }
