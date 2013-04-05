@@ -45,6 +45,15 @@
 	#include "ginput_lld_mouse_board_example.h"
 #endif
 
+#if defined(GINPUT_MOUSE_YX_INVERTED) && GINPUT_MOUSE_YX_INVERTED
+	#define CMD_X 0x91
+	#define CMD_Y 0xD1
+#else
+	#define CMD_X 0xD1
+	#define CMD_Y 0x91
+#endif
+
+
 static uint16_t sampleBuf[7];
 static coord_t	lastx, lasty;
 
@@ -115,18 +124,18 @@ void ginput_lld_mouse_get_reading(MouseReading *pt) {
 	 * Finally switch on PENIRQ once again - perform a dummy read.
 	 * Once we have the readings, find the medium using our filter function
  	 */
-	read_value(0xD1);
+	read_value(CMD_X);
 	for(i = 0; i < 7; i++)
-		sampleBuf[i] = read_value(0xD1);
-	read_value(0xD0);
+		sampleBuf[i] = read_value(CMD_X);
+	read_value(CMD_X-1);
 	filter();
 	lastx = (coord_t)sampleBuf[3];
 
 	/* Get the Y value using the same process as above */
-	read_value(0x91);
+	read_value(CMD_Y);
 	for(i = 0; i < 7; i++)
-		sampleBuf[i] = read_value(0x91);
-	read_value(0x90);
+		sampleBuf[i] = read_value(CMD_Y);
+	read_value(CMD_Y-1);
 	filter();
 	lasty = (coord_t)sampleBuf[3];
 
