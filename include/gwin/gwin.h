@@ -166,6 +166,16 @@ void gwinDestroyWindow(GHandle gh);
 /* Drawing Functions */
 
 /**
+ * @brief   Draw the window
+ * @note	Redraws the Window if the GWIN object has a draw routine
+ *
+ * @param[in] gh		The window handle
+ *
+ * @api
+ */
+void gwinDraw(GHandle gh);
+
+/**
  * @brief   Clear the window
  * @note	Uses the current background color to clear the window
  *
