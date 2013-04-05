@@ -339,7 +339,7 @@ GSourceHandle ginputGetMouse(uint16_t instance) {
 		ginput_lld_mouse_init();
 
 		#if GINPUT_MOUSE_NEED_CALIBRATION
-			#if 0
+			#if GINPUT_MOUSE_LLD_CALIBRATION_LOADSAVE
 				if (!MouseConfig.fnloadcal) {
 					MouseConfig.fnloadcal = ginput_lld_mouse_calibration_load;
 					MouseConfig.flags &= ~FLG_CAL_FREE;
@@ -548,11 +548,11 @@ void ginputSetMouseCalibrationRoutines(uint16_t instance, GMouseCalibrationSaveR
 			MouseConfig.flags &= ~FLG_CAL_FREE;
 		#if GINPUT_MOUSE_LLD_CALIBRATION_LOADSAVE
 			if (!MouseConfig.fnloadcal) {
-				MouseConfig.fnloadcal = fnload;
+				MouseConfig.fnloadcal = ginput_lld_mouse_calibration_load;
 				MouseConfig.flags &= ~FLG_CAL_FREE;
 			}
 			if (!MouseConfig.fnsavecal)
-				MouseConfig.fnsavecal = fnsave;
+				MouseConfig.fnsavecal = ginput_lld_mouse_calibration_save;
 		#endif
 		if (MouseConfig.fnsavecal && (MouseConfig.flags & (FLG_CAL_OK|FLG_CAL_SAVED)) == FLG_CAL_OK) {
 			MouseConfig.fnsavecal(instance, (const uint8_t *)&MouseConfig.caldata, sizeof(MouseConfig.caldata));
