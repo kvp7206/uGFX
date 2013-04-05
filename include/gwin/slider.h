@@ -64,7 +64,7 @@ typedef struct GSliderDrawStyle_t {
 
 typedef void (*GSliderDrawFunction)(GHandle gh, bool_t isVertical, coord_t thumbpos, const GSliderDrawStyle *pstyle, void *param);
 
-// A button window
+// A slider window
 typedef struct GSliderObject_t {
 	GWindowObject		gwin;
 
@@ -154,11 +154,11 @@ void gwinSetSliderStyle(GHandle gh, const GSliderDrawStyle *pStyle);
 void gwinSliderDraw(GHandle gh);
 
 /**
- * @brief   Set the callback routine to perform a custom button drawing.
+ * @brief   Set the callback routine to perform a custom slider drawing.
  *
- * @param[in] gh		The window handle (must be a button window)
- * @param[in] fn		The function to use to draw the button
- * @param[in] param		A parameter to pass to the button drawing function
+ * @param[in] gh		The window handle (must be a slider window)
+ * @param[in] fn		The function to use to draw the slider
+ * @param[in] param		A parameter to pass to the slider drawing function
  *
  * @api
  */
@@ -168,7 +168,7 @@ void gwinSetSliderCustom(GHandle gh, GSliderDrawFunction fn, void *param);
  * @brief   Get the current slider position.
  * @return	The slider position
  *
- * @param[in] gh		The window handle (must be a button window)
+ * @param[in] gh		The window handle (must be a slider window)
  *
  * @note	The use of a listener to get the slider position is recommended if you
  * 			want continuous updates on the slider position.
@@ -192,7 +192,7 @@ void gwinSetSliderCustom(GHandle gh, GSliderDrawFunction fn, void *param);
 	 * @brief	Attach a mouse source
 	 * @details	Attach a mouse source to a slider
 	 *
-	 * @param[in] gh	The button handle
+	 * @param[in] gh	The slider handle
 	 * @param[in] gsh	The source handle
 	 *
 	 * @api
@@ -204,7 +204,7 @@ void gwinSetSliderCustom(GHandle gh, GSliderDrawFunction fn, void *param);
  * @brief	Standard slider drawing routines
  * @details	This routine is called to draw the standard slider.
  *
- * @param[in] gh			The button handle
+ * @param[in] gh			The slider handle
  * @param[in] isVertical	The slider is vertically oriented instead of horizontal
  * @param[in] thumbpos		The position of the slider (0..cx-1 or cy-1..0)
  * @param[in] pstyle		The current drawing style
