@@ -107,6 +107,21 @@ void gwinDestroyWindow(GHandle gh) {
 	}
 }
 
+void gwinDraw(GHandle gh) {
+	switch(gh->type) {
+	#if GWIN_NEED_BUTTON
+		case GW_BUTTON:
+			gwinButtonDraw(gh);
+			break;
+	#endif
+	#if GWIN_NEED_SLIDER
+		case GW_SLIDER:
+			gwinSliderDraw(gh);
+			break;
+	#endif
+	}
+}
+
 #if GDISP_NEED_TEXT
 	void gwinSetFont(GHandle gh, font_t font) {
 		gh->font = font;
