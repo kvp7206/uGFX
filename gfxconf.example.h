@@ -76,6 +76,7 @@
 #define GWIN_NEED_BUTTON		FALSE
 #define GWIN_NEED_CONSOLE		FALSE
 #define GWIN_NEED_GRAPH			FALSE
+#define GWIN_NEED_SLIDER		FALSE
 
 /* Features for the GEVENT subsystem. */
 #define GEVENT_ASSERT_NO_RESOURCE	FALSE

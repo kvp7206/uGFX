@@ -59,6 +59,13 @@
 	#ifndef GWIN_NEED_GRAPH
 		#define GWIN_NEED_GRAPH		FALSE
 	#endif
+	/**
+	 * @brief   Should slider functions be included.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GWIN_NEED_SLIDER
+		#define GWIN_NEED_SLIDER	FALSE
+	#endif
 /**
  * @}
  *

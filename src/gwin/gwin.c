@@ -90,6 +90,12 @@ void gwinDestroyWindow(GHandle gh) {
 		geventDetachSourceListeners((GSourceHandle)gh);
 		break;
 #endif
+#if GWIN_NEED_SLIDER
+	case GW_SLIDER:
+		geventDetachSource(&((GSliderObject *)gh)->listener, 0);
+		geventDetachSourceListeners((GSourceHandle)gh);
+		break;
+#endif
 	default:
 		break;
 	}
@@ -282,6 +288,15 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
 		gdispFillConvexPoly(tx+gh->x, ty+gh->y, pntarray, cnt, gh->color);
+	}
+#endif
+
+#if GDISP_NEED_IMAGE
+	gdispImageError gwinImageDraw(GHandle gh, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy) {
+		#if GDISP_NEED_CLIP
+			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
+		#endif
+		return gdispImageDraw(img, gh->x+x, gh->y+y, cx, cy, sx, sy);
 	}
 #endif
 
