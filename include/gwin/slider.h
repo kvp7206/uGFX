@@ -187,17 +187,30 @@ void gwinSetSliderCustom(GHandle gh, GSliderDrawFunction fn, void *param);
  */
 #define gwinGetSliderSource(gh)		((GSourceHandle)(gh))
 
-#if defined(GINPUT_NEED_MOUSE) && GINPUT_NEED_MOUSE
+#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
 	/**
 	 * @brief	Attach a mouse source
-	 * @details	Attach a mouse source to a slider
+	 * @details	Attach a mouse to a slider
 	 *
-	 * @param[in] gh	The slider handle
-	 * @param[in] gsh	The source handle
+	 * @param[in] gh		The slider handle
+	 * @param[in] instance	The mouse instance
 	 *
 	 * @api
 	 */
-	bool_t gwinAttachSliderMouseSource(GHandle gh, GSourceHandle gsh);
+	bool_t gwinAttachSliderMouse(GHandle gh, uint16_t instance);
+#endif
+
+#if GFX_USE_GINPUT && GINPUT_NEED_DIAL
+	/**
+	 * @brief	Attach a dial source
+	 * @details	Attach a dial to a slider
+	 *
+	 * @param[in] gh		The dial handle
+	 * @param[in] instance	The dial instance
+	 *
+	 * @api
+	 */
+	bool_t gwinAttachSliderDial(GHandle gh, uint16_t instance);
 #endif
 
 /**

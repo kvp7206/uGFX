@@ -31,7 +31,7 @@ int main(void) {
 	coord_t				swidth, sheight;
 	GHandle				ghSliderH, ghSliderV, ghConsole;
 	font_t				fui2;
-	GSourceHandle		gsMouse;
+	GEvent *			pe;
 	GEventGWinSlider *	pSliderEvent;
 	BaseSequentialStream *consout;
 
@@ -58,10 +58,15 @@ int main(void) {
     gwinSetColor(ghConsole, White);
     gwinSetBgColor(ghConsole, Blue);
 
-    // Assign the mouse to the sliders.
-    gsMouse = ginputGetMouse(0);
-    gwinAttachSliderMouseSource(ghSliderH, gsMouse);
-    gwinAttachSliderMouseSource(ghSliderV, gsMouse);
+    // Assign the mouse and dials to the sliders.
+#if GINPUT_NEED_MOUSE
+	gwinAttachSliderMouse(ghSliderH, 0);
+	gwinAttachSliderMouse(ghSliderV, 0);
+#endif
+#if GINPUT_NEED_DIAL
+	gwinAttachSliderDial(ghSliderV, 0);
+	gwinAttachSliderDial(ghSliderH, 1);
+#endif
 
     // We want to listen for slider events
 	geventListenerInit(&gl);
@@ -75,14 +80,14 @@ int main(void) {
 
 	while(1) {
 		// Get an Event
-		//	- we can assume it is a slider event as that is all we are listening for
-		pSliderEvent = (GEventGWinSlider *)geventEventWait(&gl, TIME_INFINITE);
+		pe = geventEventWait(&gl, TIME_INFINITE);
 
-		// Double check that assumption
-		if (pSliderEvent->type != GEVENT_GWIN_SLIDER)
-			continue;
-
-		chprintf(consout, "%c=%d\n", pSliderEvent->slider == ghSliderH ? 'H' : 'V', pSliderEvent->position);
+		switch(pe->type) {
+		case GEVENT_GWIN_SLIDER:
+			pSliderEvent = (GEventGWinSlider *)pe;
+			chprintf(consout, "%c=%d\n", pSliderEvent->slider == ghSliderH ? 'H' : 'V', pSliderEvent->position);
+			break;
+		}
 	}
 
 	return 0;

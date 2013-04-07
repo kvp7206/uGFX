@@ -53,5 +53,6 @@
 
 /* Features for the GINPUT sub-system. */
 #define GINPUT_NEED_MOUSE		TRUE
+#define GINPUT_NEED_DIAL		TRUE
 
 #endif /* _GFXCONF_H */

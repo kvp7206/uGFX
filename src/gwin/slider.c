@@ -39,7 +39,9 @@
 	#define GWIN_SLIDER_DEAD_BAND	5
 #endif
 
-static void trackSliderDraw(GHandle gh, coord_t x, coord_t y);
+#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
+	static void trackSliderDraw(GHandle gh, coord_t x, coord_t y);
+#endif
 
 static const GSliderDrawStyle GSliderDefaultStyle = {
 	HTML2COLOR(0x404040),		// color_edge;
@@ -55,10 +57,11 @@ static void gwinSliderCallback(void *param, GEvent *pe) {
 	#define gsw		((GSliderObject *)param)
 	#define gsh		((GSourceHandle)param)
 	#define pme		((GEventMouse *)pe)
+	#define pde		((GEventDial *)pe)
 	#define pse		((GEventGWinSlider *)pe)
 
 	switch (pe->type) {
-	#if defined(GINPUT_NEED_MOUSE) && GINPUT_NEED_MOUSE
+	#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
 		case GEVENT_MOUSE:
 		case GEVENT_TOUCH:
 			// If not tracking we only only interested in a mouse down over the slider
@@ -91,10 +94,10 @@ static void gwinSliderCallback(void *param, GEvent *pe) {
 				// Set the new position
 				if (gh->width < gh->height)
 					gwinSetSliderPosition(gh,
-						(gh->height-1-pme->y+gh->y-GWIN_SLIDER_DEAD_BAND)*(gsw->max-gsw->min)/(gh->height-2*GWIN_SLIDER_DEAD_BAND) + gsw->min);
+						(uint16_t)((uint32_t)(gh->height-1-pme->y+gh->y-GWIN_SLIDER_DEAD_BAND)*(gsw->max-gsw->min)/(gh->height-2*GWIN_SLIDER_DEAD_BAND) + gsw->min));
 				else
 					gwinSetSliderPosition(gh,
-						(pme->x-gh->x-GWIN_SLIDER_DEAD_BAND)*(gsw->max-gsw->min)/(gh->width-2*GWIN_SLIDER_DEAD_BAND) + gsw->min);
+						(uint16_t)((uint32_t)(pme->x-gh->x-GWIN_SLIDER_DEAD_BAND)*(gsw->max-gsw->min)/(gh->width-2*GWIN_SLIDER_DEAD_BAND) + gsw->min));
 
 				// Update the display
 				gwinSliderDraw(gh);
@@ -108,6 +111,17 @@ static void gwinSliderCallback(void *param, GEvent *pe) {
 				trackSliderDraw(gh, pme->x-gh->x, pme->y-gh->y);
 
 			return;
+	#endif
+	#if GFX_USE_GINPUT && GINPUT_NEED_DIAL
+		case GEVENT_DIAL:
+			// Set the new position
+			gwinSetSliderPosition(gh, (uint16_t)((uint32_t)pde->value*(gsw->max-gsw->min)/ginputGetDialRange(pde->instance) + gsw->min));
+
+			// Update the display
+			gwinSliderDraw(gh);
+
+			// Generate the event
+			break;
 	#endif
 
 	default:
@@ -194,20 +208,22 @@ void gwinSetSliderStyle(GHandle gh, const GSliderDrawStyle *pStyle) {
 	#undef gsw
 }
 
-static void trackSliderDraw(GHandle gh, coord_t x, coord_t y) {
-	#define gsw		((GSliderObject *)gh)
+#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
+	static void trackSliderDraw(GHandle gh, coord_t x, coord_t y) {
+		#define gsw		((GSliderObject *)gh)
 
-	#if GDISP_NEED_CLIP
-		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
-	#endif
+		#if GDISP_NEED_CLIP
+			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
+		#endif
+
+		if (gh->height <= gh->width)
+			gsw->fn(gh, FALSE, x, &gsw->style, gsw->param);
+		else
+			gsw->fn(gh, TRUE, y, &gsw->style, gsw->param);
 	
-	if (gh->height <= gh->width)
-		gsw->fn(gh, FALSE, x, &gsw->style, gsw->param);
-	else
-		gsw->fn(gh, TRUE, y, &gsw->style, gsw->param);
-
-	#undef gbw
-}
+		#undef gbw
+	}
+#endif
 
 void gwinSliderDraw(GHandle gh) {
 	#define gsw		((GSliderObject *)gh)
@@ -267,12 +283,25 @@ void gwinSliderDraw_Std(GHandle gh, bool_t isVertical, coord_t thumbpos, const G
 	}
 }
 
-#if defined(GINPUT_NEED_MOUSE) && GINPUT_NEED_MOUSE
-	bool_t gwinAttachSliderMouseSource(GHandle gh, GSourceHandle gsh) {
-		if (gh->type != GW_SLIDER)
+#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
+	bool_t gwinAttachSliderMouse(GHandle gh, uint16_t instance) {
+		GSourceHandle	gsh;
+
+		if (gh->type != GW_SLIDER || !(gsh = ginputGetMouse(instance)))
 			return FALSE;
 
 		return geventAttachSource(&((GSliderObject *)gh)->listener, gsh, GLISTEN_MOUSEMETA|GLISTEN_MOUSEDOWNMOVES);
+	}
+#endif
+
+#if GFX_USE_GINPUT && GINPUT_NEED_DIAL
+	bool_t gwinAttachSliderDial(GHandle gh, uint16_t instance) {
+		GSourceHandle	gsh;
+
+		if (gh->type != GW_SLIDER || !(gsh = ginputGetDial(instance)))
+			return FALSE;
+
+		return geventAttachSource(&((GSliderObject *)gh)->listener, gsh, 0);
 	}
 #endif
 

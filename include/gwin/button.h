@@ -180,30 +180,28 @@ void gwinSetButtonCustom(GHandle gh, GButtonDrawFunction fn, void *param);
  */
 #define gwinGetButtonSource(gh)		((GSourceHandle)(gh))
 
-#if defined(GINPUT_NEED_MOUSE) && GINPUT_NEED_MOUSE
+#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
 	/**
-	 * @brief	Attach a mouse source
-	 * @details	Attach a mouse source to a given button
+	 * @brief	Attach a mouse to a button
 	 *
-	 * @param[in] gh	The button handle
-	 * @param[in] gsh	The source handle
+	 * @param[in] gh		The button handle
+	 * @param[in] instance	The mouse instance
 	 *
 	 * @api
 	 */
-	bool_t gwinAttachButtonMouseSource(GHandle gh, GSourceHandle gsh);
+	bool_t gwinAttachButtonMouse(GHandle gh, uint16_t instance);
 #endif
 
-#if defined(GINPUT_NEED_TOGGLE) && GINPUT_NEED_TOGGLE
+#if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
 	/**
-	 * @brief	Attach a toggle source
-	 * @details	Attach a toggle source to this button
+	 * @brief	Attach a toggle to a button
 	 *
-	 * @param[in] gh	The button handle
-	 * @param[in] gsh	The source handle
+	 * @param[in] gh		The button handle
+	 * @param[in] instance	The toggle instance
 	 *
 	 * @api
 	 */
-	bool_t gwinAttachButtonToggleSource(GHandle gh, GSourceHandle gsh);
+	bool_t gwinAttachButtonToggle(GHandle gh, uint16_t instance);
 #endif
 
 /**

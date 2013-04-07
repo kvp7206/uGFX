@@ -76,8 +76,7 @@ extern "C" {
 
 	/**
 	 * @brief	Get the maximum value
-	 * @details	The readings are scaled to be 0 ... max-1.
-	 *			0 means over the full uint16_t range.
+	 * @details	The readings are scaled to be 0 ... max.
 	 *
 	 * @param[in] instance	The ID of the dial input instance
 	 *
@@ -87,7 +86,7 @@ extern "C" {
 
 	/**
 	 * @brief	Set the maximum value
-	 * @note	This shouldn't be set higher that the hardwares possible maximum value
+	 * @details	The readings are scaled to be 0 ... max.
 	 *
 	 * @param[in] instance	The ID of the dial input instance
 	 * @param[in] max		The maximum value to be set

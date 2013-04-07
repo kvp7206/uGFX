@@ -68,7 +68,7 @@ static void gwinButtonCallback(void *param, GEvent *pe) {
 	#define pbe		((GEventGWinButton *)pe)
 
 	switch (pe->type) {
-	#if defined(GINPUT_NEED_MOUSE) && GINPUT_NEED_MOUSE
+	#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
 		case GEVENT_MOUSE:
 		case GEVENT_TOUCH:
 			// Ignore anything other than the primary mouse button going up or down
@@ -108,7 +108,7 @@ static void gwinButtonCallback(void *param, GEvent *pe) {
 			#endif
 	#endif
 
-	#if defined(GINPUT_NEED_TOGGLE) && GINPUT_NEED_TOGGLE
+	#if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
 		case GEVENT_TOGGLE:
 			// State has changed - update the button
 			gbw->state = pxe->on ? GBTN_DOWN : GBTN_UP;
@@ -375,18 +375,22 @@ void gwinButtonDraw_Square(GHandle gh, bool_t isdown, const char *txt, const GBu
 	}
 #endif
 
-#if defined(GINPUT_NEED_MOUSE) && GINPUT_NEED_MOUSE
-	bool_t gwinAttachButtonMouseSource(GHandle gh, GSourceHandle gsh) {
-		if (gh->type != GW_BUTTON)
+#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
+	bool_t gwinAttachButtonMouse(GHandle gh, uint16_t instance) {
+		GSourceHandle gsh;
+
+		if (gh->type != GW_BUTTON || !(gsh = ginputGetMouse(instance)))
 			return FALSE;
 
 		return geventAttachSource(&((GButtonObject *)gh)->listener, gsh, GLISTEN_MOUSEMETA);
 	}
 #endif
 
-#if defined(GINPUT_NEED_TOGGLE) && GINPUT_NEED_TOGGLE
-	bool_t gwinAttachButtonToggleSource(GHandle gh, GSourceHandle gsh) {
-		if (gh->type != GW_BUTTON)
+#if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
+	bool_t gwinAttachButtonToggle(GHandle gh, uint16_t instance) {
+		GSourceHandle gsh;
+
+		if (gh->type != GW_BUTTON || !(gsh = ginputGetToggle(instance)))
 			return FALSE;
 
 		return geventAttachSource(&((GButtonObject *)gh)->listener, gsh, GLISTEN_TOGGLE_OFF|GLISTEN_TOGGLE_ON);
