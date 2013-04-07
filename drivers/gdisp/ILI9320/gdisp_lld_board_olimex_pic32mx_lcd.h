@@ -77,11 +77,16 @@ static noinline void gdisp_lld_reset_pin(bool_t state) {
 }
 
 static noinline void gdisp_lld_write_index(uint16_t data) {
+  volatile uint16_t dummy;
+
   PmpWaitBusy();
   palClearPad(IOPORTA, 10);
   PMDIN = data;
   PmpWaitBusy();
   palSetPad(IOPORTA, 10);
+
+  dummy = PMDIN;
+  (void)dummy;
 }
 
 static noinline void gdisp_lld_write_data(uint16_t data) {
