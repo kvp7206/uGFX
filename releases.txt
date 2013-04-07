@@ -22,6 +22,8 @@ FEATURE:	SSD1963 rework by username 'fred'
 FEATURE:	Added Picture converter tool
 FEATURE:	Added slider widget
 FEATURE:	Added gwinDraw() routine
+FEATURE:	Added GINPUT Dial support and driver using GADC
+FEATURE:	Simplified assigning inputs to buttons and sliders
 
 
 *** changes after 1.4 ***

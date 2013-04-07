@@ -92,21 +92,82 @@ typedef struct MouseReading_t {
 extern "C" {
 #endif
 
+	/**
+	 * @brief   Initialise the mouse/touch.
+	 *
+	 * @notapi
+	 */
 	void ginput_lld_mouse_init(void);
+
+	/**
+	 * @brief   Read the mouse/touch position.
+	 *
+	 * @param[in] pt	A pointer to the structure to fill
+	 *
+	 * @note			For drivers that don't support returning a position
+	 *					when the touch is up (most touch devices), it should
+	 *					return the previous position with the new Z value.
+	 *					The z value is the pressure for those touch devices
+	 *					that support it (-100 to 100 where > 0 is touched)
+	 *					or, 0 or 100 for those drivers that don't.
+	 *
+	 * @notapi
+	 */
 	void ginput_lld_mouse_get_reading(MouseReading *pt);
 
 	#if GINPUT_MOUSE_LLD_CALIBRATION_LOADSAVE
+		/**
+		 * @brief   Load calibration data from a storage area on the touch controller.
+		 *
+		 * @param[in] instance	The mouse instance number
+		 *
+		 * @note	The instance parameter is currently always 0 as we only support
+		 * 			one mouse/touch device at a time.
+		 * @note	This routine should only be provided if the driver has its own
+		 * 			storage area where calibration data can be stored. The drivers
+		 * 			option.h file should define GINPUT_MOUSE_LLD_CALIBRATION_LOADSAVE = TRUE
+		 * 			if it supports this.
+		 *
+		 * @notapi
+		 */
 		const char *ginput_lld_mouse_calibration_load(uint16_t instance);
+		/**
+		 * @brief   Save calibration data to a storage area on the touch controller.
+		 *
+		 * @param[in] instance	The mouse instance number
+		 * @param[in] calbuf	The calibration data to be saved
+		 * @param[in] sz		The size of the calibration data
+		 *
+		 * @note	The instance parameter is currently always 0 as we only support
+		 * 			one mouse/touch device at a time.
+		 * @note	This routine should only be provided if the driver has its own
+		 * 			storage area where calibration data can be stored. The drivers
+		 * 			option.h file should define GINPUT_MOUSE_LLD_CALIBRATION_LOADSAVE = TRUE
+		 * 			if it supports this.
+		 *
+		 * @notapi
+		 */
 		void ginput_lld_mouse_calibration_save(uint16_t instance, const uint8_t *calbuf, size_t sz);
 	#endif
 
-	/* This routine is provided to low level drivers to wakeup a value read from a thread context.
-	 *	Particularly useful if GINPUT_MOUSE_POLL_PERIOD = TIME_INFINITE
+	/**
+	 * @brief	Wakeup the high level code so that it attempts another read
+	 *
+	 * @note	This routine is provided to low level drivers by the high level code
+	 * @note	Particularly useful if GINPUT_MOUSE_POLL_PERIOD = TIME_INFINITE
+	 *
+	 * @notapi
 	 */
 	void ginputMouseWakeup(void);
 
-	/* This routine is provided to low level drivers to wakeup a value read from an ISR
-	 *	Particularly useful if GINPUT_MOUSE_POLL_PERIOD = TIME_INFINITE
+	/**
+	 * @brief	Wakeup the high level code so that it attempts another read
+	 *
+	 * @note	This routine is provided to low level drivers by the high level code
+	 * @note	Particularly useful if GINPUT_MOUSE_POLL_PERIOD = TIME_INFINITE
+	 *
+	 * @icode
+	 * @notapi
 	 */
 	void ginputMouseWakeupI(void);
 
@@ -118,4 +179,3 @@ extern "C" {
 
 #endif /* _LLD_GINPUT_MOUSE_H */
 /** @} */
-

@@ -201,28 +201,24 @@ StepCalibrate:
 		gwinSetButtonText(ghNext, "Next", FALSE);
 		gsNext = gwinGetButtonSource(ghNext);
 		geventAttachSource(&gl, gsNext, 0);
-		gwinAttachButtonMouseSource(ghNext, gs);
+		gwinAttachButtonMouse(ghNext, 0);
 
 		ghPrev = gwinCreateButton(&gPrev, swidth-100, 0, 50, 20, font, GBTN_NORMAL);
 		gwinSetButtonText(ghPrev, "Back", FALSE);
 		gsPrev = gwinGetButtonSource(ghPrev);
 		geventAttachSource(&gl, gsPrev, 0);
-		gwinAttachButtonMouseSource(ghPrev, gs);
+		gwinAttachButtonMouse(ghPrev, 0);
 
 #if 0
 		{
-			GSourceHandle			gsButton1, gsButton2;
-
 			// Attach a couple of hardware toggle buttons to our Next and Back buttons as well.
 			//	We can always use the mouse to trigger the buttons if you don't want to use hardware toggles.
 			//	This code depends on your hardware. Turn it on only if you have
 			//	defined a board definition for your toggle driver. Then change
 			//	the next two lines to be correct for your hardware. The values
 			//	below are correct for the Win32 toggle driver.
-			gsButton1 = ginputGetToggle(GINPUT_TOGGLE_MOMENTARY1);
-			gsButton2 = ginputGetToggle(GINPUT_TOGGLE_MOMENTARY2);
-			gwinAttachButtonToggleSource(ghNext, gsButton2);
-			gwinAttachButtonToggleSource(ghPrev, gsButton1);
+			gwinAttachButtonToggle(ghNext, GINPUT_TOGGLE_MOMENTARY1);
+			gwinAttachButtonToggle(ghPrev, GINPUT_TOGGLE_MOMENTARY2);
 		}
 #endif
 	}
