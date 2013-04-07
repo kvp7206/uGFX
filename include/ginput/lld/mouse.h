@@ -166,7 +166,7 @@ extern "C" {
 	 * @note	This routine is provided to low level drivers by the high level code
 	 * @note	Particularly useful if GINPUT_MOUSE_POLL_PERIOD = TIME_INFINITE
 	 *
-	 * @icode
+	 * @iclass
 	 * @notapi
 	 */
 	void ginputMouseWakeupI(void);
