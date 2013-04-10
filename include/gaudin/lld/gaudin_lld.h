@@ -61,7 +61,13 @@ typedef struct gaudin_params_t {
  *
  * @{
  */
+
+/**
+ * @param[in] buffer	The buffer
+ * @param[in] n			The amount of samples
+ * */
 extern void GAUDIN_ISR_CompleteI(audin_sample_t *buffer, size_t n);
+
 extern void GAUDIN_ISR_ErrorI(void);
 /**
  * @}
@@ -77,6 +83,8 @@ extern "C" {
 
 /**
  * @brief				Initialise the driver
+ *
+ * @param[in] paud		Initialisation parameters
  *
  * @api
  */
