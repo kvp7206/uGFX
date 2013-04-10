@@ -40,6 +40,8 @@
 	#include "ginput_lld_mouse_board.h"
 #elif defined(BOARD_OLIMEX_STM32_LCD)
 	#include "ginput_lld_mouse_board_olimex_stm32_lcd.h"
+#elif defined(BOARD_OLIMEX_PIC32MX_LCD)
+	#include "ginput_lld_mouse_board_olimex_pic32mx_lcd.h"
 #else
 	#include "ginput_lld_mouse_board.h"
 #endif
