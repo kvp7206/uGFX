@@ -25,6 +25,7 @@ FEATURE:	First MIPS32 (PIC32) board files contributed by user 'Dmytro'
 FEATURE:	Added gwinDraw() routine
 FEATURE:	Added GINPUT Dial support and driver using GADC
 FEATURE:	Simplified assigning inputs to buttons and sliders
+FIX:		Some fixes for the HD44780 TDISP driver by the user 'Frysk'
 
 
 *** changes after 1.4 ***
