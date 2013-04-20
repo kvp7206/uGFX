@@ -70,7 +70,18 @@ typedef struct GadcLldNonTimerData_t {
  * @notapi
  * @{
  */
+
+/**
+ * @param[in] adcp		The ADC driver
+ * @param[in] buffer	The sample buffer
+ * @param[in] n			The amount of samples
+ */
 extern void GADC_ISR_CompleteI(ADCDriver *adcp, adcsample_t *buffer, size_t n);
+
+/**
+ * @param[in] adcp 		The ADC driver
+ * @param[in] err 		ADC error
+ */
 extern void GADC_ISR_ErrorI(ADCDriver *adcp, adcerror_t err);
 /**
  * @}

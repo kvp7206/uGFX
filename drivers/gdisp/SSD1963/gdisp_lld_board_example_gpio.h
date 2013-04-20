@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    drivers/gdisp/SSD1963/gdisp_lld_board_example.h
+ * @file    drivers/gdisp/SSD1963/gdisp_lld_board_example_gpio.h
  * @brief   GDISP Graphic Driver subsystem board interface for the SSD1963 display.
  *
  * @addtogroup GDISP

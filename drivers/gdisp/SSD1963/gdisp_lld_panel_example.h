@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    SSD1963/gdisp_lld_panel.h
+ * @file    drivers/gdisp/SSD1963/gdisp_lld_panel_example.h
  * @brief   TFT LCD panel properties.
  *
  * @addtogroup GDISP
