@@ -167,6 +167,7 @@ bool_t gdispImageSetBaseFileStreamReader(gdispImage *img, void *BaseFileStreamPt
 gdispImageError gdispImageOpen(gdispImage *img) {
 	gdispImageError err;
 
+	img->bgcolor = White;
 	for(img->fns = ImageHandlers; img->fns < ImageHandlers+sizeof(ImageHandlers)/sizeof(ImageHandlers[0]); img->fns++) {
 		err = img->fns->open(img);
 		if (err != GDISP_IMAGE_ERR_BADFORMAT) {
@@ -190,6 +191,10 @@ void gdispImageClose(gdispImage *img) {
 		img->io.fns->close(&img->io);
 }
 
+void gdispImageSetBgColor(gdispImage *img, color_t bgcolor) {
+	img->bgcolor = bgcolor;
+}
+
 gdispImageError gdispImageCache(gdispImage *img) {
 	if (!img->fns) return GDISP_IMAGE_ERR_BADFORMAT;
 	return img->fns->cache(img);
@@ -205,6 +210,34 @@ systime_t gdispImageNext(gdispImage *img) {
 	return img->fns->next(img);
 }
 
+// Helper Routines
+void *gdispImageAlloc(gdispImage *img, size_t sz) {
+	#if GDISP_NEED_IMAGE_ACCOUNTING
+		void *ptr;
+
+		ptr = chHeapAlloc(NULL, sz);
+		if (ptr) {
+			img->memused += sz;
+			if (img->memused > img->maxmemused)
+				img->maxmemused = img->memused;
+		}
+		return ptr;
+	#else
+		(void) img;
+		return chHeapAlloc(NULL, sz);
+	#endif
+}
+
+void gdispImageFree(gdispImage *img, void *ptr, size_t sz) {
+	#if GDISP_NEED_IMAGE_ACCOUNTING
+		chHeapFree(ptr);
+		img->memused -= sz;
+	#else
+		(void) img;
+		(void) sz;
+		chHeapFree(ptr);
+	#endif
+}
 
 #endif /* GFX_USE_GDISP && GDISP_NEED_IMAGE */
 /** @} */

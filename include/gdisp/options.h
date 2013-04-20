@@ -186,6 +186,13 @@
 	#ifndef GDISP_NEED_IMAGE_PNG
 		#define GDISP_NEED_IMAGE_PNG	FALSE
 	#endif
+	/**
+	 * @brief   Is memory accounting required during image decoding.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GDISP_NEED_IMAGE_ACCOUNTING
+		#define GDISP_NEED_IMAGE_ACCOUNTING	FALSE
+	#endif
 /**
  * @}
  *

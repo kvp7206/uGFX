@@ -113,9 +113,13 @@ typedef struct gdispImageIO {
 typedef struct gdispImage {
 	gdispImageType						type;				/* @< The image type */
 	gdispImageFlags						flags;				/* @< The image flags */
+	color_t								bgcolor;			/* @< The default background color */
 	coord_t								width, height;		/* @< The image dimensions */
 	gdispImageIO						io;					/* @< The image IO functions */
-	uint32_t							membytes;			/* @< How much RAM has been allocated */
+	#if GDISP_NEED_IMAGE_ACCOUNTING
+		uint32_t							memused;			/* @< How much RAM is currently allocated */
+		uint32_t							maxmemused;			/* @< How much RAM has been allocated (maximum) */
+	#endif
 	const struct gdispImageHandlers *	fns;				/* @< Don't mess with this! */
 	struct gdispImagePrivate *			priv;				/* @< Don't mess with this! */
 } gdispImage;
@@ -176,6 +180,7 @@ extern "C" {
 	 * 
 	 * @note	This determines which decoder to use and then initialises all other fields
 	 * 			in the gdispImage structure.
+	 * @note	The image background color is set to White.
 	 * @note	There are three types of return - everything OK, partial success and unrecoverable
 	 * 			failures. For everything OK it returns GDISP_IMAGE_ERR_OK. A partial success can
 	 * 			be distinguished from a unrecoverable failure by testing the GDISP_IMAGE_ERR_UNRECOVERABLE
@@ -197,6 +202,19 @@ extern "C" {
 	 * @note	Also calls the IO close function (if it hasn't already been called).
 	 */
 	void gdispImageClose(gdispImage *img);
+
+	/**
+	 * @brief	Set the background color of the image.
+	 *
+	 * @param[in] img   	The image structure
+	 * @param[in] bgcolor	The background color to use
+	 *
+	 * @pre		gdispImageOpen() must have returned successfully.
+	 *
+	 * @note	This color is only used when an image has to restore part of the background before
+	 * 			continuing with drawing that includes transparency eg some GIF animations.
+	 */
+	void gdispImageSetBgColor(gdispImage *img, color_t bgcolor);
 	
 	/**
 	 * @brief	Cache the image
