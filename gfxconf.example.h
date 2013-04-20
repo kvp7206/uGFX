@@ -56,6 +56,7 @@
 #define GDISP_NEED_IMAGE_BMP		FALSE
 #define GDISP_NEED_IMAGE_JPG		FALSE
 #define GDISP_NEED_IMAGE_PNG		FALSE
+#define GDISP_NEED_IMAGE_ACCOUNTING	FALSE
 
 /* Optional image support that can be turned off */
 /*

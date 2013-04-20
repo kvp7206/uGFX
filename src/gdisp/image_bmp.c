@@ -54,6 +54,12 @@
 #endif
 
 /**
+ * Helper Routines Needed
+ */
+void *gdispImageAlloc(gdispImage *img, size_t sz);
+void gdispImageFree(gdispImage *img, void *ptr, size_t sz);
+
+/**
  * How big a pixel array to allocate for blitting (in pixels)
  * Bigger is faster but uses more RAM.
  * This must be greater than 40 bytes and 32 pixels as we read our headers into this space as well
@@ -148,9 +154,8 @@ gdispImageError gdispImageOpen_BMP(gdispImage *img) {
 	img->flags = 0;
 
 	/* Allocate our private area */
-	if (!(img->priv = (gdispImagePrivate *)chHeapAlloc(NULL, sizeof(gdispImagePrivate))))
+	if (!(img->priv = (gdispImagePrivate *)gdispImageAlloc(img, sizeof(gdispImagePrivate))))
 		return GDISP_IMAGE_ERR_NOMEMORY;
-	img->membytes = sizeof(gdispImagePrivate);
 
 	/* Initialise the essential bits in the private area */
 	priv = img->priv;
@@ -336,9 +341,8 @@ gdispImageError gdispImageOpen_BMP(gdispImage *img) {
 	if (priv->bmpflags & BMP_PALETTE) {
 		img->io.fns->seek(&img->io, offsetColorTable);
 
-		if (!(priv->palette = (color_t *)chHeapAlloc(NULL, priv->palsize*sizeof(color_t))))
+		if (!(priv->palette = (color_t *)gdispImageAlloc(img, priv->palsize*sizeof(color_t))))
 			return GDISP_IMAGE_ERR_NOMEMORY;
-		img->membytes += priv->palsize * sizeof(color_t);
 		if (priv->bmpflags & BMP_V2) {
 			for(aword = 0; aword < priv->palsize; aword++) {
 				if (img->io.fns->read(&img->io, &priv->buf, 3) != 3) goto baddatacleanup;
@@ -430,14 +434,13 @@ void gdispImageClose_BMP(gdispImage *img) {
 	if (img->priv) {
 #if GDISP_NEED_IMAGE_BMP_1 || GDISP_NEED_IMAGE_BMP_4 || GDISP_NEED_IMAGE_BMP_4_RLE || GDISP_NEED_IMAGE_BMP_8 || GDISP_NEED_IMAGE_BMP_8_RLE
 		if (img->priv->palette)
-			chHeapFree((void *)img->priv->palette);
+			gdispImageFree(img, (void *)img->priv->palette, img->priv->palsize*sizeof(color_t));
 #endif
 		if (img->priv->frame0cache)
-			chHeapFree((void *)img->priv->frame0cache);
-		chHeapFree((void *)img->priv);
+			gdispImageFree(img, (void *)img->priv->frame0cache, img->width*img->height*sizeof(pixel_t));
+		gdispImageFree(img, (void *)img->priv, sizeof(gdispImagePrivate));
 		img->priv = 0;
 	}
-	img->membytes = 0;
 	img->io.fns->close(&img->io);
 }
 
@@ -794,7 +797,7 @@ gdispImageError gdispImageCache_BMP(gdispImage *img) {
 
 	/* We need to allocate the cache */
 	len = img->width * img->height * sizeof(pixel_t);
-	priv->frame0cache = (pixel_t *)chHeapAlloc(NULL, len);
+	priv->frame0cache = (pixel_t *)gdispImageAlloc(img, len);
 	if (!priv->frame0cache)
 		return GDISP_IMAGE_ERR_NOMEMORY;
 	img->membytes += len;
