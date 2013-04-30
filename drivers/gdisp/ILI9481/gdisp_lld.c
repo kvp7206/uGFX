@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    drivers/gdisp/HVGA_X81/gdisp_lld.c
+ * @file    drivers/gdisp/ILI9481/gdisp_lld.c
  * @brief   GDISP Graphics Driver subsystem low level driver source for
  * 			the ILI9481 and compatible HVGA display
  *

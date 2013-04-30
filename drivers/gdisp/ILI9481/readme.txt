@@ -12,4 +12,4 @@ To use this driver:
 		 	BOARD_FIREBULL_STM32_F103	- GPIO interface: requires GDISP_CMD_PORT and GDISP_DATA_PORT to be defined
 
 2. To your makefile add the following lines:
-	include $(GFXLIB)/drivers/gdisp/HVGA_X81/gdisp_lld.mk
+	include $(GFXLIB)/drivers/gdisp/ILI9481/gdisp_lld.mk

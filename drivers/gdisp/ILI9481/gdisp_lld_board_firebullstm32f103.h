@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    drivers/gdisp/HVGA_X81/gdisp_lld_board_firebullstm32f103.h
+ * @file    drivers/gdisp/ILI9481/gdisp_lld_board_firebullstm32f103.h
  * @brief   GDISP Graphics Driver subsystem low level driver source for
  * 			the ILI9481 and compatible HVGA display
  *

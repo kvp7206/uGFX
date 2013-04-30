@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    drivers/gdisp/SSD1289/gdisp_lld_config.h
+ * @file    drivers/gdisp/ILI9481/gdisp_lld_config.h
  * @brief   GDISP Graphics Driver subsystem low level driver source for
  * 			the ILI9481 and compatible HVGA display
  *
@@ -36,7 +36,7 @@
 /* Driver hardware support.                                                  */
 /*===========================================================================*/
 
-#define GDISP_DRIVER_NAME				"HVGA_X81"
+#define GDISP_DRIVER_NAME				"ILI9481"
 
 #define GDISP_HARDWARE_CLEARS			TRUE
 #define GDISP_HARDWARE_FILLS			TRUE

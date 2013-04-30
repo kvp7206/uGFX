@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    drivers/gdisp/HVGA_X81/gdisp_lld_board_example.h
+ * @file    drivers/gdisp/ILI9481/gdisp_lld_board_example.h
  * @brief   GDISP Graphics Driver subsystem low level driver source for
  * 			the ILI9481 and compatible HVGA display
  *
@@ -37,7 +37,7 @@
  */
 static inline void init_board(void) {
 	/* Code here */
-#error "HVGA_X81: You must supply a definition for init_board for your board"
+#error "ILI9481: You must supply a definition for init_board for your board"
 }
 
 /**
@@ -49,7 +49,7 @@ static inline void init_board(void) {
  */
 static inline void setpin_reset(bool_t state) {
 	/* Code here */
-#error "HVGA_X81: You must supply a definition for setpin_reset for your board"
+#error "ILI9481: You must supply a definition for setpin_reset for your board"
 }
 
 /**
@@ -61,7 +61,7 @@ static inline void setpin_reset(bool_t state) {
  */
 static inline void set_backlight(uint8_t percent) {
 	/* Code here */
-#error "HVGA_X81: You must supply a definition for set_backlight for your board"
+#error "ILI9481: You must supply a definition for set_backlight for your board"
 }
 
 /**
@@ -70,7 +70,7 @@ static inline void set_backlight(uint8_t percent) {
  * @notapi
  */
 static inline void acquire_bus(void) {
-#error "HVGA_X81: You must supply a definition for acquire_bus for your board"
+#error "ILI9481: You must supply a definition for acquire_bus for your board"
 }
 
 /**
@@ -79,7 +79,7 @@ static inline void acquire_bus(void) {
  * @notapi
  */
 static inline void release_bus(void) {
-#error "HVGA_X81: You must supply a definition for release_bus for your board"
+#error "ILI9481: You must supply a definition for release_bus for your board"
 }
 
 /**
@@ -91,7 +91,7 @@ static inline void release_bus(void) {
  */
 static inline void write_index(uint16_t index) {
 	/* Code here */
-#error "HVGA_X81: You must supply a definition for write_index for your board"
+#error "ILI9481: You must supply a definition for write_index for your board"
 }
 
 /**
@@ -103,7 +103,7 @@ static inline void write_index(uint16_t index) {
  */
 static inline void write_data(uint16_t data) {
 	/* Code here */
-#error "HVGA_X81: You must supply a definition for write_data for your board"
+#error "ILI9481: You must supply a definition for write_data for your board"
 }
 
 #if GDISP_HARDWARE_READPIXEL || GDISP_HARDWARE_SCROLL || defined(__DOXYGEN__)
@@ -118,7 +118,7 @@ static inline void write_data(uint16_t data) {
  */
 static inline uint16_t read_data(void) {
 	/* Code here */
-#error "HVGA_X81: You must supply a definition for read_data for your board"
+#error "ILI9481: You must supply a definition for read_data for your board"
 }
 #endif
 
