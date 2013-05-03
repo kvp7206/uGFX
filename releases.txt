@@ -29,6 +29,7 @@ FEATURE:	Added gwinDraw() routine
 FEATURE:	Added GINPUT Dial support and driver using GADC
 FEATURE:	Simplified assigning inputs to buttons and sliders
 FIX:		Some fixes for the HD44780 TDISP driver by the user 'Frysk'
+FEATURE:	Added ILI9481 by user 'Abhishek'
 
 
 *** changes after 1.4 ***
