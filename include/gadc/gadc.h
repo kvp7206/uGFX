@@ -1,49 +1,8 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012, 2013
-                 Joel Bodenmann aka Tectu <joel@unormal.org>
-
-    This file is part of ChibiOS/GFX.
-
-    ChibiOS/GFX is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    ChibiOS/GFX is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/**
- * @file    include/gadc/gadc.h
- * @brief   GADC - Periodic ADC subsystem header file.
+ * This file is subject to the terms of the GFX License, v1.0. If a copy of
+ * the license was not distributed with this file, you can obtain one at:
  *
- * @addtogroup GADC
- *
- * @details	The reason why ChibiOS/GFX has it's own ADC abstraction is because
- *			the Chibi-OS drivers are very CPU specific and do not
- *			provide a way across all hardware platforms to create periodic
- *			ADC conversions. There are also issues with devices with different
- *			characteristics or periodic requirements on the same ADC
- *			device (but different channels). This layer attempts to solve these
- *			problems to provide a architecture neutral API. It also provides extra
- *			features such as multi-buffer chaining for high speed ADC sources.
- *			It provides one high speed virtual ADC device (eg a microphone) and
- *			numerous low speed (less than 100Hz) virtual ADC devices (eg dials,
- *			temperature sensors etc). The high speed device has timer based polling
- *			to ensure exact conversion periods and a buffer management system.
- *			The low speed devices are assumed to be non-critical timing devices
- *			and do not have any buffer management.
- *			Note that while only one high speed device has been provided it can
- *			be used to read multiple physical ADC channels on the one physical
- *			ADC device.
- *			All callback routines are thread based unlike the Chibi-OS interrupt based
- *			routines.
- *
- * @{
+ *              http://chibios-gfx.com/license.html
  */
 
 #ifndef _GADC_H
