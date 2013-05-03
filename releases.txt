@@ -2,7 +2,10 @@
 *** Releases                                                              ***
 *****************************************************************************
 
-current release: 1.5
+current release: 1.6
+
+
+*** changes after 1.5 ***
 FEATURE:	Added ILI9325 driver - Thanks to Chris van Dongen aka _Sjaak
 FEATURE:	Added TDISP module
 FIX:		tdispGotoXY() renamed to tdispSetCursor()
