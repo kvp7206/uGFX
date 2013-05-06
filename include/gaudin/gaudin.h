@@ -5,6 +5,15 @@
  *              http://chibios-gfx.com/license.html
  */
 
+/**
+ * @file    include/gaudin/gaudin.h
+ * @brief   GAUDIN - Audio Input subsystem header file.
+ *
+ * @addtogroup GAUDIN
+ *
+ * @{
+ */
+
 #ifndef _GAUDIN_H
 #define _GAUDIN_H
 

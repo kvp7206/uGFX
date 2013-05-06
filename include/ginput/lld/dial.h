@@ -5,6 +5,15 @@
  *              http://chibios-gfx.com/license.html
  */
 
+/**
+ * @file    include/ginput/lld/dial.h
+ * @brief   GINPUT header file for dial drivers.
+ *
+ * @defgroup Dial Dial
+ * @ingroup GINPUT
+ * @{
+ */
+
 #ifndef _LLD_GINPUT_DIAL_H
 #define _LLD_GINPUT_DIAL_H
 

@@ -5,6 +5,15 @@
  *              http://chibios-gfx.com/license.html
  */
 
+/**
+ * @file    include/gadc/lld/gadc_lld.h
+ * @brief   GADC - Periodic ADC driver header file.
+ *
+ * @defgroup Driver Driver
+ * @ingroup GADC
+ * @{
+ */
+
 #ifndef _GADC_LLD_H
 #define _GADC_LLD_H
 

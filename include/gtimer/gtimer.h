@@ -5,6 +5,26 @@
  *              http://chibios-gfx.com/license.html
  */
 
+/**
+ * @file    include/gtimer/gtimer.h
+ * @brief   GTIMER GFX User Timer subsystem header file.
+ *
+ * @addtogroup GTIMER
+ *
+ * @details	The reason why ChibiOS/GFX has it's own timer abstraction is because
+ *			virtual timers provided by ChibiOS/RT are interrupt context only.
+ *			While great for what they are designed for, they make coding of the input
+ *			drivers much more complex.
+ *			For non-performance critical drivers like these input drivers,  it would also
+ *			hog an in-ordinate amount of critical (interrupt locked) system time.
+ *			This contrary to the goals of a real-time operating system. So a user-land
+ *			(thread based) timer mechanism is also required.
+ *
+ * @pre		GFX_USE_GTIMER must be set to TRUE in your gfxconf.h
+ *
+ * @{
+ */
+
 #ifndef _GTIMER_H
 #define _GTIMER_H
 

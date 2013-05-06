@@ -5,6 +5,15 @@
  *              http://chibios-gfx.com/license.html
  */
 
+/**
+ * @file    include/ginput/lld/toggle.h
+ * @brief   GINPUT header file for toggle drivers.
+ *
+ * @defgroup Toggle Toggle
+ * @ingroup GINPUT
+ * @{
+ */
+
 #ifndef _LLD_GINPUT_TOGGLE_H
 #define _LLD_GINPUT_TOGGLE_H
 

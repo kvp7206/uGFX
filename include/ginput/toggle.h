@@ -5,6 +5,22 @@
  *              http://chibios-gfx.com/license.html
  */
 
+/**
+ * @file    include/ginput/toggle.h
+ * @brief   GINPUT GFX User Input subsystem header file.
+ *
+ * @defgroup Toggle Toggle
+ * @ingroup GINPUT
+ *
+ * @details	GINPUT allows it to interface toggle buttons easily to your
+ *			application.
+ *
+ * @pre		GFX_USE_GINPUT must be set to TRUE in your gfxconf.h
+ * @pre		GINPUT_NEED_TOGGLE must be set to TRUE in your gfxconf.h
+ *
+ * @{
+ */
+
 #ifndef _GINPUT_TOGGLE_H
 #define _GINPUT_TOGGLE_H
 

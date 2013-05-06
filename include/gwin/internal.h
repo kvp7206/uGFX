@@ -4,6 +4,14 @@
  *
  *              http://chibios-gfx.com/license.html
  */
+
+/**
+ * @file    include/gwin/internal.h
+ * @brief   GWIN Graphic window subsystem header file.
+ *
+ * @addtogroup GWIN
+ * @{
+ */
 #ifndef _GWIN_INTERNAL_H
 #define _GWIN_INTERNAL_H
 

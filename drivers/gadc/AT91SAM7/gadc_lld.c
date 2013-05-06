@@ -5,6 +5,15 @@
  *              http://chibios-gfx.com/license.html
  */
 
+/**
+ * @file    drivers/gadc/AT91SAM7/gadc_lld.c
+ * @brief   GADC - Periodic ADC driver source file for the AT91SAM7 cpu.
+ *
+ * @defgroup Driver Driver
+ * @ingroup GADC
+ * @{
+ */
+
 #include "ch.h"
 #include "hal.h"
 #include "gfx.h"

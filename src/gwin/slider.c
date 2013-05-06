@@ -5,6 +5,16 @@
  *              http://chibios-gfx.com/license.html
  */
 
+/**
+ * @file    src/gwin/slider.c
+ * @brief   GWIN sub-system slider code.
+ *
+ * @defgroup Slider Slider
+ * @ingroup GWIN
+ *
+ * @{
+ */
+
 #include "ch.h"
 #include "hal.h"
 #include "gfx.h"

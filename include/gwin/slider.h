@@ -5,6 +5,20 @@
  *              http://chibios-gfx.com/license.html
  */
 
+/**
+ * @file    include/gwin/slider.h
+ * @brief   GWIN Graphic window subsystem header file.
+ *
+ * @defgroup Slider Slider
+ * @ingroup GWIN
+ *
+ * @details		Create sliders with different styles
+ *
+ * @pre			GFX_USE_GWIN must be set to TRUE in your gfxconf.h
+ * @pre			GWIN_NEED_SLIDER must be set to TRUE in your gfxconf.h
+ * @{
+ */
+
 #ifndef _GWIN_SLIDER_H
 #define _GWIN_SLIDER_H
 

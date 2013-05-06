@@ -5,6 +5,16 @@
  *              http://chibios-gfx.com/license.html
  */
 
+/**
+ * @file    src/gwin/graph.c
+ * @brief   GWIN sub-system button code.
+ *
+ * @defgroup Graph Graph
+ * @ingroup GWIN
+ *
+ * @{
+ */
+
 #include "ch.h"
 #include "hal.h"
 #include "gfx.h"

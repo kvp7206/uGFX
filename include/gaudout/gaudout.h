@@ -5,6 +5,15 @@
  *              http://chibios-gfx.com/license.html
  */
 
+/**
+ * @file    include/gaudout/gaudout.h
+ * @brief   GAUDOUT - Audio Output subsystem header file.
+ *
+ * @addtogroup GAUDOUT
+ *
+ * @{
+ */
+
 #ifndef _GAUDOUT_H
 #define _GAUDOUT_H
 
