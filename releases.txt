@@ -2,7 +2,10 @@
 *** Releases                                                              ***
 *****************************************************************************
 
-current release: 1.5
+current release: 1.6
+
+
+*** changes after 1.5 ***
 FEATURE:	Added ILI9325 driver - Thanks to Chris van Dongen aka _Sjaak
 FEATURE:	Added TDISP module
 FIX:		tdispGotoXY() renamed to tdispSetCursor()
@@ -26,6 +29,7 @@ FEATURE:	Added gwinDraw() routine
 FEATURE:	Added GINPUT Dial support and driver using GADC
 FEATURE:	Simplified assigning inputs to buttons and sliders
 FIX:		Some fixes for the HD44780 TDISP driver by the user 'Frysk'
+FEATURE:	Added ILI9481 by user 'Abhishek'
 
 
 *** changes after 1.4 ***

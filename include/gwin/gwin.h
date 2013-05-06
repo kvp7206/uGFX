@@ -1,38 +1,8 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012, 2013
-                 Joel Bodenmann aka Tectu <joel@unormal.org>
-
-    This file is part of ChibiOS/GFX.
-
-    ChibiOS/GFX is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    ChibiOS/GFX is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-/**
- * @file    include/gwin/gwin.h
- * @brief   GWIN Graphic window subsystem header file.
+ * This file is subject to the terms of the GFX License, v1.0. If a copy of
+ * the license was not distributed with this file, you can obtain one at:
  *
- * @defgroup Window Window
- * @ingroup GWIN
- *
- * @details	GWIN provides a basic window manager which allows it to easily
- *			create and destroy different windows on runtime. Each window
- *			will have it's own properties such as colors, brushes as well as
- *			it's own drawing origin.
- *			Moving the windows around is not supported yet.
- *
- * @pre		GFX_USE_GWIN must be set to TRUE in your gfxconf.h
- *
- * @{
+ *              http://chibios-gfx.com/license.html
  */
 
 #ifndef _GWIN_H
