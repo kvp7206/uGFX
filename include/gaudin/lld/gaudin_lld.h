@@ -5,6 +5,15 @@
  *              http://chibios-gfx.com/license.html
  */
 
+/**
+ * @file    include/gaudin/lld/gaudin_lld.h
+ * @brief   GAUDIN - Audio Input driver header file.
+ *
+ * @defgroup Driver Driver
+ * @ingroup GAUDIN
+ * @{
+ */
+
 #ifndef _GAUDIN_LLD_H
 #define _GAUDIN_LLD_H
 

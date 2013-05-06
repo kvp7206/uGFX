@@ -5,6 +5,15 @@
  *              http://chibios-gfx.com/license.html
  */
 
+/**
+ * @file    include/gmisc/gmisc.h
+ * @brief   GMISC - Miscellaneous Routines header file.
+ *
+ * @addtogroup GAUDIN
+ *
+ * @{
+ */
+
 #ifndef _GMISC_H
 #define _GMISC_H
 

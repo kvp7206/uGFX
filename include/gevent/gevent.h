@@ -4,6 +4,20 @@
  *
  *              http://chibios-gfx.com/license.html
  */
+
+/**
+ * @file    include/gevent/gevent.h
+ * @brief   GEVENT GFX User Event subsystem header file.
+ *
+ * @addtogroup GEVENT
+ *
+ * @details		GEVENT provides a simple to use but yet powerful event
+ *				system.
+ *
+ * @pre			GFX_USE_GEVENT must be set to TRUE in your gfxconf.h
+ *
+ * @{
+ */
 #ifndef _GEVENT_H
 #define _GEVENT_H
 

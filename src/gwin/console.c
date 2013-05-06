@@ -5,6 +5,16 @@
  *              http://chibios-gfx.com/license.html
  */
 
+/**
+ * @file    src/gwin/console.c
+ * @brief   GWIN sub-system console code.
+ *
+ * @defgroup Console Console
+ * @ingroup GWIN
+ *
+ * @{
+ */
+
 #include "ch.h"
 #include "hal.h"
 #include "gfx.h"

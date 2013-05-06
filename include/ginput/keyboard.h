@@ -5,6 +5,15 @@
  *              http://chibios-gfx.com/license.html
  */
 
+/**
+ * @file    include/ginput/keyboard.h
+ * @brief   GINPUT GFX User Input subsystem header file.
+ *
+ * @defgroup Keyboard Keyboard
+ * @ingroup GINPUT
+ * @{
+ */
+
 #ifndef _GINPUT_KEYBOARD_H
 #define _GINPUT_KEYBOARD_H
 

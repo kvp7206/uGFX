@@ -4,6 +4,15 @@
  *
  *              http://chibios-gfx.com/license.html
  */
+
+/**
+ * @file    drivers/gaudin/gadc/gaudin_lld.c
+ * @brief   GAUDIN - Driver file for using the cpu ADC (via GADC).
+ *
+ * @addtogroup GAUDIN
+ *
+ * @{
+ */
 #include "ch.h"
 #include "hal.h"
 

@@ -5,6 +5,22 @@
  *              http://chibios-gfx.com/license.html
  */
 
+/**
+ * @file    include/gwin/console.h
+ * @brief   GWIN Graphic window subsystem header file.
+ *
+ * @defgroup Console Console
+ * @ingroup GWIN
+ *
+ * @details		GWIN allows it to create a console/terminal like window.
+ *				You can simply use chprintf() to print to the terminal.
+ *
+ * @pre			GFX_USE_GWIN must be set to TRUE in your gfxconf.h
+ * @pre			GWIN_NEED_CONSOLE must be set to TRUE in your gfxconf.h
+ *
+ * @{
+ */
+
 #ifndef _GWIN_CONSOLE_H
 #define _GWIN_CONSOLE_H
 
