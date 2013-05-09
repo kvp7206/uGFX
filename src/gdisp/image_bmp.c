@@ -787,7 +787,6 @@ gdispImageError gdispImageCache_BMP(gdispImage *img) {
 	priv->frame0cache = (pixel_t *)gdispImageAlloc(img, len);
 	if (!priv->frame0cache)
 		return GDISP_IMAGE_ERR_NOMEMORY;
-	img->membytes += len;
 
 	/* Read the entire bitmap into cache */
 	img->io.fns->seek(&img->io, priv->frame0pos);
