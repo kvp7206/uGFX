@@ -24,6 +24,12 @@
 #define HEADER_SIZE			8
 #define FRAME0POS			(HEADER_SIZE)
 
+/**
+ * Helper Routines Needed
+ */
+void *gdispImageAlloc(gdispImage *img, size_t sz);
+void gdispImageFree(gdispImage *img, void *ptr, size_t sz);
+
 typedef struct gdispImagePrivate {
 	pixel_t		*frame0cache;
 	pixel_t		buf[BLIT_BUFFER_SIZE];
@@ -48,9 +54,8 @@ gdispImageError gdispImageOpen_NATIVE(gdispImage *img) {
 	img->height = (((uint16_t)hdr[4])<<8) | (hdr[5]);
 	if (img->width < 1 || img->height < 1)
 		return GDISP_IMAGE_ERR_BADDATA;
-	if (!(img->priv = (gdispImagePrivate *)chHeapAlloc(NULL, sizeof(gdispImagePrivate))))
+	if (!(img->priv = (gdispImagePrivate *)gdispImageAlloc(img, sizeof(gdispImagePrivate))))
 		return GDISP_IMAGE_ERR_NOMEMORY;
-	img->membytes = sizeof(gdispImagePrivate);
 	img->priv->frame0cache = 0;
 
 	return GDISP_IMAGE_ERR_OK;
@@ -59,11 +64,10 @@ gdispImageError gdispImageOpen_NATIVE(gdispImage *img) {
 void gdispImageClose_NATIVE(gdispImage *img) {
 	if (img->priv) {
 		if (img->priv->frame0cache)
-			chHeapFree((void *)img->priv->frame0cache);
-		chHeapFree((void *)img->priv);
+			gdispImageFree(img, (void *)img->priv->frame0cache, img->width * img->height * sizeof(pixel_t));
+		gdispImageFree(img, (void *)img->priv, sizeof(gdispImagePrivate));
 		img->priv = 0;
 	}
-	img->membytes = 0;
 	img->io.fns->close(&img->io);
 }
 
@@ -76,10 +80,9 @@ gdispImageError gdispImageCache_NATIVE(gdispImage *img) {
 
 	/* We need to allocate the cache */
 	len = img->width * img->height * sizeof(pixel_t);
-	img->priv->frame0cache = (pixel_t *)chHeapAlloc(NULL, len);
+	img->priv->frame0cache = (pixel_t *)gdispImageAlloc(img, len);
 	if (!img->priv->frame0cache)
 		return GDISP_IMAGE_ERR_NOMEMORY;
-	img->membytes += len;
 
 	/* Read the entire bitmap into cache */
 	img->io.fns->seek(&img->io, FRAME0POS);

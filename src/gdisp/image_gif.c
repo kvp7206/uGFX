@@ -876,11 +876,10 @@ gdispImageError gdispImageDraw_GIF(gdispImage *img, coord_t x, coord_t y, coord_
 				if ((priv->frame.flags & GIFL_TRANSPARENT) && col == priv->frame.paltrans) {
 					// We have a transparent pixel - dump the buffer to the display
 					switch(gcnt) {
-					case 0:																			break;
-					case 1:		gdispDrawPixel(x+mx-gcnt, y+my, priv->buf[0]);						break;
-					default:	gdispBlitAreaEx(x+mx-gcnt, y+my, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
+					case 0:																							break;
+					case 1:		gdispDrawPixel(x+mx-sx-gcnt, y+my-sy, priv->buf[0]); gcnt = 0;						break;
+					default:	gdispBlitAreaEx(x+mx-sx-gcnt, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf); gcnt = 0;	break;
 					}
-					gcnt = 0;
 					continue;
 				}
 				priv->buf[gcnt++] = cache->palette[col];
@@ -892,9 +891,9 @@ gdispImageError gdispImageDraw_GIF(gdispImage *img, coord_t x, coord_t y, coord_
 			}
 			// We have finished the line - dump the buffer to the display
 			switch(gcnt) {
-			case 0:																			break;
-			case 1:		gdispDrawPixel(x+mx-gcnt, y+my, priv->buf[0]);						break;
-			default:	gdispBlitAreaEx(x+mx-gcnt, y+my, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
+			case 0:																				break;
+			case 1:		gdispDrawPixel(x+mx-sx-gcnt, y+my-sy, priv->buf[0]);					break;
+			default:	gdispBlitAreaEx(x+mx-sx-gcnt, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
 			}
 		}
 
@@ -931,11 +930,10 @@ gdispImageError gdispImageDraw_GIF(gdispImage *img, coord_t x, coord_t y, coord_
 					if ((priv->frame.flags & GIFL_TRANSPARENT) && col == priv->frame.paltrans) {
 						// We have a transparent pixel - dump the buffer to the display
 						switch(gcnt) {
-						case 0:																			break;
-						case 1:		gdispDrawPixel(x+mx-gcnt, y+my, priv->buf[0]);						break;
-						default:	gdispBlitAreaEx(x+mx-gcnt, y+my, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
+						case 0:																							break;
+						case 1:		gdispDrawPixel(x+mx-sx-gcnt, y+my-sy, priv->buf[0]); gcnt = 0;						break;
+						default:	gdispBlitAreaEx(x+mx-sx-gcnt, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf); gcnt = 0;	break;
 						}
-						gcnt = 0;
 						continue;
 					}
 					priv->buf[gcnt++] = decode->palette[col];
@@ -944,13 +942,20 @@ gdispImageError gdispImageDraw_GIF(gdispImage *img, coord_t x, coord_t y, coord_
 						gdispBlitAreaEx(x+mx-gcnt+1, y+my, gcnt, 1, 0, 0, gcnt, priv->buf);
 						gcnt = 0;
 					}
+					continue;
+				}
+				// We have finished the visible area - dump the buffer to the display
+				switch(gcnt) {
+				case 0:																							break;
+				case 1:		gdispDrawPixel(x+mx-sx-gcnt, y+my-sy, priv->buf[0]); gcnt = 0;						break;
+				default:	gdispBlitAreaEx(x+mx-sx-gcnt, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf); gcnt = 0;	break;
 				}
 			}
 			// We have finished the line - dump the buffer to the display
 			switch(gcnt) {
-			case 0:																			break;
-			case 1:		gdispDrawPixel(x+mx-gcnt, y+my, priv->buf[0]);						break;
-			default:	gdispBlitAreaEx(x+mx-gcnt, y+my, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
+			case 0:																				break;
+			case 1:		gdispDrawPixel(x+mx-sx-gcnt, y+my-sy, priv->buf[0]);					break;
+			default:	gdispBlitAreaEx(x+mx-sx-gcnt, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
 			}
 		}
 		// Every 8th row starting at row 4
@@ -971,11 +976,10 @@ gdispImageError gdispImageDraw_GIF(gdispImage *img, coord_t x, coord_t y, coord_
 					if ((priv->frame.flags & GIFL_TRANSPARENT) && col == priv->frame.paltrans) {
 						// We have a transparent pixel - dump the buffer to the display
 						switch(gcnt) {
-						case 0:																			break;
-						case 1:		gdispDrawPixel(x+mx-gcnt, y+my, priv->buf[0]);						break;
-						default:	gdispBlitAreaEx(x+mx-gcnt, y+my, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
+						case 0:																							break;
+						case 1:		gdispDrawPixel(x+mx-sx-gcnt, y+my-sy, priv->buf[0]); gcnt = 0;						break;
+						default:	gdispBlitAreaEx(x+mx-sx-gcnt, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf); gcnt = 0;	break;
 						}
-						gcnt = 0;
 						continue;
 					}
 					priv->buf[gcnt++] = decode->palette[col];
@@ -984,13 +988,20 @@ gdispImageError gdispImageDraw_GIF(gdispImage *img, coord_t x, coord_t y, coord_
 						gdispBlitAreaEx(x+mx-gcnt+1, y+my, gcnt, 1, 0, 0, gcnt, priv->buf);
 						gcnt = 0;
 					}
+					continue;
+				}
+				// We have finished the visible area - dump the buffer to the display
+				switch(gcnt) {
+				case 0:																							break;
+				case 1:		gdispDrawPixel(x+mx-sx-gcnt, y+my-sy, priv->buf[0]); gcnt = 0;						break;
+				default:	gdispBlitAreaEx(x+mx-sx-gcnt, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf); gcnt = 0;	break;
 				}
 			}
 			// We have finished the line - dump the buffer to the display
 			switch(gcnt) {
-			case 0:																			break;
-			case 1:		gdispDrawPixel(x+mx-gcnt, y+my, priv->buf[0]);						break;
-			default:	gdispBlitAreaEx(x+mx-gcnt, y+my, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
+			case 0:																				break;
+			case 1:		gdispDrawPixel(x+mx-sx-gcnt, y+my-sy, priv->buf[0]);					break;
+			default:	gdispBlitAreaEx(x+mx-sx-gcnt, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
 			}
 		}
 		// Every 4th row starting at row 2
@@ -1011,11 +1022,10 @@ gdispImageError gdispImageDraw_GIF(gdispImage *img, coord_t x, coord_t y, coord_
 					if ((priv->frame.flags & GIFL_TRANSPARENT) && col == priv->frame.paltrans) {
 						// We have a transparent pixel - dump the buffer to the display
 						switch(gcnt) {
-						case 0:																			break;
-						case 1:		gdispDrawPixel(x+mx-gcnt, y+my, priv->buf[0]);						break;
-						default:	gdispBlitAreaEx(x+mx-gcnt, y+my, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
+						case 0:																							break;
+						case 1:		gdispDrawPixel(x+mx-sx-gcnt, y+my-sy, priv->buf[0]); gcnt = 0;						break;
+						default:	gdispBlitAreaEx(x+mx-sx-gcnt, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf); gcnt = 0;	break;
 						}
-						gcnt = 0;
 						continue;
 					}
 					priv->buf[gcnt++] = decode->palette[col];
@@ -1024,13 +1034,20 @@ gdispImageError gdispImageDraw_GIF(gdispImage *img, coord_t x, coord_t y, coord_
 						gdispBlitAreaEx(x+mx-gcnt+1, y+my, gcnt, 1, 0, 0, gcnt, priv->buf);
 						gcnt = 0;
 					}
+					continue;
+				}
+				// We have finished the visible area - dump the buffer to the display
+				switch(gcnt) {
+				case 0:																							break;
+				case 1:		gdispDrawPixel(x+mx-sx-gcnt, y+my-sy, priv->buf[0]); gcnt = 0;						break;
+				default:	gdispBlitAreaEx(x+mx-sx-gcnt, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf); gcnt = 0;	break;
 				}
 			}
 			// We have finished the line - dump the buffer to the display
 			switch(gcnt) {
-			case 0:																			break;
-			case 1:		gdispDrawPixel(x+mx-gcnt, y+my, priv->buf[0]);						break;
-			default:	gdispBlitAreaEx(x+mx-gcnt, y+my, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
+			case 0:																				break;
+			case 1:		gdispDrawPixel(x+mx-sx-gcnt, y+my-sy, priv->buf[0]);					break;
+			default:	gdispBlitAreaEx(x+mx-sx-gcnt, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
 			}
 		}
 		// Every 2nd row starting at row 1
@@ -1051,11 +1068,10 @@ gdispImageError gdispImageDraw_GIF(gdispImage *img, coord_t x, coord_t y, coord_
 					if ((priv->frame.flags & GIFL_TRANSPARENT) && col == priv->frame.paltrans) {
 						// We have a transparent pixel - dump the buffer to the display
 						switch(gcnt) {
-						case 0:																			break;
-						case 1:		gdispDrawPixel(x+mx-gcnt, y+my, priv->buf[0]);						break;
-						default:	gdispBlitAreaEx(x+mx-gcnt, y+my, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
+						case 0:																							break;
+						case 1:		gdispDrawPixel(x+mx-sx-gcnt, y+my-sy, priv->buf[0]); gcnt = 0;						break;
+						default:	gdispBlitAreaEx(x+mx-sx-gcnt, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf); gcnt = 0;	break;
 						}
-						gcnt = 0;
 						continue;
 					}
 					priv->buf[gcnt++] = decode->palette[col];
@@ -1064,13 +1080,20 @@ gdispImageError gdispImageDraw_GIF(gdispImage *img, coord_t x, coord_t y, coord_
 						gdispBlitAreaEx(x+mx-gcnt+1, y+my, gcnt, 1, 0, 0, gcnt, priv->buf);
 						gcnt = 0;
 					}
+					continue;
+				}
+				// We have finished the visible area - dump the buffer to the display
+				switch(gcnt) {
+				case 0:																							break;
+				case 1:		gdispDrawPixel(x+mx-sx-gcnt, y+my-sy, priv->buf[0]); gcnt = 0;						break;
+				default:	gdispBlitAreaEx(x+mx-sx-gcnt, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf); gcnt = 0;	break;
 				}
 			}
 			// We have finished the line - dump the buffer to the display
 			switch(gcnt) {
-			case 0:																			break;
-			case 1:		gdispDrawPixel(x+mx-gcnt, y+my, priv->buf[0]);						break;
-			default:	gdispBlitAreaEx(x+mx-gcnt, y+my, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
+			case 0:																				break;
+			case 1:		gdispDrawPixel(x+mx-sx-gcnt, y+my-sy, priv->buf[0]);					break;
+			default:	gdispBlitAreaEx(x+mx-sx-gcnt, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
 			}
 		}
 	} else {
@@ -1092,26 +1115,32 @@ gdispImageError gdispImageDraw_GIF(gdispImage *img, coord_t x, coord_t y, coord_
 					if ((priv->frame.flags & GIFL_TRANSPARENT) && col == priv->frame.paltrans) {
 						// We have a transparent pixel - dump the buffer to the display
 						switch(gcnt) {
-						case 0:																			break;
-						case 1:		gdispDrawPixel(x+mx-gcnt, y+my, priv->buf[0]);						break;
-						default:	gdispBlitAreaEx(x+mx-gcnt, y+my, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
+						case 0:																							break;
+						case 1:		gdispDrawPixel(x+mx-sx-gcnt, y+my-sy, priv->buf[0]); gcnt = 0;						break;
+						default:	gdispBlitAreaEx(x+mx-sx-gcnt, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf); gcnt = 0;	break;
 						}
-						gcnt = 0;
 						continue;
 					}
 					priv->buf[gcnt++] = decode->palette[col];
 					if (gcnt >= BLIT_BUFFER_SIZE) {
 						// We have run out of buffer - dump it to the display
-						gdispBlitAreaEx(x+mx-gcnt+1, y+my, gcnt, 1, 0, 0, gcnt, priv->buf);
+						gdispBlitAreaEx(x+mx-sx-gcnt+1, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf);
 						gcnt = 0;
 					}
+					continue;
+				}
+				// We have finished the visible area - dump the buffer to the display
+				switch(gcnt) {
+				case 0:																							break;
+				case 1:		gdispDrawPixel(x+mx-sx-gcnt, y+my-sy, priv->buf[0]); gcnt = 0;						break;
+				default:	gdispBlitAreaEx(x+mx-sx-gcnt, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf); gcnt = 0;	break;
 				}
 			}
 			// We have finished the line - dump the buffer to the display
 			switch(gcnt) {
-			case 0:																			break;
-			case 1:		gdispDrawPixel(x+mx-gcnt, y+my, priv->buf[0]);						break;
-			default:	gdispBlitAreaEx(x+mx-gcnt, y+my, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
+			case 0:																				break;
+			case 1:		gdispDrawPixel(x+mx-sx-gcnt, y+my-sy, priv->buf[0]);					break;
+			default:	gdispBlitAreaEx(x+mx-sx-gcnt, y+my-sy, gcnt, 1, 0, 0, gcnt, priv->buf);	break;
 			}
 		}
 	}
