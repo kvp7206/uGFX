@@ -122,6 +122,7 @@
 	#define GDISP_USE_GPIO
 	#define TDISP_COLUMNS				16
 	#define TDISP_ROWS					2
+	#define GDISP_THREAD_CHIBIOS		TRUE
 */
 
 #endif /* _GFXCONF_H */

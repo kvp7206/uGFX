@@ -277,6 +277,12 @@
 	/* #define GDISP_SCREEN_WIDTH		nnnn */
 	/* #define GDISP_SCREEN_HEIGHT		nnnn */
 	/**
+	 * @brief   Define which threading model to use.
+	 * @details	Optional for the X11 driver.
+	 * @note	Defaults to TRUE. Setting to FALSE causes POSIX threads to be used
+	 */
+	/* #define GDISP_THREAD_CHIBIOS	FALSE */
+	/**
 	 * @brief   Define which bus interface to use.
 	 * @details	Only required by the SSD1963 driver.
 	 * @note	This will be replaced eventually by board definition files
