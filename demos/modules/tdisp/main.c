@@ -30,7 +30,7 @@
 #include "gfx.h"
 
 int main(void) {
-	char charmap[8];
+	uint8_t charmap[8];
 
 	halInit();
 	chSysInit();

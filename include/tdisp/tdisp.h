@@ -108,7 +108,7 @@ void tdispSetCursor(coord_t col, coord_t row);
  * 							made up of @p tdispGetCharBitWidth() bits of data. Note that bits in multiple rows are not
  * 							packed.
  */
-void tdispCreateChar(uint8_t address, uint8_t *charmap);
+void tdispCreateChar(uint8_t address, char* charmap);
 
 /**
  * @brief	Draws a single character at the current cursor position and advances the cursor
@@ -127,7 +127,7 @@ void tdispDrawChar(char c);
  * @note			Any characters written past the end of a row may or may not be displayed on
  * 					the next row. The cursor is also left in an undefined position.
  */
-void tdispDrawString(char *s);
+void tdispDrawString(char* s);
 
 /**
  * @brief	Draws a string at a specific position
@@ -138,7 +138,7 @@ void tdispDrawString(char *s);
  *
  * @note			The cursor position after this call is not the same as before.
  */
-void tdispDrawStringLocation(coord_t col, coord_t row, char *s);
+void tdispDrawStringLocation(coord_t col, coord_t row, char* s);
 
 /**
  * @brief	Control different display properties
@@ -149,14 +149,14 @@ void tdispDrawStringLocation(coord_t col, coord_t row, char *s);
  * @param[in] what		What you want to control
  * @param[in] value		The value to be assigned
  */
-void tdispControl(uint16_t what, void *value);
+void tdispControl(uint16_t what, void* value);
 
 /**
  * @brief	Set the backlight level
  *
  * @param[in] percent	A percentage from 0 to 100%. 0% will turn off the display
  */
-#define tdispSetBacklight(percent)		tdispControl(TDISP_CTRL_BACKLIGHT, (void *)((uint8_t)(percent)))
+#define tdispSetBacklight(percent)		tdispControl(TDISP_CTRL_BACKLIGHT, (void*)((uint8_t)(percent)))
 
 /**
  * @brief	Set the cursor shape
@@ -166,7 +166,7 @@ void tdispControl(uint16_t what, void *value);
  * @note			Not all shapes are necessarily supported. The driver will make a similar
  * 					choice if the one specified is not available.
  */
-#define tdispSetCursorShape(shape)		tdispControl(TDISP_CTRL_CURSOR, (void *)((cursorshape)(shape)))
+#define tdispSetCursorShape(shape)		tdispControl(TDISP_CTRL_CURSOR, (void*)((cursorshape)(shape)))
 
 /**
  * @brief	Get the number of columns (width) in the display
