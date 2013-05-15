@@ -112,7 +112,7 @@ bool_t tdisp_lld_init(void) {
 // 	write_cmd(0x38);
 // 	chThdSleepMilliseconds(64);
 // 
-// 	displaycontrol = DISPLAY_ON | CURSOR_ON | CURSOR_BLINK;		// The default displaycontrol
+// 	displaycontrol = TDISP_DISPLAY_ON | TDISP_CURSOR_ON | TDISP_CURSOR_BLINK;		// The default displaycontrol
 // 	write_cmd(0x08 | displaycontrol);
 // 	chThdSleepMicroseconds(50);
 // 
@@ -171,26 +171,26 @@ void tdisp_lld_control(uint16_t what, uint16_t value) {
 	switch(what) {
 		case TDISP_CTRL_BACKLIGHT:
 			if ((uint8_t)value)
-				displaycontrol |= DISPLAY_ON;
+				displaycontrol |= TDISP_DISPLAY_ON;
 			else
-				displaycontrol &= ~DISPLAY_ON;
+				displaycontrol &= ~TDISP_DISPLAY_ON;
 			write_cmd(0x08 | displaycontrol);
 			break;
 		case TDISP_CTRL_CURSOR:
 			switch((uint8_t)value) {
 			case cursorOff:
-				displaycontrol &= ~CURSOR_ON;
+				displaycontrol &= ~TDISP_CURSOR_ON;
 				break;
 			case cursorBlock:
 			case cursorUnderline:
 			case cursorBar:
-				displaycontrol = (displaycontrol | CURSOR_ON) & ~CURSOR_BLINK;
+				displaycontrol = (displaycontrol | TDISP_CURSOR_ON) & ~TDISP_CURSOR_BLINK;
 				break;
 			case cursorBlinkingBlock:
 			case cursorBlinkingUnderline:
 			case cursorBlinkingBar:
 			default:
-				displaycontrol |= (CURSOR_ON | CURSOR_BLINK);
+				displaycontrol |= (TDISP_CURSOR_ON | TDISP_CURSOR_BLINK);
 				break;
 			}
 			write_cmd(0x08 | displaycontrol);
