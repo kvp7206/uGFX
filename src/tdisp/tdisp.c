@@ -96,7 +96,7 @@ void tdispDrawString(char *s) {
 
 void tdispDrawStringLocation(coord_t col, coord_t row, char *s) {
 	tdispSetCursor(col, row);
-	tdispSDrawString(s);
+	tdispDrawString(s);
 }	
 
 void tdispControl(uint16_t what, void *value) {
