@@ -94,6 +94,11 @@ void tdispDrawString(char *s) {
 	MUTEX_LEAVE();
 }
 
+void tdispDrawStringLocation(coord_t col, coord_t row, char *s) {
+	tdispSetCursor(col, row);
+	tdispSDrawString(s);
+}	
+
 void tdispControl(uint16_t what, void *value) {
 	MUTEX_ENTER();
 	tdisp_lld_control(what, value);

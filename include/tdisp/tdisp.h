@@ -130,6 +130,17 @@ void tdispDrawChar(char c);
 void tdispDrawString(char *s);
 
 /**
+ * @brief	Draws a string at a specific position
+ *
+ * @param[in] col	The column (x)
+ * @param[in] row	The row    (y)
+ * @param[in] s		The string to be drawin
+ *
+ * @note			The cursor position after this call is not the same as before.
+ */
+void tdispDrawStringLocation(coord_t col, coord_t row, char *s);
+
+/**
  * @brief	Control different display properties
  * @note	A wrapper macro exists for each option, please use them
  *			instead of this function manually unless calling a low
