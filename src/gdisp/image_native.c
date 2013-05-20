@@ -8,6 +8,9 @@
 /**
  * @file    src/gdisp/image_native.c
  * @brief   GDISP native image code.
+ *
+ * @defgroup Image Image
+ * @ingroup GDISP
  */
 #include "ch.h"
 #include "hal.h"
