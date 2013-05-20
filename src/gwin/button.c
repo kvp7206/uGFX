@@ -55,6 +55,10 @@ static void gwinButtonCallback(void *param, GEvent *pe) {
 	#define pxe		((GEventToggle *)pe)
 	#define pbe		((GEventGWinButton *)pe)
 
+	// check if button is disabled
+	if (gh->enabled == false)
+		return;
+
 	switch (pe->type) {
 	#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
 		case GEVENT_MOUSE:
@@ -135,6 +139,7 @@ static void gwinButtonCallback(void *param, GEvent *pe) {
 GHandle gwinCreateButton(GButtonObject *gb, coord_t x, coord_t y, coord_t width, coord_t height, font_t font, GButtonType type) {
 	if (!(gb = (GButtonObject *)_gwinInit((GWindowObject *)gb, x, y, width, height, sizeof(GButtonObject))))
 		return 0;
+
 	gb->gwin.type = GW_BUTTON;
 	gb->fn = 0;
 	gb->param = 0;
@@ -145,6 +150,10 @@ GHandle gwinCreateButton(GButtonObject *gb, coord_t x, coord_t y, coord_t width,
 	gb->txt = "";
 	geventListenerInit(&gb->listener);
 	geventRegisterCallback(&gb->listener, gwinButtonCallback, gb);
+
+	// buttons are enabled by default
+	gb->gwin.enabled = true;
+
 	return (GHandle)gb;
 }
 
@@ -225,6 +234,7 @@ void gwinButtonDraw(GHandle gh) {
 	#endif
 
 	gbw->fn(gh,
+			gbw->gwin.enabled,
 			gbw->state == GBTN_DOWN,
 			gh->font && gbw->txt ? gbw->txt : "",
 			gbw->state == GBTN_DOWN ? &gbw->dn : &gbw->up,
@@ -243,6 +253,13 @@ void gwinSetButtonCustom(GHandle gh, GButtonDrawFunction fn, void *param) {
 	gbw->param = param;
 
 	#undef gbw
+}
+
+void gwinButtonSetEnabled(GHandle gh, bool_t enabled) {
+	if (gh->type != GW_BUTTON)
+		return;
+
+	gh->enabled = enabled;
 }
 
 void gwinButtonDraw_3D(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {

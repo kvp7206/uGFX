@@ -63,7 +63,7 @@ typedef enum GButtonState_e {
 	GBTN_UP, GBTN_DOWN
 } GButtonState;
 
-typedef void (*GButtonDrawFunction)(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+typedef void (*GButtonDrawFunction)(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
 
 // A button window
 typedef struct GButtonObject_t {
@@ -146,6 +146,16 @@ void gwinSetButtonText(GHandle gh, const char *txt, bool_t useAlloc);
 void gwinButtonDraw(GHandle gh);
 
 /**
+ * @brief	Enable or disable a button
+ *
+ * @param[in] gh		The window handle (must be a button window)
+ * @param[in] enabled	Enable or disable the button
+ *
+ * @api
+ */
+void gwinButtonSetEnabled(GHandle gh, bool_t enabled);
+
+/**
  * @brief   Set the callback routine to perform a custom button drawing.
  *
  * @param[in] gh		The window handle (must be a button window)
@@ -156,6 +166,27 @@ void gwinButtonDraw(GHandle gh);
  */
 void gwinSetButtonCustom(GHandle gh, GButtonDrawFunction fn, void *param);
 
+/**
+ * @brief Enable a button
+ *
+ * @api
+ */
+#define gwinEnableButton(gh)		gwinButtonSetEnabled( ((GButtonObject *)(gh)), TRUE)
+
+/**
+ * @brief Disable a button
+ *
+ * @api
+ */
+#define gwinDisableButton(gh)		gwinButtonSetEnabled( ((GButtonObject *)(gh)), FALSE)
+
+/**
+ * @brief Get the state of a button
+ *
+ * @param[in] gh	The window handle (must be a button window)
+ *
+ * @api
+ */
 #define gwinGetButtonState(gh)		(((GButtonObject *)(gh))->state)
 
 /**

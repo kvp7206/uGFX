@@ -45,6 +45,7 @@ typedef struct GWindowObject_t {
 	coord_t		x, y;				// Screen relative position
 	coord_t		width, height;		// Dimensions of this window
 	color_t		color, bgcolor;		// Current drawing colors
+	bool_t		enabled;			// Enabled/Disabled state
 #if GDISP_NEED_TEXT
 	font_t		font;				// Current font
 #endif
