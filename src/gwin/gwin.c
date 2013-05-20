@@ -55,6 +55,10 @@ GHandle gwinCreateWindow(GWindowObject *gw, coord_t x, coord_t y, coord_t width,
 	return (GHandle)gw;
 }
 
+void gwinSetEnabled(GHandle gh, bool_t enabled) {
+
+}
+
 void gwinDestroyWindow(GHandle gh) {
 	// Clean up any type specific dynamic memory allocations
 	switch(gh->type) {

@@ -88,6 +88,15 @@ GHandle gwinCreateWindow(GWindowObject *gw, coord_t x, coord_t y, coord_t width,
 void gwinDestroyWindow(GHandle gh);
 
 /**
+ * @brief	Enable or disable a widget (of any type).
+ *
+ * @param[in] gh		The window handle
+ *
+ * @api
+ */
+void gwinSetEnabled(GHandle gh, bool_t enabled);
+
+/**
  * @brief	Get the X coordinate of the window
  * @details	Returns the X coordinate of the origin of the window.
  *			The coordinate is relative to the physical screen zero point.
@@ -137,6 +146,20 @@ void gwinDestroyWindow(GHandle gh);
  * @param[in] bgclr	The background color
  */
 #define gwinSetBgColor(gh, bgclr)	(gh)->bgcolor = (bgclr)
+
+/**
+ * @brief	Enable a window of any type
+ *
+ * @param[in] gh	The window handle
+ */
+#define gwinEnable(gh)				gwinSetEnabled(gh, TRUE)
+
+/**
+ * @brief	Disable a window of any type
+ *
+ * @param[in] gh	The window handle
+ */
+#define gwinDisable(gh)				gwinSetEnabled(gh, FALSE)
 
 /* Set up for text */
 
