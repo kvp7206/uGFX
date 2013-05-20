@@ -91,6 +91,7 @@ void gwinDestroyWindow(GHandle gh);
  * @brief	Enable or disable a widget (of any type).
  *
  * @param[in] gh		The window handle
+ * @param[in] enabled	Enable or disable the widget
  *
  * @api
  */

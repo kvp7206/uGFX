@@ -228,6 +228,7 @@ void gwinSetButtonCustom(GHandle gh, GButtonDrawFunction fn, void *param);
  * @details	These routines are called to draw the standard button styles.
  *
  * @param[in] gh		The button handle
+ * @param[in] enabled	Is the button currently enabled or disabled
  * @param[in] isdown	Is the button currently down (depressed)
  * @param[in] txt		The text to be display inside the button
  * @param[in] pstyle	The current drawing style for the state we are in
