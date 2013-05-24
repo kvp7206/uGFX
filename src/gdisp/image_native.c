@@ -8,12 +8,7 @@
 /**
  * @file    src/gdisp/image_native.c
  * @brief   GDISP native image code.
- *
- * @defgroup Image Image
- * @ingroup GDISP
  */
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GDISP && GDISP_NEED_IMAGE && GDISP_NEED_IMAGE_NATIVE
@@ -139,7 +134,7 @@ gdispImageError gdispImageDraw_NATIVE(gdispImage *img, coord_t x, coord_t y, coo
 	return GDISP_IMAGE_ERR_OK;
 }
 
-systime_t gdispImageNext_NATIVE(gdispImage *img) {
+delaytime_t gdispImageNext_NATIVE(gdispImage *img) {
 	(void) img;
 
 	/* No more frames/pages */

@@ -12,11 +12,9 @@
  * @addtogroup GMISC
  * @{
  */
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
-#if (GFX_USE_GMISC && GMISC_NEED_ARRAYOPS) || defined(__DOXYGEN__)
+#if GFX_USE_GMISC && GMISC_NEED_ARRAYOPS
 
 void gmiscArrayConvert(ArrayDataFormat srcfmt, void *src, ArrayDataFormat dstfmt, void *dst, size_t cnt) {
 	uint8_t		*src8, *dst8;

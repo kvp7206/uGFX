@@ -105,13 +105,13 @@ static inline uint16_t read_x_value(void) {
     
 	palSetPad(GPIOC, 2);
     palClearPad(GPIOC, 3); 
-    chThdSleepMilliseconds(1);
+    gfxSleepMilliseconds(1);
     adcConvert(&ADCD1, &adc_x_config, samples, ADC_BUF_DEPTH);  
     val1 = ((samples[0] + samples[1])/2);
     
 	palClearPad(GPIOC, 2);
     palSetPad(GPIOC, 3);
-    chThdSleepMilliseconds(1);
+    gfxSleepMilliseconds(1);
     adcConvert(&ADCD1, &adc_x_config, samples, ADC_BUF_DEPTH);
     val2 = ((samples[0] + samples[1])/2);
     
@@ -135,13 +135,13 @@ static inline uint16_t read_y_value(void) {
 
     palSetPad(GPIOC, 1);
     palClearPad(GPIOC, 0);
-    chThdSleepMilliseconds(1);
+    gfxSleepMilliseconds(1);
     adcConvert(&ADCD1, &adc_y_config, samples, ADC_BUF_DEPTH);
     val1 = ((samples[0] + samples[1])/2);
 
     palClearPad(GPIOC, 1);
     palSetPad(GPIOC, 0);
-    chThdSleepMilliseconds(1);
+    gfxSleepMilliseconds(1);
     adcConvert(&ADCD1, &adc_y_config, samples, ADC_BUF_DEPTH);
     val2 = ((samples[0] + samples[1])/2);
     

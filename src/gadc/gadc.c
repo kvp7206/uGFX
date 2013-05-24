@@ -12,8 +12,6 @@
  * @addtogroup GADC
  * @{
  */
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GADC
@@ -33,16 +31,15 @@
 
 volatile bool_t GADC_Timer_Missed;
 
-static SEMAPHORE_DECL(gadcsem, GADC_MAX_LOWSPEED_DEVICES);
-static MUTEX_DECL(gadcmutex);
-static GTIMER_DECL(LowSpeedGTimer);
+static gfxSem	gadcsem;
+static gfxMutex	gadcmutex;
+static GTimer	LowSpeedGTimer;
 #if GFX_USE_GEVENT
-	static GTIMER_DECL(HighSpeedGTimer);
+	static GTimer	HighSpeedGTimer;
 #endif
 
 static volatile uint16_t	gflags = 0;
-	#define GADC_GFLG_INITDONE	0x0001
-	#define GADC_GFLG_ISACTIVE	0x0002
+	#define GADC_GFLG_ISACTIVE	0x0001
 
 #define GADC_FLG_ISACTIVE	0x0001
 #define GADC_FLG_ISDONE		0x0002
@@ -64,11 +61,11 @@ static struct hsdev {
 	adcsample_t				*lastbuffer;
 	uint16_t				lastflags;
 
-	// Other stuff we need to track progress and for signalling
+	// Other stuff we need to track progress and for signaling
 	GadcLldTimerData		lld;
 	size_t					samplesPerConversion;
 	size_t					remaining;
-	BinarySemaphore			*bsem;
+	gfxSem					*bsem;
 	GEventADC				*pEvent;
 	GADCISRCallbackFunction	isrfn;
 	} hs;
@@ -175,7 +172,7 @@ void GADC_ISR_CompleteI(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 				hs.isrfn(buffer, n);
 
 			if (hs.bsem)
-				chBSemSignalI(hs.bsem);
+				gfxSemSignalI(hs.bsem);
 
 			#if GFX_USE_GEVENT
 				if (hs.flags & GADC_FLG_GTIMER)
@@ -238,25 +235,29 @@ void GADC_ISR_ErrorI(ADCDriver *adcp, adcerror_t err) {
 	FindNextConversionI();
 }
 
-static inline void DoInit(void) {
-	if (!(gflags & GADC_GFLG_INITDONE)) {
-		gflags |= GADC_GFLG_INITDONE;
-		gadc_lld_init();
-	}
+/* Our module initialiser */
+void _gadcInit(void) {
+	gadc_lld_init();
+	gfxSemInit(&gadcsem, GADC_MAX_LOWSPEED_DEVICES, GADC_MAX_LOWSPEED_DEVICES);
+	gfxMutexInit(&gadcmutex);
+	gtimerInit(&LowSpeedGTimer);
+	#if GFX_USE_GEVENT
+		gtimerInit(&HighSpeedGTimer);
+	#endif
 }
 
 static inline void StartADC(bool_t onNoHS) {
-	chSysLock();
+	gfxSystemLock();
 	if (!(gflags & GADC_GFLG_ISACTIVE) || (onNoHS && !curlsdev))
 		FindNextConversionI();
-	chSysUnlock();
+	gfxSystemUnlock();
 }
 
 static void BSemSignalCallback(adcsample_t *buffer, void *param) {
 	(void) buffer;
 
 	/* Signal the BinarySemaphore parameter */
-	chBSemSignal((BinarySemaphore *)param);
+	gfxSemSignal((gfxSem *)param);
 }
 
 #if GFX_USE_GEVENT
@@ -310,7 +311,7 @@ static void LowSpeedGTimerCallback(void *param) {
 			p->param = 0;			// Needed to prevent the compiler removing the local variables
 			p->lld.buffer = 0;		// Needed to prevent the compiler removing the local variables
 			p->flags = 0;			// The slot is available (indivisible operation)
-			chSemSignal(&gadcsem);	// Tell everyone
+			gfxSemSignal(&gadcsem);	// Tell everyone
 			fn(buffer, prm);		// Perform the callback
 		}
 	}
@@ -342,7 +343,6 @@ void gadcHighSpeedInit(uint32_t physdev, uint32_t frequency, adcsample_t *buffer
 
 #if GFX_USE_GEVENT
 	GSourceHandle gadcHighSpeedGetSource(void) {
-		DoInit();
 		if (!gtimerIsActive(&HighSpeedGTimer))
 			gtimerStart(&HighSpeedGTimer, HighSpeedGTimerCallback, NULL, TRUE, TIME_INFINITE);
 		hs.flags |= GADC_FLG_GTIMER;
@@ -354,19 +354,15 @@ void gadcHighSpeedSetISRCallback(GADCISRCallbackFunction isrfn) {
 	hs.isrfn = isrfn;
 }
 
-void gadcHighSpeedSetBSem(BinarySemaphore *pbsem, GEventADC *pEvent) {
-	DoInit();
-
+void gadcHighSpeedSetBSem(gfxSem *pbsem, GEventADC *pEvent) {
 	/* Use the system lock to ensure they occur atomically */
-	chSysLock();
+	gfxSystemLock();
 	hs.pEvent = pEvent;
 	hs.bsem = pbsem;
-	chSysUnlock();
+	gfxSystemUnlock();
 }
 
 void gadcHighSpeedStart(void) {
-	DoInit();
-
 	/* If its already going we don't need to do anything */
 	if (hs.flags & GADC_FLG_ISACTIVE)
 		return;
@@ -377,8 +373,6 @@ void gadcHighSpeedStart(void) {
 }
 
 void gadcHighSpeedStop(void) {
-	DoInit();
-
 	if (hs.flags & GADC_FLG_ISACTIVE) {
 		/* No more from us */
 		hs.flags = 0;
@@ -392,21 +386,22 @@ void gadcHighSpeedStop(void) {
 }
 
 void gadcLowSpeedGet(uint32_t physdev, adcsample_t *buffer) {
-	struct lsdev *p;
-	BSEMAPHORE_DECL(mysem, TRUE);
+	struct lsdev	*p;
+	gfxSem			mysem;
 
 	/* Start the Low Speed Timer */
-	chMtxLock(&gadcmutex);
+	gfxSemInit(&mysem, 1, 1);
+	gfxMutexEnter(&gadcmutex);
 	if (!gtimerIsActive(&LowSpeedGTimer))
 		gtimerStart(&LowSpeedGTimer, LowSpeedGTimerCallback, NULL, TRUE, TIME_INFINITE);
-	chMtxUnlock();
+	gfxMutexExit(&gadcmutex);
 
 	while(1) {
 		/* Wait for an available slot */
-		chSemWait(&gadcsem);
+		gfxSemWait(&gadcsem, TIME_INFINITE);
 
 		/* Find a slot */
-		chMtxLock(&gadcmutex);
+		gfxMutexEnter(&gadcmutex);
 		for(p = ls; p < &ls[GADC_MAX_LOWSPEED_DEVICES]; p++) {
 			if (!(p->flags & GADC_FLG_ISACTIVE)) {
 				p->lld.physdev = physdev;
@@ -414,13 +409,13 @@ void gadcLowSpeedGet(uint32_t physdev, adcsample_t *buffer) {
 				p->fn = BSemSignalCallback;
 				p->param = &mysem;
 				p->flags = GADC_FLG_ISACTIVE;
-				chMtxUnlock();
+				gfxMutexExit(&gadcmutex);
 				StartADC(FALSE);
-				chBSemWait(&mysem);
+				gfxSemWait(&mysem, TIME_INFINITE);
 				return;
 			}
 		}
-		chMtxUnlock();
+		gfxMutexExit(&gadcmutex);
 
 		/**
 		 *  We should never get here - the count semaphore must be wrong.
@@ -432,10 +427,8 @@ void gadcLowSpeedGet(uint32_t physdev, adcsample_t *buffer) {
 bool_t gadcLowSpeedStart(uint32_t physdev, adcsample_t *buffer, GADCCallbackFunction fn, void *param) {
 	struct lsdev *p;
 
-	DoInit();
-
 	/* Start the Low Speed Timer */
-	chMtxLock(&gadcmutex);
+	gfxMutexEnter(&gadcmutex);
 	if (!gtimerIsActive(&LowSpeedGTimer))
 		gtimerStart(&LowSpeedGTimer, LowSpeedGTimerCallback, NULL, TRUE, TIME_INFINITE);
 
@@ -443,18 +436,18 @@ bool_t gadcLowSpeedStart(uint32_t physdev, adcsample_t *buffer, GADCCallbackFunc
 	for(p = ls; p < &ls[GADC_MAX_LOWSPEED_DEVICES]; p++) {
 		if (!(p->flags & GADC_FLG_ISACTIVE)) {
 			/* We know we have a slot - this should never wait anyway */
-			chSemWaitTimeout(&gadcsem, TIME_IMMEDIATE);
+			gfxSemWait(&gadcsem, TIME_IMMEDIATE);
 			p->lld.physdev = physdev;
 			p->lld.buffer = buffer;
 			p->fn = fn;
 			p->param = param;
 			p->flags = GADC_FLG_ISACTIVE;
-			chMtxUnlock();
+			gfxMutexExit(&gadcmutex);
 			StartADC(FALSE);
 			return TRUE;
 		}
 	}
-	chMtxUnlock();
+	gfxMutexExit(&gadcmutex);
 	return FALSE;
 }
 

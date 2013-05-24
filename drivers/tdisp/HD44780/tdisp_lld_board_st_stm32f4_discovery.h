@@ -69,10 +69,10 @@ static void init_board(void) {
 static void writeToLCD(uint8_t data) {
 	palWritePort(PORT_DATA, data<<hardware_offset);
 	palSetPad(PORT_CTRL, PIN_EN);
-	chThdSleepMicroseconds(1);
+	gfxSleepMicroseconds(1);
 	palClearPad(PORT_CTRL, PIN_EN);
 	/* wait a little while so that de display can process the data */
-	chThdSleepMicroseconds(5);
+	gfxSleepMicroseconds(5);
 }
 
 /* Writes a command to the display. The

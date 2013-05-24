@@ -18,10 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ch.h"
-#include "hal.h"
-#include "chprintf.h"
 #include "gfx.h"
+#include "chprintf.h"
 
 /* The handles for our three consoles */
 GHandle GW1, GW2, GW3;
@@ -33,12 +31,8 @@ int main(void) {
 	uint8_t i;
 	font_t	font1, font2;
 
-	halInit();
-	chSysInit();
-
 	/* initialize and clear the display */
-	gdispInit();
-	gdispClear(Black);
+	gfxInit();
 	font1 = gdispOpenFont("UI2 Double");
 	font2 = gdispOpenFont("Small");
 
@@ -81,7 +75,7 @@ int main(void) {
 	}
 
 	while(TRUE) {
-		chThdSleepMilliseconds(500);
+		gfxSleepMilliseconds(500);
 	}
 }
 

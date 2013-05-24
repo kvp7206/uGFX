@@ -25,8 +25,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 int main(void) {
@@ -34,12 +32,8 @@ int main(void) {
 	font_t		font1, font2, font3, font4;
 	const char	*msg;
 
-    halInit();
-    chSysInit();
-
     /* Initialize and clear the display */
-    gdispInit();
-    gdispClear(Black);
+    gfxInit();
 
     // Get the screen size
     width = gdispGetWidth();
@@ -73,7 +67,7 @@ int main(void) {
 
 	// Wait forever
     while(TRUE) {
-        chThdSleepMilliseconds(500);
+    	gfxSleepMilliseconds(500);
     }   
 }
 

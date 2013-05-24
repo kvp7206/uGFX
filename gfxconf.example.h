@@ -14,6 +14,11 @@
 #ifndef _GFXCONF_H
 #define _GFXCONF_H
 
+/* The operating system to use - one of these must be defined */
+#define GFX_USE_OS_CHIBIOS		FALSE
+#define GFX_USE_OS_WIN32		FALSE
+#define GFX_USE_OS_POSIX		FALSE
+
 /* GFX subsystems to turn on */
 #define GFX_USE_GDISP			FALSE
 #define GFX_USE_TDISP			FALSE
@@ -102,6 +107,8 @@
 
 /* Features for the GMISC subsystem. */
 #define GMISC_NEED_ARRAYOPS		FALSE
+#define GMISC_NEED_FASTTRIG		FALSE
+#define GMISC_NEED_FIXEDTRIG	FALSE
 
 /* Optional Parameters for various subsystems */
 /*

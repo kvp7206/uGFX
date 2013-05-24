@@ -8,11 +8,11 @@
  * modifiable, provided his name is kept in the source.
  * --
  * Chris Baird,, <cjb@brushtail.apana.org.au> April 2013
+ *
+ * Modified Andrew Hannam (inmarket) 2013-04-29 New GFX calls
  */
 
 #include <math.h>
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 
@@ -149,9 +149,7 @@ int main (void)
 {
   int pass = 0;
 
-  halInit();
-  chSysInit();
-  gdispInit();
+  gfxInit();
 
   chThdSleepMilliseconds (10);
   gdispClear (background); /* glitches.. */

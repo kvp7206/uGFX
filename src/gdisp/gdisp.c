@@ -12,8 +12,6 @@
  * @addtogroup GDISP
  * @{
  */
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GDISP
@@ -26,44 +24,22 @@
 #include "gdisp/lld/gdisp_lld.h"
 
 /*===========================================================================*/
-/* Driver local definitions.                                                 */
-/*===========================================================================*/
-
-#if GDISP_NEED_MULTITHREAD
-	#if !CH_USE_MUTEXES
-		#error "GDISP: CH_USE_MUTEXES must be defined in chconf.h because GDISP_NEED_MULTITHREAD is defined"
-	#endif
-#endif
-
-#if GDISP_NEED_ASYNC
-	#if !CH_USE_MAILBOXES || !CH_USE_MUTEXES || !CH_USE_SEMAPHORES
-		#error "GDISP: CH_USE_MAILBOXES, CH_USE_SEMAPHORES and CH_USE_MUTEXES must be defined in chconf.h because GDISP_NEED_ASYNC is defined"
-	#endif
-#endif
-
-/*===========================================================================*/
-/* Driver exported variables.                                                */
-/*===========================================================================*/
-
-/*===========================================================================*/
 /* Driver local variables.                                                   */
 /*===========================================================================*/
 
 #if GDISP_NEED_MULTITHREAD || GDISP_NEED_ASYNC
-	static Mutex			gdispMutex;
+	static gfxMutex			gdispMutex;
 #endif
 
 #if GDISP_NEED_ASYNC
-	#define GDISP_THREAD_STACK_SIZE	512		/* Just a number - not yet a reflection of actual use */
+	#define GDISP_THREAD_STACK_SIZE	256		/* Just a number - not yet a reflection of actual use */
 	#define GDISP_QUEUE_SIZE		8		/* We only allow a short queue */
 
-	static Thread *			lldThread;
-	static Mailbox			gdispMailbox;
-	static msg_t 			gdispMailboxQueue[GDISP_QUEUE_SIZE];
-	static Semaphore		gdispMsgsSem;
-	static Mutex			gdispMsgsMutex;
+	static gfxQueue 		gdispQueue;
+	static gfxMutex			gdispMsgsMutex;
+	static gfxSem			gdispMsgsSem;
 	static gdisp_lld_msg_t	gdispMsgs[GDISP_QUEUE_SIZE];
-	static WORKING_AREA(waGDISPThread, GDISP_THREAD_STACK_SIZE);
+	static 					DECLARESTACK(waGDISPThread, GDISP_THREAD_STACK_SIZE);
 #endif
 
 /*===========================================================================*/
@@ -71,26 +47,23 @@
 /*===========================================================================*/
 
 #if GDISP_NEED_ASYNC
-	static msg_t GDISPThreadHandler(void *arg) {
+	static threadreturn_t GDISPThreadHandler(void *arg) {
 		(void)arg;
 		gdisp_lld_msg_t	*pmsg;
 
-		#if CH_USE_REGISTRY
-			chRegSetThreadName("GDISPAsyncAPI");
-		#endif
-
 		while(1) {
 			/* Wait for msg with work to do. */
-			chMBFetch(&gdispMailbox, (msg_t *)&pmsg, TIME_INFINITE);
+			pmsg = (gdisp_lld_msg_t *)gfxQueueGet(&gdispQueue, TIME_INFINITE);
 
 			/* OK - we need to obtain the mutex in case a synchronous operation is occurring */
-			chMtxLock(&gdispMutex);
+			gfxMutexEnter(&gdispMutex);
+
 			gdisp_lld_msg_dispatch(pmsg);
-			chMtxUnlock();
 
 			/* Mark the message as free */
 			pmsg->action = GDISP_LLD_MSG_NOP;
-			chSemSignal(&gdispMsgsSem);
+
+			gfxMutexExit(&gdispMutex);
 		}
 		return 0;
 	}
@@ -101,22 +74,22 @@
 		while(1) {		/* To be sure, to be sure */
 
 			/* Wait for a slot */
-			chSemWait(&gdispMsgsSem);
+			gfxSemWait(&gdispMsgsSem, TIME_INFINITE);
 
 			/* Find the slot */
-			chMtxLock(&gdispMsgsMutex);
+			gfxMutexEnter(&gdispMsgsMutex);
 			for(p=gdispMsgs; p < &gdispMsgs[GDISP_QUEUE_SIZE]; p++) {
 				if (p->action == GDISP_LLD_MSG_NOP) {
 					/* Allocate it */
 					p->action = action;
-					chMtxUnlock();
+					gfxMutexExit(&gdispMsgsMutex);
 					return p;
 				}
 			}
-			chMtxUnlock();
+			gfxMutexExit(&gdispMsgsMutex);
 
 			/* Oops - none found, try again */
-			chSemSignal(&gdispMsgsSem);
+			gfxSemSignal(&gdispMsgsSem);
 		}
 	}
 #endif
@@ -125,46 +98,40 @@
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
+/* Our module initialiser */
 #if GDISP_NEED_MULTITHREAD
-	bool_t gdispInit(void) {
-		bool_t	res;
-
+	void _gdispInit(void) {
 		/* Initialise Mutex */
-		chMtxInit(&gdispMutex);
+		gfxMutexInit(&gdispMutex);
 
 		/* Initialise driver */
-		chMtxLock(&gdispMutex);
-		res = gdisp_lld_init();
-		chMtxUnlock();
-
-		return res;
+		gfxMutexEnter(&gdispMutex);
+		gdisp_lld_init();
+		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_ASYNC
-	bool_t gdispInit(void) {
-		bool_t		res;
+	void _gdispInit(void) {
 		unsigned	i;
 
 		/* Mark all the Messages as free */
 		for(i=0; i < GDISP_QUEUE_SIZE; i++)
 			gdispMsgs[i].action = GDISP_LLD_MSG_NOP;
 
-		/* Initialise our Mailbox, Mutex's and Counting Semaphore.
-		 * 	A Mutex is required as well as the Mailbox and Thread because some calls have to be synchronous.
+		/* Initialise our Queue, Mutex's and Counting Semaphore.
+		 * 	A Mutex is required as well as the Queue and Thread because some calls have to be synchronous.
 		 *	Synchronous calls get handled by the calling thread, asynchronous by our worker thread.
 		 */
-		chMBInit(&gdispMailbox, gdispMailboxQueue, sizeof(gdispMailboxQueue)/sizeof(gdispMailboxQueue[0]));
-		chMtxInit(&gdispMutex);
-		chMtxInit(&gdispMsgsMutex);
-		chSemInit(&gdispMsgsSem, GDISP_QUEUE_SIZE);
+		gfxQueueInit(&gdispQueue);
+		gfxMutexInit(&gdispMutex);
+		gfxMutexInit(&gdispMsgsMutex);
+		gfxSemInit(&gdispMsgsSem, GDISP_QUEUE_SIZE, GDISP_QUEUE_SIZE);
 
-		lldThread = chThdCreateStatic(waGDISPThread, sizeof(waGDISPThread), NORMALPRIO, GDISPThreadHandler, NULL);
+		gfxCreateThread(waGDISPThread, sizeof(waGDISPThread), NORMAL_PRIORITY, GDISPThreadHandler, NULL);
 
 		/* Initialise driver - synchronous */
-		chMtxLock(&gdispMutex);
-		res = gdisp_lld_init();
-		chMtxUnlock();
-
-		return res;
+		gfxMutexEnter(&gdispMutex);
+		gdisp_lld_init();
+		gfxMutexExit(&gdispMutex);
 	}
 #endif
 
@@ -174,29 +141,29 @@
 	}
 #elif GDISP_NEED_ASYNC
 	bool_t gdispIsBusy(void) {
-		return chMBGetUsedCountI(&gdispMailbox) != FALSE;
+		return !gfxQueueIsEmpty(&gdispQueue);
 	}
 #endif
 
 #if GDISP_NEED_MULTITHREAD
 	void gdispClear(color_t color) {
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_clear(color);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_ASYNC
 	void gdispClear(color_t color) {
 		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_CLEAR);
 		p->clear.color = color;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
 	}
 #endif
 
 #if GDISP_NEED_MULTITHREAD
 	void gdispDrawPixel(coord_t x, coord_t y, color_t color) {
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_draw_pixel(x, y, color);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_ASYNC
 	void gdispDrawPixel(coord_t x, coord_t y, color_t color) {
@@ -204,15 +171,15 @@
 		p->drawpixel.x = x;
 		p->drawpixel.y = y;
 		p->drawpixel.color = color;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
 	}
 #endif
 	
 #if GDISP_NEED_MULTITHREAD
 	void gdispDrawLine(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_draw_line(x0, y0, x1, y1, color);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_ASYNC
 	void gdispDrawLine(coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color) {
@@ -222,15 +189,15 @@
 		p->drawline.x1 = x1;
 		p->drawline.y1 = y1;
 		p->drawline.color = color;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
 	}
 #endif
 
 #if GDISP_NEED_MULTITHREAD
 	void gdispFillArea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_fill_area(x, y, cx, cy, color);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_ASYNC
 	void gdispFillArea(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
@@ -240,15 +207,15 @@
 		p->fillarea.cx = cx;
 		p->fillarea.cy = cy;
 		p->fillarea.color = color;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
 	}
 #endif
 	
 #if GDISP_NEED_MULTITHREAD
 	void gdispBlitAreaEx(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_blit_area_ex(x, y, cx, cy, srcx, srcy, srccx, buffer);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_ASYNC
 	void gdispBlitAreaEx(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
@@ -261,15 +228,15 @@
 		p->blitarea.srcy = srcy;
 		p->blitarea.srccx = srccx;
 		p->blitarea.buffer = buffer;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
 	}
 #endif
 	
 #if (GDISP_NEED_CLIP && GDISP_NEED_MULTITHREAD)
 	void gdispSetClip(coord_t x, coord_t y, coord_t cx, coord_t cy) {
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_set_clip(x, y, cx, cy);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_CLIP && GDISP_NEED_ASYNC
 	void gdispSetClip(coord_t x, coord_t y, coord_t cx, coord_t cy) {
@@ -278,15 +245,15 @@
 		p->setclip.y = y;
 		p->setclip.cx = cx;
 		p->setclip.cy = cy;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
 	}
 #endif
 
 #if (GDISP_NEED_CIRCLE && GDISP_NEED_MULTITHREAD)
 	void gdispDrawCircle(coord_t x, coord_t y, coord_t radius, color_t color) {
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_draw_circle(x, y, radius, color);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_CIRCLE && GDISP_NEED_ASYNC
 	void gdispDrawCircle(coord_t x, coord_t y, coord_t radius, color_t color) {
@@ -295,15 +262,15 @@
 		p->drawcircle.y = y;
 		p->drawcircle.radius = radius;
 		p->drawcircle.color = color;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
 	}
 #endif
 	
 #if (GDISP_NEED_CIRCLE && GDISP_NEED_MULTITHREAD)
 	void gdispFillCircle(coord_t x, coord_t y, coord_t radius, color_t color) {
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_fill_circle(x, y, radius, color);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_CIRCLE && GDISP_NEED_ASYNC
 	void gdispFillCircle(coord_t x, coord_t y, coord_t radius, color_t color) {
@@ -312,15 +279,15 @@
 		p->fillcircle.y = y;
 		p->fillcircle.radius = radius;
 		p->fillcircle.color = color;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
 	}
 #endif
 
 #if (GDISP_NEED_ELLIPSE && GDISP_NEED_MULTITHREAD)
 	void gdispDrawEllipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_draw_ellipse(x, y, a, b, color);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_ELLIPSE && GDISP_NEED_ASYNC
 	void gdispDrawEllipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
@@ -330,15 +297,15 @@
 		p->drawellipse.a = a;
 		p->drawellipse.b = b;
 		p->drawellipse.color = color;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
 	}
 #endif
 	
 #if (GDISP_NEED_ELLIPSE && GDISP_NEED_MULTITHREAD)
 	void gdispFillEllipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_fill_ellipse(x, y, a, b, color);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_ELLIPSE && GDISP_NEED_ASYNC
 	void gdispFillEllipse(coord_t x, coord_t y, coord_t a, coord_t b, color_t color) {
@@ -348,15 +315,15 @@
 		p->fillellipse.a = a;
 		p->fillellipse.b = b;
 		p->fillellipse.color = color;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
 	}
 #endif
 
 #if (GDISP_NEED_ARC && GDISP_NEED_MULTITHREAD)
 	void gdispDrawArc(coord_t x, coord_t y, coord_t radius, coord_t start, coord_t end, color_t color) {
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_draw_arc(x, y, radius, start, end, color);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_ARC && GDISP_NEED_ASYNC
 	void gdispDrawArc(coord_t x, coord_t y, coord_t radius, coord_t start, coord_t end, color_t color) {
@@ -367,15 +334,15 @@
 		p->drawarc.start = start;
 		p->drawarc.end = end;
 		p->drawarc.color = color;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
 	}
 #endif
 
 #if (GDISP_NEED_ARC && GDISP_NEED_MULTITHREAD)
 	void gdispFillArc(coord_t x, coord_t y, coord_t radius, coord_t start, coord_t end, color_t color) {
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_fill_arc(x, y, radius, start, end, color);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_ARC && GDISP_NEED_ASYNC
 	void gdispFillArc(coord_t x, coord_t y, coord_t radius, coord_t start, coord_t end, color_t color) {
@@ -386,7 +353,7 @@
 		p->fillarc.start = start;
 		p->fillarc.end = end;
 		p->fillarc.color = color;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
 	}
 #endif
 
@@ -428,9 +395,9 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 
 #if (GDISP_NEED_TEXT && GDISP_NEED_MULTITHREAD)
 	void gdispDrawChar(coord_t x, coord_t y, char c, font_t font, color_t color) {
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_draw_char(x, y, c, font, color);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_TEXT && GDISP_NEED_ASYNC
 	void gdispDrawChar(coord_t x, coord_t y, char c, font_t font, color_t color) {
@@ -440,15 +407,15 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 		p->drawchar.c = c;
 		p->drawchar.font = font;
 		p->drawchar.color = color;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
 	}
 #endif
 
 #if (GDISP_NEED_TEXT && GDISP_NEED_MULTITHREAD)
 	void gdispFillChar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_fill_char(x, y, c, font, color, bgcolor);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_TEXT && GDISP_NEED_ASYNC
 	void gdispFillChar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
@@ -459,7 +426,7 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 		p->fillchar.font = font;
 		p->fillchar.color = color;
 		p->fillchar.bgcolor = bgcolor;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
 	}
 #endif
 	
@@ -468,9 +435,9 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 		color_t		c;
 
 		/* Always synchronous as it must return a value */
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		c = gdisp_lld_get_pixel_color(x, y);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 
 		return c;
 	}
@@ -478,9 +445,9 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 
 #if (GDISP_NEED_SCROLL && GDISP_NEED_MULTITHREAD)
 	void gdispVerticalScroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_vertical_scroll(x, y, cx, cy, lines, bgcolor);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_SCROLL && GDISP_NEED_ASYNC
 	void gdispVerticalScroll(coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor) {
@@ -491,23 +458,22 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 		p->verticalscroll.cy = cy;
 		p->verticalscroll.lines = lines;
 		p->verticalscroll.bgcolor = bgcolor;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
+		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
 	}
 #endif
 
 #if (GDISP_NEED_CONTROL && GDISP_NEED_MULTITHREAD)
 	void gdispControl(unsigned what, void *value) {
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_control(what, value);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_CONTROL && GDISP_NEED_ASYNC
 	void gdispControl(unsigned what, void *value) {
 		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_CONTROL);
 		p->control.what = what;
 		p->control.value = value;
-		chMBPost(&gdispMailbox, (msg_t)p, TIME_INFINITE);
-		chThdSleepMilliseconds(100);
+		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
 	}
 #endif
 
@@ -515,9 +481,9 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 	void *gdispQuery(unsigned what) {
 		void *res;
 
-		chMtxLock(&gdispMutex);
+		gfxMutexEnter(&gdispMutex);
 		res = gdisp_lld_query(what);
-		chMtxUnlock();
+		gfxMutexExit(&gdispMutex);
 		return res;
 	}
 #endif
@@ -564,7 +530,7 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 
 	void gdispFillConvexPoly(coord_t tx, coord_t ty, const point *pntarray, unsigned cnt, color_t color) {
 		const point	*lpnt, *rpnt, *epnts;
-		fpcoord_t	lx, rx, lk, rk;
+		fixed		lx, rx, lk, rk;
 		coord_t		y, ymax, lxc, rxc;
 
 		epnts = &pntarray[cnt-1];
@@ -575,13 +541,13 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 			if (lpnt->y < rpnt->y)
 				rpnt = lpnt;
 		}
-		lx = rx = rpnt->x<<16;
+		lx = rx = FIXED(rpnt->x);
 		y = rpnt->y;
 
 		/* Work out the slopes of the two attached line segs */
 		lpnt = rpnt <= pntarray ? epnts : rpnt-1;
 		while (lpnt->y == y) {
-			lx = lpnt->x<<16;
+			lx = FIXED(lpnt->x);
 			lpnt = lpnt <= pntarray ? epnts : lpnt-1;
 			if (!cnt--) return;
 		}
@@ -591,8 +557,8 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 			rpnt = rpnt >= epnts ? pntarray : rpnt+1;
 			if (!cnt--) return;
 		}
-		lk = (((fpcoord_t)(lpnt->x)<<16) - lx) / (lpnt->y - y);
-		rk = (((fpcoord_t)(rpnt->x)<<16) - rx) / (rpnt->y - y);
+		lk = (FIXED(lpnt->x) - lx) / (lpnt->y - y);
+		rk = (FIXED(rpnt->x) - rx) / (rpnt->y - y);
 
 		while(1) {
 			/* Determine our boundary */
@@ -600,8 +566,8 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 
 			/* Scan down the line segments until we hit a boundary */
 			for(; y < ymax; y++) {
-				lxc = lx>>16;
-				rxc = rx>>16;
+				lxc = NONFIXED(lx);
+				rxc = NONFIXED(rx);
 				/*
 				 * Doesn't print the right hand point in order to allow polygon joining.
 				 * Also ensures that we draw from left to right with the minimum number
@@ -629,19 +595,19 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 			if (ymax == lpnt->y) {
 				lpnt = lpnt <= pntarray ? epnts : lpnt-1;
 				while (lpnt->y == y) {
-					lx = lpnt->x<<16;
+					lx = FIXED(lpnt->x);
 					lpnt = lpnt <= pntarray ? epnts : lpnt-1;
 					if (!cnt--) return;
 				}
-				lk = (((fpcoord_t)(lpnt->x)<<16) - lx) / (lpnt->y - y);
+				lk = (FIXED(lpnt->x) - lx) / (lpnt->y - y);
 			} else {
 				rpnt = rpnt >= epnts ? pntarray : rpnt+1;
 				while (rpnt->y == y) {
-					rx = rpnt->x<<16;
+					rx = FIXED(rpnt->x);
 					rpnt = rpnt >= epnts ? pntarray : rpnt+1;
 					if (!cnt--) return;
 				}
-				rk = (((fpcoord_t)(rpnt->x)<<16) - rx) / (rpnt->y - y);
+				rk = (FIXED(rpnt->x) - rx) / (rpnt->y - y);
 			}
 		}
 	}

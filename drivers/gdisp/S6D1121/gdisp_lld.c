@@ -13,8 +13,6 @@
  * @{
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
@@ -58,8 +56,8 @@
 #define write_reg(reg, data)        { write_index(reg); write_data(data); }
 #define stream_start()              write_index(0x0022);
 #define stream_stop()
-#define delay(us)                   chThdSleepMicroseconds(us)
-#define delayms(ms)                 chThdSleepMilliseconds(ms)
+#define delay(us)                   gfxSleepMicroseconds(us)
+#define delayms(ms)                 gfxSleepMilliseconds(ms)
 
 static inline void set_cursor(coord_t x, coord_t y) {
     /* R20h - 8 bit

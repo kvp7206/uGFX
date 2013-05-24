@@ -18,8 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 #include "chprintf.h"
 
@@ -35,11 +33,7 @@ int main(void) {
 	GEventGWinSlider *	pSliderEvent;
 	BaseSequentialStream *consout;
 
-	halInit();			// Initialize the Hardware
-	chSysInit();		// Initialize the OS
-	gdispInit();		// Initialize the display
-
-	gdispClear(Black);
+	gfxInit();		// Initialize the display
 
 	// Get the display dimensions
 	swidth = gdispGetWidth();

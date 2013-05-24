@@ -13,8 +13,6 @@
  * @ingroup GINPUT
  * @{
  */
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if (GFX_USE_GINPUT && GINPUT_NEED_MOUSE) || defined(__DOXYGEN__)
@@ -58,7 +56,7 @@ static struct MouseConfig_t {
 	MouseReading					t;
 	MousePoint						movepos;
 	MousePoint						clickpos;
-	systime_t						clicktime;
+	systemticks_t					clicktime;
 	uint16_t						last_buttons;
 	uint16_t						flags;
 			#define FLG_INIT_DONE		0x8000
@@ -253,7 +251,7 @@ static void MousePoll(void *param) {
 	if ((tbtns & (GINPUT_MOUSE_BTN_LEFT|GINPUT_MOUSE_BTN_RIGHT))) {
 		MouseConfig.clickpos.x = MouseConfig.t.x;
 		MouseConfig.clickpos.y = MouseConfig.t.y;
-		MouseConfig.clicktime = chTimeNow();
+		MouseConfig.clicktime = gfxSystemTicks();
 		MouseConfig.flags |= FLG_CLICK_TIMER;
 	}
 
@@ -265,7 +263,7 @@ static void MousePoll(void *param) {
 		if ((MouseConfig.flags & FLG_CLICK_TIMER)) {
 			if ((tbtns & GINPUT_MOUSE_BTN_LEFT)
 					#if GINPUT_MOUSE_CLICK_TIME != TIME_INFINITE
-						&& chTimeNow() - MouseConfig.clicktime < MS2ST(GINPUT_MOUSE_CLICK_TIME)
+						&& gfxSystemTicks() - MouseConfig.clicktime < gfxMillisecondsToTicks(GINPUT_MOUSE_CLICK_TIME)
 					#endif
 					)
 				meta |= GMETA_MOUSE_CLICK;
@@ -338,7 +336,7 @@ GSourceHandle ginputGetMouse(uint16_t instance) {
 				MouseConfig.caldata = pc[0];
 				MouseConfig.flags |= (FLG_CAL_OK|FLG_CAL_SAVED);
 				if ((MouseConfig.flags & FLG_CAL_FREE))
-					chHeapFree((void *)pc);
+					gfxFree((void *)pc);
 			} else if (instance == 9999) {
 				MouseConfig.caldata.ax = 1;
 				MouseConfig.caldata.bx = 0;
@@ -367,7 +365,7 @@ GSourceHandle ginputGetMouse(uint16_t instance) {
 bool_t ginputGetMouseStatus(uint16_t instance, GEventMouse *pe) {
 	// Win32 threads don't seem to recognise priority and/or pre-emption
 	// so we add a sleep here to prevent 100% polled applications from locking up.
-	chThdSleepMilliseconds(1);
+	gfxSleepMilliseconds(1);
 
 	if (instance || (MouseConfig.flags & (FLG_INIT_DONE|FLG_IN_CAL)) != FLG_INIT_DONE)
 		return FALSE;
@@ -443,11 +441,11 @@ bool_t ginputCalibrateMouse(uint16_t instance) {
 
 						/* Wait for the mouse to be pressed */
 						while(get_raw_reading(&MouseConfig.t), !(MouseConfig.t.buttons & GINPUT_MOUSE_BTN_LEFT))
-							chThdSleepMilliseconds(20);
+							gfxSleepMilliseconds(20);
 
 						/* Average all the samples while the mouse is down */
 						for(px = py = 0, j = 0;
-								chThdSleepMilliseconds(20),			/* Settling time between readings */
+								gfxSleepMilliseconds(20),			/* Settling time between readings */
 								get_raw_reading(&MouseConfig.t),
 								(MouseConfig.t.buttons & GINPUT_MOUSE_BTN_LEFT);
 								j++) {
@@ -464,7 +462,7 @@ bool_t ginputCalibrateMouse(uint16_t instance) {
 
 					if (i >= 1 && pt->x == (pt-1)->x && pt->y == (pt-1)->y) {
 						gdispFillStringBox(0, 35, width, 40, GINPUT_MOUSE_CALIBRATION_SAME_TEXT, font2,  Red, Yellow, justifyCenter);
-						chThdSleepMilliseconds(5000);
+						gfxSleepMilliseconds(5000);
 						gdispFillArea(0, 35, width, 40, Blue);
 					}
 
@@ -492,7 +490,7 @@ bool_t ginputCalibrateMouse(uint16_t instance) {
 					break;
 
 				gdispFillStringBox(0, 35, width, 40, GINPUT_MOUSE_CALIBRATION_ERROR_TEXT, font2,  Red, Yellow, justifyCenter);
-				chThdSleepMilliseconds(5000);
+				gfxSleepMilliseconds(5000);
 			}
 		#endif
 

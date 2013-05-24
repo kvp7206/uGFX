@@ -15,8 +15,6 @@
  * @{
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if (GFX_USE_GWIN && GWIN_NEED_BUTTON) || defined(__DOXYGEN__)
@@ -204,7 +202,7 @@ void gwinSetButtonText(GHandle gh, const char *txt, bool_t useAlloc) {
 	if ((gh->flags & GBTN_FLG_ALLOCTXT)) {
 		gh->flags &= ~GBTN_FLG_ALLOCTXT;
 		if (gbw->txt) {
-			chHeapFree((void *)gbw->txt);
+			gfxFree((void *)gbw->txt);
 			gbw->txt = "";
 		}
 	}
@@ -212,7 +210,7 @@ void gwinSetButtonText(GHandle gh, const char *txt, bool_t useAlloc) {
 	if (txt && useAlloc) {
 		char *str;
 		
-		if ((str = (char *)chHeapAlloc(NULL, strlen(txt)+1))) {
+		if ((str = (char *)gfxAlloc(strlen(txt)+1))) {
 			gh->flags |= GBTN_FLG_ALLOCTXT;
 			strcpy(str, txt);
 		}

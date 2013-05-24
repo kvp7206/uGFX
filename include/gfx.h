@@ -16,6 +16,25 @@
 #ifndef _GFX_H
 #define _GFX_H
 
+/**
+ * These two definitions below are required before anything else so that we can
+ * turn module definitions off and on.
+ */
+
+/**
+ * @brief   Generic 'false' boolean constant.
+ */
+#if !defined(FALSE) || defined(__DOXYGEN__)
+	#define FALSE       0
+#endif
+
+/**
+ * @brief   Generic 'true' boolean constant.
+ */
+#if !defined(TRUE) || defined(__DOXYGEN__)
+	#define TRUE        -1
+#endif
+
 /* gfxconf.h is the user's project configuration for the GFX system. */
 #include "gfxconf.h"
 
@@ -122,6 +141,7 @@
  * Get all the options for each sub-system.
  *
  */
+#include "gos/options.h"
 #include "gmisc/options.h"
 #include "gevent/options.h"
 #include "gtimer/options.h"
@@ -142,6 +162,7 @@
 /**
  *  Include the sub-system header files
  */
+#include "gos/gos.h"
 #include "gmisc/gmisc.h"
 #include "gevent/gevent.h"
 #include "gtimer/gtimer.h"
@@ -152,6 +173,28 @@
 #include "gadc/gadc.h"
 #include "gaudin/gaudin.h"
 #include "gaudout/gaudout.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+	/**
+	 * @brief	The one call to start it all
+	 *
+	 * @note	This will initialise each sub-system that has been turned on.
+	 * 			For example, if GFX_USE_GDISP is defined then display will be initialised
+	 * 			and cleared to black.
+	 *
+	 * @api
+	 */
+	void gfxInit(void);
+
+	/* Compatibility for old programs */
+	#define gdispInit()		gfxInit()
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _GFX_H */
 /** @} */

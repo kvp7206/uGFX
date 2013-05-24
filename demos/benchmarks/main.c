@@ -25,12 +25,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ch.h"
-#include "hal.h"
-#include "chprintf.h"
 #include "stdlib.h"
 #include "string.h"
 #include "gfx.h"
+#include "chprintf.h"
 
 #define SCB_DEMCR (*(volatile unsigned *)0xE000EDFC)
 #define CPU_RESET_CYCLECOUNTER do { SCB_DEMCR = SCB_DEMCR | 0x01000000; \
@@ -94,7 +92,6 @@ void benchmark(void) {
 	font_t font;
 
     gdispSetOrientation(GDISP_ROTATE_90);
-    gdispClear(Black);
 
 	width = gdispGetWidth();
 	height = gdispGetHeight();
@@ -105,7 +102,7 @@ void benchmark(void) {
 	font = gdispOpenFont("UI2");
 	gdispDrawStringBox(0, height/2, width, 30, "5000 random rectangles", font, White, justifyCenter);
 	
-	chThdSleepMilliseconds(3000);
+	gfxSleepMilliseconds(3000);
 	
 	/* seed for the rand() */
 	srand(DWT_CYCCNT);
@@ -139,14 +136,12 @@ void benchmark(void) {
 }
 
 int main(void) {
-    halInit();
-    chSysInit();
-	gdispInit();
+	gfxInit();
 	
 	benchmark();
     
 	while(TRUE) {
-        chThdSleepMilliseconds(500);
+		gfxSleepMilliseconds(500);
 	}
 
 	return 0;

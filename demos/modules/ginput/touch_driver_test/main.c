@@ -25,10 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ch.h"
-#include "hal.h"
-#include "chprintf.h"
 #include "gfx.h"
+#include "chprintf.h"
 
 static GConsoleObject			gc;
 static GButtonObject			gNext;
@@ -49,9 +47,7 @@ int main(void) {
 	GEventType				deviceType;
 	font_t					font;
 
-	halInit();			// Initialise the Hardware
-	chSysInit();		// Initialize the OS
-	gdispInit();		// Initialize the display
+	gfxInit();		// Initialize the display
 
 	// Get the display dimensions
 	swidth = gdispGetWidth();

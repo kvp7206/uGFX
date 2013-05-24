@@ -25,19 +25,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 int main(void) {
 	coord_t		width, height;
 
-    halInit();
-    chSysInit();
-
     /* Initialize and clear the display */
-    gdispInit();
-    gdispClear(Black);
+    gfxInit();
 
     // Get the screen size
     width = gdispGetWidth();
@@ -52,7 +46,7 @@ int main(void) {
     gdispFillArc(width/8, height/8, 30, 10, 70, Gray);
 
     while(TRUE) {
-        chThdSleepMilliseconds(500);
+    	gfxSleepMilliseconds(500);
     }   
 }
 

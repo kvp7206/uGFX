@@ -25,11 +25,6 @@
 
 #if GFX_USE_GEVENT || defined(__DOXYGEN__)
 
-/* Data part of a static GListener initializer */
-#define _GLISTENER_DATA(name) { _SEMAPHORE_DATA(name.waitqueue, 0), _BSEMAPHORE_DATA(name.eventlock, FALSE), 0, 0, {0} }
-/* Static GListener initializer */
-#define GLISTENER_DECL(name) GListener name = _GLISTENER_DATA(name)
-
 /*===========================================================================*/
 /* Type definitions                                                          */
 /*===========================================================================*/
@@ -60,8 +55,8 @@ typedef void (*GEventCallbackFn)(void *param, GEvent *pe);
 
 // The Listener Object
 typedef struct GListener {
-	Semaphore			waitqueue;			// Private: Semaphore for the listener to wait on.
-	BinarySemaphore		eventlock;			// Private: Protect against more than one sources trying to use this event lock at the same time
+	gfxSem				waitqueue;			// Private: Semaphore for the listener to wait on.
+	gfxSem				eventlock;			// Private: Protect against more than one sources trying to use this event lock at the same time
 	GEventCallbackFn	callback;			// Private: Call back Function
 	void				*param;				// Private: Parameter for the callback function.
 	GEvent				event;				// Public:  The event object into which the event information is stored.
@@ -163,7 +158,7 @@ void geventDetachSource(GListener *pl, GSourceHandle gsh);
  *
  * @return	NULL on timeout
  */
-GEvent *geventEventWait(GListener *pl, systime_t timeout);
+GEvent *geventEventWait(GListener *pl, delaytime_t timeout);
 
 /* @brief	Register a callback for an event on a listener from an assigned source.
  * @details	The type of the event should be checked (pevent->type) and then pevent should be typecast to the

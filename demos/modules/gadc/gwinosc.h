@@ -57,7 +57,7 @@ typedef struct GScopeObject_t {
 	GWindowObject		gwin;					// Base Class
 
 	coord_t				*lastscopetrace;		// To store last scope trace
-	BinarySemaphore		bsem;					// We get signalled on this
+	gfxSem				bsem;					// We get signalled on this
 	adcsample_t			*audiobuf;				// To store audio samples
 	GEventADC			myEvent;				// Information on received samples
 	coord_t				nextx;					// Where we are up to

@@ -18,8 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #define USE_IMAGE_CACHE			FALSE						// Only if you want to get performance at the expense of RAM
@@ -51,11 +49,9 @@ static gdispImage myImage;
  */
 int main(void) {
 	coord_t			swidth, sheight;
-	systime_t		delay;
+	delaytime_t		delay;
 
-	halInit();			// Initialize the Hardware
-	chSysInit();		// Initialize the OS
-	gdispInit();		// Initialize the display
+	gfxInit();		// Initialize the display
 
 	gdispClear(MY_BG_COLOR);
 
@@ -67,7 +63,7 @@ int main(void) {
 #if USE_MEMORY_FILE
 	gdispImageSetMemoryReader(&myImage, testanim);
 #else
-	gdispImageSetSimulFileReader(&myImage, "testanim.gif");
+	gdispImageSetFileReader(&myImage, "testanim.gif");
 #endif
 
 	if (gdispImageOpen(&myImage) == GDISP_IMAGE_ERR_OK) {
@@ -87,14 +83,14 @@ int main(void) {
 			}
 			SHOW_ERROR(Yellow);
 			if (delay != TIME_IMMEDIATE)
-				chThdSleepMilliseconds(delay);
+				gfxSleepMilliseconds(delay);
 		}
 		gdispImageClose(&myImage);
 	} else
 		SHOW_ERROR(Red);
 
 	while(1) {
-		chThdSleepMilliseconds(1000);
+		gfxSleepMilliseconds(1000);
 	}
 
 	return 0;

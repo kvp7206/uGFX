@@ -18,20 +18,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 /* The handles for our two Windows */
 GHandle GW1, GW2;
 
 int main(void) {
-    halInit();
-    chSysInit();
    	coord_t		i, j;
 
     /* Initialize and clear the display */
-    gdispInit();
+    gfxInit();
     gdispClear(Lime);
 
     /* Create two windows */
@@ -61,7 +57,7 @@ int main(void) {
     gwinFillCircle(GW2, 20, 20, 15);
 
     while(TRUE) {
-        chThdSleepMilliseconds(500);
+    	gfxSleepMilliseconds(500);
     }   
 }
 

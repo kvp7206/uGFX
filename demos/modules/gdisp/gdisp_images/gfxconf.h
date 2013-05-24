@@ -28,12 +28,13 @@
 #ifndef _GFXCONF_H
 #define _GFXCONF_H
 
+/* The operating system to use - one of these must be defined */
+#define GFX_USE_OS_CHIBIOS		TRUE
+#define GFX_USE_OS_WIN32		FALSE
+#define GFX_USE_OS_POSIX		FALSE
+
 /* GFX sub-systems to turn on */
 #define GFX_USE_GDISP			TRUE
-#define GFX_USE_GWIN			FALSE
-#define GFX_USE_GEVENT			FALSE
-#define GFX_USE_GTIMER			FALSE
-#define GFX_USE_GINPUT			FALSE
 
 /* Features for the GDISP sub-system. */
 #define GDISP_NEED_VALIDATION		TRUE
@@ -64,12 +65,5 @@
 #define GDISP_NEED_IMAGE_BMP		TRUE
 #define GDISP_NEED_IMAGE_JPG		FALSE
 #define GDISP_NEED_IMAGE_PNG		FALSE
-
-/* Features for the GWIN sub-system. */
-#define GWIN_NEED_BUTTON		FALSE
-#define GWIN_NEED_CONSOLE		FALSE
-
-/* Features for the GINPUT sub-system. */
-#define GINPUT_NEED_MOUSE		FALSE
 
 #endif /* _GFXCONF_H */

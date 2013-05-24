@@ -15,8 +15,6 @@
  * @{
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if (GFX_USE_GWIN && GWIN_NEED_CONSOLE) || defined(__DOXYGEN__)
@@ -32,48 +30,54 @@
  * Stream interface implementation. The interface is write only
  */
 
-#define Stream2GWindow(ip)		((GHandle)(((char *)(ip)) - (size_t)(&(((GConsoleObject *)0)->stream))))
+#if GFX_USE_OS_CHIBIOS
+	#define Stream2GWindow(ip)		((GHandle)(((char *)(ip)) - (size_t)(&(((GConsoleObject *)0)->stream))))
 
-static size_t GWinStreamWrite(void *ip, const uint8_t *bp, size_t n) { gwinPutCharArray(Stream2GWindow(ip), (const char *)bp, n); return RDY_OK; }
-static size_t GWinStreamRead(void *ip, uint8_t *bp, size_t n) {	(void)ip; (void)bp; (void)n; return 0; }
-static msg_t GWinStreamPut(void *ip, uint8_t b) { gwinPutChar(Stream2GWindow(ip), (char)b); return RDY_OK; }
-static msg_t GWinStreamGet(void *ip) {(void)ip; return RDY_OK; }
-static msg_t GWinStreamPutTimed(void *ip, uint8_t b, systime_t time) { (void)time; gwinPutChar(Stream2GWindow(ip), (char)b); return RDY_OK; }
-static msg_t GWinStreamGetTimed(void *ip, systime_t timeout) { (void)ip; (void)timeout; return RDY_OK; }
-static size_t GWinStreamWriteTimed(void *ip, const uint8_t *bp, size_t n, systime_t time) { (void)time; gwinPutCharArray(Stream2GWindow(ip), (const char *)bp, n); return RDY_OK; }
-static size_t GWinStreamReadTimed(void *ip, uint8_t *bp, size_t n, systime_t time) { (void)ip; (void)bp; (void)n; (void)time; return 0; }
+	static size_t GWinStreamWrite(void *ip, const uint8_t *bp, size_t n) { gwinPutCharArray(Stream2GWindow(ip), (const char *)bp, n); return RDY_OK; }
+	static size_t GWinStreamRead(void *ip, uint8_t *bp, size_t n) {	(void)ip; (void)bp; (void)n; return 0; }
+	static msg_t GWinStreamPut(void *ip, uint8_t b) { gwinPutChar(Stream2GWindow(ip), (char)b); return RDY_OK; }
+	static msg_t GWinStreamGet(void *ip) {(void)ip; return RDY_OK; }
+	static msg_t GWinStreamPutTimed(void *ip, uint8_t b, systime_t time) { (void)time; gwinPutChar(Stream2GWindow(ip), (char)b); return RDY_OK; }
+	static msg_t GWinStreamGetTimed(void *ip, systime_t timeout) { (void)ip; (void)timeout; return RDY_OK; }
+	static size_t GWinStreamWriteTimed(void *ip, const uint8_t *bp, size_t n, systime_t time) { (void)time; gwinPutCharArray(Stream2GWindow(ip), (const char *)bp, n); return RDY_OK; }
+	static size_t GWinStreamReadTimed(void *ip, uint8_t *bp, size_t n, systime_t time) { (void)ip; (void)bp; (void)n; (void)time; return 0; }
 
-struct GConsoleWindowVMT_t {
-	_base_asynchronous_channel_methods
-};
+	struct GConsoleWindowVMT_t {
+		_base_asynchronous_channel_methods
+	};
 
-static const struct GConsoleWindowVMT_t GWindowConsoleVMT = {
-	GWinStreamWrite,
-	GWinStreamRead,
-	GWinStreamPut,
-	GWinStreamGet,
-	GWinStreamPutTimed,
-	GWinStreamGetTimed,
-	GWinStreamWriteTimed,
-	GWinStreamReadTimed
-};
+	static const struct GConsoleWindowVMT_t GWindowConsoleVMT = {
+		GWinStreamWrite,
+		GWinStreamRead,
+		GWinStreamPut,
+		GWinStreamGet,
+		GWinStreamPutTimed,
+		GWinStreamGetTimed,
+		GWinStreamWriteTimed,
+		GWinStreamReadTimed
+	};
+#endif
 
 GHandle gwinCreateConsole(GConsoleObject *gc, coord_t x, coord_t y, coord_t width, coord_t height, font_t font) {
 	if (!(gc = (GConsoleObject *)_gwinInit((GWindowObject *)gc, x, y, width, height, sizeof(GConsoleObject))))
 		return 0;
 	gc->gwin.type = GW_CONSOLE;
 	gwinSetFont(&gc->gwin, font);
-	gc->stream.vmt = &GWindowConsoleVMT;
+	#if GFX_USE_OS_CHIBIOS
+		gc->stream.vmt = &GWindowConsoleVMT;
+	#endif
 	gc->cx = 0;
 	gc->cy = 0;
 	return (GHandle)gc;
 }
 
-BaseSequentialStream *gwinGetConsoleStream(GHandle gh) {
-	if (gh->type != GW_CONSOLE)
-		return 0;
-	return (BaseSequentialStream *)&(((GConsoleObject *)(gh))->stream);
-}
+#if GFX_USE_OS_CHIBIOS
+	BaseSequentialStream *gwinGetConsoleStream(GHandle gh) {
+		if (gh->type != GW_CONSOLE)
+			return 0;
+		return (BaseSequentialStream *)&(((GConsoleObject *)(gh))->stream);
+	}
+#endif
 
 void gwinPutChar(GHandle gh, char c) {
 	uint8_t			width;

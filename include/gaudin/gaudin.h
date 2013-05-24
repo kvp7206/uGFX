@@ -136,7 +136,7 @@ bool_t gaudinInit(uint16_t channel, uint32_t frequency, audin_sample_t *buffer, 
 /**
  * @brief				Allow retrieving of results from the audio input using a Binary Semaphore and a static event buffer.
  *
- * @param[in] pbsem			The binary semaphore is signaled when data is available.
+ * @param[in] pbsem			The semaphore is signaled when data is available.
  * @param[in] pEvent		The static event buffer to place the result information.
  *
  * @note				Passing a NULL for pbsem or pEvent will turn off signalling via this method.
@@ -145,7 +145,7 @@ bool_t gaudinInit(uint16_t channel, uint32_t frequency, audin_sample_t *buffer, 
  *
  * @api
  */
-void gaudinSetBSem(BinarySemaphore *pbsem, GEventAudioIn *pEvent);
+void gaudinSetBSem(gfxSem *pbsem, GEventAudioIn *pEvent);
 
 /**
  * @brief   Start the audio input conversions.

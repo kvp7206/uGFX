@@ -25,21 +25,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 int main(void) {
 	uint8_t charmap[8];
 
-	halInit();
-	chSysInit();
-
-	tdispInit();
-
-	/* reset cursor position and clear the screen */
-	tdispHome();
-	tdispClear();
+	gfxInit();
 
 	/* set cursor position and draw single characters */
 	tdispSetCursor(4, 0);
@@ -68,7 +59,7 @@ int main(void) {
 	tdispDrawChar(0);
 
 	while(TRUE) {
-		chThdSleepMilliseconds(250);	
+		gfxSleepMilliseconds(250);
 	}
 }
 

@@ -14,8 +14,6 @@
  * @{
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #include "stmpe811.h"
@@ -61,7 +59,7 @@ void ginput_lld_mouse_init(void)
 	init_board();
 
 	write_reg(STMPE811_REG_SYS_CTRL1,		1, 0x02);	// Software chip reset
-	chThdSleepMilliseconds(10);
+	gfxSleepMilliseconds(10);
 
 	write_reg(STMPE811_REG_SYS_CTRL2,		1, 0x0C);	// Temperature sensor clock off, GPIO clock off, touch clock on, ADC clock on
 #if STMP811_NO_GPIO_IRQPIN
@@ -70,7 +68,7 @@ void ginput_lld_mouse_init(void)
 	write_reg(STMPE811_REG_INT_EN,			1, 0x01);	// Interrupt on INT pin when touch is detected
 #endif
 	write_reg(STMPE811_REG_ADC_CTRL1,		1, 0x48);	// ADC conversion time = 80 clock ticks, 12-bit ADC, internal voltage refernce
-	chThdSleepMilliseconds(2);
+	gfxSleepMilliseconds(2);
 
 	write_reg(STMPE811_REG_ADC_CTRL2,		1, 0x01);	// ADC speed 3.25MHz
 	write_reg(STMPE811_REG_GPIO_AF,			1, 0x00);	// GPIO alternate function - OFF

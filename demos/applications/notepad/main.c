@@ -25,8 +25,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #define COLOR_SIZE	20
@@ -77,10 +75,7 @@ int main(void) {
 	color_t color = Black;
 	uint16_t pen = 0;
 
-	halInit();
-	chSysInit();
-
-	gdispInit();
+	gfxInit();
 	ginputGetMouse(0);
 	gdispSetOrientation(GDISP_ROTATE_90);
 

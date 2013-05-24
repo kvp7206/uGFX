@@ -8,12 +8,7 @@
 /**
  * @file    src/gdisp/image_png.c
  * @brief   GDISP native image code.
- *
- * @defgroup Image Image
- * @ingroup GDISP
-*/
-#include "ch.h"
-#include "hal.h"
+ */
 #include "gfx.h"
 
 #if GFX_USE_GDISP && GDISP_NEED_IMAGE && GDISP_NEED_IMAGE_PNG

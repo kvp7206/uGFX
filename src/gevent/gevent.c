@@ -12,8 +12,6 @@
  * @addtogroup GEVENT
  * @{
  */
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GEVENT || defined(__DOXYGEN__)
@@ -25,7 +23,7 @@
 #endif
 
 /* This mutex protects access to our tables */
-static MUTEX_DECL(geventMutex);
+static gfxMutex	geventMutex;
 
 /* Our table of listener/source pairs */
 static GSourceListener		Assignments[GEVENT_MAX_SOURCE_LISTENERS];
@@ -37,22 +35,26 @@ static void deleteAssignments(GListener *pl, GSourceHandle gsh) {
 
 	for(psl = Assignments; psl < Assignments+GEVENT_MAX_SOURCE_LISTENERS; psl++) {
 		if ((!pl || psl->pListener == pl) && (!gsh || psl->pSource == gsh)) {
-			if (chSemGetCounterI(&psl->pListener->waitqueue) < 0) {
-				chBSemWait(&psl->pListener->eventlock);			// Obtain the buffer lock
-				psl->pListener->event.type = GEVENT_EXIT;		// Set up the EXIT event
-				chSemSignal(&psl->pListener->waitqueue);			// Wake up the listener
-				chBSemSignal(&psl->pListener->eventlock);		// Release the buffer lock
+			if (gfxSemCounter(&psl->pListener->waitqueue) < 0) {
+				gfxSemWait(&psl->pListener->eventlock, TIME_INFINITE);	// Obtain the buffer lock
+				psl->pListener->event.type = GEVENT_EXIT;				// Set up the EXIT event
+				gfxSemSignal(&psl->pListener->waitqueue);				// Wake up the listener
+				gfxSemSignal(&psl->pListener->eventlock);				// Release the buffer lock
 			}
 			psl->pListener = 0;
 		}
 	}
 }
 
+void _geventInit(void) {
+	gfxMutexInit(&geventMutex);
+}
+
 void geventListenerInit(GListener *pl) {
-	chSemInit(&pl->waitqueue, 0);			// Next wait'er will block
-	chBSemInit(&pl->eventlock, FALSE);		// Only one thread at a time looking at the event buffer
-	pl->callback = 0;						// No callback active
-	pl->event.type = GEVENT_NULL;			// Always safety
+	gfxSemInit(&pl->waitqueue, 0, MAX_SEMAPHORE_COUNT);		// Next wait'er will block
+	gfxSemInit(&pl->eventlock, 1, 1);						// Only one thread at a time looking at the event buffer
+	pl->callback = 0;										// No callback active
+	pl->event.type = GEVENT_NULL;							// Always safety
 }
 
 bool_t geventAttachSource(GListener *pl, GSourceHandle gsh, unsigned flags) {
@@ -64,7 +66,7 @@ bool_t geventAttachSource(GListener *pl, GSourceHandle gsh, unsigned flags) {
 		return FALSE;
 	}
 
-	chMtxLock(&geventMutex);
+	gfxMutexEnter(&geventMutex);
 
 	// Check if this pair is already in the table (scan for a free slot at the same time)
 	pslfree = 0;
@@ -72,10 +74,10 @@ bool_t geventAttachSource(GListener *pl, GSourceHandle gsh, unsigned flags) {
 		
 		if (pl == psl->pListener && gsh == psl->pSource) {
 			// Just update the flags
-			chBSemWait(&pl->eventlock);				// Safety first - just in case a source is using it
+			gfxSemWait(&pl->eventlock, TIME_INFINITE);		// Safety first - just in case a source is using it
 			psl->listenflags = flags;
-			chBSemSignal(&pl->eventlock);			// Release this lock
-			chMtxUnlock();
+			gfxSemSignal(&pl->eventlock);			// Release this lock
+			gfxMutexExit(&geventMutex);
 			return TRUE;
 		}
 		if (!pslfree && !psl->pListener)
@@ -89,43 +91,43 @@ bool_t geventAttachSource(GListener *pl, GSourceHandle gsh, unsigned flags) {
 		pslfree->listenflags = flags;
 		pslfree->srcflags = 0;
 	}
-	chMtxUnlock();
+	gfxMutexExit(&geventMutex);
 	GEVENT_ASSERT(pslfree != 0);
 	return pslfree != 0;
 }
 
 void geventDetachSource(GListener *pl, GSourceHandle gsh) {
 	if (pl) {
-		chMtxLock(&geventMutex);
+		gfxMutexEnter(&geventMutex);
 		deleteAssignments(pl, gsh);
-		if (!gsh && chSemGetCounterI(&pl->waitqueue) < 0) {
-			chBSemWait(&pl->eventlock);				// Obtain the buffer lock
-			pl->event.type = GEVENT_EXIT;			// Set up the EXIT event
-			chSemSignal(&pl->waitqueue);			// Wake up the listener
-			chBSemSignal(&pl->eventlock);			// Release the buffer lock
+		if (!gsh && gfxSemCounter(&pl->waitqueue) < 0) {
+			gfxSemWait(&pl->eventlock, TIME_INFINITE);		// Obtain the buffer lock
+			pl->event.type = GEVENT_EXIT;					// Set up the EXIT event
+			gfxSemSignal(&pl->waitqueue);					// Wake up the listener
+			gfxSemSignal(&pl->eventlock);					// Release the buffer lock
 		}
-		chMtxUnlock();
+		gfxMutexExit(&geventMutex);
 	}
 }
 
-GEvent *geventEventWait(GListener *pl, systime_t timeout) {
-	if (pl->callback || chSemGetCounterI(&pl->waitqueue) < 0)
+GEvent *geventEventWait(GListener *pl, delaytime_t timeout) {
+	if (pl->callback || gfxSemCounter(&pl->waitqueue) < 0)
 		return 0;
-	return chSemWaitTimeout(&pl->waitqueue, timeout) == RDY_OK ? &pl->event : 0;
+	return gfxSemWait(&pl->waitqueue, timeout) ? &pl->event : 0;
 }
 
 void geventRegisterCallback(GListener *pl, GEventCallbackFn fn, void *param) {
 	if (pl) {
-		chMtxLock(&geventMutex);
-		chBSemWait(&pl->eventlock);				// Obtain the buffer lock
-		pl->param = param;						// Set the param
-		pl->callback = fn;						// Set the callback function
-		if (chSemGetCounterI(&pl->waitqueue) < 0) {
+		gfxMutexEnter(&geventMutex);
+		gfxSemWait(&pl->eventlock, TIME_INFINITE);			// Obtain the buffer lock
+		pl->param = param;									// Set the param
+		pl->callback = fn;									// Set the callback function
+		if (gfxSemCounter(&pl->waitqueue) < 0) {
 			pl->event.type = GEVENT_EXIT;			// Set up the EXIT event
-			chSemSignal(&pl->waitqueue);			// Wake up the listener
+			gfxSemSignal(&pl->waitqueue);			// Wake up the listener
 		}
-		chBSemSignal(&pl->eventlock);			// Release the buffer lock
-		chMtxUnlock();
+		gfxSemSignal(&pl->eventlock);				// Release the buffer lock
+		gfxMutexExit(&geventMutex);
 	}
 }
 
@@ -136,48 +138,48 @@ GSourceListener *geventGetSourceListener(GSourceHandle gsh, GSourceListener *las
 	if (!gsh)
 		return 0;
 
-	chMtxLock(&geventMutex);
+	gfxMutexEnter(&geventMutex);
 
 	// Unlock the last listener event buffer
 	if (lastlr)
-		chBSemSignal(&lastlr->pListener->eventlock);
+		gfxSemSignal(&lastlr->pListener->eventlock);
 		
 	// Loop through the table looking for attachments to this source
 	for(psl = lastlr ? (lastlr+1) : Assignments; psl < Assignments+GEVENT_MAX_SOURCE_LISTENERS; psl++) {
 		if (gsh == psl->pSource) {
-			chBSemWait(&psl->pListener->eventlock);		// Obtain a lock on the listener event buffer
-			chMtxUnlock();
+			gfxSemWait(&psl->pListener->eventlock, TIME_INFINITE);		// Obtain a lock on the listener event buffer
+			gfxMutexExit(&geventMutex);
 			return psl;
 		}
 	}
-	chMtxUnlock();
+	gfxMutexExit(&geventMutex);
 	return 0;
 }
 
 GEvent *geventGetEventBuffer(GSourceListener *psl) {
 	// We already know we have the event lock
-	return &psl->pListener->callback || chSemGetCounterI(&psl->pListener->waitqueue) < 0 ? &psl->pListener->event : 0;
+	return &psl->pListener->callback || gfxSemCounter(&psl->pListener->waitqueue) < 0 ? &psl->pListener->event : 0;
 }
 
 void geventSendEvent(GSourceListener *psl) {
-	chMtxLock(&geventMutex);
+	gfxMutexEnter(&geventMutex);
 	if (psl->pListener->callback) {				// This test needs to be taken inside the mutex
-		chMtxUnlock();
+		gfxMutexExit(&geventMutex);
 		// We already know we have the event lock
 		psl->pListener->callback(psl->pListener->param, &psl->pListener->event);
 
 	} else {
 		// Wake up the listener
-		if (chSemGetCounterI(&psl->pListener->waitqueue) < 0)
-			chSemSignal(&psl->pListener->waitqueue);
-		chMtxUnlock();
+		if (gfxSemCounter(&psl->pListener->waitqueue) < 0)
+			gfxSemSignal(&psl->pListener->waitqueue);
+		gfxMutexExit(&geventMutex);
 	}
 }
 
 void geventDetachSourceListeners(GSourceHandle gsh) {
-	chMtxLock(&geventMutex);
+	gfxMutexEnter(&geventMutex);
 	deleteAssignments(0, gsh);
-	chMtxUnlock();
+	gfxMutexExit(&geventMutex);
 }
 
 #endif /* GFX_USE_GEVENT */

@@ -45,20 +45,6 @@ typedef int16_t	coord_t;
 /*===========================================================================*/
 
 /**
- * @brief   The type for a fixed point coordinate.
- * @details	The top 16 bits are the integer component, the bottom 16 bits are the real component.
- */
-typedef int32_t	fpcoord_t;
-
-/**
- * @brief   Macros to convert to and from a fixed point coord.
- * @{
- */
-#define COORD2FP(x)		((fpcoord_t)(x)<<16)
-#define FP2COORD(x)		((coord_t)((x)>>16))
-/* @} */
-
-/**
  * @brief   Type for a 2D point on the screen.
  */
 typedef struct point_t {
@@ -318,19 +304,6 @@ extern "C" {
 	/* Base Functions */
 
 	/**
-	 * @brief   GDISP Driver initialization.
-	 * @details	Must be called before any other gdisp function.
-	 *
-	 * @note    This function is NOT currently implicitly invoked by @p halInit().
-	 *			It must be called manually.
-	 *
-	 * @return	True if succeeded, False otherwise
-	 *
-	 * @api
-	 */
-	bool_t gdispInit(void);
-
-	/**
 	 * @brief   Test if the GDISP engine is currently drawing.
 	 * @note    This function will always return FALSE if
 	 * 			GDISP_NEED_ASYNC is not defined.
@@ -568,7 +541,6 @@ extern "C" {
 	#if GDISP_NEED_CONTROL || defined(__DOXYGEN__)
 		/**
 		 * @brief   Control hardware specific parts of the display. eg powermodes, backlight etc
-		 * @pre     The GDISP unit must have been initialised using @p gdispInit().
 		 * @note    Depending on the hardware implementation this function may not
 		 *          support some codes. They will be ignored.
 		 *
@@ -585,7 +557,6 @@ extern "C" {
 	#if GDISP_NEED_QUERY || defined(__DOXYGEN__)
 		/**
 		 * @brief   Query a property of the display.
-		 * @pre     The GDISP unit must have been initialised using @p gdispInit().
 		 * @note    The result must be typecast to the correct type.
 		 * @note    An unsupported query will return (void *)-1.
 		 *
@@ -601,7 +572,7 @@ extern "C" {
 	#include "gdisp/lld/gdisp_lld.h"
 
 	/* The same as above but use the low level driver directly if no multi-thread support is needed */
-	#define gdispInit(gdisp)									gdisp_lld_init()
+	#define _gdispInit(gdisp)									gdisp_lld_init()
 	#define gdispIsBusy()										FALSE
 	#define gdispClear(color)									gdisp_lld_clear(color)
 	#define gdispDrawPixel(x, y, color)							gdisp_lld_draw_pixel(x, y, color)

@@ -12,8 +12,6 @@
  * @addtogroup GAUDIN
  * @{
  */
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GAUDIN
@@ -22,7 +20,7 @@
 #include "gaudin/lld/gaudin_lld.h"
 
 static gaudin_params	aud;
-static BinarySemaphore	*paudSem;
+static gfxSem			*paudSem;
 static GEventAudioIn	*paudEvent;
 static audin_sample_t	*lastbuffer;
 static size_t			lastcount;
@@ -31,7 +29,7 @@ static uint16_t			audFlags;
 	#define AUDFLG_USE_EVENTS	0x0002
 
 #if GFX_USE_GEVENT
-	static GTIMER_DECL(AudGTimer);
+	static GTimer AudGTimer;
 
 	static void AudGTimerCallback(void *param) {
 		(void) param;
@@ -75,7 +73,7 @@ void GAUDIN_ISR_CompleteI(audin_sample_t *buffer, size_t n) {
 
 	/* Our two signalling mechanisms */
 	if (paudSem)
-		chBSemSignalI(paudSem);
+		gfxSemSignalI(paudSem);
 
 	#if GFX_USE_GEVENT
 		if (audFlags & AUDFLG_USE_EVENTS)
@@ -85,6 +83,13 @@ void GAUDIN_ISR_CompleteI(audin_sample_t *buffer, size_t n) {
 
 void GAUDIN_ISR_ErrorI(void) {
 	/* Ignore any errors for now */
+}
+
+/* The module initialiser */
+void _gaudinInit(void) {
+	#if GFX_USE_GEVENT
+		gtimerInit(&AudGTimer);
+	#endif
 }
 
 bool_t gaudinInit(uint16_t channel, uint32_t frequency, audin_sample_t *buffer, size_t bufcount, size_t samplesPerEvent) {
@@ -120,11 +125,11 @@ bool_t gaudinInit(uint16_t channel, uint32_t frequency, audin_sample_t *buffer, 
 	}
 #endif
 
-void gaudinSetBSem(BinarySemaphore *pbsem, GEventAudioIn *pEvent) {
-	chSysLock();
+void gaudinSetBSem(gfxSem *pbsem, GEventAudioIn *pEvent) {
+	gfxSystemLock();
 	paudSem = pbsem;
 	paudEvent = pEvent;
-	chSysUnlock();
+	gfxSystemUnlock();
 }
 
 void gaudinStart(void) {

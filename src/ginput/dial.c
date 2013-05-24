@@ -13,8 +13,6 @@
  * @ingroup GINPUT
  * @{
  */
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GINPUT && GINPUT_NEED_DIAL

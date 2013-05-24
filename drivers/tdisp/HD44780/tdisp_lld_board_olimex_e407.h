@@ -33,9 +33,9 @@ static void init_board(void) {
 static void writeToLCD(uint8_t data) {
 	palWritePort(PORT_DATA, data);
 	palSetPad(PORT_CTRL, PIN_EN);
-	chThdSleepMicroseconds(1);
+	gfxSleepMicroseconds(1);
 	palClearPad(PORT_CTRL, PIN_EN);
-	chThdSleepMicroseconds(5);
+	gfxSleepMicroseconds(5);
 }
 
 static void write_cmd(uint8_t data) {

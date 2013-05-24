@@ -12,8 +12,6 @@
  * @addtogroup GAUDOUT
  * @{
  */
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GAUDOUT || defined(__DOXYGEN__)

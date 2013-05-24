@@ -13,8 +13,6 @@
  * @{
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_TDISP /*|| defined(__DOXYGEN__)*/
@@ -70,7 +68,7 @@ bool_t tdisp_lld_init(void) {
 	 */
 	
 	/* Give the LCD a little time to wake up */
-	chThdSleepMilliseconds(15);
+	gfxSleepMilliseconds(15);
 	
 	/* write three times 0x03 to display
 	 * with RS = low.
@@ -107,20 +105,20 @@ bool_t tdisp_lld_init(void) {
 	/* END OF INITIALISATION */
 
 // 	/* wait some time */
-// 	chThdSleepMilliseconds(50);
+// 	gfxSleepMilliseconds(50);
 // 
 // 	write_cmd(0x38);
-// 	chThdSleepMilliseconds(64);
+// 	gfxSleepMilliseconds(64);
 // 
 // 	displaycontrol = TDISP_DISPLAY_ON | TDISP_CURSOR_ON | TDISP_CURSOR_BLINK;		// The default displaycontrol
 // 	write_cmd(0x08 | displaycontrol);
-// 	chThdSleepMicroseconds(50);
+// 	gfxSleepMicroseconds(50);
 // 
 // 	write_cmd(0x01);					// Clear the screen
-// 	chThdSleepMilliseconds(5);
+// 	gfxSleepMilliseconds(5);
 // 
 // 	write_cmd(0x06);
-// 	chThdSleepMicroseconds(50);
+// 	gfxSleepMicroseconds(50);
 
 	return TRUE;
 }
@@ -131,7 +129,7 @@ bool_t tdisp_lld_init(void) {
  */
 void tdisp_lld_clear(void) {
 	write_cmd(0x01);
-// 	chThdSleepMilliseconds(LONG_DELAY_MS);
+// 	gfxSleepMilliseconds(LONG_DELAY_MS);
 }
 
 void tdisp_lld_draw_char(char c) {

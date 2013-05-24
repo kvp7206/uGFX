@@ -13,8 +13,6 @@
  * @{
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
@@ -67,7 +65,7 @@
 #endif
 
 // Some macros just to make reading the code easier
-#define delayms(ms)					chThdSleepMilliseconds(ms)
+#define delayms(ms)					gfxSleepMilliseconds(ms)
 #define write_data2(d1, d2)			{ write_data(d1); write_data(d2); }
 #define write_data3(d1, d2, d3)		{ write_data(d1); write_data(d2); write_data(d3); }
 #define write_cmd1(cmd, d1)			{ write_cmd(cmd); write_data(d1); }
