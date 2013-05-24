@@ -63,7 +63,7 @@ typedef enum GButtonState_e {
 	GBTN_UP, GBTN_DOWN
 } GButtonState;
 
-typedef void (*GButtonDrawFunction)(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+typedef void (*GButtonDrawFunction)(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
 
 // A button window
 typedef struct GButtonObject_t {
@@ -146,6 +146,16 @@ void gwinSetButtonText(GHandle gh, const char *txt, bool_t useAlloc);
 void gwinButtonDraw(GHandle gh);
 
 /**
+ * @brief	Enable or disable a button
+ *
+ * @param[in] gh		The window handle (must be a button window)
+ * @param[in] enabled	Enable or disable the button
+ *
+ * @api
+ */
+void gwinButtonSetEnabled(GHandle gh, bool_t enabled);
+
+/**
  * @brief   Set the callback routine to perform a custom button drawing.
  *
  * @param[in] gh		The window handle (must be a button window)
@@ -156,6 +166,27 @@ void gwinButtonDraw(GHandle gh);
  */
 void gwinSetButtonCustom(GHandle gh, GButtonDrawFunction fn, void *param);
 
+/**
+ * @brief Enable a button
+ *
+ * @api
+ */
+#define gwinEnableButton(gh)		gwinButtonSetEnabled( ((GButtonObject *)(gh)), TRUE)
+
+/**
+ * @brief Disable a button
+ *
+ * @api
+ */
+#define gwinDisableButton(gh)		gwinButtonSetEnabled( ((GButtonObject *)(gh)), FALSE)
+
+/**
+ * @brief Get the state of a button
+ *
+ * @param[in] gh	The window handle (must be a button window)
+ *
+ * @api
+ */
 #define gwinGetButtonState(gh)		(((GButtonObject *)(gh))->state)
 
 /**
@@ -197,6 +228,7 @@ void gwinSetButtonCustom(GHandle gh, GButtonDrawFunction fn, void *param);
  * @details	These routines are called to draw the standard button styles.
  *
  * @param[in] gh		The button handle
+ * @param[in] enabled	Is the button currently enabled or disabled
  * @param[in] isdown	Is the button currently down (depressed)
  * @param[in] txt		The text to be display inside the button
  * @param[in] pstyle	The current drawing style for the state we are in
@@ -213,19 +245,19 @@ void gwinSetButtonCustom(GHandle gh, GButtonDrawFunction fn, void *param);
  * @api
  * @{
  */
-void gwinButtonDraw_3D(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
-void gwinButtonDraw_Square(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+void gwinButtonDraw_3D(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+void gwinButtonDraw_Square(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
 #if GDISP_NEED_ARC || defined(__DOXYGEN__)
-	void gwinButtonDraw_Rounded(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+	void gwinButtonDraw_Rounded(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
 #endif
 #if GDISP_NEED_ELLIPSE || defined(__DOXYGEN__)
-	void gwinButtonDraw_Ellipse(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+	void gwinButtonDraw_Ellipse(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
 #endif
 #if GDISP_NEED_CONVEX_POLYGON || defined(__DOXYGEN__)
-	void gwinButtonDraw_ArrowUp(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
-	void gwinButtonDraw_ArrowDown(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
-	void gwinButtonDraw_ArrowLeft(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
-	void gwinButtonDraw_ArrowRight(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+	void gwinButtonDraw_ArrowUp(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+	void gwinButtonDraw_ArrowDown(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+	void gwinButtonDraw_ArrowLeft(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
+	void gwinButtonDraw_ArrowRight(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param);
 #endif
 /** @} */
 

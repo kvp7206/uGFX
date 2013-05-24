@@ -45,6 +45,7 @@ typedef struct GWindowObject_t {
 	coord_t		x, y;				// Screen relative position
 	coord_t		width, height;		// Dimensions of this window
 	color_t		color, bgcolor;		// Current drawing colors
+	bool_t		enabled;			// Enabled/Disabled state
 #if GDISP_NEED_TEXT
 	font_t		font;				// Current font
 #endif
@@ -85,6 +86,16 @@ GHandle gwinCreateWindow(GWindowObject *gw, coord_t x, coord_t y, coord_t width,
  * @api
  */
 void gwinDestroyWindow(GHandle gh);
+
+/**
+ * @brief	Enable or disable a widget (of any type).
+ *
+ * @param[in] gh		The window handle
+ * @param[in] enabled	Enable or disable the widget
+ *
+ * @api
+ */
+void gwinSetEnabled(GHandle gh, bool_t enabled);
 
 /**
  * @brief	Get the X coordinate of the window
@@ -136,6 +147,20 @@ void gwinDestroyWindow(GHandle gh);
  * @param[in] bgclr	The background color
  */
 #define gwinSetBgColor(gh, bgclr)	(gh)->bgcolor = (bgclr)
+
+/**
+ * @brief	Enable a window of any type
+ *
+ * @param[in] gh	The window handle
+ */
+#define gwinEnable(gh)				gwinSetEnabled(gh, TRUE)
+
+/**
+ * @brief	Disable a window of any type
+ *
+ * @param[in] gh	The window handle
+ */
+#define gwinDisable(gh)				gwinSetEnabled(gh, FALSE)
 
 /* Set up for text */
 

@@ -72,7 +72,7 @@ void tdispSetCursor(coord_t col, coord_t row) {
 	MUTEX_LEAVE();
 }
 
-void tdispCreateChar(uint8_t address, uint8_t *charmap) {
+void tdispCreateChar(uint8_t address, char *charmap) {
 	/* make sure we don't write somewhere we're not supposed to */
 	if (address < TDISP.maxCustomChars) {
 		MUTEX_ENTER();

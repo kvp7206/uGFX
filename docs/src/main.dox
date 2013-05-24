@@ -26,12 +26,10 @@
  * ChibiOS/GFX is an official add-on library for ChibiOS/RT to
  * interface all different types of LCDs and touchscreens. 
  *
- * <h2>Features</h2>
- * - Modular design to reduce memory footprint
- * - HAL abstractions allows it to easily write new drivers
- * - Completely written in C, usable in C++ without any modifications
- * - Supports hardware accelerated drawing by LCDs
- * - Very flexible interfaces for calibration storage and more
- * - We are having our own homepage:  http://chibios-gfx.com
+ * <h2>Documentation</h2>
+ * - http://chibios-gfx.com
+ *
+ * <h2>License</h2>
+ * - http://chibios-gfx.com/license.html
  */
 

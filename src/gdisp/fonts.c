@@ -10,6 +10,7 @@
  * @brief   GDISP Font Handling.
  *
  * @addtogroup GDISP
+ *
  * @{
  */
 

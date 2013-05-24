@@ -9,7 +9,8 @@
  * @file    include/gdisp/image.h
  * @brief   GDISP image header file.
  *
- * @addtogroup GDISP
+ * @defgroup Image Image
+ * @ingroup GDISP
  * @{
  */
 

@@ -55,6 +55,10 @@ static void gwinButtonCallback(void *param, GEvent *pe) {
 	#define pxe		((GEventToggle *)pe)
 	#define pbe		((GEventGWinButton *)pe)
 
+	// check if button is disabled
+	if (gh->enabled == false)
+		return;
+
 	switch (pe->type) {
 	#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
 		case GEVENT_MOUSE:
@@ -135,6 +139,7 @@ static void gwinButtonCallback(void *param, GEvent *pe) {
 GHandle gwinCreateButton(GButtonObject *gb, coord_t x, coord_t y, coord_t width, coord_t height, font_t font, GButtonType type) {
 	if (!(gb = (GButtonObject *)_gwinInit((GWindowObject *)gb, x, y, width, height, sizeof(GButtonObject))))
 		return 0;
+
 	gb->gwin.type = GW_BUTTON;
 	gb->fn = 0;
 	gb->param = 0;
@@ -145,6 +150,10 @@ GHandle gwinCreateButton(GButtonObject *gb, coord_t x, coord_t y, coord_t width,
 	gb->txt = "";
 	geventListenerInit(&gb->listener);
 	geventRegisterCallback(&gb->listener, gwinButtonCallback, gb);
+
+	// buttons are enabled by default
+	gb->gwin.enabled = true;
+
 	return (GHandle)gb;
 }
 
@@ -225,6 +234,7 @@ void gwinButtonDraw(GHandle gh) {
 	#endif
 
 	gbw->fn(gh,
+			gbw->gwin.enabled,
 			gbw->state == GBTN_DOWN,
 			gh->font && gbw->txt ? gbw->txt : "",
 			gbw->state == GBTN_DOWN ? &gbw->dn : &gbw->up,
@@ -245,7 +255,15 @@ void gwinSetButtonCustom(GHandle gh, GButtonDrawFunction fn, void *param) {
 	#undef gbw
 }
 
-void gwinButtonDraw_3D(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
+void gwinButtonSetEnabled(GHandle gh, bool_t enabled) {
+	if (gh->type != GW_BUTTON)
+		return;
+
+	gh->enabled = enabled;
+}
+
+void gwinButtonDraw_3D(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
+	(void) enabled;
 	(void) isdown;
 	(void) param;
 
@@ -254,7 +272,8 @@ void gwinButtonDraw_3D(GHandle gh, bool_t isdown, const char *txt, const GButton
 	gdispDrawLine(gh->x, gh->y+gh->height-1, gh->x+gh->width-2, gh->y+gh->height-1, pstyle->color_edge);
 }
 
-void gwinButtonDraw_Square(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
+void gwinButtonDraw_Square(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
+	(void) enabled;
 	(void) isdown;
 	(void) param;
 
@@ -263,7 +282,8 @@ void gwinButtonDraw_Square(GHandle gh, bool_t isdown, const char *txt, const GBu
 }
 
 #if GDISP_NEED_ARC
-	void gwinButtonDraw_Rounded(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
+	void gwinButtonDraw_Rounded(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
+		(void) enabled;
 		(void) isdown;
 		(void) param;
 
@@ -279,7 +299,8 @@ void gwinButtonDraw_Square(GHandle gh, bool_t isdown, const char *txt, const GBu
 #endif
 
 #if GDISP_NEED_ELLIPSE
-	void gwinButtonDraw_Ellipse(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
+	void gwinButtonDraw_Ellipse(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
+		(void) enabled;
 		(void) isdown;
 		(void) param;
 
@@ -290,7 +311,8 @@ void gwinButtonDraw_Square(GHandle gh, bool_t isdown, const char *txt, const GBu
 #endif
 
 #if GDISP_NEED_CONVEX_POLYGON
-	void gwinButtonDraw_ArrowUp(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
+	void gwinButtonDraw_ArrowUp(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
+		(void) enabled;
 		(void) isdown;
 		(void) param;
 		point	arw[7];
@@ -308,7 +330,8 @@ void gwinButtonDraw_Square(GHandle gh, bool_t isdown, const char *txt, const GBu
 		gdispDrawStringBox(gh->x+1, gh->y+1, gh->width-2, gh->height-2, txt, gh->font, pstyle->color_txt, justifyCenter);
 	}
 
-	void gwinButtonDraw_ArrowDown(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
+	void gwinButtonDraw_ArrowDown(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
+		(void) enabled;
 		(void) isdown;
 		(void) param;
 		point	arw[7];
@@ -326,7 +349,8 @@ void gwinButtonDraw_Square(GHandle gh, bool_t isdown, const char *txt, const GBu
 		gdispDrawStringBox(gh->x+1, gh->y+1, gh->width-2, gh->height-2, txt, gh->font, pstyle->color_txt, justifyCenter);
 	}
 
-	void gwinButtonDraw_ArrowLeft(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
+	void gwinButtonDraw_ArrowLeft(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
+		(void) enabled;
 		(void) isdown;
 		(void) param;
 		point	arw[7];
@@ -344,7 +368,8 @@ void gwinButtonDraw_Square(GHandle gh, bool_t isdown, const char *txt, const GBu
 		gdispDrawStringBox(gh->x+1, gh->y+1, gh->width-2, gh->height-2, txt, gh->font, pstyle->color_txt, justifyCenter);
 	}
 
-	void gwinButtonDraw_ArrowRight(GHandle gh, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
+	void gwinButtonDraw_ArrowRight(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
+		(void) enabled;
 		(void) isdown;
 		(void) param;
 		point	arw[7];
