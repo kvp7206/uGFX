@@ -12,7 +12,6 @@
  * 			by the low level drivers that need to understand a font.
  *
  * @addtogroup GDISP
- *
  * @{
  */
 

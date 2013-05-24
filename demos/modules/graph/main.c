@@ -25,8 +25,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 #include "math.h"
 
@@ -64,11 +62,7 @@ int main(void) {
 	GHandle		gh;
 	uint16_t 	i;
 	
-	halInit();
-	chSysInit();
-
-	gdispInit();
-	gdispClear(Black);
+	gfxInit();
 	
 	gh = gwinCreateGraph(&g, 0, 0, gdispGetWidth(), gdispGetHeight());
 
@@ -92,7 +86,7 @@ int main(void) {
 	gwinGraphDrawPoints(gh, data, sizeof(data)/sizeof(data[0]));
 
 	while(TRUE) {
-		chThdSleepMilliseconds(100);	
+		gfxSleepMilliseconds(100);
 	}
 }
 

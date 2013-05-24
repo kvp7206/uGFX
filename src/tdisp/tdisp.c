@@ -12,8 +12,6 @@
  * @addtogroup TDISP
  * @{
  */
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_TDISP || defined(__DOXYGEN__)
@@ -21,15 +19,11 @@
 #include "tdisp/lld/tdisp_lld.h"
 
 #if TDISP_NEED_MULTITHREAD
-	#if !CH_USE_MUTEXES
-		#error "TDISP: CH_USE_MUTEXES must be defined in chconf.h because TDISP_NEED_MULTITHREAD is defined"
-	#endif
+	static gfxMutex			tdispMutex;
 
-	static Mutex			tdispMutex;
-
-	#define MUTEX_INIT()	chMtxInit(&tdispMutex)
-	#define MUTEX_ENTER()	chMtxLock(&tdispMutex)
-	#define MUTEX_LEAVE()	chMtxUnlock()
+	#define MUTEX_INIT()	gfxMutexInit(&tdispMutex)
+	#define MUTEX_ENTER()	gfxMutexEnter(&tdispMutex)
+	#define MUTEX_LEAVE()	gfxMutexExit(&tdispMutex)
 
 #else
 

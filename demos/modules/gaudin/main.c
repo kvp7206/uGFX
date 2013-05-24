@@ -31,8 +31,6 @@
  *
  * It also demonstrates how to write your own custom GWIN window type.
  */
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 /* Include our custom gwin audio oscilloscope */
@@ -52,10 +50,7 @@ int main(void) {
 	GHandle					ghScope;
 	coord_t					swidth, sheight;
 
-	halInit();
-	chSysInit();
-	gdispInit();
-	gdispClear(Black);
+	gfxInit();
 
 	/* Get the screen dimensions */
 	swidth = gdispGetWidth();

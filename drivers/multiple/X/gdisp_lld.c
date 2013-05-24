@@ -10,8 +10,6 @@
  * @brief   GDISP Graphics Driver subsystem low level driver source for X.
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GDISP
@@ -119,12 +117,12 @@ static void ProcessEvent(void) {
 
 /* this is the X11 thread which keeps track of all events */
 #if GDISP_THREAD_CHIBIOS
-	static WORKING_AREA(waXThread, 1024);
-	static msg_t ThreadX(void *arg) {
+	static DECLARESTACK(waXThread, 1024);
+	static threadreturn_t ThreadX(void *arg) {
 		(void)arg;
 
 		while(1) {
-			chThdSleepMilliseconds(100);
+			gfxSleepMilliseconds(100);
 			while(XPending(dis)) {
 				XNextEvent(dis, &evt);
 				ProcessEvent();
@@ -230,7 +228,7 @@ bool_t gdisp_lld_init(void)
 		ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask);
 
 	#if GDISP_THREAD_CHIBIOS
-		if (!chThdCreateStatic(waXThread, sizeof(waXThread), HIGHPRIO, ThreadX, 0)) {
+		if (!gfxCreateThread(waXThread, sizeof(waXThread), HIGH_PRIORITY, ThreadX, 0)) {
 	#else
 		if (pthread_attr_init(&thattr)
 				|| pthread_attr_setdetachstate(&thattr, PTHREAD_CREATE_DETACHED)

@@ -13,8 +13,6 @@
  * @ingroup GINPUT
  * @{
  */
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if (GFX_USE_GINPUT && GINPUT_NEED_TOGGLE) || defined(__DOXYGEN__)
@@ -134,7 +132,7 @@ void ginputInvertToggle(uint16_t instance, bool_t invert) {
 bool_t ginputGetToggleStatus(uint16_t instance, GEventToggle *ptoggle) {
 	// Win32 threads don't seem to recognise priority and/or pre-emption
 	// so we add a sleep here to prevent 100% polled applications from locking up.
-	chThdSleepMilliseconds(1);
+	gfxSleepMilliseconds(1);
 
 	if (instance >= GINPUT_TOGGLE_NUM_PORTS)
 		return FALSE;

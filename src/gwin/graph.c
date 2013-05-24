@@ -15,8 +15,6 @@
  * @{
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if (GFX_USE_GWIN && GWIN_NEED_GRAPH) || defined(__DOXYGEN__)

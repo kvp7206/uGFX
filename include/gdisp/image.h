@@ -129,19 +129,21 @@ extern "C" {
 	 */
 	bool_t gdispImageSetMemoryReader(gdispImage *img, const void *memimage);
 
-	/**
-	 * @brief	Sets the io fields in the image structure to routines
-	 * 			that support reading from an image stored on a BaseFileStream (eg SDCard).
-	 *
-	 * @return	TRUE if the IO open function succeeds
-	 *
-	 * @param[in] img   			The image structure
-	 * @param[in] BaseFileStreamPtr	A pointer to the (open) BaseFileStream object.
-	 * 
-	 */
-	bool_t gdispImageSetBaseFileStreamReader(gdispImage *img, void *BaseFileStreamPtr);
+	#if GFX_USE_OS_CHIBIOS || defined(__DOXYGEN__)
+		/**
+		 * @brief	Sets the io fields in the image structure to routines
+		 * 			that support reading from an image stored on a BaseFileStream (eg SDCard).
+		 *
+		 * @return	TRUE if the IO open function succeeds
+		 *
+		 * @param[in] img   			The image structure
+		 * @param[in] BaseFileStreamPtr	A pointer to the (open) BaseFileStream object.
+		 *
+		 */
+		bool_t gdispImageSetBaseFileStreamReader(gdispImage *img, void *BaseFileStreamPtr);
+	#endif
 
-	#if defined(WIN32) || defined(__DOXYGEN__)
+	#if defined(WIN32) || GFX_USE_OS_WIN32 || GFX_USE_OS_POSIX || defined(__DOXYGEN__)
 		/**
 		 * @brief	Sets the io fields in the image structure to routines
 		 * 			that support reading from an image stored in Win32 simulators native
@@ -154,7 +156,9 @@ extern "C" {
 		 * @param[in] filename	The filename to open
 		 *
 		 */
-		bool_t gdispImageSetSimulFileReader(gdispImage *img, const char *filename);
+		bool_t gdispImageSetFileReader(gdispImage *img, const char *filename);
+		/* Old definition */
+		#define gdispImageSetSimulFileReader(img, fname)	gdispImageSetFileReader(img, fname)
 	#endif
 	
 	/**
@@ -261,7 +265,7 @@ extern "C" {
 	 * @note	Calling gdispImageDraw() after getting a TIME_INFINITE will go back to drawing the first
 	 * 			frame/page.
 	 */
-	systime_t gdispImageNext(gdispImage *img);
+	delaytime_t gdispImageNext(gdispImage *img);
 	
 	#if GDISP_NEED_IMAGE_NATIVE
 		/**
@@ -283,7 +287,7 @@ extern "C" {
 		void gdispImageClose_NATIVE(gdispImage *img);
 		gdispImageError gdispImageCache_NATIVE(gdispImage *img);
 		gdispImageError gdispImageDraw_NATIVE(gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy);
-		systime_t gdispImageNext_NATIVE(gdispImage *img);
+		delaytime_t gdispImageNext_NATIVE(gdispImage *img);
 		/* @} */
 	#endif
 
@@ -299,7 +303,7 @@ extern "C" {
 		void gdispImageClose_GIF(gdispImage *img);
 		gdispImageError gdispImageCache_GIF(gdispImage *img);
 		gdispImageError gdispImageDraw_GIF(gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy);
-		systime_t gdispImageNext_GIF(gdispImage *img);
+		delaytime_t gdispImageNext_GIF(gdispImage *img);
 		/* @} */
 	#endif
 
@@ -315,7 +319,7 @@ extern "C" {
 		void gdispImageClose_BMP(gdispImage *img);
 		gdispImageError gdispImageCache_BMP(gdispImage *img);
 		gdispImageError gdispImageDraw_BMP(gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy);
-		systime_t gdispImageNext_BMP(gdispImage *img);
+		delaytime_t gdispImageNext_BMP(gdispImage *img);
 		/* @} */
 	#endif
 	
@@ -331,7 +335,7 @@ extern "C" {
 		void gdispImageClose_JPG(gdispImage *img);
 		gdispImageError gdispImageCache_JPG(gdispImage *img);
 		gdispImageError gdispImageDraw_JPG(gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy);
-		systime_t gdispImageNext_JPG(gdispImage *img);
+		delaytime_t gdispImageNext_JPG(gdispImage *img);
 		/* @} */
 	#endif
 
@@ -347,7 +351,7 @@ extern "C" {
 		void gdispImageClose_PNG(gdispImage *img);
 		gdispImageError gdispImageCache_PNG(gdispImage *img);
 		gdispImageError gdispImageDraw_PNG(gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy);
-		systime_t gdispImageNext_PNG(gdispImage *img);
+		delaytime_t gdispImageNext_PNG(gdispImage *img);
 		/* @} */
 	#endif
 

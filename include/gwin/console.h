@@ -40,10 +40,12 @@
 typedef struct GConsoleObject_t {
 	GWindowObject		gwin;
 	
-	struct GConsoleWindowStream_t {
-		const struct GConsoleWindowVMT_t *vmt;
-		_base_asynchronous_channel_data
-		} stream;
+	#if GFX_USE_OS_CHIBIOS
+		struct GConsoleWindowStream_t {
+			const struct GConsoleWindowVMT_t *vmt;
+			_base_asynchronous_channel_data
+			} stream;
+	#endif
 	
 	coord_t		cx,cy;			// Cursor position
 	uint8_t		fy;				// Current font height
@@ -78,15 +80,19 @@ extern "C" {
  */
 GHandle gwinCreateConsole(GConsoleObject *gc, coord_t x, coord_t y, coord_t width, coord_t height, font_t font);
 
-/**
- * @brief   Get a stream from a console window suitable for use with chprintf().
- * @return	The stream handle or NULL if this is not a console window.
- *
- * @param[in] gh	The window handle (must be a console window)
- *
- * @api
- */
-BaseSequentialStream *gwinGetConsoleStream(GHandle gh);
+#if GFX_USE_OS_CHIBIOS
+	/**
+	 * @brief   Get a stream from a console window suitable for use with chprintf().
+	 * @return	The stream handle or NULL if this is not a console window.
+	 *
+	 * @param[in] gh	The window handle (must be a console window)
+	 *
+	 * @note		Only useful in ChibiOS
+	 *
+	 * @api
+	 */
+	BaseSequentialStream *gwinGetConsoleStream(GHandle gh);
+#endif
 
 /**
  * @brief   Put a character at the cursor position in the window.

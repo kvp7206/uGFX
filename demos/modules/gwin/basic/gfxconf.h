@@ -9,12 +9,14 @@
 #ifndef _GFXCONF_H
 #define _GFXCONF_H
 
+/* The operating system to use - one of these must be defined */
+#define GFX_USE_OS_CHIBIOS		TRUE
+#define GFX_USE_OS_WIN32		FALSE
+#define GFX_USE_OS_POSIX		FALSE
+
 /* GFX sub-systems to turn on */
 #define GFX_USE_GDISP			TRUE
 #define GFX_USE_GWIN			TRUE
-#define GFX_USE_GEVENT			FALSE
-#define GFX_USE_GTIMER			FALSE
-#define GFX_USE_GINPUT			FALSE
 
 /* Features for the GDISP sub-system. */
 #define GDISP_NEED_VALIDATION	TRUE

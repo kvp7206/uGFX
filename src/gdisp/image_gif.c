@@ -12,8 +12,6 @@
  * @defgroup Image Image
  * @ingroup GDISP
 */
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GDISP && GDISP_NEED_IMAGE && GDISP_NEED_IMAGE_GIF
@@ -1161,15 +1159,15 @@ baddatacleanup:
 	return GDISP_IMAGE_ERR_BADDATA;
 }
 
-systime_t gdispImageNext_GIF(gdispImage *img) {
+delaytime_t gdispImageNext_GIF(gdispImage *img) {
 	gdispImagePrivate *	priv;
-	systime_t			delay;
+	delaytime_t			delay;
 	uint8_t				blocksz;
 
 	priv = img->priv;
 
 	// Save the delay and convert to millisecs
-	delay = (systime_t)priv->frame.delay * 10;
+	delay = (delaytime_t)priv->frame.delay * 10;
 
 	// We need to get to the end of this frame
 	if (!priv->frame.posend) {

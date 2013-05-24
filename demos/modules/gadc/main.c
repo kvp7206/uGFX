@@ -34,11 +34,8 @@
  *
  * It also demonstrates how to write your own custom GWIN window type.
  */
-#include "ch.h"
-#include "hal.h"
-#include "chprintf.h"
-
 #include "gfx.h"
+#include "chprintf.h"
 
 /* Include our custom gwin oscilloscope */
 #include "gwinosc.h"
@@ -143,10 +140,7 @@ int main(void) {
 		font_t					font;
 	#endif
 
-	halInit();
-	chSysInit();
-	gdispInit();
-	gdispClear(Black);
+	gfxInit();
 
 	/* Get the screen dimensions */
 	swidth = gdispGetWidth();

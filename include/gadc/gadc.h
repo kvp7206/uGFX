@@ -179,7 +179,7 @@ void gadcHighSpeedSetISRCallback(GADCISRCallbackFunction isrfn);
 /**
  * @brief				Allow retrieving of results from the high speed ADC using a Binary Semaphore and a static event buffer.
  *
- * @param[in] pbsem			The binary semaphore is signaled when data is available.
+ * @param[in] pbsem			The semaphore is signaled when data is available.
  * @param[in] pEvent		The static event buffer to place the result information.
  *
  * @note				Passing a NULL for pbsem or pEvent will turn off signalling via this method as will calling
@@ -189,7 +189,7 @@ void gadcHighSpeedSetISRCallback(GADCISRCallbackFunction isrfn);
  *
  * @api
  */
-void gadcHighSpeedSetBSem(BinarySemaphore *pbsem, GEventADC *pEvent);
+void gadcHighSpeedSetBSem(gfxSem *pbsem, GEventADC *pEvent);
 
 /**
  * @brief   Start the high speed ADC conversions.

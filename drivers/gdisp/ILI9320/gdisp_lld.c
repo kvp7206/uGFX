@@ -13,8 +13,6 @@
  * @{
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
@@ -66,7 +64,7 @@ uint32_t DISPLAY_CODE;
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 static inline void lld_lcdDelay(uint16_t us) {
-    chThdSleepMicroseconds(us);
+	gfxSleepMicroseconds(us);
 }
 
 static inline void lld_lcdWriteIndex(uint16_t index) {

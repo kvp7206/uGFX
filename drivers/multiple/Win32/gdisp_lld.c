@@ -13,8 +13,6 @@
  * @{
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
@@ -173,7 +171,7 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 		mousex = (coord_t)LOWORD(lParam); 
 		mousey = (coord_t)HIWORD(lParam); 
 		#if GINPUT_MOUSE_POLL_PERIOD == TIME_INFINITE
-			ginputMouseWakeup();
+			ginputMouseWakeupI();
 		#endif
 		break;
 #endif

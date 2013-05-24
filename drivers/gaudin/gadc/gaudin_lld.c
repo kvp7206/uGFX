@@ -13,8 +13,6 @@
  *
  * @{
  */
-#include "ch.h"
-#include "hal.h"
 
 /**
  * We are now implementing the driver - pull in our channel table

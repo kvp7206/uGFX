@@ -25,8 +25,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #ifdef WIN32
@@ -44,11 +42,7 @@ static gdispImage myImage;
 int main(void) {
 	coord_t			swidth, sheight;
 
-	halInit();			// Initialize the Hardware
-	chSysInit();		// Initialize the OS
-	gdispInit();		// Initialize the display
-
-	gdispClear(Black);
+	gfxInit();		// Initialize the display
 
 	// Get the display dimensions
 	swidth = gdispGetWidth();
@@ -66,7 +60,7 @@ int main(void) {
 	gdispImageClose(&myImage);
 
 	while(1) {
-		chThdSleepMilliseconds(1000);
+		gfxSleepMilliseconds(1000);
 	}
 
 	return 0;

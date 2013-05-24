@@ -25,8 +25,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 GTimer GT1, GT2;
@@ -44,8 +42,7 @@ void callback2(void* arg) {
 }
  
 int main(void) {
-    halInit();
-    chSysInit();
+    gfxInit();
  
     /* initialize the timers */
     gtimerInit(&GT1);
@@ -58,7 +55,7 @@ int main(void) {
     gtimerStart(&GT2, callback2, NULL, FALSE, 1000);
 
 	while(TRUE) {
-		chThdSleepMilliseconds(500);
+		gfxSleepMilliseconds(500);
 	}
 
 	return 0;

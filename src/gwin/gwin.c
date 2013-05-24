@@ -5,8 +5,6 @@
  *              http://chibios-gfx.com/license.html
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GWIN
@@ -29,7 +27,7 @@ GHandle _gwinInit(GWindowObject *gw, coord_t x, coord_t y, coord_t width, coord_
 	
 	// Allocate the structure if necessary
 	if (!gw) {
-		if (!(gw = (GWindowObject *)chHeapAlloc(NULL, size)))
+		if (!(gw = (GWindowObject *)gfxAlloc(size)))
 			return 0;
 		gw->flags = GWIN_FLG_DYNAMIC;
 	} else
@@ -56,7 +54,8 @@ GHandle gwinCreateWindow(GWindowObject *gw, coord_t x, coord_t y, coord_t width,
 }
 
 void gwinSetEnabled(GHandle gh, bool_t enabled) {
-
+	(void)gh;
+	(void)enabled;
 }
 
 void gwinDestroyWindow(GHandle gh) {
@@ -66,7 +65,7 @@ void gwinDestroyWindow(GHandle gh) {
 	case GW_BUTTON:
 		if ((gh->flags & GBTN_FLG_ALLOCTXT)) {
 			gh->flags &= ~GBTN_FLG_ALLOCTXT;		// To be sure, to be sure
-			chHeapFree((void *)((GButtonObject *)gh)->txt);
+			gfxFree((void *)((GButtonObject *)gh)->txt);
 		}
 		geventDetachSource(&((GButtonObject *)gh)->listener, 0);
 		geventDetachSourceListeners((GSourceHandle)gh);
@@ -85,7 +84,7 @@ void gwinDestroyWindow(GHandle gh) {
 	// Clean up the structure
 	if (gh->flags & GWIN_FLG_DYNAMIC) {
 		gh->flags = 0;							// To be sure, to be sure
-		chHeapFree((void *)gh);
+		gfxFree((void *)gh);
 	}
 }
 

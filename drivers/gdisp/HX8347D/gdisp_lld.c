@@ -13,8 +13,6 @@
  * @{
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #include "HX8347D.h"
@@ -57,8 +55,8 @@
 #define write_ram(color1, color2)   { write_index(0x22); write_ram8(color1,color2); }
 #define stream_start()				{ write_index(0x22); spiStart(&SPID1, &spi1cfg2);      }
 #define stream_stop()               {while(((SPI1->SR & SPI_SR_TXE) == 0) || ((SPI1->SR & SPI_SR_BSY) != 0));palSetPad(GPIOA, 4);spiStart(&SPID1, &spi1cfg1); }
-#define delay(us)					chThdSleepMicroseconds(us)
-#define delayms(ms)					chThdSleepMilliseconds(ms)
+#define delay(us)					gfxSleepMicroseconds(us)
+#define delayms(ms)					gfxSleepMilliseconds(ms)
 
 static inline void set_cursor(coord_t x, coord_t y) {
 			write_reg(HX8347D_REG_SCL, (uint8_t) x);

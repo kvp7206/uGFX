@@ -25,8 +25,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 void mandelbrot(float x1, float y1, float x2, float y2) {
@@ -66,10 +64,7 @@ int main(void) {
 	float cx, cy;
 	float zoom = 1.0f;
 
-	halInit();
-	chSysInit();
-
-	gdispInit();
+	gfxInit();
 
 	/* where to zoom in */
 	cx = -0.086f;

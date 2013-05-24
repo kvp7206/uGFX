@@ -37,6 +37,32 @@ typedef enum ArrayDataFormat_e {
 	ARRAY_DATA_16BITUNSIGNED = 16,	ARRAY_DATA_16BITSIGNED = 17,
 	} ArrayDataFormat;
 
+/**
+ * @brief   The type for a fixed point type.
+ * @details	The top 16 bits are the integer component, the bottom 16 bits are the real component.
+ */
+typedef int32_t	fixed;
+
+/**
+ * @brief   Macros to convert to and from a fixed point.
+ * @{
+ */
+#define FIXED(x)		((fixed)(x)<<16)			/* @< integer to fixed */
+#define NONFIXED(x)		((x)>>16)					/* @< fixed to integer */
+#define FP2FIXED(x)		((fixed)((x)*65536.0))		/* @< floating point to fixed */
+#define FIXED2FP(x)		((double)(x)/65536.0)		/* @< fixed to floating point */
+/* @} */
+
+/**
+ * @brief   The famous number pi
+ */
+#define PI	3.1415926535897932384626433832795028841971693993751
+
+/**
+ * @brief   pi as a fixed point
+ */
+#define FIXED_PI	FP2FIXED(PI)
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
@@ -83,6 +109,76 @@ extern "C" {
 
 		void gmiscArrayAddNoOverflow(ArrayDataFormat fmt, void *src1, void *src2, void *dst, size_t cnt);
 	#endif
+#endif
+
+#if GMISC_NEED_FASTTRIG || defined(__DOXYGEN__)
+		extern const double sintabledouble[];
+
+		/**
+		 * @brief	Fast Table Based Trig functions
+		 * @return	A double in the range -1.0 .. 0.0 .. 1.0
+		 *
+		 * @param[in] degrees	The angle in degrees (not radians)
+		 *
+		 * @note	These functions use degrees rather than radians to describe the angle.
+		 *
+		 * @api
+		 * @{
+		 */
+		double fsin(int degrees);
+		double fcos(int degrees);
+		/** @}
+		 *
+		 * @brief	Fast Table Based Trig functions
+		 * @return	A double in the range -1.0 .. 0.0 .. 1.0
+		 *
+		 * @param[in] degrees	The angle in degrees 0 .. 359
+		 *
+		 * @note	These functions use degrees rather than radians to describe the angle.
+		 * @note	These functions are super fast but require the parameter to be in range.
+		 * 			Use the lowercase functions if the parameter may not be in range or if a
+		 * 			required trig function is not supported in this form.
+		 *
+		 * @api
+		 * @{
+		 */
+		#define FSIN(degrees) 	sintabledouble[degrees];
+		/** @} */
+#endif
+
+#if GMISC_NEED_FIXEDTRIG || defined(__DOXYGEN__)
+		extern const fixed sintablefixed[];
+
+		/**
+		 * @brief	Fast Table Based Trig functions
+		 * @return	A fixed point in the range -1.0 .. 0.0 .. 1.0
+		 *
+		 * @param[in] degrees	The angle in degrees (not radians)
+		 *
+		 * @note	These functions use degrees rather than radians to describe the angle.
+		 *
+		 * @api
+		 * @{
+		 */
+		fixed ffsin(int degrees);
+		fixed ffcos(int degrees);
+		/** @}
+		 *
+		 * @brief	Fast Table Based Trig functions
+		 * @return	A fixed point in the range -1.0 .. 0.0 .. 1.0
+		 *
+		 * @param[in] degrees	The angle in degrees 0 .. 359
+		 *
+		 * @note	These functions use degrees rather than radians to describe the angle.
+		 * @note	These functions are super fast but require the parameter to be in range.
+		 * 			Use the lowercase functions if the parameter may not be in range or if a
+		 * 			required trig function is not supported in this form.
+		 *
+		 * @api
+		 * @{
+		 */
+		#define FFSIN(degrees) 	sintablefixed[degrees];
+		/** @} */
 #endif
 
 #ifdef __cplusplus

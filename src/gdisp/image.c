@@ -12,8 +12,6 @@
  * @defgroup Image Image
  * @ingroup GDISP
  */
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GDISP && GDISP_NEED_IMAGE
@@ -27,7 +25,7 @@ typedef struct gdispImageHandlers {
 							coord_t x, coord_t y,
 							coord_t cx, coord_t cy,
 							coord_t sx, coord_t sy);	/* The draw function */
-	systime_t		(*next)(gdispImage *img);			/* The next frame function */
+	delaytime_t		(*next)(gdispImage *img);			/* The next frame function */
 } gdispImageHandlers;
 
 static gdispImageHandlers ImageHandlers[] = {
@@ -85,72 +83,79 @@ bool_t gdispImageSetMemoryReader(gdispImage *img, const void *memimage) {
 	return TRUE;
 }
 
-static size_t ImageBaseFileStreamRead(struct gdispImageIO *pio, void *buf, size_t len) {
-	if (pio->fd == (void *)-1) return 0;
-	len = chSequentialStreamRead(((BaseFileStream *)pio->fd), (uint8_t *)buf, len);
-	pio->pos += len;
-	return len;
-}
-
-static void ImageBaseFileStreamSeek(struct gdispImageIO *pio, size_t pos) {
-	if (pio->fd == (void *)-1) return;
-	if (pio->pos != pos) {
-		chFileStreamSeek(((BaseFileStream *)pio->fd), pos);
-		pio->pos = pos;
-	}
-}
-
-static void ImageBaseFileStreamClose(struct gdispImageIO *pio) {
-	if (pio->fd == (void *)-1) return;
-	chFileStreamClose(((BaseFileStream *)pio->fd));
-	pio->fd = (void *)-1;
-	pio->pos = 0;
-}
-
-static const gdispImageIOFunctions ImageBaseFileStreamFunctions =
-	{ ImageBaseFileStreamRead, ImageBaseFileStreamSeek, ImageBaseFileStreamClose };
-
-bool_t gdispImageSetBaseFileStreamReader(gdispImage *img, void *BaseFileStreamPtr) {
-	img->io.fns = &ImageBaseFileStreamFunctions;
-	img->io.pos = 0;
-	img->io.fd = BaseFileStreamPtr;
-	return TRUE;
-}
-
-#if defined(WIN32)
-	#include <fcntl.h>
-
-	static size_t ImageSimulFileRead(struct gdispImageIO *pio, void *buf, size_t len) {
+#if GFX_USE_OS_CHIBIOS
+	static size_t ImageBaseFileStreamRead(struct gdispImageIO *pio, void *buf, size_t len) {
 		if (pio->fd == (void *)-1) return 0;
-		len = read((int)pio->fd, buf, len);
+		len = chSequentialStreamRead(((BaseFileStream *)pio->fd), (uint8_t *)buf, len);
+		pio->pos += len;
+		return len;
+	}
+
+	static void ImageBaseFileStreamSeek(struct gdispImageIO *pio, size_t pos) {
+		if (pio->fd == (void *)-1) return;
+		if (pio->pos != pos) {
+			chFileStreamSeek(((BaseFileStream *)pio->fd), pos);
+			pio->pos = pos;
+		}
+	}
+
+	static void ImageBaseFileStreamClose(struct gdispImageIO *pio) {
+		if (pio->fd == (void *)-1) return;
+		chFileStreamClose(((BaseFileStream *)pio->fd));
+		pio->fd = (void *)-1;
+		pio->pos = 0;
+	}
+
+	static const gdispImageIOFunctions ImageBaseFileStreamFunctions =
+		{ ImageBaseFileStreamRead, ImageBaseFileStreamSeek, ImageBaseFileStreamClose };
+
+	bool_t gdispImageSetBaseFileStreamReader(gdispImage *img, void *BaseFileStreamPtr) {
+		img->io.fns = &ImageBaseFileStreamFunctions;
+		img->io.pos = 0;
+		img->io.fd = BaseFileStreamPtr;
+		return TRUE;
+	}
+#endif
+
+#if defined(WIN32) || GFX_USE_OS_WIN32 || GFX_USE_OS_POSIX
+	#include <stdio.h>
+
+	static size_t ImageFileRead(struct gdispImageIO *pio, void *buf, size_t len) {
+		if (!pio->fd) return 0;
+		len = fread(buf, 1, len, (FILE *)pio->fd);
 		if ((int)len < 0) len = 0;
 		pio->pos += len;
 		return len;
 	}
 
-	static void ImageSimulFileSeek(struct gdispImageIO *pio, size_t pos) {
-		if (pio->fd == (void *)-1) return;
+	static void ImageFileSeek(struct gdispImageIO *pio, size_t pos) {
+		if (!pio->fd) return;
 		if (pio->pos != pos) {
-			lseek((int)pio->fd, pos, SEEK_SET);
+			fseek((FILE *)pio->fd, pos, SEEK_SET);
 			pio->pos = pos;
 		}
 	}
 
-	static void ImageSimulFileClose(struct gdispImageIO *pio) {
-		if (pio->fd == (void *)-1) return;
-		close((int)pio->fd);
-		pio->fd = (void *)-1;
+	static void ImageFileClose(struct gdispImageIO *pio) {
+		if (!pio->fd) return;
+		fclose((FILE *)pio->fd);
+		pio->fd = 0;
 		pio->pos = 0;
 	}
 
-	static const gdispImageIOFunctions ImageSimulFileFunctions =
-		{ ImageSimulFileRead, ImageSimulFileSeek, ImageSimulFileClose };
+	static const gdispImageIOFunctions ImageFileFunctions =
+		{ ImageFileRead, ImageFileSeek, ImageFileClose };
 
-	bool_t gdispImageSetSimulFileReader(gdispImage *img, const char *filename) {
-		img->io.fns = &ImageSimulFileFunctions;
+	bool_t gdispImageSetFileReader(gdispImage *img, const char *filename) {
+		img->io.fns = &ImageFileFunctions;
 		img->io.pos = 0;
-		img->io.fd = (void *)open(filename, O_RDONLY|O_BINARY);
-		return img->io.fd != (void *)-1;
+		#if defined(WIN32) || GFX_USE_OS_WIN32
+			img->io.fd = (void *)fopen(filename, "rb");
+		#else
+			img->io.fd = (void *)fopen(filename, "r");
+		#endif
+
+		return img->io.fd != 0;
 	}
 #endif
 
@@ -195,7 +200,7 @@ gdispImageError gdispImageDraw(gdispImage *img, coord_t x, coord_t y, coord_t cx
 	return img->fns->draw(img, x, y, cx, cy, sx, sy);
 }
 
-systime_t gdispImageNext(gdispImage *img) {
+delaytime_t gdispImageNext(gdispImage *img) {
 	if (!img->fns) return GDISP_IMAGE_ERR_BADFORMAT;
 	return img->fns->next(img);
 }
@@ -205,7 +210,7 @@ void *gdispImageAlloc(gdispImage *img, size_t sz) {
 	#if GDISP_NEED_IMAGE_ACCOUNTING
 		void *ptr;
 
-		ptr = chHeapAlloc(NULL, sz);
+		ptr = gfxAlloc(sz);
 		if (ptr) {
 			img->memused += sz;
 			if (img->memused > img->maxmemused)
@@ -214,18 +219,18 @@ void *gdispImageAlloc(gdispImage *img, size_t sz) {
 		return ptr;
 	#else
 		(void) img;
-		return chHeapAlloc(NULL, sz);
+		return gfxAlloc(sz);
 	#endif
 }
 
 void gdispImageFree(gdispImage *img, void *ptr, size_t sz) {
 	#if GDISP_NEED_IMAGE_ACCOUNTING
-		chHeapFree(ptr);
+		gfxFree(ptr);
 		img->memused -= sz;
 	#else
 		(void) img;
 		(void) sz;
-		chHeapFree(ptr);
+		gfxFree(ptr);
 	#endif
 }
 

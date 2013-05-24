@@ -12,15 +12,9 @@
  * @addtogroup GTIMER
  * @{
  */
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GTIMER || defined(__DOXYGEN__)
-
-#if !CH_USE_MUTEXES || !CH_USE_SEMAPHORES
-	#error "GTIMER: CH_USE_MUTEXES and CH_USE_SEMAPHORES must be defined in chconf.h"
-#endif
 
 #define GTIMER_FLG_PERIODIC		0x0001
 #define GTIMER_FLG_INFINITE		0x0002
@@ -31,44 +25,40 @@
 #define TimeIsWithin(x, start, end)	((end >= start && x >= start && x <= end) || (end < start && (x >= start || x <= end)))
 
 /* This mutex protects access to our tables */
-static MUTEX_DECL(mutex);
-static Thread 			*pThread = 0;
+static gfxMutex			mutex;
+static bool_t 			haveThread = 0;
 static GTimer			*pTimerHead = 0;
-static BSEMAPHORE_DECL(waitsem, TRUE);
-static WORKING_AREA(waTimerThread, GTIMER_THREAD_WORKAREA_SIZE);
+static gfxSem			waitsem;
+static DECLARESTACK(waTimerThread, GTIMER_THREAD_WORKAREA_SIZE);
 
 /*===========================================================================*/
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
-static msg_t GTimerThreadHandler(void *arg) {
+static threadreturn_t GTimerThreadHandler(void *arg) {
 	(void)arg;
 	GTimer			*pt;
-	systime_t		tm;
-	systime_t		nxtTimeout;
-	systime_t		lastTime;
+	systemticks_t	tm;
+	systemticks_t	nxtTimeout;
+	systemticks_t	lastTime;
 	GTimerFunction	fn;
 	void			*param;
-
-	#if CH_USE_REGISTRY
-		chRegSetThreadName("GTimer");
-	#endif
 
 	nxtTimeout = TIME_INFINITE;
 	lastTime = 0;
 	while(1) {
 		/* Wait for work to do. */
-		chThdYield();					// Give someone else a go no matter how busy we are
-		chBSemWaitTimeout(&waitsem, nxtTimeout);
+		gfxYield();					// Give someone else a go no matter how busy we are
+		gfxSemWait(&waitsem, nxtTimeout);
 		
 	restartTimerChecks:
 	
 		// Our reference time
-		tm = chTimeNow();
+		tm = gfxSystemTicks();
 		nxtTimeout = TIME_INFINITE;
 		
 		/* We need to obtain the mutex */
-		chMtxLock(&mutex);
+		gfxMutexEnter(&mutex);
 
 		if (pTimerHead) {
 			pt = pTimerHead;
@@ -106,7 +96,7 @@ static msg_t GTimerThreadHandler(void *arg) {
 					// Call the callback function
 					fn = pt->fn;
 					param = pt->param;
-					chMtxUnlock();
+					gfxMutexExit(&mutex);
 					fn(param);
 					
 					// We no longer hold the mutex, the callback function may have taken a while
@@ -123,21 +113,26 @@ static msg_t GTimerThreadHandler(void *arg) {
 
 		// Ready for the next loop
 		lastTime = tm;
-		chMtxUnlock();
+		gfxMutexExit(&mutex);
 	}
 	return 0;
+}
+
+void _gtimerInit(void) {
+	gfxSemInit(&waitsem, 0, 1);
+	gfxMutexInit(&mutex);
 }
 
 void gtimerInit(GTimer *pt) {
 	pt->flags = 0;
 }
 
-void gtimerStart(GTimer *pt, GTimerFunction fn, void *param, bool_t periodic, systime_t millisec) {
-	chMtxLock(&mutex);
+void gtimerStart(GTimer *pt, GTimerFunction fn, void *param, bool_t periodic, delaytime_t millisec) {
+	gfxMutexEnter(&mutex);
 	
 	// Start our thread if not already going
-	if (!pThread)
-		pThread = chThdCreateStatic(waTimerThread, sizeof(waTimerThread), HIGHPRIO, GTimerThreadHandler, NULL);
+	if (!haveThread)
+		haveThread = gfxCreateThread(waTimerThread, sizeof(waTimerThread), HIGH_PRIORITY, GTimerThreadHandler, NULL);
 
 	// Is this already scheduled?
 	if (pt->flags & GTIMER_FLG_SCHEDULED) {
@@ -162,8 +157,8 @@ void gtimerStart(GTimer *pt, GTimerFunction fn, void *param, bool_t periodic, sy
 		pt->flags |= GTIMER_FLG_INFINITE;
 		pt->period = TIME_INFINITE;
 	} else {
-		pt->period = MS2ST(millisec);
-		pt->when = chTimeNow() + pt->period;
+		pt->period = gfxMillisecondsToTicks(millisec);
+		pt->when = gfxSystemTicks() + pt->period;
 	}
 
 	// Just pop it on the end of the queue
@@ -177,12 +172,12 @@ void gtimerStart(GTimer *pt, GTimerFunction fn, void *param, bool_t periodic, sy
 
 	// Bump the thread
 	if (!(pt->flags & GTIMER_FLG_INFINITE))
-		chBSemSignal(&waitsem);
-	chMtxUnlock();
+		gfxSemSignal(&waitsem);
+	gfxMutexExit(&mutex);
 }
 
 void gtimerStop(GTimer *pt) {
-	chMtxLock(&mutex);
+	gfxMutexEnter(&mutex);
 	if (pt->flags & GTIMER_FLG_SCHEDULED) {
 		// Cancel it!
 		if (pt->next == pt->prev)
@@ -196,7 +191,7 @@ void gtimerStop(GTimer *pt) {
 		// Make sure we know the structure is dead!
 		pt->flags = 0;
 	}
-	chMtxUnlock();
+	gfxMutexExit(&mutex);
 }
 
 bool_t gtimerIsActive(GTimer *pt) {
@@ -204,14 +199,14 @@ bool_t gtimerIsActive(GTimer *pt) {
 }
 
 void gtimerJab(GTimer *pt) {
-	chMtxLock(&mutex);
+	gfxMutexEnter(&mutex);
 	
 	// Jab it!
 	pt->flags |= GTIMER_FLG_JABBED;
 
 	// Bump the thread
-	chBSemSignal(&waitsem);
-	chMtxUnlock();
+	gfxSemSignal(&waitsem);
+	gfxMutexExit(&mutex);
 }
 
 void gtimerJabI(GTimer *pt) {
@@ -219,7 +214,7 @@ void gtimerJabI(GTimer *pt) {
 	pt->flags |= GTIMER_FLG_JABBED;
 
 	// Bump the thread
-	chBSemSignalI(&waitsem);
+	gfxSemSignalI(&waitsem);
 }
 
 #endif /* GFX_USE_GTIMER */

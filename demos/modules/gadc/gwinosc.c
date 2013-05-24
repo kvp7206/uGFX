@@ -30,10 +30,7 @@
  *
  * This GWIN superset implements a simple audio oscilloscope using the GADC high speed device.
  */
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
-
 #include "gwinosc.h"
 
 /* Include internal GWIN routines so we can build our own superset class */
@@ -55,11 +52,11 @@ GHandle gwinCreateScope(GScopeObject *gs, coord_t x, coord_t y, coord_t cx, coor
 
 	/* Initialise the scope object members and allocate memory for buffers */
 	gs->gwin.type = GW_SCOPE;
-	chBSemInit(&gs->bsem, TRUE);
+	gfxSemInit(&gs->bsem, 0, 1);
 	gs->nextx = 0;
-	if (!(gs->lastscopetrace = (coord_t *)chHeapAlloc(NULL, gs->gwin.width * sizeof(coord_t))))
+	if (!(gs->lastscopetrace = (coord_t *)gfxAlloc(gs->gwin.width * sizeof(coord_t))))
 		return 0;
-	if (!(gs->audiobuf = (adcsample_t *)chHeapAlloc(NULL, AUDIOBUFSZ * sizeof(adcsample_t))))
+	if (!(gs->audiobuf = (adcsample_t *)gfxAlloc(AUDIOBUFSZ * sizeof(adcsample_t))))
 		return 0;
 #if TRIGGER_METHOD == TRIGGER_POSITIVERAMP
 	gs->lasty = gs->gwin.height/2;
@@ -93,7 +90,7 @@ void gwinWaitForScopeTrace(GHandle gh) {
 #endif
 
 	/* Wait for a set of audio conversions */
-	chBSemWait(&gs->bsem);
+	gfxSemWait(&gs->bsem, TIME_INFINITE);
 
 	/* Ensure we are drawing in the right area */
 	#if GDISP_NEED_CLIP

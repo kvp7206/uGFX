@@ -13,8 +13,6 @@
  * @{
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
@@ -61,7 +59,7 @@ bool_t gdisp_lld_init(void) {
 	init_board();
 	
 	write_index(SSD1963_SOFT_RESET);	
-	chThdSleepMicroseconds(100);
+	gfxSleepMicroseconds(100);
 
 	/* Driver PLL config */
 	write_index(SSD1963_SET_PLL_MN);
@@ -71,14 +69,14 @@ bool_t gdisp_lld_init(void) {
 
 	write_index(SSD1963_SET_PLL);					// Enable PLL
 	write_data(0x01);
-	chThdSleepMicroseconds(200);
+	gfxSleepMicroseconds(200);
 
 	write_index(SSD1963_SET_PLL);					// Use PLL
 	write_data(0x03);
-	chThdSleepMicroseconds(200);
+	gfxSleepMicroseconds(200);
 
 	write_index(SSD1963_SOFT_RESET);	
-	chThdSleepMicroseconds(100);
+	gfxSleepMicroseconds(100);
 
 	/* Screen size */
 	write_index(SSD1963_SET_GDISP_MODE);
@@ -362,13 +360,13 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 				switch((gdisp_powermode_t)value) {
 					case powerOff:
 						write_index(SSD1963_EXIT_SLEEP_MODE); // leave sleep mode
-						chThdSleepMilliseconds(5);
+						gfxSleepMilliseconds(5);
 						write_index(SSD1963_SET_DISPLAY_OFF);
 						write_index(SSD1963_SET_DEEP_SLEEP); // enter deep sleep mode
 						break;
 					case powerOn:
-						read_reg(0x0000); chThdSleepMilliseconds(5); // 2x Dummy reads to wake up from deep sleep
-						read_reg(0x0000); chThdSleepMilliseconds(5);
+						read_reg(0x0000); gfxSleepMilliseconds(5); // 2x Dummy reads to wake up from deep sleep
+						read_reg(0x0000); gfxSleepMilliseconds(5);
 						if (GDISP.Powermode != powerSleep)
 							gdisp_lld_init();
 						write_index(SSD1963_SET_DISPLAY_ON);
@@ -377,7 +375,7 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 					case powerSleep:
 						write_index(SSD1963_SET_DISPLAY_OFF);
 						write_index(SSD1963_ENTER_SLEEP_MODE); // enter sleep mode
-						chThdSleepMilliseconds(5);
+						gfxSleepMilliseconds(5);
 						break;
 					default:
 						return;

@@ -10,12 +10,9 @@
  * @brief   GDISP Font Handling.
  *
  * @addtogroup GDISP
- *
  * @{
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GDISP && GDISP_NEED_TEXT

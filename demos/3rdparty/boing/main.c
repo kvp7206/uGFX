@@ -11,11 +11,11 @@
  * width*height pixels out.
  * --
  * Chris Baird,, <cjb@brushtail.apana.org.au> April 2013
+ *
+ * Modified Andrew Hannam (inmarket) 2013-04-29 New GFX support
  */
 
 #include <math.h>
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 #include "ssd2119.h"
 
@@ -56,9 +56,7 @@ void main (void)
 {
   uint16_t xx, yy, colour;
 
-  halInit();
-  chSysInit();
-  gdispInit();
+  gfxInit();
 
   uint16_t width = (uint16_t)gdispGetWidth();
   uint16_t height = (uint16_t)gdispGetHeight();
