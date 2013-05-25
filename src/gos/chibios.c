@@ -57,13 +57,14 @@ void gfxSleepMicroseconds(delaytime_t ms) {
 	default:				chThdSleepMicroseconds(ms);	return;
 	}
 }
-
 void gfxSemInit(gfxSem *psem, semcount_t val, semcount_t limit) {
 	if (val > limit) val = limit;
 	psem->limit = limit;
 	chSemInit(&psem->sem, val);
 }
-
+void gfxSemDestroy(gfxSem *psem) {
+	chSemReset(&psem->sem, 1);
+}
 bool_t gfxSemWait(gfxSem *psem, delaytime_t ms) {
 	if (ms == TIME_INFINITE) {
 		chSemWait(&psem->sem);
@@ -85,115 +86,6 @@ void gfxSemSignalI(gfxSem *psem) {
 		chSemSignalI(&psem->sem);
 }
 
-void gfxQueueInit(gfxQueue *pqueue) {
-	pqueue->head = pqueue->tail = 0;
-	chSemInit(&pqueue->sem, 0);
-}
-
-gfxQueueItem * gfxQueueGet(gfxQueue *pqueue, delaytime_t ms) {
-	gfxQueueItem	*pi;
-
-	chSysLock();
-	/* If someone else is waiting or if the queue is empty - wait ourselves */
-	if (pqueue->sem.s_cnt < 0 || !pqueue->head) {
-		if (chSemWaitTimeoutS(&pqueue->sem, ms == TIME_INFINITE ? TIME_INFINITE : MS2ST(ms)) == RDY_TIMEOUT) {
-			chSysUnlock();
-			return NULL;
-		}
-	}
-	/* We can now get the head element */
-	pi = pqueue->head;
-	pqueue->head = pi;
-	chSemSignalI(&pi->sem);
-	chSysUnlock();
-	return pi;
-}
-
-bool_t gfxQueuePut(gfxQueue *pqueue, gfxQueueItem *pitem, delaytime_t ms) {
-	chSemInit(&pitem->sem, 0);
-	chSysLock();
-	pitem->next = 0;
-	if (!pqueue->head) {
-		pqueue->head = pqueue->tail = pitem;
-	} else {
-		pqueue->tail->next = pitem;
-		pqueue->tail = pitem;
-	}
-	/* Wake up someone who is waiting */
-	if (chSemGetCounterI(&pqueue->sem) < 0)
-		chSemSignalI(&pqueue->sem);
-	chSysUnlock();
-	return chSemWaitTimeout(&pitem->sem, ms == TIME_INFINITE ? TIME_INFINITE : MS2ST(ms)) != RDY_TIMEOUT;
-}
-
-bool_t gfxQueuePush(gfxQueue *pqueue, gfxQueueItem *pitem, delaytime_t ms) {
-	chSemInit(&pitem->sem, 0);
-	chSysLock();
-	pitem->next = pqueue->head;
-	pqueue->head = pitem;
-	if (!pitem->next)
-		pqueue->tail = pitem;
-	/* Wake up someone who is waiting */
-	if (chSemGetCounterI(&pqueue->sem) < 0)
-		chSemSignalI(&pqueue->sem);
-	chSysUnlock();
-	return chSemWaitTimeout(&pitem->sem, ms == TIME_INFINITE ? TIME_INFINITE : MS2ST(ms)) != RDY_TIMEOUT;
-}
-
-void gfxQueueRemove(gfxQueue *pqueue, gfxQueueItem *pitem) {
-	gfxQueueItem	*pi;
-
-	chSysLock();
-	if (pqueue->head) {
-		if (pqueue->head == pitem) {
-			pqueue->head = pitem->next;
-			chSemSignalI(&pitem->sem);
-		} else {
-			for(pi = pqueue->head; pi->next; pi = pi->next) {
-				if (pi->next == pitem) {
-					pi->next = pitem->next;
-					if (pqueue->tail == pitem)
-						pqueue->tail = pi;
-					chSemSignalI(&pitem->sem);
-					break;
-				}
-			}
-		}
-	}
-	chSysUnlock();
-}
-
-bool_t gfxQueueIsEmpty(gfxQueue *pqueue) {
-	return pqueue->head == NULL;
-}
-
-bool_t gfxQueueIsIn(gfxQueue *pqueue, gfxQueueItem *pitem) {
-	gfxQueueItem	*pi;
-
-	chSysLock();
-	for(pi = pqueue->head; pi; pi = pi->next) {
-		if (pi == pitem) {
-			chSysUnlock();
-			return TRUE;
-		}
-	}
-	chSysUnlock();
-	return FALSE;
-}
-
-/**
- * @brief	Start a new thread.
- * @return	Return TRUE if the thread was started, FALSE on an error
- *
- * @param[in]	stackarea	A pointer to the area for the new threads stack or NULL to dynamically allocate it
- * @param[in]	stacksz		The size of the thread stack. 0 means the default operating system size although this
- * 							is only valid when stackarea is dynamically allocated.
- * @param[in]	prio		The priority of the new thread
- * @param[in]	fn			The function the new thread will run
- * @param[in]	param		A parameter to pass the thread function.
- *
- * @api
- */
 bool_t gfxCreateThread(void *stackarea, size_t stacksz, threadpriority_t prio, gfxThreadFunction fn, void *param) {
 	if (!stackarea) {
 		if (!stacksz) stacksz = 256;

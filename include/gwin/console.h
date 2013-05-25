@@ -40,7 +40,7 @@
 typedef struct GConsoleObject_t {
 	GWindowObject		gwin;
 	
-	#if GFX_USE_OS_CHIBIOS
+	#if GFX_USE_OS_CHIBIOS && GWIN_CONSOLE_USE_BASESTREAM
 		struct GConsoleWindowStream_t {
 			const struct GConsoleWindowVMT_t *vmt;
 			_base_asynchronous_channel_data
@@ -80,7 +80,7 @@ extern "C" {
  */
 GHandle gwinCreateConsole(GConsoleObject *gc, coord_t x, coord_t y, coord_t width, coord_t height, font_t font);
 
-#if GFX_USE_OS_CHIBIOS
+#if GFX_USE_OS_CHIBIOS && GWIN_CONSOLE_USE_BASESTREAM
 	/**
 	 * @brief   Get a stream from a console window suitable for use with chprintf().
 	 * @return	The stream handle or NULL if this is not a console window.
@@ -127,6 +127,31 @@ void gwinPutString(GHandle gh, const char *str);
  * @api
  */
 void gwinPutCharArray(GHandle gh, const char *str, size_t n);
+
+/**
+ * @brief   Print a formatted string at the cursor position in the window. It will wrap lines as required.
+ * @details This function implements a minimal printf() like functionality
+ *          The general parameters format is: %[-][width|*][.precision|*][l|L]p.
+ *          The following parameter types (p) are supported:
+ *          - <b>x</b> hexadecimal integer.
+ *          - <b>X</b> hexadecimal long.
+ *          - <b>o</b> octal integer.
+ *          - <b>O</b> octal long.
+ *          - <b>d</b> decimal signed integer.
+ *          - <b>D</b> decimal signed long.
+ *          - <b>u</b> decimal unsigned integer.
+ *          - <b>U</b> decimal unsigned long.
+ *          - <b>c</b> character.
+ *          - <b>s</b> string.
+ * @note	Uses the current foreground color to draw the string and fills the background using the background drawing color
+ *
+ * @param[in] gh	The window handle (must be a console window)
+ * @param[in] fmt	The format string (as per printf)
+ * @param[in] ...	The format string arguments.
+ *
+ * @api
+ */
+void gwinPrintf(GHandle gh, const char *fmt, ...);
 
 #ifdef __cplusplus
 }

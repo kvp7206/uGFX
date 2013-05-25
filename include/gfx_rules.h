@@ -101,6 +101,15 @@
 	#if GDISP_NEED_MULTITHREAD && GDISP_NEED_ASYNC
 		#error "GDISP: Only one of GDISP_NEED_MULTITHREAD and GDISP_NEED_ASYNC should be defined."
 	#endif
+	#if GDISP_NEED_ASYNC && !(GFX_USE_GQUEUE && GQUEUE_NEED_GSYNC)
+		#if GFX_DISPLAY_RULE_WARNINGS
+			#warning "GDISP: GFX_USE_GQUEUE or GQUEUE_NEED_GSYNC is not TRUE. It has been turned on for you."
+		#endif
+		#undef GFX_USE_GQUEUE
+		#define	GFX_USE_GQUEUE		TRUE
+		#undef GQUEUE_NEED_GSYNC
+		#define	GQUEUE_NEED_GSYNC	TRUE
+	#endif
 #endif
 
 #if GFX_USE_TDISP
@@ -139,6 +148,9 @@
 #endif
 
 #if GFX_USE_GAUDOUT
+#endif
+
+#if GFX_USE_GQUEUE
 #endif
 
 #if GFX_USE_GMISC

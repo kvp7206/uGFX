@@ -25,6 +25,7 @@
 #define GFX_USE_GWIN			FALSE
 #define GFX_USE_GEVENT			FALSE
 #define GFX_USE_GTIMER			FALSE
+#define GFX_USE_GQUEUE			FALSE
 #define GFX_USE_GINPUT			FALSE
 #define GFX_USE_GADC			FALSE
 #define GFX_USE_GAUDIN			FALSE
@@ -90,6 +91,11 @@
 /* Features for the GTIMER subsystem. */
 /* NONE */
 
+/* Features for the GQUEUE subsystem. */
+#define GQUEUE_NEED_ASYNC		FALSE
+#define GQUEUE_NEED_GSYNC		FALSE
+#define GQUEUE_NEED_FSYNC		FALSE
+
 /* Features for the GINPUT subsystem. */
 #define GINPUT_NEED_MOUSE		FALSE
 #define GINPUT_NEED_KEYBOARD	FALSE
@@ -118,6 +124,8 @@
 	#define GTIMER_THREAD_WORKAREA_SIZE		512
 	#define GADC_MAX_LOWSPEED_DEVICES		4
 	#define GWIN_BUTTON_LAZY_RELEASE		FALSE
+	#define GWIN_CONSOLE_USE_BASESTREAM		FALSE
+	#define GWIN_CONSOLE_USE_FLOAT			FALSE
 */
 
 /* Optional Low Level Driver Definitions */

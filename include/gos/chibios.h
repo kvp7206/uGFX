@@ -67,17 +67,6 @@ typedef struct {
 
 #define gfxMutex	Mutex
 
-typedef struct gfxQueue {
-	struct gfxQueueItem *head;
-	struct gfxQueueItem *tail;
-	Semaphore			sem;
-	} gfxQueue;
-
-typedef struct gfxQueueItem {
-	struct gfxQueueItem *next;
-	Semaphore			sem;
-	} gfxQueueItem;
-
 /*===========================================================================*/
 /* Function declarations.                                                    */
 /*===========================================================================*/
@@ -90,30 +79,24 @@ extern "C" {
 #define gfxExit()					chSysHalt()
 #define gfxAlloc(sz)				chHeapAlloc(NULL, sz)
 #define gfxFree(ptr)				chHeapFree(ptr)
+#define gfxYield()					chThdYield()
+#define gfxSystemTicks()			chTimeNow()
+#define gfxMillisecondsToTicks(ms)	MS2ST(ms)
+#define gfxSystemLock()				chSysLock()
+#define gfxSystemUnlock()			chSysUnlock()
+#define gfxMutexInit(pmutex)		chMtxInit(pmutex)
+#define gfxMutexDestroy(pmutex)		;
+#define gfxMutexEnter(pmutex)		chMtxLock(pmutex)
+#define gfxMutexExit(pmutex)		chMtxUnlock()
 void gfxSleepMilliseconds(delaytime_t ms);
 void gfxSleepMicroseconds(delaytime_t ms);
 void gfxSemInit(gfxSem *psem, semcount_t val, semcount_t limit);
+void gfxSemDestroy(gfxSem *psem);
 bool_t gfxSemWait(gfxSem *psem, delaytime_t ms);
 void gfxSemSignal(gfxSem *psem);
 void gfxSemSignalI(gfxSem *psem);
 #define gfxSemCounterI(psem)		((psem)->sem.s_cnt)
 #define gfxSemCounter(psem)			((psem)->sem.s_cnt)
-#define gfxSystemTicks()			chTimeNow()
-#define gfxMillisecondsToTicks(ms)	MS2ST(ms)
-#define gfxYield()					chThdYield()
-#define gfxSystemLock()				chSysLock()
-#define gfxSystemUnlock()			chSysUnlock()
-#define gfxMutexInit(pmutex)		chMtxInit(pmutex)
-#define gfxMutexEnter(pmutex)		chMtxLock(pmutex)
-#define gfxMutexExit(pmutex)		chMtxUnlock()
-void gfxQueueInit(gfxQueue *pqueue);
-gfxQueueItem * gfxQueueGet(gfxQueue *pqueue, delaytime_t ms);
-bool_t gfxQueuePut(gfxQueue *pqueue, gfxQueueItem *pitem, delaytime_t ms);
-#define gfxQueuePop(q)	gfxQueueGet(q)
-bool_t gfxQueuePush(gfxQueue *pqueue, gfxQueueItem *pitem, delaytime_t ms);
-void gfxQueueRemove(gfxQueue *pqueue, gfxQueueItem *pitem);
-bool_t gfxQueueIsEmpty(gfxQueue *pqueue);
-bool_t gfxQueueIsIn(gfxQueue *pqueue, gfxQueueItem *pitem);
 bool_t gfxCreateThread(void *stackarea, size_t stacksz, threadpriority_t prio, gfxThreadFunction fn, void *param);
 
 #ifdef __cplusplus

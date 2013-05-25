@@ -54,7 +54,7 @@ static void gwinButtonCallback(void *param, GEvent *pe) {
 	#define pbe		((GEventGWinButton *)pe)
 
 	// check if button is disabled
-	if (gh->enabled == false)
+	if (!gh->enabled)
 		return;
 
 	switch (pe->type) {
@@ -150,7 +150,7 @@ GHandle gwinCreateButton(GButtonObject *gb, coord_t x, coord_t y, coord_t width,
 	geventRegisterCallback(&gb->listener, gwinButtonCallback, gb);
 
 	// buttons are enabled by default
-	gb->gwin.enabled = true;
+	gb->gwin.enabled = TRUE;
 
 	return (GHandle)gb;
 }
