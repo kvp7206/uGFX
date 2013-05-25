@@ -24,6 +24,15 @@
 #include <wingdi.h>
 #include <assert.h>
 
+/* Our threading model - ChibiOS or Win32 */
+#ifndef GDISP_THREAD_CHIBIOS
+	#if GFX_USE_OS_WIN32
+		#define GDISP_THREAD_CHIBIOS	FALSE
+	#else
+		#define GDISP_THREAD_CHIBIOS	TRUE
+	#endif
+#endif
+
 #ifndef GDISP_SCREEN_WIDTH
 	#define GDISP_SCREEN_WIDTH	640
 #endif
@@ -230,10 +239,7 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-static DWORD WINAPI WindowThread(LPVOID lpParameter) {
-	(void)lpParameter;
-	
-	MSG msg;
+static void InitWindow(void) {
 	HANDLE hInstance;
 	WNDCLASS wc;
 	RECT	rect;
@@ -274,14 +280,39 @@ static DWORD WINAPI WindowThread(LPVOID lpParameter) {
 	ShowWindow(winRootWindow, SW_SHOW);
 	UpdateWindow(winRootWindow);
 	isReady = TRUE;
-
-	while(GetMessage(&msg, NULL, 0, 0) > 0) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
-	ExitProcess(0);
-	return msg.wParam;
 }
+
+#if GDISP_THREAD_CHIBIOS
+	static DECLARESTACK(waWindowThread, 1024);
+	static threadreturn_t WindowThread(void *param) {
+		(void)param;
+		MSG msg;
+
+		InitWindow();
+		do {
+			gfxSleepMilliseconds(1);
+			while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+		} while (msg.message != WM_QUIT);
+		ExitProcess(0);
+		return msg.wParam;
+	}
+#else
+	static DWORD WINAPI WindowThread(LPVOID param) {
+		(void)param;
+		MSG msg;
+
+		InitWindow();
+		while(GetMessage(&msg, NULL, 0, 0) > 0) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		ExitProcess(0);
+		return msg.wParam;
+	}
+#endif
 
 /*===========================================================================*/
 /* Driver exported functions.                                                */
@@ -312,7 +343,11 @@ bool_t gdisp_lld_init(void) {
 		wHeight = GDISP_SCREEN_HEIGHT;
 
 	/* Initialise the window */
+#if GDISP_THREAD_CHIBIOS
+	gfxCreateThread(waWindowThread, sizeof(waWindowThread), HIGH_PRIORITY, WindowThread, 0);
+#else
 	CreateThread(0, 0, WindowThread, 0, 0, 0);
+#endif
 	while (!isReady)
 		Sleep(1);
 

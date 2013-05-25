@@ -59,8 +59,26 @@
  * @name    GWIN Optional Parameters
  * @{
  */
+	/**
+	 * @brief   Buttons should not insist the mouse is over the button on mouse release
+	 * @details	Defaults to FALSE
+	 */
 	#ifndef GWIN_BUTTON_LAZY_RELEASE
 		#define GWIN_BUTTON_LAZY_RELEASE		FALSE
+	#endif
+	/**
+	 * @brief   Console Windows need floating point support in @p gwinPrintf
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GWIN_CONSOLE_USE_FLOAT
+		#define GWIN_CONSOLE_USE_FLOAT			FALSE
+	#endif
+	/**
+	 * @brief   Console Windows need BaseStreamSequential support (ChibiOS only)
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GWIN_CONSOLE_USE_BASESTREAM
+		#define GWIN_CONSOLE_USE_BASESTREAM		FALSE
 	#endif
 /** @} */
 

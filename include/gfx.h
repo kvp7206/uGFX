@@ -87,6 +87,14 @@
 		#define GFX_USE_GTIMER	FALSE
 	#endif
 	/**
+	 * @brief   GFX Queue API
+	 * @details	Defaults to FALSE
+	 * @details	Provides queue management.
+	 */
+	#ifndef GFX_USE_GQUEUE
+		#define GFX_USE_GQUEUE	FALSE
+	#endif
+	/**
 	 * @brief   GFX Input Device API
 	 * @details	Defaults to FALSE
 	 * @note	Also add the specific hardware drivers to your makefile.
@@ -143,6 +151,7 @@
  */
 #include "gos/options.h"
 #include "gmisc/options.h"
+#include "gqueue/options.h"
 #include "gevent/options.h"
 #include "gtimer/options.h"
 #include "gdisp/options.h"
@@ -164,6 +173,7 @@
  */
 #include "gos/gos.h"
 #include "gmisc/gmisc.h"
+#include "gqueue/gqueue.h"
 #include "gevent/gevent.h"
 #include "gtimer/gtimer.h"
 #include "gdisp/gdisp.h"
