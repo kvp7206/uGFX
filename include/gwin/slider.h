@@ -167,14 +167,14 @@ void gwinSetSliderCustom(GHandle gh, GSliderDrawFunction fn, void *param);
  *
  * @api
  */
-#define gwinEnableSlider(gh)			gwinSetSliderEnabled( ((GSliderObject *)(gh)), TRUE)
+#define gwinEnableSlider(gh)			gwinSliderSetEnabled( ((GSliderObject *)(gh)), TRUE)
 
 /**
  * @brief	Disable a slider
  *
  * @api
  */
-#define gwinDisableSlider(gh)			gwinSetSliderEnabled( ((GSliderObject *)(gh)), FALSE)
+#define gwinDisableSlider(gh)			gwinSliderSetEnabled( ((GSliderObject *)(gh)), FALSE)
 
 /**
  * @brief   Get the current slider position.
