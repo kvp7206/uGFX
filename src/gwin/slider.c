@@ -241,6 +241,13 @@ void gwinSetSliderCustom(GHandle gh, GSliderDrawFunction fn, void *param) {
 	#undef gsw
 }
 
+void gwinSliderSetEnabled(GHandle gh, bool_t enabled) {
+	if (gh->type != GW_SLIDER)
+		return;
+
+	gh->enabled = enabled;
+}
+
 void gwinSliderDraw_Std(GHandle gh, bool_t isVertical, coord_t thumbpos, const GSliderDrawStyle *pstyle, void *param) {
 	(void) param;
 

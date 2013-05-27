@@ -142,6 +142,16 @@ void gwinSetSliderStyle(GHandle gh, const GSliderDrawStyle *pStyle);
 void gwinSliderDraw(GHandle gh);
 
 /**
+ * @brief	Enable or disable a button
+ *
+ * @param[in] gh		The window handle (must be a slider window)
+ * @param[in] enabled	Enable or disable the slider
+ *
+ * @api
+ */
+void gwinSliderSetEnabled(GHandle gh, bool_t enabled);
+
+/**
  * @brief   Set the callback routine to perform a custom slider drawing.
  *
  * @param[in] gh		The window handle (must be a slider window)
@@ -151,6 +161,20 @@ void gwinSliderDraw(GHandle gh);
  * @api
  */
 void gwinSetSliderCustom(GHandle gh, GSliderDrawFunction fn, void *param);
+
+/**
+ * @brief	Enable a slider
+ *
+ * @api
+ */
+#define gwinEnableSlider(gh)			gwinSetSliderEnabled( ((GSliderObject *)(gh)), TRUE)
+
+/**
+ * @brief	Disable a slider
+ *
+ * @api
+ */
+#define gwinDisableSlider(gh)			gwinSetSliderEnabled( ((GSliderObject *)(gh)), FALSE)
 
 /**
  * @brief   Get the current slider position.
