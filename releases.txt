@@ -32,6 +32,8 @@ FIX:		Some fixes for the HD44780 TDISP driver by the user 'Frysk'
 FEATURE:	Added ILI9481 by user 'Abhishek'
 FEATURE:	Added enable/disable functions for widgets (Buttons)
 FEATURE:	Added HX8347D driver by user 'Eddie'
+FEATURE:	Added enhanced notepad demo by user 'Abhishek'
+FEATURE:	Added GOS module (including sub modules such as GQUEUE)
 
 
 *** changes after 1.4 ***
