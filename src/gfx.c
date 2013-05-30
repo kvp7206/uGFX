@@ -105,3 +105,10 @@ void gfxInit(void) {
 		_gaudoutInit();
 	#endif
 }
+
+void gdispInit(void) {
+	#warning "gdispInit() is obsolete - please use gfxInit() instead"
+
+	gfxInit();
+}
+

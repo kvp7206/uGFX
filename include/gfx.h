@@ -199,8 +199,8 @@ extern "C" {
 	 */
 	void gfxInit(void);
 
-	/* Compatibility for old programs */
-	#define gdispInit()		gfxInit()
+	/* compatibility for old programs - throws a #warning */
+	void gdispInit(void);
 
 #ifdef __cplusplus
 }
