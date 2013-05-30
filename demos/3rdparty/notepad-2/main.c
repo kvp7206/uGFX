@@ -81,7 +81,7 @@ int main(void) {
   chSysInit();
 
   /* initialize the LCD */
-  gdispInit();
+  gfxInit();
   gdispClear(Black);
 
   /* Calibrate the touchscreen */
