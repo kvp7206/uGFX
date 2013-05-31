@@ -18,17 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * @file    templates/halconf.h
- * @brief   HAL configuration header.
- * @details HAL configuration file, this file allows to enable or disable the
- *          various device drivers from your application. You may also use
- *          this file in order to override the device drivers default settings.
- *
- * @addtogroup HAL_CONF
- * @{
- */
-
 #ifndef _HALCONF_H_
 #define _HALCONF_H_
 
@@ -339,4 +328,3 @@
 
 #endif /* _HALCONF_H_ */
 
-/** @} */

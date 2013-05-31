@@ -212,7 +212,7 @@ void tdispScroll(uint16_t direction, uint16_t amount, uint16_t delay);
 /**
  * @brief		Set the backlight using PWM-driver
  * 
- * @param[in] percent	Sets the brightness of the display in %.
+ * @param[in] percentage	Sets the brightness of the display in %.
  * 			0% = backlight is off or very low
  * 			100% = backlight is set to full brightness
  */
@@ -228,13 +228,6 @@ void tdispSetBacklight(uint16_t percentage);
  * @param[in] value	The value to be assigned
  */
 void tdispControl(uint16_t what, uint16_t value);
-
-/**
- * @brief		Set the backlight level
- *
- * @param[in] percent	A percentage from 0 to 100%. 0% will turn off the display
- */
-// #define tdispSetBacklight(percent)		tdispControl(TDISP_CTRL_BACKLIGHT, (percent))
 
 /**
  * @brief		Set cursor move mode

@@ -18,17 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * @file    templates/chconf.h
- * @brief   Configuration file template.
- * @details A copy of this file must be placed in each project directory, it
- *          contains the application specific kernel settings.
- *
- * @addtogroup config
- * @details Kernel related settings and hooks.
- * @{
- */
-
 #ifndef _CHCONF_H_
 #define _CHCONF_H_
 
@@ -532,4 +521,3 @@
 
 #endif  /* _CHCONF_H_ */
 
-/** @} */

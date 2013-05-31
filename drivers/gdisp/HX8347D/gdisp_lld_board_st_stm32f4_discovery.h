@@ -6,7 +6,7 @@
  */
 
 /**
- * @file    drivers/gdisp/HX8347D/gdisp_lld_board_embest_dmstf4bb.h
+ * @file    drivers/gdisp/HX8347D/gdisp_lld_board_st_stm32f4_discovery.h
  * @brief   GDISP Graphic Driver subsystem board SPI interface for the HX8347D display.
  *
  * @addtogroup GDISP
