@@ -1,9 +1,22 @@
 /*
- * This file is subject to the terms of the GFX License, v1.0. If a copy of
- * the license was not distributed with this file, you can obtain one at:
- *
- *              http://chibios-gfx.com/license.html
- */
+    ChibiOS/GFX - Copyright (C) 2012, 2013
+                 Joel Bodenmann aka Tectu <joel@unormal.org>
+
+    This file is part of ChibiOS/GFX.
+
+    ChibiOS/GFX is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    ChibiOS/GFX is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 /**
  * @file    drivers/tdisp/HD44780/tdisp_lld_board_olimex_e407.h
@@ -33,9 +46,9 @@ static void init_board(void) {
 static void writeToLCD(uint8_t data) {
 	palWritePort(PORT_DATA, data);
 	palSetPad(PORT_CTRL, PIN_EN);
-	gfxSleepMicroseconds(1);
+	chThdSleepMicroseconds(1);
 	palClearPad(PORT_CTRL, PIN_EN);
-	gfxSleepMicroseconds(5);
+	chThdSleepMicroseconds(5);
 }
 
 static void write_cmd(uint8_t data) {

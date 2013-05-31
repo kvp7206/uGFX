@@ -1,9 +1,22 @@
 /*
- * This file is subject to the terms of the GFX License, v1.0. If a copy of
- * the license was not distributed with this file, you can obtain one at:
- *
- *              http://chibios-gfx.com/license.html
- */
+    ChibiOS/GFX - Copyright (C) 2012, 2013
+                 Joel Bodenmann aka Tectu <joel@unormal.org>
+
+    This file is part of ChibiOS/GFX.
+
+    ChibiOS/GFX is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    ChibiOS/GFX is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 /**
  * @file    src/tdisp/tdisp.c
@@ -12,18 +25,29 @@
  * @addtogroup TDISP
  * @{
  */
+#include "ch.h"
+#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_TDISP || defined(__DOXYGEN__)
 
-#include "tdisp/lld/tdisp_lld.h"
+#include "../../include/tdisp/lld/tdisp_lld.h"
+
+/* cursor controllers */
+#define CURSOR		1
+#define ON		0
+#define OFF
 
 #if TDISP_NEED_MULTITHREAD
-	static gfxMutex			tdispMutex;
+	#if !CH_USE_MUTEXES
+		#error "TDISP: CH_USE_MUTEXES must be defined in chconf.h because TDISP_NEED_MULTITHREAD is defined"
+	#endif
 
-	#define MUTEX_INIT()	gfxMutexInit(&tdispMutex)
-	#define MUTEX_ENTER()	gfxMutexEnter(&tdispMutex)
-	#define MUTEX_LEAVE()	gfxMutexExit(&tdispMutex)
+	static Mutex			tdispMutex;
+
+	#define MUTEX_INIT()	chMtxInit(&tdispMutex)
+	#define MUTEX_ENTER()	chMtxLock(&tdispMutex)
+	#define MUTEX_LEAVE()	chMtxUnlock()
 
 #else
 
@@ -66,7 +90,7 @@ void tdispSetCursor(coord_t col, coord_t row) {
 	MUTEX_LEAVE();
 }
 
-void tdispCreateChar(uint8_t address, char *charmap) {
+void tdispCreateChar(uint8_t address, uint8_t *charmap) {
 	/* make sure we don't write somewhere we're not supposed to */
 	if (address < TDISP.maxCustomChars) {
 		MUTEX_ENTER();
@@ -88,16 +112,27 @@ void tdispDrawString(char *s) {
 	MUTEX_LEAVE();
 }
 
-void tdispDrawStringLocation(coord_t col, coord_t row, char *s) {
-	tdispSetCursor(col, row);
-	tdispDrawString(s);
-}	
-
-void tdispControl(uint16_t what, void *value) {
+void tdispControl(uint16_t what, uint16_t value) {
 	MUTEX_ENTER();
 	tdisp_lld_control(what, value);
 	MUTEX_LEAVE();
 }
+
+void tdispScroll(uint16_t direction, uint16_t amount, uint16_t delay) {
+	MUTEX_ENTER();
+	tdisp_lld_scroll(direction, amount, delay);
+	MUTEX_LEAVE();
+}
+
+#if TDISP_USE_BACKLIGHT
+void tdispSetBacklight(uint16_t percentage) {
+	if (percentage > 100)
+	  percentage = 100;
+	MUTEX_ENTER();
+	tdisp_lld_set_backlight(percentage);
+	MUTEX_LEAVE();
+}
+#endif
 
 #endif /* GFX_USE_TDISP */
 /** @} */

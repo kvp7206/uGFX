@@ -1,9 +1,22 @@
 /*
- * This file is subject to the terms of the GFX License, v1.0. If a copy of
- * the license was not distributed with this file, you can obtain one at:
- *
- *              http://chibios-gfx.com/license.html
- */
+    ChibiOS/GFX - Copyright (C) 2012, 2013
+                 Joel Bodenmann aka Tectu <joel@unormal.org>
+
+    This file is part of ChibiOS/GFX.
+
+    ChibiOS/GFX is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    ChibiOS/GFX is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 /**
  * @file    include/tdisp/options.h
@@ -21,6 +34,15 @@
  * @name    TDISP Functionality to be included
  * @{
  */
+	/**
+	 * @brief  Set if the display need reading from the display
+	 * @details	Defaults to FALSE
+	 * @details	If TRUE, the read function of the display wil be implemented into the source.
+	 * @note	Most users do not need reading from the display.
+	 */
+	#ifndef TDISP_NEED_READ
+		#define TDISP_NEED_READ				FALSE
+	#endif
 /**
  * @}
  *
@@ -54,8 +76,12 @@
 	 * @note	Ignored by some low level GDISP drivers, optional for others.
 	 * @note	Where these values are allowed, a default is always provided by the low level driver.
 	 */
-	/* #define TDISP_COLUMNS		16 */
-	/* #define TDISP_ROWS			2  */
+	#ifndef TDISP_COLUMNS
+		#define TDISP_COLUMNS		16
+	#endif
+	#ifndef TDISP_ROWS
+		#define TDISP_ROWS		2
+	#endif
 /** @} */
 
 #endif /* GFX_USE_TDISP */

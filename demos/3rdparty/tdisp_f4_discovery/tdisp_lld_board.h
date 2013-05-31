@@ -35,9 +35,9 @@
 /* Configure the bitoffset in the dataport so they match with the
  * hardware pins. An offset of 0 means bit0 stays at bit0 of the dataport.
  * If the offset is set to 3, bit0 of the nibble will be positioned at
- * P[A..G]3 of the hardware-port.
+ * bit3 of the hardware-port.
  */
-#define hardware_offset	3
+#define hardware_offset	0
 
 /* The port where the data is sent to. In the
  * low-leveldriver het hardware_offset is taken
@@ -62,7 +62,28 @@
  */
 #define PIN_RW		7
 
+#if TDISP_USE_BACKLIGHT
+/* PWM configuration structure. We use timer 4 channel 2 (orange LED on board). */
+static const PWMConfig pwmcfg = {
+  1000000,		/* 1 MHz PWM clock frequency. */
+  100,			/* PWM period is 100 cycles. */
+  NULL,
+  {
+   {PWM_OUTPUT_ACTIVE_HIGH, NULL},
+   {PWM_OUTPUT_ACTIVE_HIGH, NULL},
+   {PWM_OUTPUT_ACTIVE_HIGH, NULL},
+   {PWM_OUTPUT_ACTIVE_HIGH, NULL}
+  },
+  0
+};
+#endif
 
+/* Initializes the board.
+ * If you are using a specific setup, than copy the boardfile to your
+ * project directory and set in gfxconf.h that you are using a custom board file
+ * The next thing you have to do is to initialize the hardware port(s) you
+ * are using to communicate with the board.
+ */
 static void init_board(void) {
 	/* Initialize the ports for data and controle-lines */
 	palSetGroupMode(PORT_CTRL, PAL_WHOLE_PORT, 0, PAL_MODE_OUTPUT_PUSHPULL);
@@ -73,6 +94,14 @@ static void init_board(void) {
 	#if TDISP_NEED_READ
 	  palClearPad(PORT_CTRL, PIN_RW);
 	#endif
+
+	#if TDISP_USE_BACKLIGHT
+	/* Display backlight control */
+	/* TIM4 is an alternate function 2 (AF2) */
+	pwmStart(&PWMD4, &pwmcfg);
+	palSetPadMode(GPIOD, 13, PAL_MODE_ALTERNATE(2));
+	pwmEnableChannel(&PWMD4, 1, 100);
+	#endif
 }
 
 /* This is the low-level routine for sending the bits
@@ -80,12 +109,14 @@ static void init_board(void) {
  * the bits so they match the hardware port.
  */
 static void writeToLCD(uint8_t data) {
-	palWritePort(PORT_DATA, data<<hardware_offset);
+	palWritePort(PORT_DATA, data);
 	palSetPad(PORT_CTRL, PIN_EN);
-	chThdSleepMicroseconds(1);
-	palClearPad(PORT_CTRL, PIN_EN);
-	/* wait a little while so that de display can process the data */
 	chThdSleepMicroseconds(5);
+// 	chThdSleepMilliseconds(10);
+	palClearPad(PORT_CTRL, PIN_EN);
+	chThdSleepMicroseconds(5);
+// 	chThdSleepMilliseconds(10);
+	/* wait a little while so that de display can process the data */
 }
 
 /* Writes a command to the display. The
@@ -96,12 +127,9 @@ static void write_cmd(uint8_t data) {
 	palClearPad(PORT_CTRL, PIN_RS);
 	#if BUS_4BITS
 		/* first send the high-nibble */
-		writeToLCD(data>>4);
-	#endif
-	/* send the low-nibble */
-	#if BUS_4BITS
+		writeToLCD((data & 0xF0)>>4);
 		/* in 4-bit mode the high-nibble is zeroed out */
-		writeToLCD(data & 0x0F);
+		writeToLCD((data & 0x0F));
 	#else
 		writeToLCD(data);
 	#endif
@@ -119,16 +147,22 @@ static void write_data(uint8_t data) {
 	palSetPad(PORT_CTRL, PIN_RS);
 	#if BUS_4BITS
 		/* first send the high-nibble */
-		writeToLCD(data>>4);
-	#endif
-	/* send the low-nibble */
-	#if BUS_4BITS
+		writeToLCD((data & 0xF0)>>4);
 		/* in 4-bit mode the high-nibble is zeroed out */
-		writeToLCD(data & 0x0F);
+		writeToLCD((data & 0x0F));
 	#else
 		writeToLCD(data);
 	#endif
 }
+
+#if TDISP_USE_BACKLIGHT
+
+/* Sets the brightness of the backlight of the display, using
+ * the PWM channel */
+static void set_backlight(uint16_t percentage) {
+  pwmEnableChannel(&PWMD4, 1, percentage);
+}
+#endif
 
 #endif /* _TDISP_LLD_BOARD_H */
 /** @} */
