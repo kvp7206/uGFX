@@ -47,7 +47,7 @@
 typedef struct gfxQueueASync {
 	struct gfxQueueASyncItem	*head;
 	struct gfxQueueASyncItem	*tail;
-	} gfxQueueAsync;
+	} gfxQueueASync;
 typedef struct gfxQueueGSync {
 	struct gfxQueueGSyncItem	*head;
 	struct gfxQueueGSyncItem	*tail;
@@ -57,7 +57,7 @@ typedef struct gfxQueueFSync {
 	struct gfxQueueFSyncItem	*head;
 	struct gfxQueueFSyncItem	*tail;
 	gfxSem						sem;
-	} gfxQueueGSync;
+	} gfxQueueFSync;
 /* @} */
 
 /**

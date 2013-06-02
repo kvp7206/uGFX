@@ -96,15 +96,24 @@ semcount_t gfxSemCounter(gfxSem *pSem) {
     return BasicInfo.CurrentCount;
 }
 
-bool_t gfxCreateThread(void *stackarea, size_t stacksz, threadpriority_t prio, gfxThreadFunction fn, void *param) {
-	(void) stackarea;
+gfxThreadHandle gfxThreadCreate(void *stackarea, size_t stacksz, threadpriority_t prio, DECLARE_THREAD_FUNCTION((*fn),p), void *param) {
+	(void)	stackarea;
 	HANDLE	thd;
 
 	if (!(thd = CreateThread(NULL, stacksz, fn, param, CREATE_SUSPENDED, NULL)))
 		return FALSE;
 	SetThreadPriority(thd, prio);
 	ResumeThread(thd);
-	return TRUE;
+	return thd;
+}
+
+threadreturn_t gfxThreadWait(gfxThreadHandle thread) {
+	DWORD	ret;
+
+	WaitForSingleObject(thread, INFINITE);
+	GetExitCodeThread(thread, &ret);
+	CloseHandle(thread);
+	return ret;
 }
 
 #endif /* GFX_USE_OS_WIN32 */

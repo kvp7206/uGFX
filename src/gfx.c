@@ -28,6 +28,8 @@
 
 #include "gfx.h"
 
+void DEPRECATED("Use gfxInit() instead") gdispInit() { gfxInit(); }
+
 /* These init functions are defined by each module but not published */
 extern void _gosInit(void);
 #if GFX_USE_GDISP && (GDISP_NEED_MULTITHREAD || GDISP_NEED_ASYNC)
@@ -105,10 +107,3 @@ void gfxInit(void) {
 		_gaudoutInit();
 	#endif
 }
-
-void gdispInit(void) {
-	#warning "gdispInit() is obsolete - please use gfxInit() instead"
-
-	gfxInit();
-}
-

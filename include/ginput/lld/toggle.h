@@ -24,7 +24,7 @@ typedef struct GToggleConfig_t {
 	void		*id;
 	unsigned	mask;
 	unsigned	invert;
-	iomode_t	mode;
+	unsigned	mode;
 } GToggleConfig;
 
 /*===========================================================================*/

@@ -24,15 +24,6 @@
 #include <wingdi.h>
 #include <assert.h>
 
-/* Our threading model - ChibiOS or Win32 */
-#ifndef GDISP_THREAD_CHIBIOS
-	#if GFX_USE_OS_WIN32
-		#define GDISP_THREAD_CHIBIOS	FALSE
-	#else
-		#define GDISP_THREAD_CHIBIOS	TRUE
-	#endif
-#endif
-
 #ifndef GDISP_SCREEN_WIDTH
 	#define GDISP_SCREEN_WIDTH	640
 #endif
@@ -45,7 +36,7 @@
 	#include "ginput/lld/toggle.h"
 
 	const GToggleConfig GInputToggleConfigTable[GINPUT_TOGGLE_CONFIG_ENTRIES] = {
-		{0,	0xFF, 0x00, PAL_MODE_INPUT},
+		{0,	0xFF, 0x00, 0},
 	};
 #endif
 
@@ -180,7 +171,7 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 		mousex = (coord_t)LOWORD(lParam); 
 		mousey = (coord_t)HIWORD(lParam); 
 		#if GINPUT_MOUSE_POLL_PERIOD == TIME_INFINITE
-			ginputMouseWakeupI();
+			ginputMouseWakeup();
 		#endif
 		break;
 #endif
@@ -282,37 +273,22 @@ static void InitWindow(void) {
 	isReady = TRUE;
 }
 
-#if GDISP_THREAD_CHIBIOS
-	static DECLARESTACK(waWindowThread, 1024);
-	static threadreturn_t WindowThread(void *param) {
-		(void)param;
-		MSG msg;
+static DECLARE_THREAD_STACK(waWindowThread, 1024);
+static DECLARE_THREAD_FUNCTION(WindowThread, param) {
+	(void)param;
+	MSG msg;
 
-		InitWindow();
-		do {
-			gfxSleepMilliseconds(1);
-			while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-		} while (msg.message != WM_QUIT);
-		ExitProcess(0);
-		return msg.wParam;
-	}
-#else
-	static DWORD WINAPI WindowThread(LPVOID param) {
-		(void)param;
-		MSG msg;
-
-		InitWindow();
-		while(GetMessage(&msg, NULL, 0, 0) > 0) {
+	InitWindow();
+	do {
+		gfxSleepMilliseconds(1);
+		while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		ExitProcess(0);
-		return msg.wParam;
-	}
-#endif
+	} while (msg.message != WM_QUIT);
+	ExitProcess(0);
+	return msg.wParam;
+}
 
 /*===========================================================================*/
 /* Driver exported functions.                                                */
@@ -331,7 +307,8 @@ static void InitWindow(void) {
  * @notapi
  */
 bool_t gdisp_lld_init(void) {
-	RECT rect;
+	RECT			rect;
+	gfxThreadHandle	hth;
 
 	/* Set the window dimensions */
 	GetWindowRect(GetDesktopWindow(), &rect);
@@ -343,11 +320,11 @@ bool_t gdisp_lld_init(void) {
 		wHeight = GDISP_SCREEN_HEIGHT;
 
 	/* Initialise the window */
-#if GDISP_THREAD_CHIBIOS
-	gfxCreateThread(waWindowThread, sizeof(waWindowThread), HIGH_PRIORITY, WindowThread, 0);
-#else
-	CreateThread(0, 0, WindowThread, 0, 0, 0);
-#endif
+	if (!(hth = gfxThreadCreate(waWindowThread, sizeof(waWindowThread), HIGH_PRIORITY, WindowThread, 0))) {
+		fprintf(stderr, "Cannot create window thread\n");
+		exit(-1);
+	}
+	gfxThreadClose(hth);
 	while (!isReady)
 		Sleep(1);
 
@@ -810,6 +787,9 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 */
 	color_t gdisp_lld_get_pixel_color(coord_t x, coord_t y) {
 		color_t color;
+		#if GDISP_NEED_CONTROL
+			coord_t		t;
+		#endif
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 			// Clip pre orientation change
@@ -818,6 +798,8 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 
 		#if GDISP_NEED_CONTROL
 			switch(GDISP.Orientation) {
+			case GDISP_ROTATE_0:
+				break;
 			case GDISP_ROTATE_90:
 				t = GDISP.Height - 1 - y;
 				y = x;

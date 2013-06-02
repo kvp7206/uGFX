@@ -63,7 +63,7 @@ GHandle gwinCreateConsole(GConsoleObject *gc, coord_t x, coord_t y, coord_t widt
 		return 0;
 	gc->gwin.type = GW_CONSOLE;
 	gwinSetFont(&gc->gwin, font);
-	#if GFX_USE_OS_CHIBIOS
+	#if GFX_USE_OS_CHIBIOS && GWIN_CONSOLE_USE_BASESTREAM
 		gc->stream.vmt = &GWindowConsoleVMT;
 	#endif
 	gc->cx = 0;
@@ -193,7 +193,7 @@ void gwinPrintf(GHandle gh, const char *fmt, ...) {
 	int i, precision, width;
 	bool_t is_long, left_align;
 	long l;
-	#if CHPRINTF_USE_FLOAT
+	#if GWIN_CONSOLE_USE_FLOAT
 		float f;
 		char tmpbuf[2*MAX_FILLER + 1];
 	#else
@@ -286,7 +286,7 @@ void gwinPrintf(GHandle gh, const char *fmt, ...) {
 			}
 			p = ltoa_wd(p, l, 10, 0);
 			break;
-		#if CHPRINTF_USE_FLOAT
+		#if GWIN_CONSOLE_USE_FLOAT
 			case 'f':
 				f = (float) va_arg(ap, double);
 				if (f < 0) {

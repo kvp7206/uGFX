@@ -86,13 +86,14 @@ void gfxSemSignalI(gfxSem *psem) {
 		chSemSignalI(&psem->sem);
 }
 
-bool_t gfxCreateThread(void *stackarea, size_t stacksz, threadpriority_t prio, gfxThreadFunction fn, void *param) {
+gfxThreadHandle gfxThreadCreate(void *stackarea, size_t stacksz, threadpriority_t prio, DECLARE_THREAD_FUNCTION((*fn),p), void *param) {
 	if (!stackarea) {
 		if (!stacksz) stacksz = 256;
-		return chThdCreateFromHeap(0, stacksz, prio, fn, param) != 0;
+		return chThdCreateFromHeap(0, stacksz, prio, fn, param);
 	}
 
-	return stacksz && chThdCreateStatic(stackarea, stacksz, prio, fn, param) != NULL;
+	if (!stacksz) return NULL;
+	return chThdCreateStatic(stackarea, stacksz, prio, fn, param);
 }
 
 #endif /* GFX_USE_OS_CHIBIOS */

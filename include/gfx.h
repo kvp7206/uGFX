@@ -35,6 +35,19 @@
 	#define TRUE        -1
 #endif
 
+/**
+ * @brief   Mark a function as deprecated.
+ */
+#ifndef DEPRECATED
+	#if defined(__GNUC__) || defined(__MINGW32_) || defined(__CYGWIN__)
+		#define DEPRECATED(msg)		__attribute__((deprecated(msg)))
+	#elif defined(_MSC_VER)
+		#define DEPRECATED(msg)		__declspec(deprecated(msg))
+	#else
+		#define DEPRECATED(msg)
+	#endif
+#endif
+
 /* gfxconf.h is the user's project configuration for the GFX system. */
 #include "gfxconf.h"
 
@@ -199,8 +212,8 @@ extern "C" {
 	 */
 	void gfxInit(void);
 
-	/* compatibility for old programs - throws a #warning */
-	void gdispInit(void);
+	/* Compatibility for old programs */
+	void DEPRECATED("Use gfxInit() instead") gdispInit(void);
 
 #ifdef __cplusplus
 }

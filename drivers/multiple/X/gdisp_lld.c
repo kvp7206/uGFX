@@ -117,8 +117,8 @@ static void ProcessEvent(void) {
 
 /* this is the X11 thread which keeps track of all events */
 #if GDISP_THREAD_CHIBIOS
-	static DECLARESTACK(waXThread, 1024);
-	static threadreturn_t ThreadX(void *arg) {
+	static DECLARE_THREAD_STACK(waXThread, 1024);
+	static DECLARE_THREAD_FUNCTION(ThreadX, arg) {
 		(void)arg;
 
 		while(1) {
@@ -159,12 +159,12 @@ bool_t gdisp_lld_init(void)
 	XSetWindowAttributes	xa;
 	XTextProperty			WindowTitle;
 	char *					WindowTitleText;
-	#if !GDISP_THREAD_CHIBIOS
+	#if GDISP_THREAD_CHIBIOS
+		gfxThreadHandle			hth;
+	#else
 		pthread_attr_t			thattr;
 		pthread_t				thid;
-	#endif
 
-	#if !GDISP_THREAD_CHIBIOS
 		XInitThreads();
 	#endif
 
@@ -228,16 +228,21 @@ bool_t gdisp_lld_init(void)
 		ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask);
 
 	#if GDISP_THREAD_CHIBIOS
-		if (!gfxCreateThread(waXThread, sizeof(waXThread), HIGH_PRIORITY, ThreadX, 0)) {
+		if (!(hth = gfxThreadCreate(waXThread, sizeof(waXThread), HIGH_PRIORITY, ThreadX, 0))) {
+			fprintf(stderr, "Cannot start X Thread\n");
+			XCloseDisplay(dis);
+			exit(0);
+		}
+		gfxThreadClose(hth);
 	#else
 		if (pthread_attr_init(&thattr)
 				|| pthread_attr_setdetachstate(&thattr, PTHREAD_CREATE_DETACHED)
 				|| pthread_create(&thid, &thattr, ThreadX, 0)) {
+			fprintf(stderr, "Cannot start X Thread\n");
+			XCloseDisplay(dis);
+			exit(0);
+		}
 	#endif
-		fprintf(stderr, "Cannot start X Thread\n");
-		XCloseDisplay(dis);
-		exit(0);
-	}
 	
     /* Initialise the GDISP structure to match */
     GDISP.Orientation = GDISP_ROTATE_0;

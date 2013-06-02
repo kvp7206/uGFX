@@ -51,21 +51,21 @@ typedef cnt_t		semcount_t;
 typedef msg_t		threadreturn_t;
 typedef tprio_t		threadpriority_t;
 
-typedef threadreturn_t (*gfxThreadFunction)(void *param);
-
 #define MAX_SEMAPHORE_COUNT			((semcount_t)(((unsigned long)((semcount_t)(-1))) >> 1))
 #define LOW_PRIORITY				LOWPRIO
 #define NORMAL_PRIORITY				NORMALPRIO
 #define HIGH_PRIORITY				HIGHPRIO
-#define DECLARESTACK(name, sz)		WORKING_AREA(name, sz);
 
+#define DECLARE_THREAD_STACK(name, sz)			WORKING_AREA(name, sz)
+#define DECLARE_THREAD_FUNCTION(fnName, param)	threadreturn_t fnName(void *param)
 
 typedef struct {
 	Semaphore	sem;
 	semcount_t	limit;
 	} gfxSem;
 
-#define gfxMutex	Mutex
+typedef Mutex		gfxMutex;
+typedef Thread *	gfxThreadHandle;
 
 /*===========================================================================*/
 /* Function declarations.                                                    */
@@ -85,7 +85,7 @@ extern "C" {
 #define gfxSystemLock()				chSysLock()
 #define gfxSystemUnlock()			chSysUnlock()
 #define gfxMutexInit(pmutex)		chMtxInit(pmutex)
-#define gfxMutexDestroy(pmutex)		;
+#define gfxMutexDestroy(pmutex)		{}
 #define gfxMutexEnter(pmutex)		chMtxLock(pmutex)
 #define gfxMutexExit(pmutex)		chMtxUnlock()
 void gfxSleepMilliseconds(delaytime_t ms);
@@ -97,7 +97,10 @@ void gfxSemSignal(gfxSem *psem);
 void gfxSemSignalI(gfxSem *psem);
 #define gfxSemCounterI(psem)		((psem)->sem.s_cnt)
 #define gfxSemCounter(psem)			((psem)->sem.s_cnt)
-bool_t gfxCreateThread(void *stackarea, size_t stacksz, threadpriority_t prio, gfxThreadFunction fn, void *param);
+gfxThreadHandle gfxThreadCreate(void *stackarea, size_t stacksz, threadpriority_t prio, DECLARE_THREAD_FUNCTION((*fn),p), void *param);
+#define gfxThreadWait(thread)		chThdWait(thread)
+#define gfxThreadMe()				chThdSelf()
+#define gfxThreadClose(thread)		{}
 
 #ifdef __cplusplus
 }

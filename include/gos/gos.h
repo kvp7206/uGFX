@@ -61,10 +61,15 @@
 	typedef short			semcount_t;
 	typedef int				threadreturn_t;
 	typedef int				threadpriority_t;
+
 	/**
-	 * @brief	A function for a new thread to execute.
+	 * @brief	Declare a thread stack and function
+	 * @{
 	 */
-	typedef threadreturn_t (*gfxThreadFunction)(void *param);
+	#define DECLARE_THREAD_FUNCTION(fnName, param)	threadreturn_t fnName(void *param)
+	#define DECLARE_THREAD_STACK(name, sz)			uint8_t name[sz];
+	/* @} */
+
 	/**
 	 * @}
 	 *
@@ -80,7 +85,6 @@
 	#define LOW_PRIORITY				0
 	#define NORMAL_PRIORITY				1
 	#define HIGH_PRIORITY				2
-	#define DECLARESTACK(name, sz)		uint8_t name[sz];
 	/* @} */
 
 	/**
@@ -94,6 +98,12 @@
 	 * @note	Your operating system will have a proper definition for this structure
 	 */
 	typedef struct {} gfxMutex;
+
+	/**
+	 * @brief	A thread handle
+	 * @note	Your operating system will have a proper definition for this.
+	 */
+	typedef void * gfxThreadHandle;
 
 	/*===========================================================================*/
 	/* Function declarations.                                                    */
@@ -355,7 +365,7 @@
 
 	/**
 	 * @brief	Start a new thread.
-	 * @return	Return TRUE if the thread was started, FALSE on an error
+	 * @return	Returns a thread handle if the thread was started, NULL on an error
 	 *
 	 * @param[in]	stackarea	A pointer to the area for the new threads stack or NULL to dynamically allocate it
 	 * @param[in]	stacksz		The size of the thread stack. 0 means the default operating system size although this
@@ -366,7 +376,38 @@
 	 *
 	 * @api
 	 */
-	bool_t gfxCreateThread(void *stackarea, size_t stacksz, threadpriority_t prio, gfxThreadFunction fn, void *param);
+	gfxThreadHandle gfxThreadCreate(void *stackarea, size_t stacksz, threadpriority_t prio, DECLARE_THREAD_FUNCTION((*fn),p), void *param);
+
+	/**
+	 * @brief	Wait for a thread to finish.
+	 * @return	Returns the thread exit code.
+	 *
+	 * @param[in]	thread		The Thread Handle
+	 *
+	 * @note		This will also close the thread handle as it is no longer useful
+	 * 				once the thread has ended.
+	 * @api
+	 */
+	threadreturn_t gfxThreadWait(gfxThreadHandle thread);
+
+	/**
+	 * @brief	Get the current thread handle.
+	 * @return	A thread handle
+	 *
+	 * @api
+	 */
+	gfxThreadHandle gfxThreadMe(void);
+
+	/**
+	 * @brief	Close the thread handle.
+	 *
+	 * @param[in]	thread		The Thread Handle
+	 *
+	 * @note	This does not affect the thread, it just closes our handle to the thread.
+	 *
+	 * @api
+	 */
+	 void gfxThreadClose(gfxThreadHandle thread);
 
 	#ifdef __cplusplus
 	}

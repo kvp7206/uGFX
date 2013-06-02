@@ -39,7 +39,7 @@
 	static gfxMutex			gdispMsgsMutex;
 	static gfxSem			gdispMsgsSem;
 	static gdisp_lld_msg_t	gdispMsgs[GDISP_QUEUE_SIZE];
-	static 					DECLARESTACK(waGDISPThread, GDISP_THREAD_STACK_SIZE);
+	static 					DECLARE_THREAD_STACK(waGDISPThread, GDISP_THREAD_STACK_SIZE);
 #endif
 
 /*===========================================================================*/
@@ -47,7 +47,7 @@
 /*===========================================================================*/
 
 #if GDISP_NEED_ASYNC
-	static threadreturn_t GDISPThreadHandler(void *arg) {
+	static DECLARE_THREAD_FUNCTION(GDISPThreadHandler, arg) {
 		(void)arg;
 		gdisp_lld_msg_t	*pmsg;
 
@@ -111,7 +111,8 @@
 	}
 #elif GDISP_NEED_ASYNC
 	void _gdispInit(void) {
-		unsigned	i;
+		unsigned		i;
+		gfxThreadHandle	hth;
 
 		/* Mark all the Messages as free */
 		for(i=0; i < GDISP_QUEUE_SIZE; i++)
@@ -126,7 +127,8 @@
 		gfxMutexInit(&gdispMsgsMutex);
 		gfxSemInit(&gdispMsgsSem, GDISP_QUEUE_SIZE, GDISP_QUEUE_SIZE);
 
-		gfxCreateThread(waGDISPThread, sizeof(waGDISPThread), NORMAL_PRIORITY, GDISPThreadHandler, NULL);
+		hth = gfxThreadCreate(waGDISPThread, sizeof(waGDISPThread), NORMAL_PRIORITY, GDISPThreadHandler, NULL);
+		if (hth) gfxThreadClose(hth);
 
 		/* Initialise driver - synchronous */
 		gfxMutexEnter(&gdispMutex);

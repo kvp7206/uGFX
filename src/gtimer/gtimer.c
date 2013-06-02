@@ -26,16 +26,16 @@
 
 /* This mutex protects access to our tables */
 static gfxMutex			mutex;
-static bool_t 			haveThread = 0;
+static gfxThreadHandle	hThread = 0;
 static GTimer			*pTimerHead = 0;
 static gfxSem			waitsem;
-static DECLARESTACK(waTimerThread, GTIMER_THREAD_WORKAREA_SIZE);
+static DECLARE_THREAD_STACK(waTimerThread, GTIMER_THREAD_WORKAREA_SIZE);
 
 /*===========================================================================*/
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
-static threadreturn_t GTimerThreadHandler(void *arg) {
+static DECLARE_THREAD_FUNCTION(GTimerThreadHandler, arg) {
 	(void)arg;
 	GTimer			*pt;
 	systemticks_t	tm;
@@ -131,8 +131,10 @@ void gtimerStart(GTimer *pt, GTimerFunction fn, void *param, bool_t periodic, de
 	gfxMutexEnter(&mutex);
 	
 	// Start our thread if not already going
-	if (!haveThread)
-		haveThread = gfxCreateThread(waTimerThread, sizeof(waTimerThread), HIGH_PRIORITY, GTimerThreadHandler, NULL);
+	if (!hThread) {
+		hThread = gfxThreadCreate(waTimerThread, sizeof(waTimerThread), HIGH_PRIORITY, GTimerThreadHandler, NULL);
+		if (hThread) gfxThreadClose(hThread);		// We never really need the handle again
+	}
 
 	// Is this already scheduled?
 	if (pt->flags & GTIMER_FLG_SCHEDULED) {

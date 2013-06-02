@@ -30,6 +30,9 @@
 //#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+/* Stop cygwin from defining these types */
+#define __int8_t_defined
+
 /**
  * size_t
  * TRUE, FALSE
@@ -45,10 +48,11 @@ typedef unsigned __int32	uint32_t;
 typedef DWORD				delaytime_t;
 typedef DWORD				systemticks_t;
 typedef LONG				semcount_t;
-#define threadreturn_t	DWORD WINAPI
+typedef DWORD				threadreturn_t;
 typedef int					threadpriority_t;
 
-typedef threadreturn_t (*gfxThreadFunction)(void *param);
+#define DECLARE_THREAD_FUNCTION(fnName, param)	threadreturn_t WINAPI fnName(void *param)
+#define DECLARE_THREAD_STACK(name, sz)			uint8_t name[0];
 
 #define TIME_IMMEDIATE				0
 #define TIME_INFINITE				INFINITE
@@ -56,10 +60,10 @@ typedef threadreturn_t (*gfxThreadFunction)(void *param);
 #define LOW_PRIORITY				THREAD_PRIORITY_BELOW_NORMAL
 #define NORMAL_PRIORITY				THREAD_PRIORITY_NORMAL
 #define HIGH_PRIORITY				THREAD_PRIORITY_ABOVE_NORMAL
-#define DECLARESTACK(name, sz)		uint8_t name[0];
 
 typedef HANDLE gfxSem;
 typedef HANDLE gfxMutex;
+typedef HANDLE gfxThreadHandle;
 
 #define gfxExit()						ExitProcess(0)
 #define gfxAlloc(sz)					malloc(sz)
@@ -77,6 +81,8 @@ typedef HANDLE gfxMutex;
 #define gfxSemSignal(psem)				ReleaseSemaphore(*(psem), 1, NULL)
 #define gfxSemSignalI(psem)				ReleaseSemaphore(*(psem), 1, NULL)
 #define gfxSemCounterI(psem)			gfxSemCounter(psem)
+#define gfxThreadMe()					GetCurrentThread()
+#define gfxThreadClose(thread)			CloseHandle(thread)
 
 /*===========================================================================*/
 /* Function declarations.                                                    */
@@ -92,7 +98,8 @@ bool_t gfxSemWait(gfxSem *psem, delaytime_t ms);
 semcount_t gfxSemCounter(gfxSem *pSem);
 void gfxSystemLock(void);
 void gfxSystemUnlock(void);
-bool_t gfxCreateThread(void *stackarea, size_t stacksz, threadpriority_t prio, gfxThreadFunction fn, void *param);
+gfxThreadHandle gfxThreadCreate(void *stackarea, size_t stacksz, threadpriority_t prio, DECLARE_THREAD_FUNCTION((*fn),p), void *param);
+threadreturn_t gfxThreadWait(gfxThreadHandle thread);
 
 #ifdef __cplusplus
 }

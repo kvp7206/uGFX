@@ -170,7 +170,7 @@ void geventSendEvent(GSourceListener *psl) {
 
 	} else {
 		// Wake up the listener
-		if (gfxSemCounter(&psl->pListener->waitqueue) < 0)
+		if (gfxSemCounter(&psl->pListener->waitqueue) <= 0)
 			gfxSemSignal(&psl->pListener->waitqueue);
 		gfxMutexExit(&geventMutex);
 	}
