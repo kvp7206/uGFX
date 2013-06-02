@@ -1,31 +1,18 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012, 2013
-                 Joel Bodenmann aka Tectu <joel@unormal.org>
-
-    This file is part of ChibiOS/GFX.
-
-    ChibiOS/GFX is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    ChibiOS/GFX is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is subject to the terms of the GFX License, v1.0. If a copy of
+ * the license was not distributed with this file, you can obtain one at:
+ *
+ *              http://chibios-gfx.com/license.html
+ */
 
 /**
- * @file  		include/tdisp/tdisp.h
- * @brief  		TDISP Graphic Driver subsystem header file.
+ * @file    include/tdisp/tdisp.h
+ * @brief   TDISP Graphic Driver subsystem header file.
  *
- * @addtogroup 		TDISP
+ * @addtogroup TDISP
  *
  * @details		The TDISP module provides high level abstraction to interface pixel oriented graphic displays.
- *			Due the TDISP module is completely encapsulated from the other modules, it's very fast and lightweight.
+ *				Due the TDISP module is completely encapsulated from the other modules, it's very fast and lightweight.
  *
  * @pre			GFX_USE_TDISP must be set to TRUE in gfxconf.h
  *
@@ -38,10 +25,9 @@
 #include "gfx.h"
 
 #if GFX_USE_TDISP || defined(__DOXYGEN__)
-#include <sys/types.h>
 
 /**
- * @brief		TDISP cursor shape definitions
+ * @brief	TDISP cursor shape definitions
  */
 typedef enum cursorshape_e {
 	cursorOff,
@@ -124,7 +110,7 @@ typedef struct tdispStruct_t {
 } tdispStruct;
 
 /**
- * @brief		The TDISP structure
+ * @brief	The TDISP structure
  */
 extern tdispStruct	TDISP;
 
@@ -133,11 +119,11 @@ extern "C" {
 #endif
 
 /**
- * @brief		TDISP driver initialisation
- * @note		This function is not implicitly invoked by @p halInit().
+ * @brief	TDISP driver initialisation
+ * @note	This function is not implicitly invoked by @p halInit().
  *			It must be called manually.
  *
- * @return		TRUE if success, FALSE otherwise
+ * @return	TRUE if success, FALSE otherwise
  *
  * @init
  */
@@ -151,12 +137,12 @@ bool_t tdispInit(void);
 void tdispClear(void);
 
 /**
- * @brief		Sets the cursor to it's home position ( 0, 0 )
+ * @brief	Sets the cursor to it's home position ( 0, 0 )
  */
 void tdispHome(void);
 
 /**
- * @brief		Set cursor to a specified position
+ * @brief	Set cursor to a specified position
  *
  * @param[in] col	The column	(x)
  * @param[in] row	The row		(y)
@@ -164,36 +150,36 @@ void tdispHome(void);
 void tdispSetCursor(coord_t col, coord_t row);
 
 /**
- * @brief		Store a custom character into the display
+ * @brief	Store a custom character into the display
  *
- * @note		This usually must be done after each power-up since most
+ * @note	This usually must be done after each power-up since most
  *			LCDs lose their RAM content.
  *
- * @param[in] address	On which address to store the character from 0 up to (@p tdispGetNumCustomChars() - 1)
- * @param[in] charmap	The character to be stored.
+ * @param[in] address		On which address to store the character from 0 up to (@p tdispGetNumCustomChars() - 1)
+ * @param[in] charmap		The character to be stored.
  *
- * @note		The charmap is made up of @p tdispGetCharBitHieght() data values. Each data value is
- * 			made up of @p tdispGetCharBitWidth() bits of data. Note that bits in multiple rows are not
- * 			packed.
+ * @note					The charmap is made up of @p tdispGetCharBitHieght() data values. Each data value is
+ * 							made up of @p tdispGetCharBitWidth() bits of data. Note that bits in multiple rows are not
+ * 							packed.
  */
 void tdispCreateChar(uint8_t address, uint8_t *charmap);
 
 /**
- * @brief		Draws a single character at the current cursor position and advances the cursor
+ * @brief	Draws a single character at the current cursor position and advances the cursor
  *
  * @param[in] c		The character to be drawn
  *
- * @note		Writing past the end of a row leaves the cursor in an undefined position.
+ * @note			Writing past the end of a row leaves the cursor in an undefined position.
  */
 void tdispDrawChar(char c);
 
 /**
- * @brief		Draws a string at the current cursor position and advances the cursor
+ * @brief	Draws a string at the current cursor position and advances the cursor
  *
  * @param[in] s		The string to be drawn
  *
- * @note		Any characters written past the end of a row may or may not be displayed on
- * 			the next row. The cursor is also left in an undefined position.
+ * @note			Any characters written past the end of a row may or may not be displayed on
+ * 					the next row. The cursor is also left in an undefined position.
  */
 void tdispDrawString(char *s);
 

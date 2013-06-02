@@ -1,22 +1,9 @@
 /*
-    ChibiOS/GFX - Copyright (C) 2012, 2013
-                 Joel Bodenmann aka Tectu <joel@unormal.org>
-
-    This file is part of ChibiOS/GFX.
-
-    ChibiOS/GFX is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    ChibiOS/GFX is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is subject to the terms of the GFX License, v1.0. If a copy of
+ * the license was not distributed with this file, you can obtain one at:
+ *
+ *              http://chibios-gfx.com/license.html
+ */
 
 /**
  * @file    drivers/tdisp/HD44780/tdisp_lld.c
@@ -26,11 +13,9 @@
  * @{
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
-#if GFX_USE_TDISP || defined(__DOXYGEN__)
+#if GFX_USE_TDISP /*|| defined(__DOXYGEN__)*/
 
 /* check first if the user has defined his/her own lowlevel-board file */
 #if defined(TDISP_USE_CUSTOM_BOARD) && TDISP_USE_CUSTOM_BOARD
@@ -82,7 +67,7 @@ bool_t tdisp_lld_init(void) {
 	 */
 	
 	/* Give the LCD a little time to wake up */
-	chThdSleepMilliseconds(15);
+	gfxSleepMilliseconds(15);
 	
 	/* clear the RS-line to the display */
 	palClearPad(PORT_CTRL, PIN_RS);
@@ -91,16 +76,16 @@ bool_t tdisp_lld_init(void) {
 		* with RS = low.
 		*/
 		writeToLCD(0x03); // 1x
-		chThdSleepMilliseconds(20);
+		gfxSleepMilliseconds(20);
 		writeToLCD(0x03); // 2x
-// 		chThdSleepMilliseconds(20);
+// 		gfxSleepMilliseconds(20);
 		writeToLCD(0x03); // 3x
-// 		chThdSleepMilliseconds(20);
+// 		gfxSleepMilliseconds(20);
 		/* Put display in 4-bit mode by
 		* write 0x02 to display.
 		*/
 		writeToLCD(0x02); // 4bit-modus
-// 		chThdSleepMilliseconds(20);
+// 		gfxSleepMilliseconds(20);
 // 	#else
 		/* write three times 0x30 to display (8-bit mode only)
 		* with RS = low.
@@ -118,14 +103,14 @@ bool_t tdisp_lld_init(void) {
 	
 	/* 4-bit modus, 2 lines en 5x7 characters */
 	write_cmd(0x28);
-// 	chThdSleepMilliseconds(20);
+// 	gfxSleepMilliseconds(20);
 	
 	/* set display on, cursor off and no blinking */
 	write_cmd(0x0C);
-// 	chThdSleepMilliseconds(20);
+// 	gfxSleepMilliseconds(20);
 	/* set cursor increase and direction */
 	write_cmd(0x06);
-// 	chThdSleepMilliseconds(20);
+// 	gfxSleepMilliseconds(20);
 	
 	displaycontrol = TDISP_DISPLAY_ON;
 	cursorcontrol = TDISP_CURSOR_INC;
@@ -252,7 +237,7 @@ void tdisp_lld_scroll(uint16_t direction, uint16_t amount, uint16_t delay) {
   
   for(i = 0; i < amount; i++) {
     write_cmd(0x10 | scrollcontrol);
-    chThdSleepMilliseconds(delay);	
+    gfxSleepMilliseconds(delay);	
   }
 }
 
