@@ -26,7 +26,7 @@ static const GCheckboxColor defaultColors = {
 };
 
 /* default style drawing routine */
-static void gwinCheckboxDrawDefaultStyle(GHandle gh, bool_t enabled, bool_t state, void* param) {
+static void gwinCheckboxDrawDefaultStyle(GHandle gh, bool_t enabled, bool_t isChecked, void* param) {
 	#define gcw		((GCheckboxObject *)gh)
 
 	(void) enabled;
@@ -34,7 +34,7 @@ static void gwinCheckboxDrawDefaultStyle(GHandle gh, bool_t enabled, bool_t stat
 
 	gdispDrawBox(gh->x, gh->y, gh->width, gh->height, gcw->colors->border);
 
-	if (state)
+	if (isChecked)
 		gdispFillArea(gh->x+2, gh->y+2, gh->width-4, gh->height-4, gcw->colors->checked);
 	else
 		gdispFillArea(gh->x+2, gh->y+2, gh->width-4, gh->height-4, gcw->colors->bg);
@@ -70,7 +70,7 @@ static void gwinCheckboxCallback(void *param, GEvent *pe) {
 					&& pme->x >= gbw->gwin.x && pme->x < gbw->gwin.x + gbw->gwin.width
 					&& pme->y >= gbw->gwin.y && pme->y < gbw->gwin.y + gbw->gwin.height) {
 
-				gbw->state = !gbw->state;
+				gbw->isChecked = !gbw->isChecked;
 
 				gwinCheckboxDraw((GHandle)param);
 			}
@@ -88,7 +88,7 @@ static void gwinCheckboxCallback(void *param, GEvent *pe) {
 			continue;
 		pbe->type = GEVENT_GWIN_CHECKBOX;
 		pbe->checkbox = gh;
-		pbe->state = gbw->state;
+		pbe->isChecked = gbw->isChecked;
 		geventSendEvent(psl);
 	}	
 
@@ -109,7 +109,7 @@ GHandle gwinCheckboxCreate(GCheckboxObject *gb, coord_t x, coord_t y, coord_t wi
 	gb->fn = gwinCheckboxDrawDefaultStyle;	// set the default style drawing routine 
 	gb->colors = &defaultColors;			// asign the default colors
 	gb->param = 0;							// some safe value here
-	gb->state = GCHBX_UNCHECKED;			// checkbox is currently unchecked
+	gb->isChecked = GCHBX_UNCHECKED;		// checkbox is currently unchecked
 	gb->gwin.enabled = TRUE;				// checkboxes are enabled by default
 
 	geventListenerInit(&gb->listener);
@@ -140,7 +140,7 @@ void gwinCheckboxDraw(GHandle gh) {
 
 	gcw->fn(gh,
             gcw->gwin.enabled,
-            gcw->state,
+            gcw->isChecked,
             gcw->param);
 
 	#undef gcw

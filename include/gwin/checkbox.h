@@ -38,7 +38,7 @@
 typedef struct GEventGWinCheckbox_t {
 	GEventType		type;			// The type of this event (GEVENT_GWIN_CHECKBOX)
 	GHandle			checkbox;		// The checkbox that has been depressed (actually triggered on release)
-	bool_t			state			// Is the checkbox currently checked or unchecked?
+	bool_t			isChecked;		// Is the checkbox currently checked or unchecked?
 } GEventGWinCheckbox;
 
 typedef enum GCheckboxShape_e {
@@ -65,7 +65,7 @@ typedef struct GCheckboxObject_t {
 
 	GCheckboxDrawFunction	fn;
 	GCheckboxColor			*colors;
-	bool_t					state;
+	bool_t					isChecked;
 	void					*param;
 } GCheckboxObject;
 
@@ -127,7 +127,7 @@ void gwinCheckboxSetEnabled(GHandle gh, bool_t enabled);
  *
  * @api
  */
-#define gwinCheckboxGetState(gh)	(((GCheckboxObject *)(gh))->state)
+#define gwinCheckboxGetState(gh)	(((GCheckboxObject *)(gh))->isChecked)
 
 /**
  * @brief 	Get the source handle of a checkbox
