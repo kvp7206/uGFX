@@ -539,10 +539,11 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 #endif
 
 /* Include extra window types */
-#include "gwin/console.h"
-#include "gwin/button.h"
-#include "gwin/graph.h"
-#include "gwin/slider.h"
+#include "gwin/console.h"		/* 0x0001 */
+#include "gwin/button.h"		/* 0x0002 */
+#include "gwin/graph.h"			/* 0x0003 */
+#include "gwin/slider.h"		/* 0x0004 */
+#include "gwin/checkbox.h"		/* 0x0005 */
 
 #endif /* GFX_USE_GWIN */
 
