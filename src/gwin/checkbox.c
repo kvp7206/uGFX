@@ -88,6 +88,7 @@ static void gwinCheckboxCallback(void *param, GEvent *pe) {
 			continue;
 		pbe->type = GEVENT_GWIN_CHECKBOX;
 		pbe->checkbox = gh;
+		pbe->state = gbw->state;
 		geventSendEvent(psl);
 	}	
 

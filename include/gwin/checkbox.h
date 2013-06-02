@@ -36,8 +36,9 @@
 /*===========================================================================*/
 
 typedef struct GEventGWinCheckbox_t {
-	GEventType		type;				// The type of this event (GEVENT_GWIN_CHECKBOX)
-	GHandle			checkbox;			// The checkbox that has been depressed (actually triggered on release)
+	GEventType		type;			// The type of this event (GEVENT_GWIN_CHECKBOX)
+	GHandle			checkbox;		// The checkbox that has been depressed (actually triggered on release)
+	bool_t			state			// Is the checkbox currently checked or unchecked?
 } GEventGWinCheckbox;
 
 typedef enum GCheckboxShape_e {
