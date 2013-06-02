@@ -1,3 +1,10 @@
 docs/html
+build
+.build
+.dep
+.cproject
+.project
+*.stackdump
 *.lst
 *.o
+*.map
