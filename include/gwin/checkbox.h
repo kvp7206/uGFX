@@ -46,12 +46,14 @@ typedef enum GCheckboxShape_e {
 } GCheckboxShape;
 
 typedef enum GCheckboxState_e {
-	GCHBX_SET, GCHBX_UNSET
+	GCHBX_UNCHECKED, GCHBX_CHECKED
 } GCheckboxState;
 
-typedef struct GCheckboxDrawStyle_t {
-	color_t color;
-} GCheckboxDrawStyle;
+typedef struct GCheckboxColor_t {
+	color_t	border;
+	color_t checked;
+	color_t bg;
+} GCheckboxColor;
 
 /* custom rendering interface */
 typedef void (*GCheckboxDrawFunction)(GHandle gh, bool_t enabled, bool_t state, void* param);
@@ -62,8 +64,7 @@ typedef struct GCheckboxObject_t {
 	GListener				listener;
 
 	GCheckboxDrawFunction	fn;
-	GCheckboxDrawStyle		set;
-	GCheckboxDrawStyle		unset;
+	GCheckboxColor			*colors;
 	bool_t					state;
 	void					*param;
 } GCheckboxObject;
@@ -122,7 +123,7 @@ void gwinCheckboxSetEnabled(GHandle gh, bool_t enabled);
  *
  * @param[in] gh	The window handle (must be a checkbox window)
  *
- * @return	The state of the checkbox (GCHBX_SET or GCHBX_UNSET)
+ * @return	The state of the checkbox (GCHBX_CHECKED or GCHBX_UNCHECKED)
  *
  * @api
  */
@@ -148,27 +149,7 @@ void gwinCheckboxSetEnabled(GHandle gh, bool_t enabled);
 	 * @api
 	 */
 	bool_t gwinCheckboxAttachMouse(GHandle gh, uint16_t instance);
-#endif
-
-/**
- * @brief	Standard checkbox drawing routines
- * @details	These routines are called to draw the standard checkbox styles.
- *
- * @param[in] gh		The checkbox handle
- * @param[in] enabled	Is the checkbox currently enabled or disabled
- * @param[in] state		Is the checkbox currently set or unset
- * @param[in] param		A parameter passed from the user
- *
- * @note				In your custom checkbox drawing function, you may optionally call these
- *						standard functions and then draw your extra details on top.
- * @note				The standard functions below ignore the param parameter. It is there only
- *						to ensure the functions match the GCheckboxDrawFunction type.
- *
- * @api
- * @{
- */
-void gwinCheckboxDraw_Normal(GHandle gh, bool_t enabled, bool_t state, void *param);
-/** @} */
+#endif /* GFX_USE_GINPUT && GINPUT_NEED_MOUSE */
 
 #endif /* _GWIN_NEED_CHECKBOX */
 

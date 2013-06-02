@@ -19,13 +19,28 @@
 
 #if (GFX_USE_GWIN && GWIN_NEED_CHECKBOX) || defined(__DOXYGEN__)
 
-static const GCheckboxDrawStyle GCheckboxDefaultStyleSelected = {
-	Green
+static const GCheckboxColor defaultColors = {
+	Grey,	// border
+	Grey,	// selected
+	Black	// background
 };
 
-static const GCheckboxDrawStyle GCheckboxDefaultStyleUnselected = {
-	Red
-};
+/* default style drawing routine */
+static void gwinCheckboxDrawDefaultStyle(GHandle gh, bool_t enabled, bool_t state, void* param) {
+	#define gcw		((GCheckboxObject *)gh)
+
+	(void) enabled;
+	(void) param;
+
+	gdispDrawBox(gh->x, gh->y, gh->width, gh->height, gcw->colors->border);
+
+	if (state)
+		gdispFillArea(gh->x+2, gh->y+2, gh->width-4, gh->height-4, gcw->colors->checked);
+	else
+		gdispFillArea(gh->x+2, gh->y+2, gh->width-4, gh->height-4, gcw->colors->bg);
+
+	#undef gcw
+}
 
 /* process an event callback */
 static void gwinCheckboxCallback(void *param, GEvent *pe) {
@@ -78,12 +93,13 @@ GHandle gwinCheckboxCreate(GCheckboxObject *gb, coord_t x, coord_t y, coord_t wi
 	if (!(gb = (GCheckboxObject *)_gwinInit((GWindowObject *)gb, x, y, width, height, sizeof(GCheckboxObject))))
 		return 0;
 
-	gb->gwin.type = GW_CHECKBOX;
-	gb->fn = 0;
-	gb->param = 0;
-	gb->state = GCHBX_UNSET;
+	gb->gwin.type = GW_CHECKBOX;			// create a window of the type checkbox
+	gb->fn = gwinCheckboxDrawDefaultStyle;	// set the default style drawing routine 
+	gb->colors = &defaultColors;			// asign the default colors
+	gb->param = 0;							// some safe value here
+	gb->state = GCHBX_UNCHECKED;			// checkbox is currently unchecked
+	gb->gwin.enabled = TRUE;				// checkboxes are enabled by default
 
-	gwinCheckboxSetStyle(&gb->gwin, GCHBX_NORMAL, &GCheckboxDefaultStyleSelected, &GCheckboxDefaultStyleUnselected);
 	geventListenerInit(&gb->listener);
 	geventRegisterCallback(&gb->listener, gwinCheckboxCallback, gb);
 
@@ -91,33 +107,6 @@ GHandle gwinCheckboxCreate(GCheckboxObject *gb, coord_t x, coord_t y, coord_t wi
 	gb->gwin.enabled = TRUE;
 
 	return (GHandle)gb;
-}
-
-void gwinCheckboxSetStyle(GHandle gh, GCheckboxShape shape, const GCheckboxDrawStyle *pSelected, const GCheckboxDrawStyle *pUnselected) {
-	#define gcw		((GCheckboxObject *)gh)
-
-	if (gh->type != GW_CHECKBOX)
-		return;
-
-	switch (shape) {
-		case GCHBX_NORMAL:
-			gcw->fn = gwinCheckboxDraw_Normal;
-			break;
-
-		default:
-			gcw->fn = gwinCheckboxDraw_Normal;
-			break;
-	}
-
-	if (pSelected) {
-		gcw->set.color = pSelected->color;
-	}
-
-	if (pUnselected) {
-		gcw->unset.color = pSelected->color;
-	}
-
-	#undef gcw
 }
 
 void gwinCheckboxSetEnabled(GHandle gh, bool_t enabled) {
@@ -145,16 +134,6 @@ void gwinCheckboxDraw(GHandle gh) {
 	#undef gcw
 }
 
-void gwinCheckboxDraw_Normal(GHandle gh, bool_t enabled, bool_t state, void* param) {
-	(void) enabled;
-	(void) param;
-
-	if (state)
-		gdispClear(Green);
-	else
-		gdispClear(Red);
-}
-
 #if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
 	bool_t gwinCheckboxAttachMouse(GHandle gh, uint16_t instance) {
 		GSourceHandle gsh;
@@ -165,6 +144,19 @@ void gwinCheckboxDraw_Normal(GHandle gh, bool_t enabled, bool_t state, void* par
 		return geventAttachSource(&((GCheckboxObject *)gh)->listener, gsh, GLISTEN_MOUSEMETA);
 	}
 #endif
+
+void gwinCheckboxSetColors(GHandle gh, color_t border, color_t checked, color_t bg) {
+	#define gcw		((GCheckboxObject *)gh)
+
+	if (gh->type != GW_CHECKBOX)
+		return;
+
+	gcw->colors->border = border;
+	gcw->colors->checked = checked,
+	gcw->colors->bg = bg;
+
+	#undef gcw
+}
 
 #endif /* (GFX_USE_GWIN && GWIN_NEED_CHECKBOX) */
 /** @} */
