@@ -74,11 +74,22 @@ static void gwinCheckboxCallback(void *param, GEvent *pe) {
 
 				gwinCheckboxDraw((GHandle)param);
 			}
+			break;
 	#endif /* GFX_USE_GINPUT && GINPUT_NEED_MOUSE */
 
 		default:
 			return;
 	}
+
+	// Trigger a GWIN checkbox event
+	psl = 0;
+	while ((psl = geventGetSourceListener(gsh, psl))) {
+		if (!(pe = geventGetEventBuffer(psl)))
+			continue;
+		pbe->type = GEVENT_GWIN_CHECKBOX;
+		pbe->checkbox = gh;
+		geventSendEvent(psl);
+	}	
 
 	#undef gh
 	#undef pbe
