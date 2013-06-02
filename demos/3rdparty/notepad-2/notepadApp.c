@@ -28,13 +28,11 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Modified by InMarket to allow it to compile on any GFX supported operating system.
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
-
-#include "chprintf.h"
 
 #include "notepadApp.h"
 #include "toolbarIcons.h"
@@ -45,7 +43,7 @@
 // Static objects
 static GListener				gl;               // Event listener object
 static GHandle					nDrawingArea;     // GWindow Drawing Area
-static BaseSequentialStream		*gstatusConsole;  // GConsole Handle to the Status Bar
+static GHandle					gstatusConsole;	  // GConsole Handle to the Status Bar
 
 static GEventMouse				curPtr;           // Holder for current pointer location
 
@@ -72,7 +70,7 @@ static int selColorIndex = 0, selPenWidth = 1, tbMode = 1;
 
 static NColorScheme nCurColorScheme;
 
-static msg_t notepadThread(void *param);
+static DECLARE_THREAD_FUNCTION(notepadThread, param);
 
 // Custom drawing functions for the buttons
 static void nbtnColorBarDraw(GHandle gh, bool_t enabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
@@ -94,7 +92,7 @@ static void nbtnColorBarDraw(GHandle gh, bool_t enabled, bool_t isdown, const ch
 	for (i = 0; i < 8; i++) {
 	  j = gh->x + (NPAD_TOOLBAR_BTN_WIDTH / 2) + NPAD_TOOLBAR_BTN_WIDTH * i;
 
-	  if (isdown == TRUE) {
+	  if (isdown) {
 		// Update selection - this is like lazy release.
 		if (k >= 0 && k <= 7) {
 		  selPenWidth = k + 1;
@@ -124,7 +122,7 @@ static void nbtnColorBarDraw(GHandle gh, bool_t enabled, bool_t isdown, const ch
 	for (i = 0; i < 8; i++) {
 	  j = gh->x + (NPAD_TOOLBAR_BTN_WIDTH / 2) + NPAD_TOOLBAR_BTN_WIDTH * i;
 
-	  if (isdown == TRUE) {
+	  if (isdown) {
 		// Update selection - this is like lazy release.
 		if (k >= 0 && k <= 7) {
 		  selColorIndex = k;
@@ -176,7 +174,7 @@ static void nbtnColorBarSelDraw(GHandle gh, bool_t enabled, bool_t isdown, const
   gdispDrawBox(gh->x + 1, gh->y + 1, gh->width - 2, gh->height - 2, ccs.toolbarBgUnsel);
 
   for (i = 0; i < 2; i++) {
-  	if (isdown == TRUE) {
+  	if (isdown) {
   	  // Update selection - this is like lazy release.
   	  if (k == 0 || k == 1) {
   		tbMode = k;
@@ -231,6 +229,11 @@ static void nToolbarImageButtonDraw(GHandle gh, bool_t isenabled, bool_t isdown,
 }
 
 static void nCloseButtonDraw(GHandle gh, bool_t isenabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
+  (void) isenabled;
+  (void) isdown;
+  (void) txt;
+  (void) pstyle;
+  (void) param;
   gwinImageDraw(gh, &toolbarImageFilmstrip, 0, 0, NPAD_ICON_WIDTH, NPAD_ICON_HEIGHT, NPAD_ICON_START(8), 0);
 }
 
@@ -308,8 +311,8 @@ static void drawVButtons(void) {
   gwinButtonDraw(H(btnFill));
 }
 
-static WORKING_AREA(waNotepadThread, NPAD_THD_WA_SIZE);
-static msg_t notepadThread(void *param) {
+static DECLARE_THREAD_STACK(waNotepadThread, NPAD_THD_WA_SIZE);
+static DECLARE_THREAD_FUNCTION(notepadThread, param) {
 
   GEventMouse		*pem;
   GEventGWinButton	*peb;
@@ -382,7 +385,7 @@ static msg_t notepadThread(void *param) {
   gwinSetBgColor(ghc, nCurColorScheme.winBgColor);
   gwinSetColor(ghc, Black);
 
-  gstatusConsole = gwinGetConsoleStream(ghc);
+  gstatusConsole = ghc;
 
   /* draw the buttons */
   gwinSetColor(nDrawingArea, Black);
@@ -394,7 +397,7 @@ static msg_t notepadThread(void *param) {
   drawButtons();
   drawVButtons();
 
-  chprintf(gstatusConsole, "Welcome to ChibiOS/GFX Notepad demo.");
+  gwinPrintf(gstatusConsole, "Welcome to ChibiOS/GFX Notepad demo.");
 
   ncoreSpawnDrawThread(nDrawingArea, gstatusConsole);
 
@@ -419,28 +422,28 @@ static msg_t notepadThread(void *param) {
 		  drawVButtons();
 
 		  gwinClear(nDrawingArea);
-		  chprintf(gstatusConsole, "\nScreen Cleared.");
+		  gwinPrintf(gstatusConsole, "\nScreen Cleared.");
 		}
 		else if (peb->button == H(btnOpen)) {
-		  chprintf(gstatusConsole, "\nFile Open not implemented.");
+		  gwinPrintf(gstatusConsole, "\nFile Open not implemented.");
 		}
 		else if (peb->button == H(btnSave)) {
-		  chprintf(gstatusConsole, "\nFile Save not implemented.");
+		  gwinPrintf(gstatusConsole, "\nFile Save not implemented.");
 		}
 		else if (peb->button == H(btnPencil)) {
 		  ncoreSetMode(NCORE_MODE_DRAW);
 		  drawVButtons();
-		  chprintf(gstatusConsole, "\nPencil Tool Selected.");
+		  gwinPrintf(gstatusConsole, "\nPencil Tool Selected.");
 		}
 		else if (peb->button == H(btnEraser)) {
 		  ncoreSetMode(NCORE_MODE_ERASE);
 		  drawVButtons();
-		  chprintf(gstatusConsole, "\nEraser Tool Selected.");
+		  gwinPrintf(gstatusConsole, "\nEraser Tool Selected.");
 		}
 		else if (peb->button == H(btnFill)) {
 		  ncoreSetMode(NCORE_MODE_FILL);
 		  drawVButtons();
-		  chprintf(gstatusConsole, "\nFill Tool Selected.");
+		  gwinPrintf(gstatusConsole, "\nFill Tool Selected.");
 		}
 		else if (peb->button == H(btnClose)) {
 		  break;
@@ -461,11 +464,10 @@ static msg_t notepadThread(void *param) {
 void nSetColorScheme(NColorScheme sch)  {  nCurColorScheme = sch; }
 NColorScheme nGetColorScheme(void)      { return nCurColorScheme; }
 
-Thread *nLaunchNotepadApp(void) {
+gfxThreadHandle nLaunchNotepadApp(void) {
 
-  return chThdCreateStatic(waNotepadThread,
+  return gfxThreadCreate(waNotepadThread,
 						   sizeof(waNotepadThread),
 						   NPAD_THD_PRIO,
 						   notepadThread, NULL);
-
 }

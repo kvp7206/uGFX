@@ -28,6 +28,8 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Modified by InMarket to allow it to compile on any GFX supported operating system.
  */
 
 #ifndef NOTEPADCORE_H_
@@ -35,17 +37,17 @@
 
 /* Configuration */
 #define	NCORE_THD_STACK_SIZE	256
-#define NCORE_THD_PRIO			(NORMALPRIO + 1)
+#define NCORE_THD_PRIO			NORMAL_PRIORITY
 
 #define NCORE_MODE_DRAW			0
 #define NCORE_MODE_ERASE		1
 #define NCORE_MODE_FILL			2
 
-#define MAX_DX			500
-#define MAX_DY			500
+#define MAX_DX			5000
+#define MAX_DY			5000
 
 /* Spawn the notepad core thread */
-void ncoreSpawnDrawThread(GHandle drawingArea, BaseSequentialStream *statusConsole);
+void ncoreSpawnDrawThread(GHandle drawingArea, GHandle statusConsole);
 
 /* Terminate the core thread, wait for control release */
 void ncoreTerminateDrawThread(void);

@@ -28,12 +28,12 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Modified by InMarket to allow it to compile on any GFX supported operating system.
  */
 
 #include <stdlib.h>
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #include "notepadCore.h"
@@ -43,15 +43,17 @@
 									 (ev.y >= ncoreDrawingArea->y) && (ev.y <= (ncoreDrawingArea->y + ncoreDrawingArea->height)))
 
 /* This is the drawing core */
-static WORKING_AREA(waDrawThread, NCORE_THD_STACK_SIZE);
+static DECLARE_THREAD_STACK(waDrawThread, NCORE_THD_STACK_SIZE);
 
 static uint8_t 					nPenWidth = 1;
 static uint8_t 					nMode = NCORE_MODE_DRAW;
 
-static Thread					*nThd;
+static gfxThreadHandle			nThd;
 
 static GHandle					ncoreDrawingArea = NULL;
-static BaseSequentialStream		*nStatusConsole = NULL;
+static GHandle					nStatusConsole = NULL;
+
+static volatile bool_t			doExit;
 
 static void draw_point(coord_t x, coord_t y) {
   color_t c = ncoreDrawingArea->color;
@@ -125,7 +127,7 @@ static void draw_line(coord_t x0, coord_t y0, coord_t x1, coord_t y1) {
 }
 
 /* Core thread */
-static msg_t ncoreDrawThread(void *msg) {
+static DECLARE_THREAD_FUNCTION(ncoreDrawThread, msg) {
 
   GEventMouse ev, evPrev;
   coord_t dx, dy;
@@ -136,11 +138,7 @@ static msg_t ncoreDrawThread(void *msg) {
 
   ginputGetMouseStatus(0, &evPrev);
 
-  while (1) {
-
-	// Exit signal received? If yes, terminate.
-	if (chThdShouldTerminate())
-	  return 0;
+  while (!doExit) {
 
 	ginputGetMouseStatus(0, &ev);
 	switch(state) {
@@ -153,13 +151,13 @@ static msg_t ncoreDrawThread(void *msg) {
 				  }
 				}
 				else
-				  chThdYield();
+				  gfxYield();
 				break;
 
 
 	  case 1:   if (ev.meta == GMETA_MOUSE_UP) {
 				  state = 0;
-				  //chprintf(nStatusConsole, "\nPen Up: (%d, %d)", ev.x, ev.y);
+				  //gwinPrintf(nStatusConsole, "\nPen Up: (%d, %d)", ev.x, ev.y);
 				  break;
 				}
 
@@ -191,7 +189,7 @@ static msg_t ncoreDrawThread(void *msg) {
 					}
 				  }
 
-				  //chprintf(nStatusConsole, "\nPen Down: (%d, %d)", ev.x, ev.y);
+				  //gwinPrintf(nStatusConsole, "\nPen Down: (%d, %d)", ev.x, ev.y);
 				}
 				break;
 	}
@@ -202,12 +200,13 @@ static msg_t ncoreDrawThread(void *msg) {
 }
 
 /* Spawn the core thread */
-void ncoreSpawnDrawThread(GHandle drawingArea, BaseSequentialStream *statusConsole) {
+void ncoreSpawnDrawThread(GHandle drawingArea, GHandle statusConsole) {
 
   ncoreDrawingArea = drawingArea;
   nStatusConsole = statusConsole;
+  doExit = FALSE;
 
-  nThd = chThdCreateStatic(waDrawThread,
+  nThd = gfxThreadCreate(waDrawThread,
                            sizeof(waDrawThread),
                            NCORE_THD_PRIO,
                            ncoreDrawThread,
@@ -217,8 +216,9 @@ void ncoreSpawnDrawThread(GHandle drawingArea, BaseSequentialStream *statusConso
 
 /* Terminate the core thread, wait for control release */
 void ncoreTerminateDrawThread(void) {
-  chThdTerminate(nThd);
-  chThdWait(nThd);
+  doExit = TRUE;
+  gfxThreadWait(nThd);
+  nThd = 0;
 }
 
 /* Get and set the pen width

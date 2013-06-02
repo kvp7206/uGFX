@@ -28,6 +28,8 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Modified by InMarket to allow it to compile on any GFX supported operating system.
  */
 
 #ifndef NOTEPADAPP_H_
@@ -36,13 +38,13 @@
 #include "notepadCore.h"
 #include "notepadUIDefines.h"
 
-#define NPAD_THD_PRIO		(NORMALPRIO + 2)
+#define NPAD_THD_PRIO		NORMAL_PRIORITY
 #define NPAD_THD_WA_SIZE	512
 
 void nSetColorScheme(NColorScheme sch);
 NColorScheme nGetColorScheme(void);
 
 
-Thread *nLaunchNotepadApp(void);
+gfxThreadHandle nLaunchNotepadApp(void);
 
 #endif /* NOTEPADAPP_H_ */

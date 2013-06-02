@@ -9,6 +9,11 @@
 #ifndef _GFXCONF_H
 #define _GFXCONF_H
 
+/* GFX operating system to use */
+#define GFX_USE_OS_CHIBIOS		TRUE
+//#define GFX_USE_OS_WIN32		TRUE
+//#define GFX_USE_OS_POSIX		TRUE
+
 /* GFX sub-systems to turn on */
 #define GFX_USE_GDISP			TRUE
 #define GFX_USE_GWIN			TRUE

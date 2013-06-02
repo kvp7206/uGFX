@@ -28,10 +28,10 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Modified by InMarket to allow it to compile on any GFX supported operating system.
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #include "notepadApp.h"
@@ -69,6 +69,7 @@ const NColorScheme schemeDefault2 = {
 const char *tsCalibRead(uint16_t instance) {
   // This will perform a on-spot calibration
   // Unless you read and add the co-efficients here
+  (void) instance;
   return NULL;
 }
 
@@ -77,12 +78,7 @@ int main(void) {
   font_t font = gdispOpenFont("UI2");
 
   /* initialize the hardware and the OS */
-  halInit();
-  chSysInit();
-
-  /* initialize the LCD */
   gfxInit();
-  gdispClear(Black);
 
   /* Calibrate the touchscreen */
   ginputSetMouseCalibrationRoutines(0, NULL, tsCalibRead, FALSE);
@@ -92,16 +88,14 @@ int main(void) {
   nSetColorScheme(schemeDefault);
 
   while (TRUE) {
+	gfxThreadWait(nLaunchNotepadApp());
 
-	chThdWait(nLaunchNotepadApp());
-
-	gdispClear(Black);
 	gdispSetClip(0, 0, gdispGetWidth(), gdispGetHeight());
+	gdispClear(Black);
 	gdispDrawString(3, 3, "Notepad Terminated.", font, White);
 	gdispDrawString(3, 20, "Relaunching Notepad App...", font, White);
 
-	chThdSleepMilliseconds(1000);
-
+	gfxSleepMilliseconds(1000);
   }
 
 	return 0;
