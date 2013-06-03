@@ -10,6 +10,7 @@ To use this driver:
 		Use the gdisp_lld_board_example.h or gdisp_lld_board_fsmc.h file as a basis.
 		Currently known boards are:
 		 	BOARD_FIREBULL_STM32_F103	- GPIO interface: requires GDISP_CMD_PORT and GDISP_DATA_PORT to be defined
+		 	BOARD_ST_STM32F4_DISCOVERY  - FSMC interface
 
 	d) The following are optional - define them if you are not using the defaults below:
 		#define GDISP_SCREEN_WIDTH	320

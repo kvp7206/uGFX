@@ -43,6 +43,8 @@
 	#include "gdisp_lld_board.h"
 #elif defined(BOARD_FIREBULL_STM32_F103)
 	#include "gdisp_lld_board_firebullstm32f103.h"
+#elif defined(BOARD_ST_STM32F4_DISCOVERY)
+    #include "gdisp_lld_board_st_stm32f4_discovery.h"
 #else
 	/* Include the user supplied board definitions */
 	#include "gdisp_lld_board.h"
@@ -82,7 +84,7 @@ static inline void set_cursor(coord_t x, coord_t y) {
 
 static void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
 
-	set_cursor(x, y);
+	//set_cursor(x, y);
 
 	/* Reg 0x44 - Horizontal RAM address position
 	 * 		Upper Byte - HEA
@@ -266,14 +268,34 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void gdisp_lld_clear(color_t color) {
-		unsigned i;
+		unsigned area;
+
+		area = GDISP_SCREEN_WIDTH * GDISP_SCREEN_HEIGHT;
 
 		acquire_bus();
 		reset_viewport();
 		set_cursor(0, 0);
+
 		stream_start();
-		for(i = 0; i < GDISP_SCREEN_WIDTH * GDISP_SCREEN_HEIGHT; i++)
-			write_data(color);
+
+		#if defined(GDISP_USE_FSMC) && defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
+            uint8_t i;
+            dmaStreamSetPeripheral(GDISP_DMA_STREAM, &color);
+            dmaStreamSetMode(GDISP_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);
+            for (i = area/65535; i; i--) {
+                dmaStreamSetTransactionSize(GDISP_DMA_STREAM, 65535);
+                dmaStreamEnable(GDISP_DMA_STREAM);
+                dmaWaitCompletion(GDISP_DMA_STREAM);
+            }
+            dmaStreamSetTransactionSize(GDISP_DMA_STREAM, area%65535);
+            dmaStreamEnable(GDISP_DMA_STREAM);
+            dmaWaitCompletion(GDISP_DMA_STREAM);
+        #else
+            uint32_t index;
+            for(index = 0; index < area; index++)
+                write_data(color);
+        #endif  //#ifdef GDISP_USE_DMA
+
 		stream_stop();
 		release_bus();
 	}
@@ -291,7 +313,7 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void gdisp_lld_fill_area(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
-		unsigned i, area;
+		unsigned area;
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; x = GDISP.clipx0; }
@@ -306,8 +328,25 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 		acquire_bus();
 		set_viewport(x, y, cx, cy);
 		stream_start();
-		for(i = 0; i < area; i++)
-			write_data(color);
+
+        #if defined(GDISP_USE_FSMC) && defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
+            uint8_t i;
+            dmaStreamSetPeripheral(GDISP_DMA_STREAM, &color);
+            dmaStreamSetMode(GDISP_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);
+            for (i = area/65535; i; i--) {
+                dmaStreamSetTransactionSize(GDISP_DMA_STREAM, 65535);
+                dmaStreamEnable(GDISP_DMA_STREAM);
+                dmaWaitCompletion(GDISP_DMA_STREAM);
+            }
+            dmaStreamSetTransactionSize(GDISP_DMA_STREAM, area%65535);
+            dmaStreamEnable(GDISP_DMA_STREAM);
+            dmaWaitCompletion(GDISP_DMA_STREAM);
+        #else
+            uint32_t index;
+            for(index = 0; index < area; index++)
+                write_data(color);
+        #endif  //#ifdef GDISP_USE_DMA
+
 		stream_stop();
 		release_bus();
 	}
@@ -327,8 +366,6 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 	 * @notapi
 	 */
 	void gdisp_lld_blit_area_ex(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
-		coord_t endx, endy;
-		unsigned lg;
 
 		#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 			if (x < GDISP.clipx0) { cx -= GDISP.clipx0 - x; srcx += GDISP.clipx0 - x; x = GDISP.clipx0; }
@@ -339,17 +376,36 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 			if (y+cy > GDISP.clipy1)	cy = GDISP.clipy1 - y;
 		#endif
 
+		buffer += srcx + srcy * srccx;
+
 		acquire_bus();
 		set_viewport(x, y, cx, cy);
 		stream_start();
 
-		endx = srcx + cx;
-		endy = y + cy;
-		lg = srccx - cx;
-		buffer += srcx + srcy * srccx;
-		for(; y < endy; y++, buffer += lg)
-			for(x=srcx; x < endx; x++)
-				write_data(*buffer++);
+        #if defined(GDISP_USE_FSMC) && defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
+            uint32_t area = cx*cy;
+            uint8_t i;
+            dmaStreamSetPeripheral(GDISP_DMA_STREAM, buffer);
+            dmaStreamSetMode(GDISP_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PINC | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);
+            for (i = area/65535; i; i--) {
+                dmaStreamSetTransactionSize(GDISP_DMA_STREAM, 65535);
+                dmaStreamEnable(GDISP_DMA_STREAM);
+                dmaWaitCompletion(GDISP_DMA_STREAM);
+            }
+            dmaStreamSetTransactionSize(GDISP_DMA_STREAM, area%65535);
+            dmaStreamEnable(GDISP_DMA_STREAM);
+            dmaWaitCompletion(GDISP_DMA_STREAM);
+        #else
+            coord_t endx, endy;
+            uint32_t lg;
+            endx = srcx + cx;
+            endy = y + cy;
+            lg = srccx - cx;
+            for(; y < endy; y++, buffer += lg)
+                for(x=srcx; x < endx; x++)
+                    write_data(*buffer++);
+        #endif  //#ifdef GDISP_USE_DMA
+
 		stream_stop();
 		release_bus();
 	}
@@ -375,8 +431,16 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 		acquire_bus();
 		set_cursor(x, y);
 		stream_start();
+
+		/* FSMC timing */
+		FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_3 | FSMC_BTR1_DATAST_3 | FSMC_BTR1_BUSTURN_0 ;
+
 		color = read_data();			// dummy read
 		color = read_data();
+
+		/* FSMC timing */
+		FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_0 | FSMC_BTR1_DATAST_2 | FSMC_BTR1_BUSTURN_0 ;
+
 		stream_stop();
 		release_bus();
 
@@ -431,9 +495,17 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 				/* read row0 into the buffer and then write at row1*/
 				set_viewport(x, row0, cx, 1);
 				stream_start();
+
+				/* FSMC timing */
+				FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_3 | FSMC_BTR1_DATAST_3 | FSMC_BTR1_BUSTURN_0 ;
+
 				j = read_data();			// dummy read
 				for (j = 0; (coord_t)j < cx; j++)
 					buf[j] = read_data();
+
+				/* FSMC timing */
+				FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_0 | FSMC_BTR1_DATAST_2 | FSMC_BTR1_BUSTURN_0 ;
+
 				stream_stop();
 
 				set_viewport(x, row1, cx, 1);
@@ -556,8 +628,15 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 			#endif
 			GDISP.Orientation = (gdisp_orientation_t)value;
 			return;
+        case GDISP_CONTROL_BACKLIGHT:
+            if ((unsigned)value > 100)
+            value = (void *)100;
+            set_backlight((unsigned)value);
+            GDISP.Backlight = (unsigned)value;
+            return;
+        default:
+            return;
 /*
-		case GDISP_CONTROL_BACKLIGHT:
 		case GDISP_CONTROL_CONTRAST:
 */
 		}
