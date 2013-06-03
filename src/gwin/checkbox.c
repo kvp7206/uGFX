@@ -73,8 +73,9 @@ static void gwinCheckboxCallback(void *param, GEvent *pe) {
 				gbw->isChecked = !gbw->isChecked;
 
 				gwinCheckboxDraw((GHandle)param);
+				break;
 			}
-			break;
+			return;
 	#endif /* GFX_USE_GINPUT && GINPUT_NEED_MOUSE */
 
 		default:
