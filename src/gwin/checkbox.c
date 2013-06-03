@@ -122,6 +122,19 @@ GHandle gwinCheckboxCreate(GCheckboxObject *gb, coord_t x, coord_t y, coord_t wi
 	return (GHandle)gb;
 }
 
+void gwinCheckboxSetCustom(GHandle gh, GCheckboxDrawFunction fn, void *param) {
+	#define gcw		((GCheckboxObject *)gh)
+
+	if (gh->type != GW_CHECKBOX)
+		return;
+
+	gcw->fn = fn;
+	gcw->param = param;
+
+	#undef gcw	
+}
+
+
 void gwinCheckboxSetEnabled(GHandle gh, bool_t enabled) {
 	if (gh->type != GW_CHECKBOX)
 		return;
@@ -136,7 +149,7 @@ void gwinCheckboxDraw(GHandle gh) {
 		return;
 
 	#if GDISP_NEED_CLIP
-		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
+		//gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 
 	gcw->fn(gh,

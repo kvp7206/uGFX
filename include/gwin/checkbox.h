@@ -105,6 +105,17 @@ void gwinCheckboxDraw(GHandle gh);
 void gwinCheckboxSetEnabled(GHandle gh, bool_t enabled);
 
 /**
+ * @brief	Set the callback routine to perform a custom drawing.
+ *
+ * @param[in] gh		The window handle (must be a checkbox window)
+ * @param[in] fn		The function to use to draw the checkbox
+ * @param[in] param		A parameter to pass to the checkbox drawing function
+ *
+ * @api
+ */
+void gwinCheckboxSetCustom(GHandle gh, GCheckboxDrawFunction fn, void *param);
+
+/**
  * @brief Enable a checkbox
  *
  * @api
