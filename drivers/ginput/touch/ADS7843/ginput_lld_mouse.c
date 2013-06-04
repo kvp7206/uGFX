@@ -26,6 +26,8 @@
 	#include "ginput_lld_mouse_board_firebull_stm32f103.h"
 #elif defined(BOARD_OLIMEX_STM32_E407)
 	#include "ginput_lld_mouse_board_olimex_stm32_e407.h"
+#elif defined(BOARD_ST_STM32F4_DISCOVERY)
+    #include "ginput_lld_mouse_board_st_stm32f4_discovery.h"
 #else
 	#include "ginput_lld_mouse_board_example.h"
 #endif
