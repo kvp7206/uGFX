@@ -7,7 +7,7 @@
 
 /**
  * @file    src/gwin/checkbox.c
- * @brief   GWIN sub-system button code.
+ * @brief   GWIN sub-system checkbox code.
  *
  * @defgroup Checkbox Checkbox
  * @ingroup GWIN

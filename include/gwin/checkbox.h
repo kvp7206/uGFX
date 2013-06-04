@@ -12,7 +12,7 @@
  * @defgroup Checkbox Checkbox
  * @ingroup GWIN
  *
- * @details		GWIN allows it to easily create a group of checkbox buttons.
+ * @details		GWIN allows it to easily create checkboxes.
  *
  * @pre			GFX_USE_GWIN must be set to TRUE in your gfxconf.h
  * @pre			GWIN_NEED_CHECKBOX must be set to TRUE in your gfxconf.h
@@ -40,10 +40,6 @@ typedef struct GEventGWinCheckbox_t {
 	GHandle			checkbox;		// The checkbox that has been depressed (actually triggered on release)
 	bool_t			isChecked;		// Is the checkbox currently checked or unchecked?
 } GEventGWinCheckbox;
-
-typedef enum GCheckboxShape_e {
-	GCHBX_NORMAL, GCKBX_CUSTOM
-} GCheckboxShape;
 
 typedef enum GCheckboxState_e {
 	GCHBX_UNCHECKED, GCHBX_CHECKED
