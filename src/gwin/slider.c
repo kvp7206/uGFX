@@ -107,10 +107,21 @@ static void MouseUp(GWidgetObject *gw, coord_t x, coord_t y) {
 	#endif
 
 	// Set the new position
-	if (gh->width < gh->height)
-		gsw->pos = (uint16_t)((uint32_t)(gh->height-1-y-GWIN_SLIDER_DEAD_BAND)*(gsw->max-gsw->min)/(gh->height-2*GWIN_SLIDER_DEAD_BAND) + gsw->min);
-	else
-		gsw->pos = (uint16_t)((uint32_t)(x-GWIN_SLIDER_DEAD_BAND)*(gsw->max-gsw->min)/(gh->width-2*GWIN_SLIDER_DEAD_BAND) + gsw->min);
+	if (gh->width < gh->height) {
+		if (y > gh->height-GWIN_SLIDER_DEAD_BAND)
+			gsw->pos = gsw->min;
+		else if (y < GWIN_SLIDER_DEAD_BAND)
+			gsw->pos = gsw->max;
+		else
+			gsw->pos = (uint16_t)((int32_t)(gh->height-1-y-GWIN_SLIDER_DEAD_BAND)*(gsw->max-gsw->min)/(gh->height-2*GWIN_SLIDER_DEAD_BAND) + gsw->min);
+	} else {
+		if (x > gh->width-GWIN_SLIDER_DEAD_BAND)
+			gsw->pos = gsw->max;
+		else if (x < GWIN_SLIDER_DEAD_BAND)
+			gsw->pos = gsw->min;
+		else
+			gsw->pos = (uint16_t)((int32_t)(x-GWIN_SLIDER_DEAD_BAND)*(gsw->max-gsw->min)/(gh->width-2*GWIN_SLIDER_DEAD_BAND) + gsw->min);
+	}
 
 	ResetDisplayPos(gsw);
 	gwinDraw(gh);

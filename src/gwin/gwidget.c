@@ -39,7 +39,7 @@ static void gwidgetCallback(void *param, GEvent *pe) {
 	case GEVENT_TOUCH:
 		// Are we captured?
 		if ((gw->g.flags & GWIN_FLG_MOUSECAPTURE)) {
-			if (pme->meta == GMETA_MOUSE_UP) {
+			if ((pme->last_buttons & ~pme->current_buttons & GINPUT_MOUSE_BTN_LEFT)) {
 				gw->g.flags &= ~GWIN_FLG_MOUSECAPTURE;
 				if (wvmt->MouseUp)
 					wvmt->MouseUp(gw, pme->x - gw->g.x, pme->y - gw->g.y);
@@ -48,7 +48,7 @@ static void gwidgetCallback(void *param, GEvent *pe) {
 				wvmt->MouseMove(gw, pme->x - gw->g.x, pme->y - gw->g.y);
 
 		// We are not captured - look for mouse downs over the widget
-		} else if (pme->meta == GMETA_MOUSE_DOWN
+		} else if ((~pme->last_buttons & pme->current_buttons & GINPUT_MOUSE_BTN_LEFT)
 				&& pme->x >= gw->g.x && pme->x < gw->g.x + gw->g.width
 				&& pme->y >= gw->g.y && pme->y < gw->g.y + gw->g.height) {
 			gw->g.flags |= GWIN_FLG_MOUSECAPTURE;

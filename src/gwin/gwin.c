@@ -18,6 +18,8 @@ static const gwinVMT basegwinVMT = {
 };
 
 static font_t	defaultFont;
+static color_t	defaultFgColor = White;
+static color_t	defaultBgColor = Black;
 
 // Internal routine for use by GWIN components only
 // Initialise a window creating it dynamicly if required.
@@ -47,8 +49,8 @@ GHandle _gwinInit(GWindowObject *pgw, coord_t x, coord_t y, coord_t width, coord
 	pgw->y = y;
 	pgw->width = width;
 	pgw->height = height;
-	pgw->color = White;
-	pgw->bgcolor = Black;
+	pgw->color = defaultFgColor;
+	pgw->bgcolor = defaultBgColor;
 	#if GDISP_NEED_TEXT
 		pgw->font = defaultFont;
 	#endif
@@ -72,6 +74,14 @@ void gwinDestroy(GHandle gh) {
 
 const char *gwinGetClassName(GHandle gh) {
 	return gh->vmt->classname;
+}
+
+void gwinSetDefaultColor(color_t clr) {
+	defaultFgColor = clr;
+}
+
+void gwinSetDefaultBgColor(color_t bgclr) {
+	defaultBgColor = bgclr;
 }
 
 #if GDISP_NEED_TEXT

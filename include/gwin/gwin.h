@@ -128,6 +128,22 @@ const char *gwinGetClassName(GHandle gh);
 #define gwinGetHeight(gh)			((gh)->height)
 
 /**
+ * @brief	Set the default foreground color for all new GWIN windows
+ *
+ * @param[in] gh	The window
+ * @param[in] clr	The color to be set
+ */
+void gwinSetDefaultColor(color_t clr);
+
+/**
+ * @brief	Set the default background color for all new GWIN windows
+ *
+ * @param[in] gh	The window
+ * @param[in] bgclr	The background color
+ */
+void gwinSetDefaultBgColor(color_t bgclr);
+
+/**
  * @brief	Set foreground color
  * @details Set the color which will be used to draw
  *
