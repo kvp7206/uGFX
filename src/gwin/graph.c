@@ -8,18 +8,13 @@
 /**
  * @file    src/gwin/graph.c
  * @brief   GWIN sub-system button code.
- *
- * @defgroup Graph Graph
- * @ingroup GWIN
- *
- * @{
  */
 
 #include "gfx.h"
 
-#if (GFX_USE_GWIN && GWIN_NEED_GRAPH) || defined(__DOXYGEN__)
+#if GFX_USE_GWIN && GWIN_NEED_GRAPH
 
-#include "gwin/internal.h"
+#include "gwin/class_gwin.h"
 
 #define GGRAPH_FLG_CONNECTPOINTS			(GWIN_FIRST_CONTROL_FLAG<<0)
 #define GGRAPH_ARROW_SIZE					5
@@ -34,13 +29,19 @@ static const GGraphStyle GGraphDefaultStyle = {
 	GWIN_GRAPH_STYLE_XAXIS_ARROWS|GWIN_GRAPH_STYLE_YAXIS_ARROWS		// flags
 };
 
+static const gwinVMT graphVMT = {
+		"Graph",				// The classname
+		0,						// The destroy routine
+		0,						// The after-clear routine
+};
+
 static void pointto(GGraphObject *gg, coord_t x, coord_t y, const GGraphPointStyle *style) {
 	if (style->type == GGRAPH_POINT_NONE)
 		return;
 
 	// Convert to device space. Note the y-axis is inverted.
-	x += gg->gwin.x + gg->xorigin;
-	y = gg->gwin.y + gg->gwin.height - 1 - gg->yorigin - y;
+	x += gg->g.x + gg->xorigin;
+	y = gg->g.y + gg->g.height - 1 - gg->yorigin - y;
 
 	if (style->size <= 1) {
 		gdispDrawPixel(x, y, style->color);
@@ -73,10 +74,10 @@ static void lineto(GGraphObject *gg, coord_t x0, coord_t y0, coord_t x1, coord_t
 		return;
 
 	// Convert to device space. Note the y-axis is inverted.
-	x0 += gg->gwin.x + gg->xorigin;
-	y0 = gg->gwin.y + gg->gwin.height - 1 - gg->yorigin - y0;
-	x1 += gg->gwin.x + gg->xorigin;
-	y1 = gg->gwin.y + gg->gwin.height - 1 - gg->yorigin - y1;
+	x0 += gg->g.x + gg->xorigin;
+	y0 = gg->g.y + gg->g.height - 1 - gg->yorigin - y0;
+	x1 += gg->g.x + gg->xorigin;
+	y1 = gg->g.y + gg->g.height - 1 - gg->yorigin - y1;
 
 	if (style->size <= 0) {
 		// Use the driver to draw a solid line
@@ -163,41 +164,26 @@ static void lineto(GGraphObject *gg, coord_t x0, coord_t y0, coord_t x1, coord_t
 }
 
 GHandle gwinCreateGraph(GGraphObject *gg, coord_t x, coord_t y, coord_t width, coord_t height) {
-	if (!(gg = (GGraphObject *)_gwinInit((GWindowObject *)gg, x, y, width, height, sizeof(GGraphObject))))
+	if (!(gg = (GGraphObject *)_gwinInit((GWindowObject *)gg, x, y, width, height, sizeof(GGraphObject), &graphVMT)))
 		return 0;
-	gg->gwin.type = GW_GRAPH;
 	gg->xorigin = gg->yorigin = 0;
 	gg->lastx = gg->lasty = 0;
-	gwinGraphSetStyle(&gg->gwin, &GGraphDefaultStyle);
+	gwinGraphSetStyle((GHandle)gg, &GGraphDefaultStyle);
 	return (GHandle)gg;
 }
 
 void gwinGraphSetStyle(GHandle gh, const GGraphStyle *pstyle) {
 	#define gg	((GGraphObject *)gh)
 
-	if (gh->type != GW_GRAPH)
+	if (gh->vmt != &graphVMT)
 		return;
 
-	gg->style.point.type = pstyle->point.type;
-	gg->style.point.size = pstyle->point.size;
-	gg->style.point.color = pstyle->point.color;
-	gg->style.line.type = pstyle->line.type;
-	gg->style.line.size = pstyle->line.size;
-	gg->style.line.color = pstyle->line.color;
-	gg->style.xaxis.type = pstyle->xaxis.type;
-	gg->style.xaxis.size = pstyle->xaxis.size;
-	gg->style.xaxis.color = pstyle->xaxis.color;
-	gg->style.yaxis.type = pstyle->yaxis.type;
-	gg->style.yaxis.size = pstyle->yaxis.size;
-	gg->style.yaxis.color = pstyle->yaxis.color;
-	gg->style.xgrid.type = pstyle->xgrid.type;
-	gg->style.xgrid.size = pstyle->xgrid.size;
-	gg->style.xgrid.color = pstyle->xgrid.color;
-	gg->style.xgrid.spacing = pstyle->xgrid.spacing;
-	gg->style.ygrid.type = pstyle->ygrid.type;
-	gg->style.ygrid.size = pstyle->ygrid.size;
-	gg->style.ygrid.color = pstyle->ygrid.color;
-	gg->style.ygrid.spacing = pstyle->ygrid.spacing;
+	gg->style.point = pstyle->point;
+	gg->style.line = pstyle->line;
+	gg->style.xaxis = pstyle->xaxis;
+	gg->style.yaxis = pstyle->yaxis;
+	gg->style.xgrid = pstyle->xgrid;
+	gg->style.ygrid = pstyle->ygrid;
 	gg->style.flags = pstyle->flags;
 
 	#undef gg
@@ -206,7 +192,7 @@ void gwinGraphSetStyle(GHandle gh, const GGraphStyle *pstyle) {
 void gwinGraphSetOrigin(GHandle gh, coord_t x, coord_t y) {
 	#define gg	((GGraphObject *)gh)
 
-	if (gh->type != GW_GRAPH)
+	if (gh->vmt != &graphVMT)
 		return;
 
 	gg->xorigin = x;
@@ -219,7 +205,7 @@ void gwinGraphDrawAxis(GHandle gh) {
 	#define gg	((GGraphObject *)gh)
 	coord_t		i, xmin, ymin, xmax, ymax;
 
-	if (gh->type != GW_GRAPH)
+	if (gh->vmt != &graphVMT)
 		return;
 
 	xmin = -gg->xorigin;
@@ -277,7 +263,7 @@ void gwinGraphDrawAxis(GHandle gh) {
 }
 
 void gwinGraphStartSet(GHandle gh) {
-	if (gh->type != GW_GRAPH)
+	if (gh->vmt != &graphVMT)
 		return;
 
 	gh->flags &= ~GGRAPH_FLG_CONNECTPOINTS;
@@ -286,7 +272,7 @@ void gwinGraphStartSet(GHandle gh) {
 void gwinGraphDrawPoint(GHandle gh, coord_t x, coord_t y) {
 	#define gg	((GGraphObject *)gh)
 
-	if (gh->type != GW_GRAPH)
+	if (gh->vmt != &graphVMT)
 		return;
 
 	if ((gh->flags & GGRAPH_FLG_CONNECTPOINTS)) {
@@ -314,7 +300,7 @@ void gwinGraphDrawPoints(GHandle gh, const point *points, unsigned count) {
 	unsigned		i;
 	const point		*p;
 
-	if (gh->type != GW_GRAPH)
+	if (gh->vmt != &graphVMT)
 		return;
 
 	// Draw the connecting lines
@@ -344,5 +330,3 @@ void gwinGraphDrawPoints(GHandle gh, const point *points, unsigned count) {
 }
 
 #endif /* GFX_USE_GWIN && GWIN_NEED_GRAPH */
-/** @} */
-

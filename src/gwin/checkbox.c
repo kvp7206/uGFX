@@ -7,7 +7,7 @@
 
 /**
  * @file    src/gwin/checkbox.c
- * @brief   GWIN sub-system checkbox code.
+ * @brief   GWIN sub-system button code.
  *
  * @defgroup Checkbox Checkbox
  * @ingroup GWIN
@@ -19,168 +19,137 @@
 
 #if (GFX_USE_GWIN && GWIN_NEED_CHECKBOX) || defined(__DOXYGEN__)
 
-static const GCheckboxColor defaultColors = {
-	Grey,	// border
-	Grey,	// selected
-	Black	// background
+#include "gwin/class_gwin.h"
+
+// Our checked state
+#define GCHECKBOX_FLG_CHECKED		(GWIN_FIRST_CONTROL_FLAG<<0)
+
+// Prototypes for button VMT functions
+static void MouseDown(GWidgetObject *gw, coord_t x, coord_t y);
+static void ToggleOn(GWidgetObject *gw, uint16_t instance);
+
+// The button VMT table
+static const gwidgetVMT checkboxVMT = {
+	{
+		"Checkbox",				// The classname
+		_gwidgetDestroy,		// The destroy routine
+		0,						// The after-clear routine
+	},
+	gwinCheckboxDraw_CheckOnLeft,	// The default drawing routine
+	MouseDown,				// Process mouse down events
+	0,						// Process mouse up events (NOT USED)
+	0,						// Process mouse move events (NOT USED)
+	0,						// Process toggle off events (NOT USED)
+	ToggleOn,				// Process toggle on events
+	0,						// Process dial move events (NOT USED)
+	0,						// Process all events (NOT USED)
+	0,						// AssignToggle (NOT USED)
+	0,						// AssignDial (NOT USED)
 };
 
-/* default style drawing routine */
-static void gwinCheckboxDrawDefaultStyle(GHandle gh, bool_t enabled, bool_t isChecked, void* param) {
-	#define gcw		((GCheckboxObject *)gh)
+static const GCheckboxColors defaultColors = {
+	Black,	// border
+	Grey,	// selected
+	White,	// background
+	Black,	// text
+};
 
-	(void) enabled;
-	(void) param;
+// Send the checkbox event
+static void SendCheckboxEvent(GWidgetObject *gw) {
+	GSourceListener	*	psl;
+	GEvent *			pe;
+	#define pce			((GEventGWinCheckbox *)pe)
 
-	gdispDrawBox(gh->x, gh->y, gh->width, gh->height, gcw->colors->border);
-
-	if (isChecked)
-		gdispFillArea(gh->x+2, gh->y+2, gh->width-4, gh->height-4, gcw->colors->checked);
-	else
-		gdispFillArea(gh->x+2, gh->y+2, gh->width-4, gh->height-4, gcw->colors->bg);
-
-	#undef gcw
-}
-
-/* process an event callback */
-static void gwinCheckboxCallback(void *param, GEvent *pe) {
-	GSourceListener *psl;
-	#define gh		((GHandle)param)
-	#define gbw		((GCheckboxObject *)param)
-	#define gsh		((GSourceHandle)param)
-	#define pme		((GEventMouse *)pe)
-	#define pte		((GEventTouch *)pe)
-	#define pxe		((GEventToggle *)pe)
-	#define pbe		((GEventGWinCheckbox *)pe)
-
-	/* check if checkbox is disabled */
-	if (!gh->enabled)
-		return;
-
-	switch (pe->type) {
-	#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
-		case GEVENT_MOUSE:
-		case GEVENT_TOUCH:
-
-			// Ignore anything other than the primary mouse button going up or down
-			if (!((pme->current_buttons ^ pme->last_buttons) & GINPUT_MOUSE_BTN_LEFT))
-				return;
-
-			if ((pme->current_buttons & GINPUT_MOUSE_BTN_LEFT)
-					&& pme->x >= gbw->gwin.x && pme->x < gbw->gwin.x + gbw->gwin.width
-					&& pme->y >= gbw->gwin.y && pme->y < gbw->gwin.y + gbw->gwin.height) {
-
-				gbw->isChecked = !gbw->isChecked;
-
-				gwinCheckboxDraw((GHandle)param);
-				break;
-			}
-			return;
-	#endif /* GFX_USE_GINPUT && GINPUT_NEED_MOUSE */
-
-		default:
-			return;
-	}
-
-	// Trigger a GWIN checkbox event
+	// Trigger a GWIN Checkbox Event
 	psl = 0;
-	while ((psl = geventGetSourceListener(gsh, psl))) {
+	while ((psl = geventGetSourceListener((GSourceHandle)gw, psl))) {
 		if (!(pe = geventGetEventBuffer(psl)))
 			continue;
-		pbe->type = GEVENT_GWIN_CHECKBOX;
-		pbe->checkbox = gh;
-		pbe->isChecked = gbw->isChecked;
+		pce->type = GEVENT_GWIN_CHECKBOX;
+		pce->checkbox = &gw->g;
+		pce->isChecked = (gw->g.flags & GCHECKBOX_FLG_CHECKED) ? TRUE : FALSE;
 		geventSendEvent(psl);
-	}	
+	}
 
-	#undef gh
-	#undef pbe
-	#undef pme
-	#undef pte
-	#undef pxe
-	#undef gsh
-	#undef gbw
+	#undef pce
 }
 
-GHandle gwinCheckboxCreate(GCheckboxObject *gb, coord_t x, coord_t y, coord_t width, coord_t height) {
-	if (!(gb = (GCheckboxObject *)_gwinInit((GWindowObject *)gb, x, y, width, height, sizeof(GCheckboxObject))))
+// A mouse down has occurred over the checkbox
+static void MouseDown(GWidgetObject *gw, coord_t x, coord_t y) {
+	(void) x; (void) y;
+	gw->g.flags ^= GCHECKBOX_FLG_CHECKED;
+	gwinDraw((GHandle)gw);
+	SendCheckboxEvent(gw);
+}
+
+// A toggle on has occurred
+static void ToggleOn(GWidgetObject *gw, uint16_t instance) {
+	(void) instance;
+	gw->g.flags ^= GCHECKBOX_FLG_CHECKED;
+	gwinDraw((GHandle)gw);
+	SendCheckboxEvent(gw);
+}
+
+GHandle gwinCreateCheckbox(GCheckboxObject *gb, coord_t x, coord_t y, coord_t width, coord_t height) {
+	if (!(gb = (GCheckboxObject *)_gwidgetInit((GWidgetObject *)gb, x, y, width, height, sizeof(GCheckboxObject), &checkboxVMT)))
 		return 0;
 
-	gb->gwin.type = GW_CHECKBOX;			// create a window of the type checkbox
-	gb->fn = gwinCheckboxDrawDefaultStyle;	// set the default style drawing routine 
-	gb->colors = &defaultColors;			// asign the default colors
-	gb->param = 0;							// some safe value here
-	gb->isChecked = GCHBX_UNCHECKED;		// checkbox is currently unchecked
-	gb->gwin.enabled = TRUE;				// checkboxes are enabled by default
-
-	geventListenerInit(&gb->listener);
-	geventRegisterCallback(&gb->listener, gwinCheckboxCallback, gb);
-
-	// checkboxes are enabled by default
-	gb->gwin.enabled = TRUE;
-
+	gb->c = defaultColors;			// assign the default colors
 	return (GHandle)gb;
 }
 
-void gwinCheckboxSetCustom(GHandle gh, GCheckboxDrawFunction fn, void *param) {
-	#define gcw		((GCheckboxObject *)gh)
+bool_t gwinIsCheckboxChecked(GHandle gh) {
+	if (gh->vmt != (gwinVMT *)&checkboxVMT)
+		return FALSE;
 
-	if (gh->type != GW_CHECKBOX)
-		return;
-
-	gcw->fn = fn;
-	gcw->param = param;
-
-	#undef gcw	
+	return (gh->flags & GCHECKBOX_FLG_CHECKED) ? TRUE : FALSE;
 }
 
-
-void gwinCheckboxSetEnabled(GHandle gh, bool_t enabled) {
-	if (gh->type != GW_CHECKBOX)
+void gwinCheckboxSetColors(GHandle gh, GCheckboxColors *pColors) {
+	if (gh->vmt != (gwinVMT *)&checkboxVMT)
 		return;
 
-	gh->enabled = enabled;
+	((GCheckboxObject *)gh)->c = *pColors;
 }
 
-void gwinCheckboxDraw(GHandle gh) {
-	#define gcw		((GCheckboxObject *)gh)
+void gwinCheckboxDraw_CheckOnLeft(GWidgetObject *gw, void *param) {
+	#define gcw		((GCheckboxObject *)gw)
+	coord_t	ld, df;
+	(void) param;
 
-	if (gh->type != GW_CHECKBOX)
+	if (gw->g.vmt != (gwinVMT *)&checkboxVMT)
 		return;
 
-	#if GDISP_NEED_CLIP
-		//gdispSetClip(gh->x, gh->y, gh->width, gh->height);
-	#endif
+	ld = gw->g.width < gw->g.height ? gw->g.width : gw->g.height;
+	gdispFillArea(gw->g.x+1, gw->g.y+1, ld, ld-2, gcw->c.color_bg);
+	gdispDrawBox(gw->g.x, gw->g.y, ld, ld, gcw->c.color_border);
 
-	gcw->fn(gh,
-            gcw->gwin.enabled,
-            gcw->isChecked,
-            gcw->param);
+	df = ld < 4 ? 1 : 2;
+	if (gw->g.flags & GCHECKBOX_FLG_CHECKED)
+		gdispFillArea(gw->g.x+df, gw->g.y+df, ld-2*df, ld-2*df, gcw->c.color_checked);
 
+	gdispFillStringBox(gw->g.x+ld+1, gw->g.y, gw->g.width-ld-1, gw->g.height, gw->txt, gw->g.font, gcw->c.color_txt, gcw->c.color_bg, justifyLeft);
 	#undef gcw
 }
 
-#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
-	bool_t gwinCheckboxAttachMouse(GHandle gh, uint16_t instance) {
-		GSourceHandle gsh;
+void gwinCheckboxDraw_CheckOnRight(GWidgetObject *gw, void *param) {
+	#define gcw		((GCheckboxObject *)gw)
+	coord_t	ep, ld, df;
+	(void) param;
 
-		if (gh->type != GW_CHECKBOX || !(gsh = ginputGetMouse(instance)))
-			return FALSE;
-
-		return geventAttachSource(&((GCheckboxObject *)gh)->listener, gsh, GLISTEN_MOUSEMETA);
-	}
-#endif
-
-void gwinCheckboxSetColors(GHandle gh, color_t border, color_t checked, color_t bg) {
-	#define gcw		((GCheckboxObject *)gh)
-
-	if (gh->type != GW_CHECKBOX)
+	if (gw->g.vmt != (gwinVMT *)&checkboxVMT)
 		return;
 
-	gcw->colors->border = border;
-	gcw->colors->checked = checked,
-	gcw->colors->bg = bg;
+	ld = gw->g.width < gw->g.height ? gw->g.width : gw->g.height;
+	ep = gw->g.width-ld-1;
+	gdispFillArea(gw->g.x+ep-1, gw->g.y+1, ld, ld-2, gcw->c.color_bg);
+	gdispDrawBox(gw->g.x+ep, gw->g.y, ld, ld, gcw->c.color_border);
 
+	df = ld < 4 ? 1 : 2;
+	if (gw->g.flags & GCHECKBOX_FLG_CHECKED)
+		gdispFillArea(gw->g.x+ep+df, gw->g.y+df, ld-2*df, ld-2*df, gcw->c.color_checked);
+
+	gdispFillStringBox(gw->g.x, gw->g.y, ep, gw->g.height, gw->txt, gw->g.font, gcw->c.color_txt, gcw->c.color_bg, justifyRight);
 	#undef gcw
 }
 

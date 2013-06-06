@@ -22,20 +22,7 @@
 #ifndef _GWIN_GRAPH_H
 #define _GWIN_GRAPH_H
 
-#if GWIN_NEED_GRAPH || defined(__DOXYGEN__)
-
-/*===========================================================================*/
-/* Driver constants.														 */
-/*===========================================================================*/
-
-#define GW_GRAPH				0x0003
-
-/*===========================================================================*/
-/* Type definitions                                                          */
-/*===========================================================================*/
-
-// GDISP now has its own point structure
-#define GGraphPoint		point
+/* This file is included within "gwin/gwin.h" */
 
 typedef enum GGraphPointType_e {
 	GGRAPH_POINT_NONE, GGRAPH_POINT_DOT, GGRAPH_POINT_SQUARE, GGRAPH_POINT_CIRCLE
@@ -85,7 +72,7 @@ typedef struct GGraphStyle_t {
 
 // A graph window
 typedef struct GGraphObject_t {
-	GWindowObject		gwin;
+	GWindowObject		g;
 	GGraphStyle			style;
 	coord_t				xorigin, yorigin;
 	coord_t				lastx, lasty;
@@ -104,10 +91,12 @@ extern "C" {
  * @return  NULL if there is no resultant drawing area, otherwise a window handle.
  *
  * @param[in] gg		The GGraphObject structure to initialise. If this is NULL the structure is dynamically allocated.
- * @param[in] x,y		The screen co-ordinates for the bottom left corner of the window
+ * @param[in] x,y		The screen co-ordinates for the top left corner of the window
  * @param[in] width		The width of the window
  * @param[in] height	The height of the window
+ *
  * @note				The console is not automatically cleared on creation. You must do that by calling gwinClear() (possibly after changing your background color)
+ * @note				Don't forget to set the font using @p gwinSetFont() or @p gwinSetDefaultFont()
  * @note				The coordinate system within the window for graphing operations (but not for any other drawing
  * 						operation) is relative to the bottom left corner and then shifted right and up by the specified
  * 						graphing x and y origin. Note that this system is inverted in the y direction relative to the display.
@@ -186,8 +175,6 @@ void gwinGraphDrawPoints(GHandle gh, const point *points, unsigned count);
 #ifdef __cplusplus
 }
 #endif
-
-#endif	/* GWIN_NEED_GRAPH */
 
 #endif	/* _GWIN_GRAPH_H */
 /** @} */

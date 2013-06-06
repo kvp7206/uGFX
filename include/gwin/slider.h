@@ -22,18 +22,9 @@
 #ifndef _GWIN_SLIDER_H
 #define _GWIN_SLIDER_H
 
-#if GWIN_NEED_SLIDER || defined(__DOXYGEN__)
+/* This file is included within "gwin/gwidget.h" */
 
-/*===========================================================================*/
-/* Driver constants.														 */
-/*===========================================================================*/
-
-#define GW_SLIDER				0x0004
 #define GEVENT_GWIN_SLIDER		(GEVENT_GWIN_FIRST+1)
-
-/*===========================================================================*/
-/* Type definitions                                                          */
-/*===========================================================================*/
 
 typedef struct GEventGWinSlider_t {
 	GEventType		type;				// The type of this event (GEVENT_GWIN_BUTTON)
@@ -43,32 +34,23 @@ typedef struct GEventGWinSlider_t {
 
 // There are currently no GEventGWinSlider listening flags - use 0
 
-typedef struct GSliderDrawStyle_t {
+typedef struct GSliderColors {
 	color_t				color_edge;
 	color_t				color_thumb;
 	color_t				color_active;
 	color_t				color_inactive;
-} GSliderDrawStyle;
-
-typedef void (*GSliderDrawFunction)(GHandle gh, bool_t isVertical, coord_t thumbpos, const GSliderDrawStyle *pstyle, void *param);
+	color_t				color_txt;
+} GSliderColors;
 
 // A slider window
 typedef struct GSliderObject_t {
-	GWindowObject		gwin;
-
-	GSliderDrawStyle	style;
-	bool_t				tracking;
+	GWidgetObject		w;
+	GSliderColors		c;
+	coord_t				dpos;
 	int					min;
 	int					max;
 	int					pos;
-	GSliderDrawFunction	fn;
-	void				*param;
-	GListener			listener;
 } GSliderObject;
-
-/*===========================================================================*/
-/* External declarations.                                                    */
-/*===========================================================================*/
 
 #ifdef __cplusplus
 extern "C" {
@@ -79,12 +61,14 @@ extern "C" {
  * @return  NULL if there is no resultant drawing area, otherwise a window handle.
  *
  * @param[in] gb		The GSliderObject structure to initialise. If this is NULL the structure is dynamically allocated.
- * @param[in] x,y		The screen co-ordinates for the bottom left corner of the window
+ * @param[in] x,y		The screen co-ordinates for the top left corner of the window
  * @param[in] width		The width of the window
  * @param[in] height	The height of the window
+ *
  * @note				The drawing color gets set to White and the background drawing color to Black.
+ * @note				Don't forget to set the font using @p gwinSetFont() or @p gwinSetDefaultFont()
  * @note				The dimensions and position may be changed to fit on the real screen.
- * @note				The slider is not automatically drawn. Call gwinSliderDraw() after changing the slider style.
+ * @note				The slider is not automatically drawn. Call gwinDraw() to draw it.
  * @note				Sets the slider range from 0 to 100 with an initial position of 0
  *
  * @api
@@ -130,51 +114,7 @@ void gwinSetSliderPosition(GHandle gh, int pos);
  *
  * @api
  */
-void gwinSetSliderStyle(GHandle gh, const GSliderDrawStyle *pStyle);
-
-/**
- * @brief   Redraw the slider.
- *
- * @param[in] gh		The window handle (must be a slider window)
- *
- * @api
- */
-void gwinSliderDraw(GHandle gh);
-
-/**
- * @brief	Enable or disable a button
- *
- * @param[in] gh		The window handle (must be a slider window)
- * @param[in] enabled	Enable or disable the slider
- *
- * @api
- */
-void gwinSliderSetEnabled(GHandle gh, bool_t enabled);
-
-/**
- * @brief   Set the callback routine to perform a custom slider drawing.
- *
- * @param[in] gh		The window handle (must be a slider window)
- * @param[in] fn		The function to use to draw the slider
- * @param[in] param		A parameter to pass to the slider drawing function
- *
- * @api
- */
-void gwinSetSliderCustom(GHandle gh, GSliderDrawFunction fn, void *param);
-
-/**
- * @brief	Enable a slider
- *
- * @api
- */
-#define gwinEnableSlider(gh)			gwinSliderSetEnabled( ((GSliderObject *)(gh)), TRUE)
-
-/**
- * @brief	Disable a slider
- *
- * @api
- */
-#define gwinDisableSlider(gh)			gwinSliderSetEnabled( ((GSliderObject *)(gh)), FALSE)
+void gwinSetSliderColors(GHandle gh, const GSliderColors *pStyle);
 
 /**
  * @brief   Get the current slider position.
@@ -190,68 +130,34 @@ void gwinSetSliderCustom(GHandle gh, GSliderDrawFunction fn, void *param);
 #define gwinGetSliderPosition(gh)		(((GSliderObject *)(gh))->pos)
 
 /**
- * @brief Get the source handle of a slider
- * @details Get the source handle of a slider so the application can listen for events
+ * @brief	Some custom slider drawing routines
+ * @details	These function may be passed to @p gwinSetCustomDraw() to get different slider drawing styles
  *
- * @param[in] gh	The window handle
- *
- * @api
- */
-#define gwinGetSliderSource(gh)		((GSourceHandle)(gh))
-
-#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
-	/**
-	 * @brief	Attach a mouse source
-	 * @details	Attach a mouse to a slider
-	 *
-	 * @param[in] gh		The slider handle
-	 * @param[in] instance	The mouse instance
-	 *
-	 * @api
-	 */
-	bool_t gwinAttachSliderMouse(GHandle gh, uint16_t instance);
-#endif
-
-#if GFX_USE_GINPUT && GINPUT_NEED_DIAL
-	/**
-	 * @brief	Attach a dial source
-	 * @details	Attach a dial to a slider
-	 *
-	 * @param[in] gh		The dial handle
-	 * @param[in] instance	The dial instance
-	 *
-	 * @api
-	 */
-	bool_t gwinAttachSliderDial(GHandle gh, uint16_t instance);
-#endif
-
-/**
- * @brief	Standard slider drawing routines
- * @details	This routine is called to draw the standard slider.
- *
- * @param[in] gh			The slider handle
- * @param[in] isVertical	The slider is vertically oriented instead of horizontal
- * @param[in] thumbpos		The position of the slider (0..cx-1 or cy-1..0)
- * @param[in] pstyle		The current drawing style
+ * @param[in] gw			The widget (which must be a slider)
  * @param[in] param			A parameter passed in from the user
  *
  * @note				In your custom slider drawing function you may optionally call this
  * 						standard functions and then draw your extra details on top.
- * @note				The standard functions below ignore the param parameter. It is there
- * 						only to ensure the functions match the GSliderDrawFunction type.
- * @note				When called by a slider the framework ensure that it is
- * 						a slider object and sets up clipping to the slider object window. These
- * 						drawing routines then don't have to worry about explicitly doing that.
+ * @note				The standard functions below ignore the param parameter except for @p gwinSliderDraw_Image().
+ * @note				The image custom draw function  @p gwinSliderDraw_Image() uses param to pass in the gdispImage pointer.
+ * 						The image must be already opened before calling  @p gwinSetCustomDraw(). The image is tiled to fill
+ * 						the active area of the slider. The normal colors apply to the border and inactive area and the dividing line
+ * 						between the active and inactive areas.
+ * 						No checking is done to compare the dimensions of the slider to the size of the image.
+ * 						Note text is drawn on top of the image.
+ * @note				These custom drawing routines don't have to worry about setting clipping as the framework
+ * 						sets clipping to the object window prior to calling these routines.
  *
  * @api
+ * @{
  */
-void gwinSliderDraw_Std(GHandle gh, bool_t isVertical, coord_t thumbpos, const GSliderDrawStyle *pstyle, void *param);
+void gwinSliderDraw_Std(GWidgetObject *gw, void *param);
+void gwinSliderDraw_Image(GWidgetObject *gw, void *param);
+/* @} */
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* GWIN_NEED_SLIDER */
 
 #endif /* _GWIN_SLIDER_H */
 /** @} */

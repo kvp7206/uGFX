@@ -12,14 +12,12 @@
  * @defgroup Window Window
  * @ingroup GWIN
  *
- * @details	GWIN provides a basic window manager which allows it to easily
- *			create and destroy different windows on runtime. Each window
- *			will have it's own properties such as colors, brushes as well as
- *			it's own drawing origin.
- *			Moving the windows around is not supported yet.
+ * @details		GWIN provides a basic window manager which allows it to easily
+ *				create and destroy different windows at runtime. Each window
+ *				will have it's own properties such as colors as well as
+ *				it's own drawing origin.
  *
  * @pre		GFX_USE_GWIN must be set to TRUE in your gfxconf.h
- *
  * @{
  */
 
@@ -30,30 +28,23 @@
 
 #if GFX_USE_GWIN || defined(__DOXYGEN__)
 
-/*===========================================================================*/
-/* Type definitions                                                          */
-/*===========================================================================*/
-
-typedef uint16_t	GWindowType;
-#define GW_WINDOW				0x0000
-#define GW_FIRST_USER_WINDOW	0x8000
-
-// A basic window
-typedef struct GWindowObject_t {
-	GWindowType	type;				// What type of window is this
-	uint16_t	flags;				// Internal flags
-	coord_t		x, y;				// Screen relative position
-	coord_t		width, height;		// Dimensions of this window
-	color_t		color, bgcolor;		// Current drawing colors
-	bool_t		enabled;			// Enabled/Disabled state
+/**
+ * @brief	A window object structure
+ * @note	Do you access the members directly. Treat it as a black-box and use the method functions.
+ *
+ * @{
+ */
+typedef struct GWindowObject {
+	const struct gwinVMT	*vmt;	// @< The VMT for this GWIN
+	coord_t		x, y;				// @< Screen relative position
+	coord_t		width, height;		// @< Dimensions of this window
+	color_t		color, bgcolor;		// @< Current drawing colors
+	uint16_t	flags;				// @< Window flags (the meaning is private to the GWIN class)
 #if GDISP_NEED_TEXT
-	font_t		font;				// Current font
+	font_t		font;				// @< Current font
 #endif
 } GWindowObject, * GHandle;
-
-/*===========================================================================*/
-/* External declarations.                                                    */
-/*===========================================================================*/
+/* @} */
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,18 +56,20 @@ extern "C" {
  * @brief   Create a basic window.
  * @return  NULL if there is no resultant drawing area, otherwise a window handle.
  *
- * @param[in] gw		The window structure to initialize. If this is NULL the structure is dynamically allocated.
- * @param[in] x,y		The screen coordinates for the bottom left corner of the window
+ * @param[in] pgw		The window structure to initialize. If this is NULL the structure is dynamically allocated.
+ * @param[in] x,y		The screen coordinates for the top left corner of the window
  * @param[in] width		The width of the window
  * @param[in] height	The height of the window
+ *
  * @note				The default drawing color gets set to White and the background drawing color to Black.
  * @note				No default font is set so make sure to set one before drawing any text.
  * @note				The dimensions and position may be changed to fit on the real screen.
- * @note				The window is not automatically cleared on creation. You must do that by calling gwinClear() (possibly after changing your background color)
+ * @note				The window is not automatically cleared on creation. You must do that by calling @p gwinClear()
+ * 						(possibly after changing your background color)
  *
  * @api
  */
-GHandle gwinCreateWindow(GWindowObject *gw, coord_t x, coord_t y, coord_t width, coord_t height);
+GHandle gwinCreateWindow(GWindowObject *pgw, coord_t x, coord_t y, coord_t width, coord_t height);
 
 /**
  * @brief   Destroy a window (of any type). Releases any dynamically allocated memory.
@@ -85,17 +78,22 @@ GHandle gwinCreateWindow(GWindowObject *gw, coord_t x, coord_t y, coord_t width,
  *
  * @api
  */
-void gwinDestroyWindow(GHandle gh);
+void gwinDestroy(GHandle gh);
 
 /**
- * @brief	Enable or disable a widget (of any type).
+ * @brief	Get the real class name of the GHandle
+ * @details	Returns a string describing the object class.
  *
- * @param[in] gh		The window handle
- * @param[in] enabled	Enable or disable the widget
- *
- * @api
+ * @param[in] gh	The window
  */
-void gwinSetEnabled(GHandle gh, bool_t enabled);
+const char *gwinGetClassName(GHandle gh);
+
+/**
+ * @brief	Get an ID that uniquely describes the class of the GHandle
+ *
+ * @param[in] gh	The window
+ */
+#define gwinGetClassID(gh)		((void *)((gh)->vmt))
 
 /**
  * @brief	Get the X coordinate of the window
@@ -148,23 +146,16 @@ void gwinSetEnabled(GHandle gh, bool_t enabled);
  */
 #define gwinSetBgColor(gh, bgclr)	(gh)->bgcolor = (bgclr)
 
-/**
- * @brief	Enable a window of any type
- *
- * @param[in] gh	The window handle
- */
-#define gwinEnable(gh)				gwinSetEnabled(gh, TRUE)
-
-/**
- * @brief	Disable a window of any type
- *
- * @param[in] gh	The window handle
- */
-#define gwinDisable(gh)				gwinSetEnabled(gh, FALSE)
-
 /* Set up for text */
 
 #if GDISP_NEED_TEXT || defined(__DOXYGEN__)
+	/**
+	 * @brief	Set the default font for all new GWIN windows
+	 *
+	 * @param[in] gh	The window
+	 */
+	void gwinSetDefaultFont(font_t font);
+
 	/**
 	 * @brief   Set the current font for this window.
 	 *
@@ -177,16 +168,6 @@ void gwinSetEnabled(GHandle gh, bool_t enabled);
 #endif
 
 /* Drawing Functions */
-
-/**
- * @brief   Draw the window
- * @note	Redraws the Window if the GWIN object has a draw routine
- *
- * @param[in] gh		The window handle
- *
- * @api
- */
-void gwinDraw(GHandle gh);
 
 /**
  * @brief   Clear the window
@@ -538,12 +519,16 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 }
 #endif
 
+/* Include widgets */
+#include "gwin/gwidget.h"
+
 /* Include extra window types */
-#include "gwin/console.h"		/* 0x0001 */
-#include "gwin/button.h"		/* 0x0002 */
-#include "gwin/graph.h"			/* 0x0003 */
-#include "gwin/slider.h"		/* 0x0004 */
-#include "gwin/checkbox.h"		/* 0x0005 */
+#if GWIN_NEED_CONSOLE || defined(__DOXYGEN__)
+	#include "gwin/console.h"
+#endif
+#if GWIN_NEED_GRAPH || defined(__DOXYGEN__)
+	#include "gwin/graph.h"
+#endif
 
 #endif /* GFX_USE_GWIN */
 

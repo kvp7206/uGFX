@@ -9,11 +9,19 @@
 
 #if GFX_USE_GWIN
 
-#include "gwin/internal.h"
+#include "gwin/class_gwin.h"
+
+static const gwinVMT basegwinVMT = {
+		"GWIN",					// The classname
+		0,						// The destroy routine
+		0,						// The after-clear routine
+};
+
+static font_t	defaultFont;
 
 // Internal routine for use by GWIN components only
 // Initialise a window creating it dynamicly if required.
-GHandle _gwinInit(GWindowObject *gw, coord_t x, coord_t y, coord_t width, coord_t height, size_t size) {
+GHandle _gwinInit(GWindowObject *pgw, coord_t x, coord_t y, coord_t width, coord_t height, size_t size, const gwinVMT *vmt) {
 	coord_t	w, h;
 
 	// Check the window size against the screen size
@@ -26,60 +34,34 @@ GHandle _gwinInit(GWindowObject *gw, coord_t x, coord_t y, coord_t width, coord_
 	if (y+height > h) height = h - y;
 	
 	// Allocate the structure if necessary
-	if (!gw) {
-		if (!(gw = (GWindowObject *)gfxAlloc(size)))
+	if (!pgw) {
+		if (!(pgw = (GWindowObject *)gfxAlloc(size)))
 			return 0;
-		gw->flags = GWIN_FLG_DYNAMIC;
+		pgw->flags = GWIN_FLG_DYNAMIC;
 	} else
-		gw->flags = 0;
+		pgw->flags = 0;
 	
-	// Initialise all basic fields (except the type)
-	gw->x = x;
-	gw->y = y;
-	gw->width = width;
-	gw->height = height;
-	gw->color = White;
-	gw->bgcolor = Black;
+	// Initialise all basic fields
+	pgw->vmt = vmt;
+	pgw->x = x;
+	pgw->y = y;
+	pgw->width = width;
+	pgw->height = height;
+	pgw->color = White;
+	pgw->bgcolor = Black;
 	#if GDISP_NEED_TEXT
-		gw->font = 0;
+		pgw->font = defaultFont;
 	#endif
-	return (GHandle)gw;
+	return (GHandle)pgw;
 }
 
-GHandle gwinCreateWindow(GWindowObject *gw, coord_t x, coord_t y, coord_t width, coord_t height) {
-	if (!(gw = (GWindowObject *)_gwinInit((GWindowObject *)gw, x, y, width, height, sizeof(GWindowObject))))
-		return 0;
-	gw->type = GW_WINDOW;
-	return (GHandle)gw;
+GHandle gwinCreateWindow(GWindowObject *pgw, coord_t x, coord_t y, coord_t width, coord_t height) {
+	return _gwinInit(pgw, x, y, width, height, sizeof(GWindowObject), &basegwinVMT);
 }
 
-void gwinSetEnabled(GHandle gh, bool_t enabled) {
-	(void)gh;
-	(void)enabled;
-}
-
-void gwinDestroyWindow(GHandle gh) {
-	// Clean up any type specific dynamic memory allocations
-	switch(gh->type) {
-#if GWIN_NEED_BUTTON
-	case GW_BUTTON:
-		if ((gh->flags & GBTN_FLG_ALLOCTXT)) {
-			gh->flags &= ~GBTN_FLG_ALLOCTXT;		// To be sure, to be sure
-			gfxFree((void *)((GButtonObject *)gh)->txt);
-		}
-		geventDetachSource(&((GButtonObject *)gh)->listener, 0);
-		geventDetachSourceListeners((GSourceHandle)gh);
-		break;
-#endif
-#if GWIN_NEED_SLIDER
-	case GW_SLIDER:
-		geventDetachSource(&((GSliderObject *)gh)->listener, 0);
-		geventDetachSourceListeners((GSourceHandle)gh);
-		break;
-#endif
-	default:
-		break;
-	}
+void gwinDestroy(GHandle gh) {
+	if (gh->vmt->Destroy)
+		gh->vmt->Destroy(gh);
 
 	// Clean up the structure
 	if (gh->flags & GWIN_FLG_DYNAMIC) {
@@ -88,30 +70,17 @@ void gwinDestroyWindow(GHandle gh) {
 	}
 }
 
-void gwinDraw(GHandle gh) {
-	switch(gh->type) {
-	#if GWIN_NEED_BUTTON
-		case GW_BUTTON:
-			gwinButtonDraw(gh);
-			break;
-	#endif
-	#if GWIN_NEED_SLIDER
-		case GW_SLIDER:
-			gwinSliderDraw(gh);
-			break;
-	#endif
-	}
+const char *gwinGetClassName(GHandle gh) {
+	return gh->vmt->classname;
 }
 
 #if GDISP_NEED_TEXT
+	void gwinSetDefaultFont(font_t font) {
+		defaultFont = font;
+	}
+
 	void gwinSetFont(GHandle gh, font_t font) {
 		gh->font = font;
-	#if GWIN_NEED_CONSOLE
-		if (font && gh->type == GW_CONSOLE) {
-			((GConsoleObject *)gh)->fy = gdispGetFontMetric(font, fontHeight);
-			((GConsoleObject *)gh)->fp = gdispGetFontMetric(font, fontCharPadding);
-		}
-	#endif
 	}
 #endif
 
@@ -120,13 +89,8 @@ void gwinClear(GHandle gh) {
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
 	gdispFillArea(gh->x, gh->y, gh->width, gh->height, gh->bgcolor);
-
-	#if GWIN_NEED_CONSOLE
-		if (gh->type == GW_CONSOLE) {
-			((GConsoleObject *)gh)->cx = 0;
-			((GConsoleObject *)gh)->cy = 0;
-		}
-	#endif
+	if (gh->vmt->AfterClear)
+		gh->vmt->AfterClear(gh);
 }
 
 void gwinDrawPixel(GHandle gh, coord_t x, coord_t y) {

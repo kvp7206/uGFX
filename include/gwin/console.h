@@ -24,22 +24,13 @@
 #ifndef _GWIN_CONSOLE_H
 #define _GWIN_CONSOLE_H
 
-#if GWIN_NEED_CONSOLE || defined(__DOXYGEN__)
-
-/*===========================================================================*/
-/* Driver constants.														 */
-/*===========================================================================*/
-
-#define GW_CONSOLE				0x0001
-
-/*===========================================================================*/
-/* Type definitions                                                          */
-/*===========================================================================*/
+/* This file is included within "gwin/gwin.h" */
 
 // A console window. Supports wrapped text writing and a cursor.
 typedef struct GConsoleObject_t {
-	GWindowObject		gwin;
-	
+	GWindowObject	g;
+	coord_t			cx, cy;			// Cursor position
+
 	#if GFX_USE_OS_CHIBIOS && GWIN_CONSOLE_USE_BASESTREAM
 		struct GConsoleWindowStream_t {
 			const struct GConsoleWindowVMT_t *vmt;
@@ -47,14 +38,7 @@ typedef struct GConsoleObject_t {
 			} stream;
 	#endif
 	
-	coord_t		cx,cy;			// Cursor position
-	uint8_t		fy;				// Current font height
-	uint8_t		fp;				// Current font inter-character spacing
 	} GConsoleObject;
-
-/*===========================================================================*/
-/* External declarations.                                                    */
-/*===========================================================================*/
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,18 +51,19 @@ extern "C" {
  * @return  NULL if there is no resultant drawing area, otherwise a window handle.
  *
  * @param[in] gc		The GConsoleObject structure to initialise. If this is NULL the structure is dynamically allocated.
- * @param[in] x,y		The screen co-ordinates for the bottom left corner of the window
+ * @param[in] x,y		The screen co-ordinates for the top left corner of the window
  * @param[in] width		The width of the window
  * @param[in] height	The height of the window
- * @param[in] font		The font to use
+ *
  * @note				The console is not automatically cleared on creation. You must do that by calling gwinClear() (possibly after changing your background color)
+ * @note				Don't forget to set the font using @p gwinSetFont() or @p gwinSetDefaultFont()
  * @note				If the dispay does not support scrolling, the window will be cleared when the bottom line is reached.
  * @note				The default drawing color gets set to White and the background drawing color to Black.
  * @note				The dimensions and position may be changed to fit on the real screen.
  *
  * @api
  */
-GHandle gwinCreateConsole(GConsoleObject *gc, coord_t x, coord_t y, coord_t width, coord_t height, font_t font);
+GHandle gwinCreateConsole(GConsoleObject *gc, coord_t x, coord_t y, coord_t width, coord_t height);
 
 #if GFX_USE_OS_CHIBIOS && GWIN_CONSOLE_USE_BASESTREAM
 	/**
@@ -156,8 +141,6 @@ void gwinPrintf(GHandle gh, const char *fmt, ...);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* GWIN_NEED_CONSOLE */
 
 #endif /* _GWIN_CONSOLE_H */
 /** @} */
