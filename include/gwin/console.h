@@ -55,11 +55,15 @@ extern "C" {
  * @param[in] width		The width of the window
  * @param[in] height	The height of the window
  *
- * @note				The console is not automatically cleared on creation. You must do that by calling gwinClear() (possibly after changing your background color)
- * @note				Don't forget to set the font using @p gwinSetFont() or @p gwinSetDefaultFont()
- * @note				If the dispay does not support scrolling, the window will be cleared when the bottom line is reached.
- * @note				The default drawing color gets set to White and the background drawing color to Black.
+ * @note				The drawing color and the background color get set to the current defaults. If you haven't called
+ * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are White and Black respectively.
+ * @note				The font gets set to the current default font. If you haven't called @p gwinSetDefaultFont() then there
+ * 						is no default font and text drawing operations will no nothing.
  * @note				The dimensions and position may be changed to fit on the real screen.
+ * @note				On creation the window is marked as visible but is not automatically cleared. You may do that by calling @p gwinClear()
+ * 						(possibly after changing your background color)
+ * @note				A console does not save the drawing state. It is not automatically redrawn if the window is moved or
+ * 						its visibility state is changed.
  *
  * @api
  */

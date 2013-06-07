@@ -40,6 +40,7 @@ static const gwidgetVMT buttonVMT = {
 	{
 		"Button",				// The classname
 		_gwidgetDestroy,		// The destroy routine
+		_gwidgetRedraw,			// The redraw routine
 		0,						// The after-clear routine
 	},
 	gwinButtonDraw_3D,		// The default drawing routine
@@ -94,14 +95,14 @@ static void SendButtonEvent(GWidgetObject *gw) {
 static void MouseDown(GWidgetObject *gw, coord_t x, coord_t y) {
 	(void) x; (void) y;
 	gw->g.flags |= GBUTTON_FLG_PRESSED;
-	gwinDraw((GHandle)gw);
+	_gwidgetRedraw((GHandle)gw);
 }
 
 // A mouse up has occurred (it may or may not be over the button)
 static void MouseUp(GWidgetObject *gw, coord_t x, coord_t y) {
 	(void) x; (void) y;
 	gw->g.flags &= ~GBUTTON_FLG_PRESSED;
-	gwinDraw((GHandle)gw);
+	_gwidgetRedraw((GHandle)gw);
 
 	#if !GWIN_BUTTON_LAZY_RELEASE
 		// If the mouse up was not over the button then cancel the event
@@ -116,14 +117,14 @@ static void MouseUp(GWidgetObject *gw, coord_t x, coord_t y) {
 static void ToggleOff(GWidgetObject *gw, uint16_t instance) {
 	(void) instance;
 	gw->g.flags &= ~GBUTTON_FLG_PRESSED;
-	gwinDraw((GHandle)gw);
+	_gwidgetRedraw((GHandle)gw);
 }
 
 // A toggle on has occurred
 static void ToggleOn(GWidgetObject *gw, uint16_t instance) {
 	(void) instance;
 	gw->g.flags |= GBUTTON_FLG_PRESSED;
-	gwinDraw((GHandle)gw);
+	_gwidgetRedraw((GHandle)gw);
 	// Trigger the event on button down (different than for mouse/touch)
 	SendButtonEvent(gw);
 }

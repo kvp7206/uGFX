@@ -11,70 +11,121 @@
 
 #include "gwin/class_gwin.h"
 
+// Needed if there is no window manager
+#define MIN_WIN_WIDTH	1
+#define MIN_WIN_HEIGHT	1
+
+/*-----------------------------------------------
+ * Data
+ *-----------------------------------------------*/
+
 static const gwinVMT basegwinVMT = {
 		"GWIN",					// The classname
 		0,						// The destroy routine
+		0,						// The redraw routine
 		0,						// The after-clear routine
 };
 
-static font_t	defaultFont;
 static color_t	defaultFgColor = White;
 static color_t	defaultBgColor = Black;
+#if GDISP_NEED_TEXT
+	static font_t	defaultFont;
+#endif
+#if GWIN_NEED_WINDOWMANAGER
+	gfxQueueASync			_GWINList;
+	extern GWindowManager	GNullWindowManager;
+	static GWindowManager *	cwm;
+#endif
+
+/*-----------------------------------------------
+ * Helper Routines
+ *-----------------------------------------------*/
+
+#if !GWIN_NEED_WINDOWMANAGER
+	static void _gwm_vis(GHandle gh) {
+		if (gh->vmt->Redraw) {
+			#if GDISP_NEED_CLIP
+				gdispSetClip(gh->x, gh->y, gh->width, gh->height);
+			#endif
+			gh->vmt->Redraw(gh);
+		} else
+			gwinClear(gh);
+	}
+	static void _gwm_redim(GHandle gh, coord_t x, coord_t y, coord_t w, coord_t h) {
+		if (x < 0) { w += x; x = 0; }
+		if (y < 0) { h += y; y = 0; }
+		if (x > gdispGetWidth()-MIN_WIN_WIDTH)		x = gdispGetWidth()-MIN_WIN_WIDTH;
+		if (y > gdispGetHeight()-MIN_WIN_HEIGHT)	y = gdispGetHeight()-MIN_WIN_HEIGHT;
+		if (w < MIN_WIN_WIDTH) { w = MIN_WIN_WIDTH; }
+		if (h < MIN_WIN_HEIGHT) { h = MIN_WIN_HEIGHT; }
+		if (x+w > gdispGetWidth()) w = gdispGetWidth() - x;
+		if (y+h > gdispGetHeight()) h = gdispGetHeight() - y;
+		gh->x = x; gh->y = y;
+		gh->width = w; gh->height = h;
+	}
+#endif
+
+/*-----------------------------------------------
+ * Class Routines
+ *-----------------------------------------------*/
+
+void _gwinInit(void) {
+	#if GWIN_NEED_WINDOWMANAGER
+		gfxQueueASyncInit(&_GWINList);
+		cwm = &GNullWindowManager;
+		cwm->vmt->Init();
+	#endif
+}
 
 // Internal routine for use by GWIN components only
-// Initialise a window creating it dynamicly if required.
-GHandle _gwinInit(GWindowObject *pgw, coord_t x, coord_t y, coord_t width, coord_t height, size_t size, const gwinVMT *vmt) {
-	coord_t	w, h;
-
-	// Check the window size against the screen size
-	w = gdispGetWidth();
-	h = gdispGetHeight();
-	if (x < 0) { width += x; x = 0; }
-	if (y < 0) { height += y; y = 0; }
-	if (x >= w || y >= h) return 0;
-	if (x+width > w) width = w - x;
-	if (y+height > h) height = h - y;
-	
+// Initialise a window creating it dynamically if required.
+GHandle _gwindowInit(GWindowObject *pgw, coord_t x, coord_t y, coord_t width, coord_t height, size_t size, const gwinVMT *vmt, uint16_t flags) {
 	// Allocate the structure if necessary
 	if (!pgw) {
 		if (!(pgw = (GWindowObject *)gfxAlloc(size)))
 			return 0;
-		pgw->flags = GWIN_FLG_DYNAMIC;
+		pgw->flags = flags|GWIN_FLG_DYNAMIC;
 	} else
-		pgw->flags = 0;
+		pgw->flags = flags;
 	
 	// Initialise all basic fields
 	pgw->vmt = vmt;
-	pgw->x = x;
-	pgw->y = y;
-	pgw->width = width;
-	pgw->height = height;
 	pgw->color = defaultFgColor;
 	pgw->bgcolor = defaultBgColor;
 	#if GDISP_NEED_TEXT
 		pgw->font = defaultFont;
 	#endif
+
+	#if GWIN_NEED_WINDOWMANAGER
+		if (!cwm->vmt->Add(pgw, x, y, width, height)) {
+			if ((pgw->flags & GWIN_FLG_DYNAMIC))
+				gfxFree(pgw);
+			return 0;
+		}
+	#else
+		_gwm_redim(pgw, x, y, width, height);
+		if ((pgw->flags & GWIN_FLG_VISIBLE))
+			_gwm_vis(pgw);
+	#endif
+
 	return (GHandle)pgw;
 }
 
-GHandle gwinCreateWindow(GWindowObject *pgw, coord_t x, coord_t y, coord_t width, coord_t height) {
-	return _gwinInit(pgw, x, y, width, height, sizeof(GWindowObject), &basegwinVMT);
-}
+/*-----------------------------------------------
+ * Routines that affect all windows
+ *-----------------------------------------------*/
 
-void gwinDestroy(GHandle gh) {
-	if (gh->vmt->Destroy)
-		gh->vmt->Destroy(gh);
-
-	// Clean up the structure
-	if (gh->flags & GWIN_FLG_DYNAMIC) {
-		gh->flags = 0;							// To be sure, to be sure
-		gfxFree((void *)gh);
+#if GWIN_NEED_WINDOWMANAGER
+	void gwinSetWindowManager(struct GWindowManager *gwm) {
+		if (!gwm)
+			gwm = &GNullWindowManager;
+		if (cwm != gwm) {
+			cwm->vmt->DeInit();
+			cwm = gwm;
+			cwm->vmt->Init();
+		}
 	}
-}
-
-const char *gwinGetClassName(GHandle gh) {
-	return gh->vmt->classname;
-}
+#endif
 
 void gwinSetDefaultColor(color_t clr) {
 	defaultFgColor = clr;
@@ -88,13 +139,119 @@ void gwinSetDefaultBgColor(color_t bgclr) {
 	void gwinSetDefaultFont(font_t font) {
 		defaultFont = font;
 	}
+#endif
 
+/*-----------------------------------------------
+ * The GWindow Routines
+ *-----------------------------------------------*/
+
+GHandle gwinCreateWindow(GWindowObject *pgw, coord_t x, coord_t y, coord_t width, coord_t height) {
+	return _gwindowInit(pgw, x, y, width, height, sizeof(GWindowObject), &basegwinVMT, GWIN_FLG_VISIBLE);
+}
+
+void gwinDestroy(GHandle gh) {
+	// Remove from the window manager
+	#if GWIN_NEED_WINDOWMANAGER
+		cwm->vmt->Delete(gh);
+	#endif
+
+	// Class destroy routine
+	if (gh->vmt->Destroy)
+		gh->vmt->Destroy(gh);
+
+	// Clean up the structure
+	if (gh->flags & GWIN_FLG_DYNAMIC)
+		gfxFree((void *)gh);
+
+	gh->flags = 0;							// To be sure, to be sure
+}
+
+const char *gwinGetClassName(GHandle gh) {
+	return gh->vmt->classname;
+}
+
+void gwinSetVisible(GHandle gh, bool_t visible) {
+	if (visible) {
+		if (!(gh->flags & GWIN_FLG_VISIBLE)) {
+			gh->flags |= GWIN_FLG_VISIBLE;
+			#if GWIN_NEED_WINDOWMANAGER
+				cwm->vmt->Visible(gh);
+			#else
+				_gwm_vis(gh);
+			#endif
+		}
+	} else {
+		if ((gh->flags & GWIN_FLG_VISIBLE)) {
+			gh->flags &= ~GWIN_FLG_VISIBLE;
+			#if GWIN_NEED_WINDOWMANAGER
+				cwm->vmt->Visible(gh);
+			#endif
+		}
+	}
+}
+
+bool_t gwinGetVisible(GHandle gh) {
+	return (gh->flags & GWIN_FLG_VISIBLE) ? TRUE : FALSE;
+}
+
+void gwinMove(GHandle gh, coord_t x, coord_t y) {
+	#if GWIN_NEED_WINDOWMANAGER
+		cwm->vmt->Redim(gh, x, y, gh->width, gh->height);
+	#else
+		_gwm_redim(gh, x, y, gh->width, gh->height);
+	#endif
+}
+
+void gwinResize(GHandle gh, coord_t width, coord_t height) {
+	#if GWIN_NEED_WINDOWMANAGER
+		cwm->vmt->Redim(gh, gh->x, gh->y, width, height);
+	#else
+		_gwm_redim(gh, gh->x, gh->y, width, height);
+	#endif
+}
+
+void gwinSetMinMax(GHandle gh, GWindowMinMax minmax) {
+	#if GWIN_NEED_WINDOWMANAGER
+		cwm->vmt->MinMax(gh, minmax);
+	#else
+		(void) gh;
+		(void) minmax;
+	#endif
+}
+
+void gwinRaise(GHandle gh) {
+	#if GWIN_NEED_WINDOWMANAGER
+		cwm->vmt->Raise(gh);
+	#else
+		if ((gh->flags & GWIN_FLG_VISIBLE)) {
+			if (gh->vmt->Redraw) {
+				#if GDISP_NEED_CLIP
+					gdispSetClip(gh->x, gh->y, gh->width, gh->height);
+				#endif
+				gh->vmt->Redraw(gh);
+			}
+		}
+	#endif
+}
+
+GWindowMinMax gwinGetMinMax(GHandle gh) {
+	if (gh->flags & GWIN_FLG_MINIMIZED)
+		return GWIN_MINIMIZE;
+	if (gh->flags & GWIN_FLG_MAXIMIZED)
+		return GWIN_MAXIMIZE;
+	return GWIN_NORMAL;
+}
+
+#if GDISP_NEED_TEXT
 	void gwinSetFont(GHandle gh, font_t font) {
 		gh->font = font;
 	}
 #endif
 
 void gwinClear(GHandle gh) {
+	if (!((gh->flags & GWIN_FLG_VISIBLE)))
+		return;
+
 	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
@@ -104,6 +261,9 @@ void gwinClear(GHandle gh) {
 }
 
 void gwinDrawPixel(GHandle gh, coord_t x, coord_t y) {
+	if (!((gh->flags & GWIN_FLG_VISIBLE)))
+		return;
+
 	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
@@ -111,6 +271,9 @@ void gwinDrawPixel(GHandle gh, coord_t x, coord_t y) {
 }
 
 void gwinDrawLine(GHandle gh, coord_t x0, coord_t y0, coord_t x1, coord_t y1) {
+	if (!((gh->flags & GWIN_FLG_VISIBLE)))
+		return;
+
 	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
@@ -118,6 +281,9 @@ void gwinDrawLine(GHandle gh, coord_t x0, coord_t y0, coord_t x1, coord_t y1) {
 }
 
 void gwinDrawBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy) {
+	if (!((gh->flags & GWIN_FLG_VISIBLE)))
+		return;
+
 	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
@@ -125,6 +291,9 @@ void gwinDrawBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy) {
 }
 
 void gwinFillArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy) {
+	if (!((gh->flags & GWIN_FLG_VISIBLE)))
+		return;
+
 	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
@@ -132,6 +301,9 @@ void gwinFillArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy) {
 }
 
 void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer) {
+	if (!((gh->flags & GWIN_FLG_VISIBLE)))
+		return;
+
 	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 	#endif
@@ -140,6 +312,9 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 
 #if GDISP_NEED_CIRCLE
 	void gwinDrawCircle(GHandle gh, coord_t x, coord_t y, coord_t radius) {
+		if (!((gh->flags & GWIN_FLG_VISIBLE)))
+			return;
+
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
@@ -147,6 +322,9 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 	}
 
 	void gwinFillCircle(GHandle gh, coord_t x, coord_t y, coord_t radius) {
+		if (!((gh->flags & GWIN_FLG_VISIBLE)))
+			return;
+
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
@@ -156,6 +334,9 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 
 #if GDISP_NEED_ELLIPSE
 	void gwinDrawEllipse(GHandle gh, coord_t x, coord_t y, coord_t a, coord_t b) {
+		if (!((gh->flags & GWIN_FLG_VISIBLE)))
+			return;
+
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
@@ -163,6 +344,9 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 	}
 
 	void gwinFillEllipse(GHandle gh, coord_t x, coord_t y, coord_t a, coord_t b) {
+		if (!((gh->flags & GWIN_FLG_VISIBLE)))
+			return;
+
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
@@ -172,6 +356,9 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 
 #if GDISP_NEED_ARC
 	void gwinDrawArc(GHandle gh, coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle) {
+		if (!((gh->flags & GWIN_FLG_VISIBLE)))
+			return;
+
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
@@ -179,6 +366,9 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 	}
 
 	void gwinFillArc(GHandle gh, coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle) {
+		if (!((gh->flags & GWIN_FLG_VISIBLE)))
+			return;
+
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
@@ -188,6 +378,9 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 
 #if GDISP_NEED_PIXELREAD
 	color_t gwinGetPixelColor(GHandle gh, coord_t x, coord_t y) {
+		if (!((gh->flags & GWIN_FLG_VISIBLE)))
+			return;
+
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
@@ -197,7 +390,9 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 
 #if GDISP_NEED_TEXT
 	void gwinDrawChar(GHandle gh, coord_t x, coord_t y, char c) {
-		if (!gh->font) return;
+		if (!((gh->flags & GWIN_FLG_VISIBLE)) || !gh->font)
+			return;
+
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
@@ -205,7 +400,9 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 	}
 
 	void gwinFillChar(GHandle gh, coord_t x, coord_t y, char c) {
-		if (!gh->font) return;
+		if (!((gh->flags & GWIN_FLG_VISIBLE)) || !gh->font)
+			return;
+
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
@@ -213,7 +410,9 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 	}
 
 	void gwinDrawString(GHandle gh, coord_t x, coord_t y, const char *str) {
-		if (!gh->font) return;
+		if (!((gh->flags & GWIN_FLG_VISIBLE)) || !gh->font)
+			return;
+
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
@@ -221,7 +420,9 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 	}
 
 	void gwinFillString(GHandle gh, coord_t x, coord_t y, const char *str) {
-		if (!gh->font) return;
+		if (!((gh->flags & GWIN_FLG_VISIBLE)) || !gh->font)
+			return;
+
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
@@ -229,7 +430,9 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 	}
 
 	void gwinDrawStringBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, justify_t justify) {
-		if (!gh->font) return;
+		if (!((gh->flags & GWIN_FLG_VISIBLE)) || !gh->font)
+			return;
+
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
@@ -237,7 +440,9 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 	}
 
 	void gwinFillStringBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, justify_t justify) {
-		if (!gh->font) return;
+		if (!((gh->flags & GWIN_FLG_VISIBLE)) || !gh->font)
+			return;
+
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
@@ -247,6 +452,9 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 
 #if GDISP_NEED_CONVEX_POLYGON
 	void gwinDrawPoly(GHandle gh, coord_t tx, coord_t ty, const point *pntarray, unsigned cnt) {
+		if (!((gh->flags & GWIN_FLG_VISIBLE)))
+			return;
+
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
@@ -254,6 +462,9 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 	}
 
 	void gwinFillConvexPoly(GHandle gh, coord_t tx, coord_t ty, const point *pntarray, unsigned cnt) {
+		if (!((gh->flags & GWIN_FLG_VISIBLE)))
+			return;
+
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
@@ -263,6 +474,9 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 
 #if GDISP_NEED_IMAGE
 	gdispImageError gwinImageDraw(GHandle gh, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy) {
+		if (!((gh->flags & GWIN_FLG_VISIBLE)))
+			return GDISP_IMAGE_ERR_OK;
+
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif

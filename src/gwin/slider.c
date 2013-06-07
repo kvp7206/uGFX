@@ -35,6 +35,7 @@ static const gwidgetVMT sliderVMT = {
 	{
 		"Slider",				// The classname
 		_gwidgetDestroy,		// The destroy routine
+		_gwidgetRedraw,			// The redraw routine
 		0,						// The after-clear routine
 	},
 	gwinSliderDraw_Std,		// The default drawing routine
@@ -101,7 +102,7 @@ static void MouseUp(GWidgetObject *gw, coord_t x, coord_t y) {
 		if (x < 0 || x >= gh->width || y < 0 || y >= gh->height) {
 			// No - restore the slider
 			ResetDisplayPos(gsw);
-			gwinDraw(gh);
+			_gwidgetRedraw(gh);
 			return;
 		}
 	#endif
@@ -124,7 +125,7 @@ static void MouseUp(GWidgetObject *gw, coord_t x, coord_t y) {
 	}
 
 	ResetDisplayPos(gsw);
-	gwinDraw(gh);
+	_gwidgetRedraw(gh);
 
 	// Generate the event
 	SendSliderEvent(gw);
@@ -154,7 +155,7 @@ static void MouseMove(GWidgetObject *gw, coord_t x, coord_t y) {
 	}
 
 	// Update the display
-	gwinDraw(&gw->g);
+	_gwidgetRedraw(&gw->g);
 	#undef gsw
 }
 

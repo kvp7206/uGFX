@@ -7,7 +7,7 @@
 
 #include "gfx.h"
 
-#if GFX_USE_GWIN
+#if GFX_USE_GWIN && GWIN_NEED_WIDGET
 
 #include <string.h>
 
@@ -24,7 +24,7 @@ static void gwidgetCallback(void *param, GEvent *pe) {
 	#define pde		((GEventDial *)pe)
 
 	// check if widget is disabled
-	if (!(gw->g.flags & GWIN_FLG_ENABLED))
+	if ((gw->g.flags & (GWIN_FLG_ENABLED|GWIN_FLG_VISIBLE)) != (GWIN_FLG_ENABLED|GWIN_FLG_VISIBLE))
 		return;
 
 	// Process via AllEvents() if it is defined
@@ -87,10 +87,9 @@ static void gwidgetCallback(void *param, GEvent *pe) {
 }
 
 GHandle _gwidgetInit(GWidgetObject *pgw, coord_t x, coord_t y, coord_t width, coord_t height, size_t size, const gwidgetVMT *vmt) {
-	if (!(pgw = (GWidgetObject *)_gwinInit((GWindowObject *)pgw, x, y, width, height, size, (const gwinVMT *)vmt)))
+	if (!(pgw = (GWidgetObject *)_gwindowInit((GWindowObject *)pgw, x, y, width, height, size, (const gwinVMT *)vmt, GWIN_FLG_WIDGET|GWIN_FLG_ENABLED)))
 		return 0;
 
-	pgw->g.flags |= (GWIN_FLG_WIDGET|GWIN_FLG_ENABLED);
 	pgw->txt = "";
 	pgw->fnDraw = vmt->DefaultDraw;
 	pgw->fnParam = 0;
@@ -101,9 +100,6 @@ GHandle _gwidgetInit(GWidgetObject *pgw, coord_t x, coord_t y, coord_t width, co
 }
 
 void _gwidgetDestroy(GHandle gh) {
-	if (!(gh->flags & GWIN_FLG_WIDGET))
-		return;
-
 	// Deallocate the text (if necessary)
 	if ((gh->flags & GWIN_FLG_ALLOCTXT)) {
 		gh->flags &= ~GWIN_FLG_ALLOCTXT;
@@ -112,21 +108,10 @@ void _gwidgetDestroy(GHandle gh) {
 	// Untangle the listeners (both on us and to us).
 	geventDetachSource(&gw->listener, 0);
 	geventDetachSourceListeners((GSourceHandle)gh);
-	gh->flags &= ~GWIN_FLG_WIDGET;
 }
 
-void gwinSetEnabled(GHandle gh, bool_t enabled) {
-	if (!(gh->flags & GWIN_FLG_WIDGET))
-		return;
-
-	if (enabled)
-		gh->flags |= GWIN_FLG_ENABLED;
-	else
-		gh->flags &= ~GWIN_FLG_ENABLED;
-}
-
-void gwinDraw(GHandle gh) {
-	if (!(gh->flags & GWIN_FLG_WIDGET))
+void _gwidgetRedraw(GHandle gh) {
+	if (!(gh->flags & GWIN_FLG_VISIBLE))
 		return;
 
 	#if GDISP_NEED_CLIP
@@ -134,6 +119,23 @@ void gwinDraw(GHandle gh) {
 	#endif
 
 	gw->fnDraw(gw, gw->fnParam);
+}
+
+void gwinSetEnabled(GHandle gh, bool_t enabled) {
+	if (!(gh->flags & GWIN_FLG_WIDGET))
+		return;
+
+	if (enabled) {
+		if (!(gh->flags & GWIN_FLG_ENABLED)) {
+			gh->flags |= GWIN_FLG_ENABLED;
+			_gwidgetRedraw(gh);
+		}
+	} else {
+		if ((gh->flags & GWIN_FLG_ENABLED)) {
+			gh->flags &= ~GWIN_FLG_ENABLED;
+			_gwidgetRedraw(gh);
+		}
+	}
 }
 
 void gwinSetText(GHandle gh, const char *txt, bool_t useAlloc) {
@@ -162,6 +164,7 @@ void gwinSetText(GHandle gh, const char *txt, bool_t useAlloc) {
 	}
 
 	gw->txt = txt ? txt : "";
+	_gwidgetRedraw(gh);
 }
 
 const char *gwinGetText(GHandle gh) {
@@ -177,6 +180,7 @@ void gwinSetCustomDraw(GHandle gh, CustomWidgetDrawFunction fn, void *param) {
 
 	gw->fnDraw = fn ? fn : wvmt->DefaultDraw;
 	gw->fnParam = param;
+	_gwidgetRedraw(gh);
 }
 
 bool_t gwinAttachListener(GHandle gh, GListener *pl, unsigned flags) {
@@ -249,6 +253,6 @@ bool_t gwinAttachListener(GHandle gh, GListener *pl, unsigned flags) {
 	}
 #endif
 
-#endif /* GFX_USE_GWIN */
+#endif /* GFX_USE_GWIN && GWIN_NEED_WIDGET */
 /** @} */
 

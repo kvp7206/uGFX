@@ -33,6 +33,7 @@ static const gwidgetVMT checkboxVMT = {
 	{
 		"Checkbox",				// The classname
 		_gwidgetDestroy,		// The destroy routine
+		_gwidgetRedraw,			// The redraw routine
 		0,						// The after-clear routine
 	},
 	gwinCheckboxDraw_CheckOnLeft,	// The default drawing routine
@@ -78,7 +79,7 @@ static void SendCheckboxEvent(GWidgetObject *gw) {
 static void MouseDown(GWidgetObject *gw, coord_t x, coord_t y) {
 	(void) x; (void) y;
 	gw->g.flags ^= GCHECKBOX_FLG_CHECKED;
-	gwinDraw((GHandle)gw);
+	_gwidgetRedraw((GHandle)gw);
 	SendCheckboxEvent(gw);
 }
 
@@ -86,7 +87,7 @@ static void MouseDown(GWidgetObject *gw, coord_t x, coord_t y) {
 static void ToggleOn(GWidgetObject *gw, uint16_t instance) {
 	(void) instance;
 	gw->g.flags ^= GCHECKBOX_FLG_CHECKED;
-	gwinDraw((GHandle)gw);
+	_gwidgetRedraw((GHandle)gw);
 	SendCheckboxEvent(gw);
 }
 

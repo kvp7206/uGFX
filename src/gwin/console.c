@@ -61,11 +61,12 @@ static void AfterClear(GWindowObject *gh) {
 static const gwinVMT consoleVMT = {
 		"Console",				// The classname
 		0,						// The destroy routine
+		0,						// The redraw routine
 		AfterClear,				// The after-clear routine
 };
 
 GHandle gwinCreateConsole(GConsoleObject *gc, coord_t x, coord_t y, coord_t width, coord_t height) {
-	if (!(gc = (GConsoleObject *)_gwinInit((GWindowObject *)gc, x, y, width, height, sizeof(GConsoleObject), &consoleVMT)))
+	if (!(gc = (GConsoleObject *)_gwindowInit((GWindowObject *)gc, x, y, width, height, sizeof(GConsoleObject), &consoleVMT, GWIN_FLG_VISIBLE)))
 		return 0;
 	#if GFX_USE_OS_CHIBIOS && GWIN_CONSOLE_USE_BASESTREAM
 		gc->stream.vmt = &GWindowConsoleVMT;

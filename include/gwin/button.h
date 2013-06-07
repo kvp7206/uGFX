@@ -73,10 +73,15 @@ extern "C" {
  * @param[in] width		The width of the window
  * @param[in] height	The height of the window
  *
- * @note				The drawing color gets set to White and the background drawing color to Black.
- * @note				Don't forget to set the font using @p gwinSetFont() or @p gwinSetDefaultFont()
+ * @note				The drawing color and the background color get set to the current defaults. If you haven't called
+ * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are White and Black respectively.
+ * @note				The font gets set to the current default font. If you haven't called @p gwinSetDefaultFont() then there
+ * 						is no default font and text drawing operations will no nothing.
  * @note				The dimensions and position may be changed to fit on the real screen.
- * @note				The button is not automatically drawn. Call gwinDraw() to draw it.
+ * @note				A button remembers its normal button state. If there is a window manager then it is automatically
+ * 						redrawn if the window is moved or its visibility state is changed.
+ * @note				The button is initially marked as invisible so that more properties can be set before display.
+ * 						Call @p gwinSetVisible() to display it when ready.
  *
  * @api
  */	

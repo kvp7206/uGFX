@@ -74,47 +74,12 @@ extern "C" {
  * @param[in] gh		The widget handle
  * @param[in] enabled	Enable or disable the widget
  *
- * @note				The widget is not automatically redrawn. Call @p gwinDraw() to redraw the widget.
+ * @note				The widget is automatically redrawn.
  * @note				Non-widgets will ignore this call.
  *
  * @api
  */
 void gwinSetEnabled(GHandle gh, bool_t enabled);
-
-/**
- * @brief	Enable a widget
- *
- * @param[in] gh		The widget handle
- *
- * @note				The widget is not automatically redrawn. Call @p gwinDraw() to redraw the widget.
- * @note				Non-widgets will ignore this call.
- *
- * @api
- */
-#define gwinEnable(gh)				gwinSetEnabled(gh, TRUE)
-
-/**
- * @brief	Disable a widget
- *
- * @param[in] gh		The widget handle
- *
- * @note				The widget is not automatically redrawn. Call @p gwinDraw() to redraw the widget.
- * @note				Non-widgets will ignore this call.
- *
- * @api
- */
-#define gwinDisable(gh)				gwinSetEnabled(gh, FALSE)
-
-/**
- * @brief   Redraw the widget
- *
- * @param[in] gh		The widget handle
- *
- * @note				Non-widgets will ignore this call.
- *
- * @api
- */
-void gwinDraw(GHandle gh);
 
 /**
  * @brief   Set the text of a widget.
@@ -123,7 +88,7 @@ void gwinDraw(GHandle gh);
  * @param[in] txt		The text to set. This must be a constant string unless useAlloc is set.
  * @param[in] useAlloc	If TRUE the string specified will be copied into dynamically allocated memory.
  *
- * @note				The widget is not automatically redrawn. Call @p gwinDraw() to redraw the widget.
+ * @note				The widget is automatically redrawn
  * @note				Non-widgets will ignore this call.
  *
  * @api

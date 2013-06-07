@@ -21,20 +21,22 @@
  * @{
  */
 	/**
-	 * @brief   Should button functions be included.
+	 * @brief   Should a window manager be used.
 	 * @details	Defaults to FALSE
 	 */
-	#ifndef GWIN_NEED_BUTTON
-		#define GWIN_NEED_BUTTON	FALSE
+	#ifndef GWIN_NEED_WINDOWMANAGER
+		#define GWIN_NEED_WINDOWMANAGER	FALSE
+	#endif
+	/**
+	 * @brief   Should widget functions be included. Needed for any widget (eg Buttons, Sliders etc)
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GWIN_NEED_WIDGET
+		#define GWIN_NEED_WIDGET	FALSE
 	#endif
 	/**
 	 * @brief   Should console functions be included.
 	 * @details	Defaults to FALSE
-	 * @note	To use chprintf() for printing in a console window you need to
-	 * 			include in your application source file...
-	 * 			\#include "chprintf.h"
-	 * 			Also in your makefile, as part of your list of C source files, include
-	 * 			${CHIBIOS}/os/various/chprintf.c
 	 */
 	#ifndef GWIN_NEED_CONSOLE
 		#define GWIN_NEED_CONSOLE	FALSE
@@ -47,11 +49,25 @@
 		#define GWIN_NEED_GRAPH		FALSE
 	#endif
 	/**
+	 * @brief   Should button functions be included.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GWIN_NEED_BUTTON
+		#define GWIN_NEED_BUTTON	FALSE
+	#endif
+	/**
 	 * @brief   Should slider functions be included.
 	 * @details	Defaults to FALSE
 	 */
 	#ifndef GWIN_NEED_SLIDER
 		#define GWIN_NEED_SLIDER	FALSE
+	#endif
+	/**
+	 * @brief   Should checkbox functions be included.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GWIN_NEED_CHECKBOX
+		#define GWIN_NEED_CHECKBOX	FALSE
 	#endif
 /**
  * @}
@@ -76,6 +92,12 @@
 	/**
 	 * @brief   Console Windows need BaseStreamSequential support (ChibiOS only)
 	 * @details	Defaults to FALSE
+	 * @note	To use the ChibiOS basestream functions such as chprintf()
+	 * 			for printing in a console window you need to set this option to
+	 * 			TRUE in your gfxconf.h and include in your application source file...
+	 * 			\#include "chprintf.h"
+	 * 			In your makefile, as part of your list of C source files, include
+	 * 			${CHIBIOS}/os/various/chprintf.c
 	 */
 	#ifndef GWIN_CONSOLE_USE_BASESTREAM
 		#define GWIN_CONSOLE_USE_BASESTREAM		FALSE
