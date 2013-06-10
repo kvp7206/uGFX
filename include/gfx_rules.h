@@ -46,24 +46,6 @@
 			#warning "GWIN: Drawing can occur outside the defined windows as GDISP_NEED_CLIP is FALSE"
 		#endif
 	#endif
-	#if GWIN_NEED_WINDOWMANAGER
-		#if !GFX_USE_GQUEUE || !GQUEUE_NEED_ASYNC
-			#if GFX_DISPLAY_RULE_WARNINGS
-				#warning "GWIN: GFX_USE_GQUEUE and GQUEUE_NEED_ASYNC is required if GWIN_NEED_WINDOWMANAGER is TRUE. It has been turned on for you."
-			#endif
-			#undef GFX_USE_GQUEUE
-			#undef GQUEUE_NEED_ASYNC
-			#define GFX_USE_GQUEUE		TRUE
-			#define GQUEUE_NEED_ASYNC	TRUE
-		#endif
-	#endif
-	#if GWIN_NEED_CONSOLE
-		#if !GDISP_NEED_TEXT
-			#error "GWIN: GDISP_NEED_TEXT is required if GWIN_NEED_CONSOLE is TRUE."
-		#endif
-	#endif
-	#if GWIN_NEED_GRAPH
-	#endif
 	#if GWIN_NEED_BUTTON || GWIN_NEED_SLIDER || GWIN_NEED_CHECKBOX
 		#if !GWIN_NEED_WIDGET
 			#if GFX_DISPLAY_RULE_WARNINGS
@@ -81,6 +63,13 @@
 			// This test also ensures that GFX_USE_GEVENT is set
 			#error "GWIN: GFX_USE_GINPUT (and one or more input sources) is required if GWIN_NEED_WIDGET is TRUE"
 		#endif
+		#if !GWIN_NEED_WINDOWMANAGER
+			#if GFX_DISPLAY_RULE_WARNINGS
+				#warning "GWIN: GWIN_NEED_WINDOWMANAGER is required if GWIN_NEED_WIDGET is TRUE. It has been turned on for you."
+			#endif
+			#undef GWIN_NEED_WINDOWMANAGER
+			#define GWIN_NEED_WINDOWMANAGER	TRUE
+		#endif
 		#if !GDISP_NEED_MULTITHREAD && !GDISP_NEED_ASYNC
 			#if GFX_DISPLAY_RULE_WARNINGS
 				#warning "GWIN: Either GDISP_NEED_MULTITHREAD or GDISP_NEED_ASYNC is required if GWIN_NEED_WIDGET is TRUE."
@@ -89,6 +78,24 @@
 			#undef GDISP_NEED_MULTITHREAD
 			#define GDISP_NEED_MULTITHREAD	TRUE
 		#endif
+	#endif
+	#if GWIN_NEED_WINDOWMANAGER
+		#if !GFX_USE_GQUEUE || !GQUEUE_NEED_ASYNC
+			#if GFX_DISPLAY_RULE_WARNINGS
+				#warning "GWIN: GFX_USE_GQUEUE and GQUEUE_NEED_ASYNC is required if GWIN_NEED_WINDOWMANAGER is TRUE. It has been turned on for you."
+			#endif
+			#undef GFX_USE_GQUEUE
+			#undef GQUEUE_NEED_ASYNC
+			#define GFX_USE_GQUEUE		TRUE
+			#define GQUEUE_NEED_ASYNC	TRUE
+		#endif
+	#endif
+	#if GWIN_NEED_CONSOLE
+		#if !GDISP_NEED_TEXT
+			#error "GWIN: GDISP_NEED_TEXT is required if GWIN_NEED_CONSOLE is TRUE."
+		#endif
+	#endif
+	#if GWIN_NEED_GRAPH
 	#endif
 #endif
 

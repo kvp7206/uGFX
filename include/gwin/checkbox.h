@@ -50,6 +50,7 @@ typedef struct GCheckboxColors {
 /* A Checkbox window */
 typedef struct GCheckboxObject_t {
 	GWidgetObject			w;
+	uint16_t				toggle;
 	GCheckboxColors			c;
 } GCheckboxObject;
 
@@ -62,10 +63,18 @@ typedef struct GCheckboxObject_t {
  * @param[in] width		The width of the window
  * @param[in] height	The height of the window
  *
- * @note				The drawing color gets set to White and the background drawing color to Black.
- * @note				Don't forget to set the font using @p gwinSetFont() or @p gwinSetDefaultFont()
+ * @note				The drawing color and the background color get set to the current defaults. If you haven't called
+ * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are White and Black respectively.
+ * @note				The font gets set to the current default font. If you haven't called @p gwinSetDefaultFont() then there
+ * 						is no default font and text drawing operations will no nothing.
  * @note				The dimensions and position may be changed to fit on the real screen.
- * @note				The checkbox is not automatically drawn. Call gwinDraw() to draw it.
+ * @note				A checkbox remembers its normal drawing state. If there is a window manager then it is automatically
+ * 						redrawn if the window is moved or its visibility state is changed.
+ * @note				The checkbox is initially marked as invisible so that more properties can be set before display.
+ * 						Call @p gwinSetVisible() to display it when ready.
+ * @note				A checkbox supports mouse and a toggle input.
+ * @note				When assigning a toggle, only one toggle is supported. If you try to assign more than one toggle it will
+ * 						forget the previous toggle. When assigning a toggle the role parameter must be 0.
  *
  * @api
  */

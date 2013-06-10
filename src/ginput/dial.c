@@ -57,6 +57,7 @@ static void DialCallback(uint16_t instance, uint16_t rawvalue) {
 		pe->type = GEVENT_DIAL;
 		pe->instance = instance;
 		pe->value = pds->lastvalue;
+		pe->maxvalue = pds->max;
 		geventSendEvent(psl);
 	}
 }
@@ -144,6 +145,7 @@ bool_t ginputGetDialStatus(uint16_t instance, GEventDial *pdial) {
 	pdial->type = GEVENT_DIAL;
 	pdial->instance = instance;
 	pdial->value = DialStatus[instance].lastvalue;
+	pdial->maxvalue = DialStatus[instance].max;
 	return TRUE;
 }
 

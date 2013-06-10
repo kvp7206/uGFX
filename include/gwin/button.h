@@ -55,6 +55,7 @@ typedef struct GButtonColors {
  */
 typedef struct GButtonObject_t {
 	GWidgetObject		w;
+	uint16_t			toggle;
 	GButtonColors		c_up;
 	GButtonColors		c_dn;
 	GButtonColors		c_dis;
@@ -78,10 +79,13 @@ extern "C" {
  * @note				The font gets set to the current default font. If you haven't called @p gwinSetDefaultFont() then there
  * 						is no default font and text drawing operations will no nothing.
  * @note				The dimensions and position may be changed to fit on the real screen.
- * @note				A button remembers its normal button state. If there is a window manager then it is automatically
+ * @note				A button remembers its normal drawing state. If there is a window manager then it is automatically
  * 						redrawn if the window is moved or its visibility state is changed.
  * @note				The button is initially marked as invisible so that more properties can be set before display.
  * 						Call @p gwinSetVisible() to display it when ready.
+ * @note				A button supports mouse and a toggle input.
+ * @note				When assigning a toggle, only one toggle is supported. If you try to assign more than one toggle it will
+ * 						forget the previous toggle. When assigning a toggle the role parameter must be 0.
  *
  * @api
  */	

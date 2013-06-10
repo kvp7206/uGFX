@@ -51,15 +51,17 @@
 #define GDISP_NEED_IMAGE_PNG		FALSE
 
 /* Features for the GWIN sub-system. */
+#define GWIN_NEED_WINDOWMANAGER	TRUE
 #define GWIN_NEED_CONSOLE		TRUE
 #define GWIN_NEED_GRAPH			FALSE
+#define GWIN_NEED_WIDGET		TRUE
 #define GWIN_NEED_BUTTON		TRUE
 #define GWIN_NEED_SLIDER		TRUE
 #define GWIN_NEED_CHECKBOX		TRUE
 
 /* Features for the GINPUT sub-system. */
 #define GINPUT_NEED_MOUSE		TRUE
-#define GINPUT_NEED_TOGGLE		FALSE
+#define GINPUT_NEED_TOGGLE		TRUE
 #define GINPUT_NEED_DIAL		FALSE
 
 #endif /* _GFXCONF_H */

@@ -70,6 +70,11 @@ static color_t	defaultBgColor = Black;
  *-----------------------------------------------*/
 
 void _gwinInit(void) {
+	#if GWIN_NEED_WIDGET
+		extern void _gwidgetInit(void);
+
+		_gwidgetInit();
+	#endif
 	#if GWIN_NEED_WINDOWMANAGER
 		gfxQueueASyncInit(&_GWINList);
 		cwm = &GNullWindowManager;
@@ -79,7 +84,7 @@ void _gwinInit(void) {
 
 // Internal routine for use by GWIN components only
 // Initialise a window creating it dynamically if required.
-GHandle _gwindowInit(GWindowObject *pgw, coord_t x, coord_t y, coord_t width, coord_t height, size_t size, const gwinVMT *vmt, uint16_t flags) {
+GHandle _gwindowCreate(GWindowObject *pgw, coord_t x, coord_t y, coord_t width, coord_t height, size_t size, const gwinVMT *vmt, uint16_t flags) {
 	// Allocate the structure if necessary
 	if (!pgw) {
 		if (!(pgw = (GWindowObject *)gfxAlloc(size)))
@@ -146,7 +151,7 @@ void gwinSetDefaultBgColor(color_t bgclr) {
  *-----------------------------------------------*/
 
 GHandle gwinCreateWindow(GWindowObject *pgw, coord_t x, coord_t y, coord_t width, coord_t height) {
-	return _gwindowInit(pgw, x, y, width, height, sizeof(GWindowObject), &basegwinVMT, GWIN_FLG_VISIBLE);
+	return _gwindowCreate(pgw, x, y, width, height, sizeof(GWindowObject), &basegwinVMT, GWIN_FLG_VISIBLE);
 }
 
 void gwinDestroy(GHandle gh) {

@@ -45,11 +45,14 @@ typedef struct GSliderColors {
 // A slider window
 typedef struct GSliderObject_t {
 	GWidgetObject		w;
-	GSliderColors		c;
+	uint16_t			t_dn;
+	uint16_t			t_up;
+	uint16_t			dial;
 	coord_t				dpos;
 	int					min;
 	int					max;
 	int					pos;
+	GSliderColors		c;
 } GSliderObject;
 
 #ifdef __cplusplus
@@ -65,11 +68,22 @@ extern "C" {
  * @param[in] width		The width of the window
  * @param[in] height	The height of the window
  *
- * @note				The drawing color gets set to White and the background drawing color to Black.
- * @note				Don't forget to set the font using @p gwinSetFont() or @p gwinSetDefaultFont()
+ * @note				The drawing color and the background color get set to the current defaults. If you haven't called
+ * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are White and Black respectively.
+ * @note				The font gets set to the current default font. If you haven't called @p gwinSetDefaultFont() then there
+ * 						is no default font and text drawing operations will no nothing.
  * @note				The dimensions and position may be changed to fit on the real screen.
- * @note				The slider is not automatically drawn. Call gwinDraw() to draw it.
- * @note				Sets the slider range from 0 to 100 with an initial position of 0
+ * @note				A slider remembers its normal drawing state. If there is a window manager then it is automatically
+ * 						redrawn if the window is moved or its visibility state is changed.
+ * @note				The slider is initially marked as invisible so that more properties can be set before display.
+ * 						Call @p gwinSetVisible() to display it when ready.
+ * @note				The initial slider range is from 0 to 100 with an initial position of 0.
+ * @note				A slider supports mouse, toggle and dial input.
+ * @note				When assigning a toggle, only one toggle is supported per role. If you try to assign more than
+ * 						one toggle to a role it will forget the previous toggle. Two roles are supported:
+ * 						Role 0 = toggle for down, Role 1 = toggle for up.
+ * @note				When assigning a dial, only one dial is supported. If you try to assign more than one dial
+ * 						it will forget the previous dial. Only dial role 0 is supported.
  *
  * @api
  */	

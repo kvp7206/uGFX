@@ -52,37 +52,58 @@ typedef struct gwinVMT {
 /* @} */
 
 #if GWIN_NEED_WIDGET || defined(__DOXYGEN__)
+
+	/**
+	 * @brief	An toggle/dial instance is not being used
+	 */
+	#define GWIDGET_NO_INSTANCE		((uint16_t)-1)
+
+	/**
+	 * @brief	The source handle that widgets use when sending events
+	 */
+	#define GWIDGET_SOURCE			((GSourceHandle)(void *)_gwidgetCreate)
+
 	/**
 	 * @brief	The Virtual Method Table for a widget
 	 * @note	A widget must have a destroy function. Either use @p _gwidgetDestroy() or use your own function
 	 * 			which internally calls @p _gwidgetDestroy().
 	 * @note	A widget must have a redraw function. Use @p _gwidgetRedraw().
-	 * @note	If no MouseDown(), MouseUp() or MouseMove() function is provided, the widget will not accept being attached to a mouse input source.
-	 * @note	If no ToggleOn() or ToggleOff() function is provided, the widget will not accept being attached to a toggle input source.
-	 * @note	If no DialMove() function is provided, the widget will not accept being attached to a dial input source.
-	 * @note	AssignToggle() and AssignDial() enable a widget to handle more than one toggle/dial device attached to the widget.
-	 * 			For example, a slider might accept two toggles, one for slider-down and one for slider-up.
-	 * 			The function enables the widget to record that a particular device instance performs each particular role.
-	 * 			(eg toggle0 = slider-down, toggle1 = slider-up).
+	 * @note	If toggleroles != 0, ToggleAssign(), ToggleGet() and one or both of ToggleOff() and ToggleOn() must be specified.
+	 * @note	If dialroles != 0, DialAssign(), DialGet() and DialMove() must be specified.
 	 * @{
 	 */
 	typedef struct gwidgetVMT {
-		struct gwinVMT			g;														// @< This is still a GWIN
-		void (*DefaultDraw)		(GWidgetObject *gw, void *param);						// @< The default drawing routine (mandatory)
-		void (*MouseDown)		(GWidgetObject *gw, coord_t x, coord_t y);				// @< Process mouse down events (optional)
-		void (*MouseUp)			(GWidgetObject *gw, coord_t x, coord_t y);				// @< Process mouse up events (optional)
-		void (*MouseMove)		(GWidgetObject *gw, coord_t x, coord_t y);				// @< Process mouse move events (optional)
-		void (*ToggleOff)		(GWidgetObject *gw, uint16_t instance);					// @< Process toggle off events (optional)
-		void (*ToggleOn)		(GWidgetObject *gw, uint16_t instance);					// @< Process toggle on events (optional)
-		void (*DialMove)		(GWidgetObject *gw, uint16_t instance, uint16_t value);	// @< Process dial move events (optional)
-		void (*AllEvents)		(GWidgetObject *gw, GEvent *pe);						// @< Process all events (optional)
-		bool_t (*AssignToggle)	(GWidgetObject *gw, uint16_t role, uint16_t instance);	// @< Test the role and save the toggle instance handle (optional)
-		bool_t (*AssignDial)	(GWidgetObject *gw, uint16_t role, uint16_t instance);	// @< Test the role and save the dial instance handle (optional)
+		struct gwinVMT				g;														// @< This is still a GWIN
+		void (*DefaultDraw)			(GWidgetObject *gw, void *param);						// @< The default drawing routine (mandatory)
+		struct {
+			void (*MouseDown)		(GWidgetObject *gw, coord_t x, coord_t y);				// @< Process mouse down events (optional)
+			void (*MouseUp)			(GWidgetObject *gw, coord_t x, coord_t y);				// @< Process mouse up events (optional)
+			void (*MouseMove)		(GWidgetObject *gw, coord_t x, coord_t y);				// @< Process mouse move events (optional)
+		};
+		struct {
+			uint16_t				toggleroles;											// @< The roles supported for toggles (0->toggleroles-1)
+			void (*ToggleAssign)	(GWidgetObject *gw, uint16_t role, uint16_t instance);	// @< Assign a toggle to a role (optional)
+			uint16_t (*ToggleGet)	(GWidgetObject *gw, uint16_t role);						// @< Return the instance for a particular role (optional)
+			void (*ToggleOff)		(GWidgetObject *gw, uint16_t role);						// @< Process toggle off events (optional)
+			void (*ToggleOn)		(GWidgetObject *gw, uint16_t role);						// @< Process toggle on events (optional)
+		};
+		struct {
+			uint16_t				dialroles;												// @< The roles supported for dials (0->dialroles-1)
+			void (*DialAssign)		(GWidgetObject *gw, uint16_t role, uint16_t instance);	// @< Test the role and save the dial instance handle (optional)
+			uint16_t (*DialGet)		(GWidgetObject *gw, uint16_t role);						// @< Return the instance for a particular role (optional)
+			void (*DialMove)		(GWidgetObject *gw, uint16_t role, uint16_t value, uint16_t max);	// @< Process dial move events (optional)
+		};
 	} gwidgetVMT;
 	/* @} */
 #endif
 
 #if GWIN_NEED_WINDOWMANAGER || defined(__DOXYGEN__)
+	#if 1				// When we know that wmq is the first element of the GWindowObject structure
+		#define QItem2GWindow(qi)		((GHandle)qi)
+	#else
+		#define QItem2GWindow(qi)		((GHandle)(((char *)(qi)) - (size_t)(&(((GWindowObject *)0)->wmq))))
+	#endif
+
 	// @note	There is only ever one instance of each GWindowManager type
 	typedef struct GWindowManager {
 		const struct gwmVMT	*vmt;
@@ -126,7 +147,7 @@ extern "C" {
  *
  * @notapi
  */
-GHandle _gwindowInit(GWindowObject *pgw, coord_t x, coord_t y, coord_t w, coord_t h, size_t size, const gwinVMT *vmt, uint16_t flags);
+GHandle _gwindowCreate(GWindowObject *pgw, coord_t x, coord_t y, coord_t w, coord_t h, size_t size, const gwinVMT *vmt, uint16_t flags);
 
 #if GWIN_NEED_WIDGET || defined(__DOXYGEN__)
 	/**
@@ -140,7 +161,7 @@ GHandle _gwindowInit(GWindowObject *pgw, coord_t x, coord_t y, coord_t w, coord_
 	 *
 	 * @notapi
 	 */
-	GHandle _gwidgetInit(GWidgetObject *pgw, coord_t x, coord_t y, coord_t w, coord_t h, size_t size, const gwidgetVMT *vmt);
+	GHandle _gwidgetCreate(GWidgetObject *pgw, coord_t x, coord_t y, coord_t w, coord_t h, size_t size, const gwidgetVMT *vmt);
 
 	/**
 	 * @brief	Destroy the Widget object

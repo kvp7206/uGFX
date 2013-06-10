@@ -20,19 +20,19 @@
 
 #if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
 
-#define GINPUT_TOGGLE_POLL_PERIOD		TIME_INFINITE	// We are interrupt driven (or polled - ether works here)
+#define GINPUT_TOGGLE_POLL_PERIOD		TIME_INFINITE	// We are interrupt driven (or polled - either works here)
 #define GINPUT_TOGGLE_NUM_PORTS			8			// The total number of toggle inputs
 #define GINPUT_TOGGLE_CONFIG_ENTRIES	1			// The total number of GToggleConfig entries
 
-#define GINPUT_TOGGLE_SW1			0				// Switch 1	- Toggle
-#define GINPUT_TOGGLE_SW2			1				// Switch 2	- Toggle
-#define GINPUT_TOGGLE_SW3			2				// Switch 3	- Toggle
-#define GINPUT_TOGGLE_SW4			3				// Switch 4	- Toggle
+#define GINPUT_TOGGLE_MOMENTARY1	0				// Switch 5	- Momentary
+#define GINPUT_TOGGLE_MOMENTARY2	1				// Switch 6	- Momentary
+#define GINPUT_TOGGLE_MOMENTARY3	2				// Switch 7	- Momentary
+#define GINPUT_TOGGLE_MOMENTARY4	3				// Switch 8	- Momentary
 
-#define GINPUT_TOGGLE_MOMENTARY1	4				// Switch 5	- Momentary
-#define GINPUT_TOGGLE_MOMENTARY2	5				// Switch 6	- Momentary
-#define GINPUT_TOGGLE_MOMENTARY3	6				// Switch 7	- Momentary
-#define GINPUT_TOGGLE_MOMENTARY4	7				// Switch 8	- Momentary
+#define GINPUT_TOGGLE_SW1			4				// Switch 1	- Toggle
+#define GINPUT_TOGGLE_SW2			5				// Switch 2	- Toggle
+#define GINPUT_TOGGLE_SW3			6				// Switch 3	- Toggle
+#define GINPUT_TOGGLE_SW4			7				// Switch 4	- Toggle
 
 #endif	/* GFX_USE_GDISP && GINPUT_NEED_TOGGLE */
 

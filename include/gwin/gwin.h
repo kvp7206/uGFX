@@ -35,6 +35,7 @@
  */
 typedef struct GWindowObject {
 	#if GWIN_NEED_WINDOWMANAGER
+		// This MUST be the first member of the struct
 		gfxQueueASyncItem	wmq;				// @< The next window (for the window manager)
 	#endif
 	const struct gwinVMT	*vmt;				// @< The VMT for this GWIN

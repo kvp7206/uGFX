@@ -103,7 +103,7 @@ void gfxQueueFSyncInit(gfxQueueFSync *pqueue);
 /* @} */
 
 /**
- * @brief	Get an item from the head of the queue.
+ * @brief	Get an item from the head of the queue (and remove it from the queue).
  * @return	NULL if the timeout expires before an item is available
  *
  * @param[in]	pqueue	A pointer to the queue
@@ -139,7 +139,7 @@ bool_t gfxQueueFSyncPut(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, delayti
 /* @} */
 
 /**
- * @brief	Pop an item from the head of the queue.
+ * @brief	Pop an item from the head of the queue (and remove it from the queue).
  * @detail	This is exactly the same as the Get operation above.
  *
  * @api
@@ -218,6 +218,46 @@ bool_t gfxQueueFSyncIsEmpty(gfxQueueFSync *pqueue);
 bool_t gfxQueueASyncIsIn(gfxQueueASync *pqueue, gfxQueueASyncItem *pitem);
 bool_t gfxQueueGSyncIsIn(gfxQueueGSync *pqueue, gfxQueueGSyncItem *pitem);
 bool_t gfxQueueFSyncIsIn(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem);
+/* @} */
+
+/**
+ * @brief	Get the first item from the head of the queue but do not remove it from the queue.
+ * @return	NULL if no item is available.
+ *
+ * @param[in]	pqueue	A pointer to the queue
+ *
+ * @note	This call does not block.
+ * @note	This can be used as the first call to iterate all the elements in the queue.
+ * @note	As that item is still on the queue, it should be treated as read-only. It could
+ * 			also be removed from the queue at any time by another thread (thereby altering the
+ * 			queue item).
+ *
+ * @api
+ * @{
+ */
+#define gfxQueueASyncPeek(pqueue)	((const gfxQueueASyncItem *)((pqueue)->head))
+#define gfxQueueGSyncPeek(pqueue)	((const gfxQueueGSyncItem *)((pqueue)->head))
+#define gfxQueueFSyncPeek(pqueue)	((const gfxQueueFSyncItem *)((pqueue)->head))
+/* @} */
+
+/**
+ * @brief	Get the next item in the queue (but do not remove it from the queue).
+ * @return	NULL if no item is available.
+ *
+ * @param[in]	pitem	The previous item in the queue
+ *
+ * @note	This call does not block.
+ * @note	This can be used as subsequent calls to iterate all the elements in the queue.
+ * @note	As that item is still on the queue, it should be treated as read-only. It could
+ * 			also be removed from the queue at any time by another thread (thereby altering the
+ * 			queue item).
+ *
+ * @api
+ * @{
+ */
+#define gfxQueueASyncNext(pitem)	((const gfxQueueASyncItem *)((pitem)->next))
+#define gfxQueueGSyncNext(pitem)	((const gfxQueueGSyncItem *)((pitem)->next))
+#define gfxQueueFSyncNext(pitem)	((const gfxQueueFSyncItem *)((pitem)->next))
 /* @} */
 
 #ifdef __cplusplus

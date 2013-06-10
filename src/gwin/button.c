@@ -32,8 +32,10 @@
 // Prototypes for button VMT functions
 static void MouseDown(GWidgetObject *gw, coord_t x, coord_t y);
 static void MouseUp(GWidgetObject *gw, coord_t x, coord_t y);
-static void ToggleOff(GWidgetObject *gw, uint16_t instance);
-static void ToggleOn(GWidgetObject *gw, uint16_t instance);
+static void ToggleOff(GWidgetObject *gw, uint16_t role);
+static void ToggleOn(GWidgetObject *gw, uint16_t role);
+static void ToggleAssign(GWidgetObject *gw, uint16_t role, uint16_t instance);
+static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role);
 
 // The button VMT table
 static const gwidgetVMT buttonVMT = {
@@ -43,16 +45,25 @@ static const gwidgetVMT buttonVMT = {
 		_gwidgetRedraw,			// The redraw routine
 		0,						// The after-clear routine
 	},
-	gwinButtonDraw_3D,		// The default drawing routine
-	MouseDown,				// Process mouse down events
-	MouseUp,				// Process mouse up events
-	0,						// Process mouse move events (NOT USED)
-	ToggleOff,				// Process toggle off events
-	ToggleOn,				// Process toggle on events
-	0,						// Process dial move events (NOT USED)
-	0,						// Process all events (NOT USED)
-	0,						// AssignToggle (NOT USED)
-	0,						// AssignDial (NOT USED)
+	gwinButtonDraw_3D,			// The default drawing routine
+	{
+		MouseDown,				// Process mouse down events
+		MouseUp,				// Process mouse up events
+		0,						// Process mouse move events (NOT USED)
+	},
+	{
+		1,						// 1 toggle role
+		ToggleAssign,			// Assign Toggles
+		ToggleGet,				// Get Toggles
+		ToggleOff,				// Process toggle off events
+		ToggleOn,				// Process toggle on events
+	},
+	{
+		0,						// No dial roles
+		0,						// Assign Dials (NOT USED)
+		0,						// Get Dials (NOT USED)
+		0,						// Process dial move events (NOT USED)
+	}
 };
 
 // Default color scheme
@@ -80,7 +91,7 @@ static void SendButtonEvent(GWidgetObject *gw) {
 
 	// Trigger a GWIN Button Event
 	psl = 0;
-	while ((psl = geventGetSourceListener((GSourceHandle)gw, psl))) {
+	while ((psl = geventGetSourceListener(GWIDGET_SOURCE, psl))) {
 		if (!(pe = geventGetEventBuffer(psl)))
 			continue;
 		pbe->type = GEVENT_GWIN_BUTTON;
@@ -114,25 +125,36 @@ static void MouseUp(GWidgetObject *gw, coord_t x, coord_t y) {
 }
 
 // A toggle off has occurred
-static void ToggleOff(GWidgetObject *gw, uint16_t instance) {
-	(void) instance;
+static void ToggleOff(GWidgetObject *gw, uint16_t role) {
+	(void) role;
 	gw->g.flags &= ~GBUTTON_FLG_PRESSED;
 	_gwidgetRedraw((GHandle)gw);
 }
 
 // A toggle on has occurred
-static void ToggleOn(GWidgetObject *gw, uint16_t instance) {
-	(void) instance;
+static void ToggleOn(GWidgetObject *gw, uint16_t role) {
+	(void) role;
 	gw->g.flags |= GBUTTON_FLG_PRESSED;
 	_gwidgetRedraw((GHandle)gw);
 	// Trigger the event on button down (different than for mouse/touch)
 	SendButtonEvent(gw);
 }
 
+static void ToggleAssign(GWidgetObject *gw, uint16_t role, uint16_t instance) {
+	(void) role;
+	((GButtonObject *)gw)->toggle = instance;
+}
+
+static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role) {
+	(void) role;
+	return ((GButtonObject *)gw)->toggle;
+}
+
 GHandle gwinCreateButton(GButtonObject *gw, coord_t x, coord_t y, coord_t width, coord_t height) {
-	if (!(gw = (GButtonObject *)_gwidgetInit((GWidgetObject *)gw, x, y, width, height, sizeof(GButtonObject), &buttonVMT)))
+	if (!(gw = (GButtonObject *)_gwidgetCreate((GWidgetObject *)gw, x, y, width, height, sizeof(GButtonObject), &buttonVMT)))
 		return 0;
 
+	gw->toggle = GWIDGET_NO_INSTANCE;
 	gw->c_up = GButtonDefaultColorsUp;
 	gw->c_dn = GButtonDefaultColorsDown;
 	gw->c_dis = GButtonDefaultColorsDisabled;

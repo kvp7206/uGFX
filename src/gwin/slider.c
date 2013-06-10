@@ -25,10 +25,19 @@
 	#define GWIN_SLIDER_DEAD_BAND	5
 #endif
 
+#ifndef GWIN_SLIDER_TOGGLE_INC
+	#define GWIN_SLIDER_TOGGLE_INC	20			// How many toggles to go from minimum to maximum
+#endif
+
 // Prototypes for slider VMT functions
 static void MouseUp(GWidgetObject *gw, coord_t x, coord_t y);
 static void MouseMove(GWidgetObject *gw, coord_t x, coord_t y);
-static void DialMove(GWidgetObject *gw, uint16_t instance, uint16_t value);
+static void ToggleOn(GWidgetObject *gw, uint16_t role);
+static void DialMove(GWidgetObject *gw, uint16_t role, uint16_t value, uint16_t max);
+static void ToggleAssign(GWidgetObject *gw, uint16_t role, uint16_t instance);
+static void DialAssign(GWidgetObject *gw, uint16_t role, uint16_t instance);
+static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role);
+static uint16_t DialGet(GWidgetObject *gw, uint16_t role);
 
 // The button VMT table
 static const gwidgetVMT sliderVMT = {
@@ -38,16 +47,25 @@ static const gwidgetVMT sliderVMT = {
 		_gwidgetRedraw,			// The redraw routine
 		0,						// The after-clear routine
 	},
-	gwinSliderDraw_Std,		// The default drawing routine
-	MouseMove,				// Process mouse down events (AS MOUSEMOVE)
-	MouseUp,				// Process mouse up events
-	MouseMove,				// Process mouse move events
-	0,						// Process toggle off events (NOT USED)
-	0,						// Process toggle on events (NOT USED)
-	DialMove,				// Process dial move events
-	0,						// Process all events (NOT USED)
-	0,						// AssignToggle (NOT USED)
-	0,						// AssignDial (NOT USED)
+	gwinSliderDraw_Std,			// The default drawing routine
+	{
+		0,						// Process mouse down events (NOT USED)
+		MouseUp,				// Process mouse up events
+		MouseMove,				// Process mouse move events
+	},
+	{
+		2,						// 1 toggle role
+		ToggleAssign,			// Assign Toggles
+		ToggleGet,				// Get Toggles
+		0,						// Process toggle off events (NOT USED)
+		ToggleOn,				// Process toggle on events
+	},
+	{
+		1,						// 1 dial roles
+		DialAssign,				// Assign Dials
+		DialGet,				// Get Dials
+		DialMove,				// Process dial move events
+	}
 };
 
 static const GSliderColors GSliderDefaultColors = {
@@ -66,7 +84,7 @@ static void SendSliderEvent(GWidgetObject *gw) {
 
 	// Trigger a GWIN Button Event
 	psl = 0;
-	while ((psl = geventGetSourceListener((GSourceHandle)gw, psl))) {
+	while ((psl = geventGetSourceListener(GWIDGET_SOURCE, psl))) {
 		if (!(pe = geventGetEventBuffer(psl)))
 			continue;
 		pse->type = GEVENT_GWIN_SLIDER;
@@ -75,7 +93,7 @@ static void SendSliderEvent(GWidgetObject *gw) {
 		geventSendEvent(psl);
 	}
 
-	#undef pbe
+	#undef pse
 }
 
 // Reset the display position back to the value predicted by the saved slider position
@@ -159,13 +177,28 @@ static void MouseMove(GWidgetObject *gw, coord_t x, coord_t y) {
 	#undef gsw
 }
 
-// A dial move event
-static void DialMove(GWidgetObject *gw, uint16_t instance, uint16_t value) {
-#if GFX_USE_GINPUT && GINPUT_NEED_DIAL
+// A toggle on has occurred
+static void ToggleOn(GWidgetObject *gw, uint16_t role) {
 	#define gsw		((GSliderObject *)gw)
 
+	if (role) {
+		gwinSetSliderPosition((GHandle)gw, gsw->pos+(gsw->max-gsw->min)/GWIN_SLIDER_TOGGLE_INC);
+		SendSliderEvent(gw);
+	} else {
+		gwinSetSliderPosition((GHandle)gw, gsw->pos-(gsw->max-gsw->min)/GWIN_SLIDER_TOGGLE_INC);
+		SendSliderEvent(gw);
+	}
+	#undef gsw
+}
+
+// A dial move event
+static void DialMove(GWidgetObject *gw, uint16_t role, uint16_t value, uint16_t max) {
+#if GFX_USE_GINPUT && GINPUT_NEED_DIAL
+	#define gsw		((GSliderObject *)gw)
+	(void)			role;
+
 	// Set the new position
-	gsw->pos = (uint16_t)((uint32_t)value*(gsw->max-gsw->min)/ginputGetDialRange(instance) + gsw->min);
+	gsw->pos = (uint16_t)((uint32_t)value*(gsw->max-gsw->min)/max + gsw->min);
 
 	ResetDisplayPos(gsw);
 	gwinDraw(&gw->g);
@@ -174,13 +207,37 @@ static void DialMove(GWidgetObject *gw, uint16_t instance, uint16_t value) {
 	SendSliderEvent(gw);
 	#undef gsw
 #else
-	(void)gw; (void)instance; (void)value;
+	(void)gw; (void)role; (void)value; (void)max;
 #endif
 }
 
+static void ToggleAssign(GWidgetObject *gw, uint16_t role, uint16_t instance) {
+	if (role)
+		((GSliderObject *)gw)->t_up = instance;
+	else
+		((GSliderObject *)gw)->t_dn = instance;
+}
+
+static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role) {
+	return role ? ((GSliderObject *)gw)->t_up : ((GSliderObject *)gw)->t_dn;
+}
+
+static void DialAssign(GWidgetObject *gw, uint16_t role, uint16_t instance) {
+	(void) role;
+	((GSliderObject *)gw)->dial = instance;
+}
+
+static uint16_t DialGet(GWidgetObject *gw, uint16_t role) {
+	(void) role;
+	return ((GSliderObject *)gw)->dial;
+}
+
 GHandle gwinCreateSlider(GSliderObject *gs, coord_t x, coord_t y, coord_t width, coord_t height) {
-	if (!(gs = (GSliderObject *)_gwidgetInit((GWidgetObject *)gs, x, y, width, height, sizeof(GSliderObject), &sliderVMT)))
+	if (!(gs = (GSliderObject *)_gwidgetCreate((GWidgetObject *)gs, x, y, width, height, sizeof(GSliderObject), &sliderVMT)))
 		return 0;
+	gs->t_dn = (uint16_t) -1;
+	gs->t_up = (uint16_t) -1;
+	gs->dial = (uint16_t) -1;
 	gs->c = GSliderDefaultColors;
 	gs->min = 0;
 	gs->max = 100;

@@ -49,10 +49,19 @@ int main(void) {
 	gfxInit();
 	gdispClear(White);
 
-	// Set the font and defalt colors
+	// Set the widget defaults
 	gwinSetDefaultFont(gdispOpenFont("UI2"));
 	gwinSetDefaultColor(Black);
 	gwinSetDefaultBgColor(White);
+
+    // We want to listen for widget events
+	geventListenerInit(&gl);
+	gwinAttachListener(&gl);
+
+	// Connect the mouse
+	#if GINPUT_NEED_MOUSE
+		gwinAttachMouse(0);
+	#endif
 
 	// Create out gwin windows/widgets
 	ghConsole = gwinCreateConsole(NULL, ScrWidth/2+1, ScrHeight/2+1, ScrWidth/2-1, ScrHeight/2-1);
@@ -84,49 +93,28 @@ int main(void) {
 	gwinSetText(ghCheckbox1, "C1", FALSE);
 	gwinSetText(ghCheckbox2, "C2", FALSE);
 
-    // Assign the mouse and dials to the buttons & sliders etc.
-#if GINPUT_NEED_MOUSE
-	gwinAttachMouse(ghButton1, 0);
-	gwinAttachMouse(ghButton2, 0);
-	gwinAttachMouse(ghButton3, 0);
-	gwinAttachMouse(ghButton4, 0);
-	gwinAttachMouse(ghSlider1, 0);
-	gwinAttachMouse(ghSlider2, 0);
-	gwinAttachMouse(ghSlider3, 0);
-	gwinAttachMouse(ghSlider4, 0);
-	gwinAttachMouse(ghCheckbox1, 0);
-	gwinAttachMouse(ghCheckbox2, 0);
-#endif
-#if GINPUT_NEED_DIAL
-	gwinAttachSliderDial(ghSlider1, 0);
-	gwinAttachSliderDial(ghSlider3, 1);
-#endif
-
-    // We want to listen for widget events
-	geventListenerInit(&gl);
-	gwinAttachListener(ghButton1, &gl, 0);
-	gwinAttachListener(ghButton2, &gl, 0);
-	gwinAttachListener(ghButton3, &gl, 0);
-	gwinAttachListener(ghButton4, &gl, 0);
-	gwinAttachListener(ghSlider1, &gl, 0);
-	gwinAttachListener(ghSlider2, &gl, 0);
-	gwinAttachListener(ghSlider3, &gl, 0);
-	gwinAttachListener(ghSlider4, &gl, 0);
-	gwinAttachListener(ghCheckbox1, &gl, 0);
-	gwinAttachListener(ghCheckbox2, &gl, 0);
+    // Assign toggles and dials to the buttons & sliders etc.
+	#if GINPUT_NEED_TOGGLE
+		gwinAttachToggle(ghButton1, 0, 0);
+		gwinAttachToggle(ghButton2, 0, 1);
+	#endif
+	#if GINPUT_NEED_DIAL
+		gwinAttachDial(ghSlider1, 0, 0);
+		gwinAttachDial(ghSlider3, 0, 1);
+	#endif
 
 	// Draw everything on the screen
 	gwinClear(ghConsole);
-	gwinDraw(ghButton1);
-	gwinDraw(ghButton2);
-	gwinDraw(ghButton3);
-	gwinDraw(ghButton4);
-	gwinDraw(ghSlider1);
-	gwinDraw(ghSlider2);
-	gwinDraw(ghSlider3);
-	gwinDraw(ghSlider4);
-	gwinDraw(ghCheckbox1);
-	gwinDraw(ghCheckbox2);
+	gwinSetVisible(ghButton1, TRUE);
+	gwinSetVisible(ghButton2, TRUE);
+	gwinSetVisible(ghButton3, TRUE);
+	gwinSetVisible(ghButton4, TRUE);
+	gwinSetVisible(ghSlider1, TRUE);
+	gwinSetVisible(ghSlider2, TRUE);
+	gwinSetVisible(ghSlider3, TRUE);
+	gwinSetVisible(ghSlider4, TRUE);
+	gwinSetVisible(ghCheckbox1, TRUE);
+	gwinSetVisible(ghCheckbox2, TRUE);
 
 	while(1) {
 		// Get an Event

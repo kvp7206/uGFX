@@ -21,11 +21,11 @@
  * @{
  */
 	/**
-	 * @brief   Should a window manager be used.
+	 * @brief   Should window manager support be included
 	 * @details	Defaults to FALSE
 	 */
 	#ifndef GWIN_NEED_WINDOWMANAGER
-		#define GWIN_NEED_WINDOWMANAGER	FALSE
+		#define GWIN_NEED_WIDGET	FALSE
 	#endif
 	/**
 	 * @brief   Should widget functions be included. Needed for any widget (eg Buttons, Sliders etc)

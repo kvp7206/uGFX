@@ -46,7 +46,6 @@ typedef void (*CustomWidgetDrawFunction)(struct GWidgetObject *gw, void *param);
  */
 typedef struct GWidgetObject {
 	GWindowObject				g;					// @< This is still a GWIN
-	GListener					listener;			// @< The widget listener
 	const char *				txt;				// @< The widget text
 	CustomWidgetDrawFunction	fnDraw;				// @< The current draw function
 	void *						fnParam;			// @< A parameter for the current draw function
@@ -120,28 +119,27 @@ const char *gwinGetText(GHandle gh);
 void gwinSetCustomDraw(GHandle gh, CustomWidgetDrawFunction fn, void *param);
 
 /**
- * @brief	Attach a Listener to this widget
+ * @brief	Attach a Listener to listen for widget events
  * @return	TRUE on success
  *
- * @param[in] gh		The widget handle
  * @param[in] pl		The listener
- * @param[in] flags		Flags to use for listening. For most widgets this should be 0.
  *
  * @api
  */
-bool_t gwinAttachListener(GHandle gh, GListener *pl, unsigned flags);
+bool_t gwinAttachListener(GListener *pl);
 
 #if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
 	/**
-	 * @brief	Attach a mouse to a widget
+	 * @brief	Set the mouse to be used to control the widgets
 	 * @return	TRUE on success
 	 *
-	 * @param[in] gh		The widget handle
 	 * @param[in] instance	The mouse instance
+	 *
+	 * @note	Every widget uses the same mouse.
 	 *
 	 * @api
 	 */
-	bool_t gwinAttachMouse(GHandle gh, uint16_t instance);
+	bool_t gwinAttachMouse(uint16_t instance);
 #endif
 
 #if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE

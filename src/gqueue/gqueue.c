@@ -37,6 +37,7 @@
 		gfxSystemLock();
 		if ((pi = pqueue->head))
 			pqueue->head = pi->next;
+		pi->next = 0;
 		gfxSystemUnlock();
 		return pi;
 	}
@@ -68,12 +69,14 @@
 		if (pqueue->head) {
 			if (pqueue->head == pitem) {
 				pqueue->head = pitem->next;
+				pitem->next = 0;
 			} else {
 				for(pi = pqueue->head; pi->next; pi = pi->next) {
 					if (pi->next == pitem) {
 						pi->next = pitem->next;
 						if (pqueue->tail == pitem)
 							pqueue->tail = pi;
+						pitem->next = 0;
 						break;
 					}
 				}
@@ -111,6 +114,7 @@
 		gfxSystemLock();
 		pi = pqueue->head;
 		pqueue->head = pi->next;
+		pi->next = 0;
 		gfxSytemUnlock();
 		return pi;
 	}
@@ -146,12 +150,14 @@
 		if (pqueue->head) {
 			if (pqueue->head == pitem) {
 				pqueue->head = pitem->next;
+				pitem->next = 0;
 			} else {
 				for(pi = pqueue->head; pi->next; pi = pi->next) {
 					if (pi->next == pitem) {
 						pi->next = pitem->next;
 						if (pqueue->tail == pitem)
 							pqueue->tail = pi;
+						pitem->next = 0;
 						break;
 					}
 				}
@@ -189,6 +195,7 @@
 		gfxSystemLock();
 		pi = pqueue->head;
 		pqueue->head = pi->next;
+		pi->next = 0;
 		gfxSytemUnlock();
 
 		gfxSemSignalI(&pi->sem);
@@ -233,6 +240,7 @@
 			if (pqueue->head == pitem) {
 				pqueue->head = pitem->next;
 			found:
+				pitem->next = 0;
 				gfxSystemUnlock();
 				gfxSemSignal(&pitem->sem);
 				gfxSemDestroy(&pitem->sem);

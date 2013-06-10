@@ -26,7 +26,9 @@
 
 // Prototypes for button VMT functions
 static void MouseDown(GWidgetObject *gw, coord_t x, coord_t y);
-static void ToggleOn(GWidgetObject *gw, uint16_t instance);
+static void ToggleOn(GWidgetObject *gw, uint16_t role);
+static void ToggleAssign(GWidgetObject *gw, uint16_t role, uint16_t instance);
+static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role);
 
 // The button VMT table
 static const gwidgetVMT checkboxVMT = {
@@ -37,15 +39,24 @@ static const gwidgetVMT checkboxVMT = {
 		0,						// The after-clear routine
 	},
 	gwinCheckboxDraw_CheckOnLeft,	// The default drawing routine
-	MouseDown,				// Process mouse down events
-	0,						// Process mouse up events (NOT USED)
-	0,						// Process mouse move events (NOT USED)
-	0,						// Process toggle off events (NOT USED)
-	ToggleOn,				// Process toggle on events
-	0,						// Process dial move events (NOT USED)
-	0,						// Process all events (NOT USED)
-	0,						// AssignToggle (NOT USED)
-	0,						// AssignDial (NOT USED)
+	{
+		MouseDown,				// Process mouse down events
+		0,						// Process mouse up events (NOT USED)
+		0,						// Process mouse move events (NOT USED)
+	},
+	{
+		1,						// 1 toggle role
+		ToggleAssign,			// Assign Toggles
+		ToggleGet,				// Get Toggles
+		0,						// Process toggle off events (NOT USED)
+		ToggleOn,				// Process toggle on events
+	},
+	{
+		0,						// No dial roles
+		0,						// Assign Dials (NOT USED)
+		0,						// Get Dials (NOT USED)
+		0,						// Process dial move events (NOT USED)
+	}
 };
 
 static const GCheckboxColors defaultColors = {
@@ -63,7 +74,7 @@ static void SendCheckboxEvent(GWidgetObject *gw) {
 
 	// Trigger a GWIN Checkbox Event
 	psl = 0;
-	while ((psl = geventGetSourceListener((GSourceHandle)gw, psl))) {
+	while ((psl = geventGetSourceListener(GWIDGET_SOURCE, psl))) {
 		if (!(pe = geventGetEventBuffer(psl)))
 			continue;
 		pce->type = GEVENT_GWIN_CHECKBOX;
@@ -84,17 +95,28 @@ static void MouseDown(GWidgetObject *gw, coord_t x, coord_t y) {
 }
 
 // A toggle on has occurred
-static void ToggleOn(GWidgetObject *gw, uint16_t instance) {
-	(void) instance;
+static void ToggleOn(GWidgetObject *gw, uint16_t role) {
+	(void) role;
 	gw->g.flags ^= GCHECKBOX_FLG_CHECKED;
 	_gwidgetRedraw((GHandle)gw);
 	SendCheckboxEvent(gw);
 }
 
+static void ToggleAssign(GWidgetObject *gw, uint16_t role, uint16_t instance) {
+	(void) role;
+	((GCheckboxObject *)gw)->toggle = instance;
+}
+
+static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role) {
+	(void) role;
+	return ((GCheckboxObject *)gw)->toggle;
+}
+
 GHandle gwinCreateCheckbox(GCheckboxObject *gb, coord_t x, coord_t y, coord_t width, coord_t height) {
-	if (!(gb = (GCheckboxObject *)_gwidgetInit((GWidgetObject *)gb, x, y, width, height, sizeof(GCheckboxObject), &checkboxVMT)))
+	if (!(gb = (GCheckboxObject *)_gwidgetCreate((GWidgetObject *)gb, x, y, width, height, sizeof(GCheckboxObject), &checkboxVMT)))
 		return 0;
 
+	gb->toggle = (uint16_t) -1;
 	gb->c = defaultColors;			// assign the default colors
 	return (GHandle)gb;
 }

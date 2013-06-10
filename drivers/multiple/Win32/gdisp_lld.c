@@ -119,8 +119,8 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_LBUTTONUP:
 		#if GINPUT_NEED_TOGGLE
-			if ((toggles & 0xF0)) {
-				toggles &= 0x0F;
+			if ((toggles & 0x0F)) {
+				toggles &= ~0x0F;
 				rect.left = 0;
 				rect.right = wWidth;
 				rect.top = wHeight;

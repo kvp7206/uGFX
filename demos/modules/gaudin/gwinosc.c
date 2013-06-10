@@ -54,7 +54,7 @@
 
 GHandle gwinCreateScope(GScopeObject *gs, coord_t x, coord_t y, coord_t cx, coord_t cy, uint16_t channel, uint32_t frequency) {
 	/* Initialise the base class GWIN */
-	if (!(gs = (GScopeObject *)_gwindowInit((GWindowObject *)gs, x, y, cx, cy, sizeof(GScopeObject))))
+	if (!(gs = (GScopeObject *)_gwindowCreate((GWindowObject *)gs, x, y, cx, cy, sizeof(GScopeObject))))
 		return 0;
 
 	/* Initialise the scope object members and allocate memory for buffers */
