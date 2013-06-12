@@ -318,7 +318,7 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 		set_cursor(0, 0);
 		stream_start();
 
-		#if defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
+		#if defined(GDISP_USE_FSMC) && defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
 			uint8_t i;
 			dmaStreamSetPeripheral(GDISP_DMA_STREAM, &color);
 			dmaStreamSetMode(GDISP_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);
@@ -334,7 +334,7 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 			uint32_t index;
 			for(index = 0; index < area; index++)
 				write_data(color);
-		#endif // defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
+		#endif // defined(GDISP_USE_FSMC) && defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
 
 		stream_stop();
 		release_bus();
@@ -369,7 +369,7 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 		set_viewport(x, y, cx, cy);
 		stream_start();
 
-		#if defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
+		#if defined(GDISP_USE_FSMC) && defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
 			uint8_t i;
 				dmaStreamSetPeripheral(GDISP_DMA_STREAM, &color);
 				dmaStreamSetMode(GDISP_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);
@@ -385,7 +385,7 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 			uint32_t index;
 			for(index = 0; index < area; index++)
 				write_data(color);
-		#endif // defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
+		#endif // defined(GDISP_USE_FSMC) && defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
 
 		stream_stop();
 		release_bus();
@@ -422,7 +422,7 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 		set_viewport(x, y, cx, cy);
 		stream_start();
 
-		#if defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
+		#if defined(GDISP_USE_FSMC) && defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
 			uint32_t area = cx * cy;
 			uint8_t i;
 			dmaStreamSetPeripheral(GDISP_DMA_STREAM, buffer);
@@ -444,7 +444,7 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 			for(; y < endy; y++, buffer += lg)
 				for(x=srcx; x < endx; x++)
 					write_data(*buffer++);
-		#endif // defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
+		#endif // defined(GDISP_USE_FSMC) && defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
 
 		stream_stop();
 		release_bus();
@@ -472,14 +472,18 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 		set_cursor(x, y);
 		stream_start();
 
-		/* FSMC timing */
-		FSMC_Bank1->BTCR[FSMC_Bank + 1] = FSMC_BTR1_ADDSET_3 | FSMC_BTR1_DATAST_3 | FSMC_BTR1_BUSTURN_0;
+		#if defined(GDISP_USE_FSMC)
+			/* FSMC timing */
+			FSMC_Bank1->BTCR[FSMC_Bank + 1] = FSMC_BTR1_ADDSET_3 | FSMC_BTR1_DATAST_3 | FSMC_BTR1_BUSTURN_0;
+		#endif // defined(GDISP_USE_FSMC)
 
 		color = read_data(); // dummy read
 		color = read_data();
 
-		/* FSMC timing */
-		FSMC_Bank1->BTCR[FSMC_Bank + 1] = FSMC_BTR1_ADDSET_0 | FSMC_BTR1_DATAST_2 | FSMC_BTR1_BUSTURN_0;
+		#if defined(GDISP_USE_FSMC)
+			/* FSMC timing */
+			FSMC_Bank1->BTCR[FSMC_Bank + 1] = FSMC_BTR1_ADDSET_0 | FSMC_BTR1_DATAST_2 | FSMC_BTR1_BUSTURN_0;
+		#endif // defined(GDISP_USE_FSMC)
 
 		stream_stop();
 		release_bus();
@@ -536,15 +540,19 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 				set_viewport(x, row0, cx, 1);
 				stream_start();
 
-				/* FSMC timing */
-				FSMC_Bank1->BTCR[FSMC_Bank + 1] = FSMC_BTR1_ADDSET_3 | FSMC_BTR1_DATAST_3 | FSMC_BTR1_BUSTURN_0;
+				#if defined(GDISP_USE_FSMC)
+					/* FSMC timing */
+					FSMC_Bank1->BTCR[FSMC_Bank + 1] = FSMC_BTR1_ADDSET_3 | FSMC_BTR1_DATAST_3 | FSMC_BTR1_BUSTURN_0;
+				#endif // defined(GDISP_USE_FSMC)
 
 				j = read_data(); // dummy read
 				for (j = 0; (coord_t)j < cx; j++)
 					buf[j] = read_data();
 
-				/* FSMC timing */
-				FSMC_Bank1->BTCR[FSMC_Bank + 1] = FSMC_BTR1_ADDSET_0 | FSMC_BTR1_DATAST_2 | FSMC_BTR1_BUSTURN_0;
+				#if defined(GDISP_USE_FSMC)
+					/* FSMC timing */
+					FSMC_Bank1->BTCR[FSMC_Bank + 1] = FSMC_BTR1_ADDSET_0 | FSMC_BTR1_DATAST_2 | FSMC_BTR1_BUSTURN_0;
+				#endif // defined(GDISP_USE_FSMC)
 
 				stream_stop();
 

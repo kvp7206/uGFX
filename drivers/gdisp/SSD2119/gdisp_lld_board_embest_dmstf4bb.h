@@ -16,6 +16,9 @@
 #ifndef _GDISP_LLD_BOARD_H
 #define _GDISP_LLD_BOARD_H
 
+/* This board file uses only FSMC, so don't undefine this. */
+#define GDISP_USE_FSMC
+/* But it is OK to disable DMA use. */
 #define GDISP_USE_DMA
 #define GDISP_DMA_STREAM STM32_DMA2_STREAM6
 
@@ -56,6 +59,10 @@ static const PWMConfig pwmcfg = {
  * @notapi
  */
 static inline void init_board(void) {
+
+	#ifndef GDISP_USE_FSMC
+		#error "This board uses only FSMC, please define GDISP_USE_FSMC"
+	#endif
 
 	#if defined(STM32F4XX) || defined(STM32F2XX)
 		/* STM32F4 FSMC init */
