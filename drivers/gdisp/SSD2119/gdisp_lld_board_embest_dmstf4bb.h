@@ -16,38 +16,60 @@
 #ifndef _GDISP_LLD_BOARD_H
 #define _GDISP_LLD_BOARD_H
 
+#define GDISP_USE_DMA
+#define GDISP_DMA_STREAM STM32_DMA2_STREAM6
+
 /* Using FSMC A19 (PE3) as DC */
-#define GDISP_REG	(*((volatile uint16_t *) 0x60000000)) /* DC = 0 */
-#define GDISP_RAM	(*((volatile uint16_t *) 0x60100000)) /* DC = 1 */
+#define GDISP_REG (*((volatile uint16_t *) 0x60000000)) /* DC = 0 */
+#define GDISP_RAM (*((volatile uint16_t *) 0x60100000)) /* DC = 1 */
 
-#define SET_RST		palSetPad(GPIOD, 3);
-#define CLR_RST		palClearPad(GPIOD, 3);
+#define SET_RST palSetPad(GPIOD, 3);
+#define CLR_RST palClearPad(GPIOD, 3);
 
-/* PWM configuration structure. We use timer 4 channel 2 (orange LED on board). */
+const unsigned char FSMC_Bank = 0;
+
+/*
+ * PWM configuration structure. We use timer 4 channel 2 (orange LED on board).
+ * The reason for so high clock is that with any lower, onboard coil is squeaking.
+ * The major disadvantage of this clock is a lack of linearity between PWM duty
+ * cycle width and brightness. In fact only with low preset one sees any change
+ * (eg. duty cycle between 1-20). Feel free to adjust this, maybe only my board
+ * behaves like this.
+ */
 static const PWMConfig pwmcfg = {
-  1000000,		/* 1 MHz PWM clock frequency. */
-  100,			/* PWM period is 100 cycles. */
-  NULL,
-  {
-   {PWM_OUTPUT_ACTIVE_HIGH, NULL},
-   {PWM_OUTPUT_ACTIVE_HIGH, NULL},
-   {PWM_OUTPUT_ACTIVE_HIGH, NULL},
-   {PWM_OUTPUT_ACTIVE_HIGH, NULL}
-  },
-  0
+	1000000,       /* 1 MHz PWM clock frequency. */
+	100,           /* PWM period is 100 cycles. */
+	NULL,
+	{
+		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
+		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
+		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
+		{PWM_OUTPUT_ACTIVE_HIGH, NULL}
+	},
+	0
 };
 
 /**
  * @brief   Initialise the board for the display.
- * @notes	This board definition uses GPIO and assumes exclusive access to these GPIO pins
+ * @notes   This board definition uses GPIO and assumes exclusive access to these GPIO pins
  *
  * @notapi
  */
 static inline void init_board(void) {
-	unsigned char FSMC_Bank;
 
-	/* STM32F4 FSMC init */
-	rccEnableAHB3(RCC_AHB3ENR_FSMCEN, 0);
+	#if defined(STM32F4XX) || defined(STM32F2XX)
+		/* STM32F4 FSMC init */
+		rccEnableAHB3(RCC_AHB3ENR_FSMCEN, 0);
+
+		#if defined(GDISP_USE_DMA) && defined(GDISP_DMA_STREAM)
+			if (dmaStreamAllocate(GDISP_DMA_STREAM, 0, NULL, NULL))
+				gfxExit();
+			dmaStreamSetMemory0(GDISP_DMA_STREAM, &GDISP_RAM);
+			dmaStreamSetMode(GDISP_DMA_STREAM, STM32_DMA_CR_PL(0) | STM32_DMA_CR_PSIZE_HWORD | STM32_DMA_CR_MSIZE_HWORD | STM32_DMA_CR_DIR_M2M);
+		#endif
+	#else
+		#error "FSMC not implemented for this device"
+	#endif
 
 	/* Group pins */
 	IOBus busD = {GPIOD, (1 << 0) | (1 << 1) | (1 << 4) | (1 << 5) | (1 << 7) | (1 << 8) |
@@ -60,10 +82,11 @@ static inline void init_board(void) {
 	palSetBusMode(&busD, PAL_MODE_ALTERNATE(12));
 	palSetBusMode(&busE, PAL_MODE_ALTERNATE(12));
 
-	FSMC_Bank = 0;
+	/* FSMC timing */
+//	FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_0 | FSMC_BTR1_DATAST_2 | FSMC_BTR1_BUSTURN_0 ;
 
 	/* FSMC timing */
-	FSMC_Bank1->BTCR[FSMC_Bank+1] = (FSMC_BTR1_ADDSET_1 | FSMC_BTR1_ADDSET_3) \
+	FSMC_Bank1->BTCR[FSMC_Bank + 1] = (FSMC_BTR1_ADDSET_1 | FSMC_BTR1_ADDSET_3) \
 			| (FSMC_BTR1_DATAST_1 | FSMC_BTR1_DATAST_3) \
 			| (FSMC_BTR1_BUSTURN_1 | FSMC_BTR1_BUSTURN_3) ;
 
