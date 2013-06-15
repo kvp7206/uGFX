@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012, 2013, Joel Bodenmann aka Tectu <joel@unormal.org>
+ * Copyright (c) 2012, 2013, Andrew Hannam aka inmarket
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
