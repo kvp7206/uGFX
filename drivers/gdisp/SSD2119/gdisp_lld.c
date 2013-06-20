@@ -472,18 +472,8 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 		set_cursor(x, y);
 		stream_start();
 
-		#if defined(GDISP_USE_FSMC)
-			/* FSMC timing */
-			FSMC_Bank1->BTCR[FSMC_Bank + 1] = FSMC_BTR1_ADDSET_3 | FSMC_BTR1_DATAST_3 | FSMC_BTR1_BUSTURN_0;
-		#endif // defined(GDISP_USE_FSMC)
-
 		color = read_data(); // dummy read
 		color = read_data();
-
-		#if defined(GDISP_USE_FSMC)
-			/* FSMC timing */
-			FSMC_Bank1->BTCR[FSMC_Bank + 1] = FSMC_BTR1_ADDSET_0 | FSMC_BTR1_DATAST_2 | FSMC_BTR1_BUSTURN_0;
-		#endif // defined(GDISP_USE_FSMC)
 
 		stream_stop();
 		release_bus();
@@ -540,19 +530,9 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 				set_viewport(x, row0, cx, 1);
 				stream_start();
 
-				#if defined(GDISP_USE_FSMC)
-					/* FSMC timing */
-					FSMC_Bank1->BTCR[FSMC_Bank + 1] = FSMC_BTR1_ADDSET_3 | FSMC_BTR1_DATAST_3 | FSMC_BTR1_BUSTURN_0;
-				#endif // defined(GDISP_USE_FSMC)
-
 				j = read_data(); // dummy read
 				for (j = 0; (coord_t)j < cx; j++)
 					buf[j] = read_data();
-
-				#if defined(GDISP_USE_FSMC)
-					/* FSMC timing */
-					FSMC_Bank1->BTCR[FSMC_Bank + 1] = FSMC_BTR1_ADDSET_0 | FSMC_BTR1_DATAST_2 | FSMC_BTR1_BUSTURN_0;
-				#endif // defined(GDISP_USE_FSMC)
 
 				stream_stop();
 

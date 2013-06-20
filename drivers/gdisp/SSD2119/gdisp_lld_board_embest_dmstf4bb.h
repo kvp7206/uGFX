@@ -29,15 +29,14 @@
 #define SET_RST palSetPad(GPIOD, 3);
 #define CLR_RST palClearPad(GPIOD, 3);
 
-const unsigned char FSMC_Bank = 0;
-
 /*
  * PWM configuration structure. We use timer 4 channel 2 (orange LED on board).
  * The reason for so high clock is that with any lower, onboard coil is squeaking.
  * The major disadvantage of this clock is a lack of linearity between PWM duty
  * cycle width and brightness. In fact only with low preset one sees any change
  * (eg. duty cycle between 1-20). Feel free to adjust this, maybe only my board
- * behaves like this.
+ * behaves like this. According to the G5126 datesheet (backlight LED driver)
+ * the PWM frequency should be somewhere between 200 Hz to 200 kHz.
  */
 static const PWMConfig pwmcfg = {
 	1000000,       /* 1 MHz PWM clock frequency. */
@@ -59,6 +58,7 @@ static const PWMConfig pwmcfg = {
  * @notapi
  */
 static inline void init_board(void) {
+	unsigned char FSMC_Bank;
 
 	#ifndef GDISP_USE_FSMC
 		#error "This board uses only FSMC, please define GDISP_USE_FSMC"
@@ -89,17 +89,15 @@ static inline void init_board(void) {
 	palSetBusMode(&busD, PAL_MODE_ALTERNATE(12));
 	palSetBusMode(&busE, PAL_MODE_ALTERNATE(12));
 
-	/* FSMC timing */
-//	FSMC_Bank1->BTCR[FSMC_Bank+1] = FSMC_BTR1_ADDSET_0 | FSMC_BTR1_DATAST_2 | FSMC_BTR1_BUSTURN_0 ;
+	FSMC_Bank = 0;
+	/* FSMC timing register configuration */
+	FSMC_Bank1->BTCR[FSMC_Bank + 1] = (FSMC_BTR1_ADDSET_2 | FSMC_BTR1_ADDSET_1) \
+			| (FSMC_BTR1_DATAST_2 | FSMC_BTR1_DATAST_1) \
+			| FSMC_BTR1_BUSTURN_0;
 
-	/* FSMC timing */
-	FSMC_Bank1->BTCR[FSMC_Bank + 1] = (FSMC_BTR1_ADDSET_1 | FSMC_BTR1_ADDSET_3) \
-			| (FSMC_BTR1_DATAST_1 | FSMC_BTR1_DATAST_3) \
-			| (FSMC_BTR1_BUSTURN_1 | FSMC_BTR1_BUSTURN_3) ;
-
-	/* Bank1 NOR/SRAM control register configuration
-	 * This is actually not needed as already set by default after reset */
-	FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_MWID_0 | FSMC_BCR1_WREN | FSMC_BCR1_MBKEN;
+	/* Bank1 NOR/PSRAM control register configuration
+	 * Write enable, memory databus width set to 16 bit, memory bank enable */
+	FSMC_Bank1->BTCR[FSMC_Bank] = FSMC_BCR1_WREN | FSMC_BCR1_MWID_0 | FSMC_BCR1_MBKEN;
 
 	/* Display backlight control */
 	/* TIM4 is an alternate function 2 (AF2) */
