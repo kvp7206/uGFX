@@ -3,7 +3,7 @@ To use this driver:
 This driver is special in that it implements both the gdisp low level driver
 and a touchscreen driver.
 
-1. Add in your halconf.h:
+1. Add in your gfxconf.h:
 	a) #define GFX_USE_GDISP			TRUE
 	b) #define GFX_USE_GINPUT			TRUE
 		#define GINPUT_USE_MOUSE		TRUE
@@ -19,4 +19,3 @@ and a touchscreen driver.
 
 3. Modify your makefile to add -lgdi32 to the DLIBS line. i.e.
 	DLIBS = -lws2_32 -lgdi32
-
