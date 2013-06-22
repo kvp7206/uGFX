@@ -522,7 +522,7 @@ extern "C" {
 	#if GDISP_NEED_SCROLL || defined(__DOXYGEN__)
 		/**
 		 * @brief   Scroll vertically a section of the screen.
-		 * @pre		GDISP_NEED_SCROLL must be set to TRUE in halconf.h
+		 * @pre		GDISP_NEED_SCROLL must be set to TRUE in gfxconf.h
 		 * @note    Optional.
 		 * @note    If lines is >= cy, it is equivelent to a area fill with bgcolor.
 		 *

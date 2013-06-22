@@ -5,4 +5,4 @@ To use this driver:
 	b) #define GINPUT_NEED_MOUSE		TRUE
 
 2. To your makefile add the following lines:
-	include $(GFXLIB)/drivers/ginput/touch/ADS7843/ginput_lld.mk
+	include $(GFXLIB)/drivers/ginput/touch/FT5x06/ginput_lld.mk
