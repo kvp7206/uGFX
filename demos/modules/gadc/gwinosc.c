@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2012, 2013, Joel Bodenmann aka Tectu <joel@unormal.org>
  * Copyright (c) 2012, 2013, Andrew Hannam aka inmarket
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +49,7 @@
 
 GHandle gwinCreateScope(GScopeObject *gs, coord_t x, coord_t y, coord_t cx, coord_t cy, uint32_t physdev, uint32_t frequency) {
 	/* Initialise the base class GWIN */
-	if (!(gs = (GScopeObject *)_gwindowCreate((GWindowObject *)gs, x, y, cx, cy, sizeof(GScopeObject))))
+	if (!(gs = (GScopeObject *)_gwinInit((GWindowObject *)gs, x, y, cx, cy, sizeof(GScopeObject))))
 		return 0;
 
 	/* Initialise the scope object members and allocate memory for buffers */
