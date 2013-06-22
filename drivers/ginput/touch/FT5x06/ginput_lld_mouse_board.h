@@ -30,7 +30,7 @@ static const I2CConfig i2cfg2 = {
  * @notapi
  */
 static void init_board(void) {
-	i2cStart(&I2CD2, %i2ccfg2);
+	i2cStart(&I2CD2, &i2ccfg2);
 }
 
 
