@@ -35,6 +35,7 @@ FEATURE:	Added HX8347D driver by user 'Eddie'
 FEATURE:	Added enhanced notepad demo by user 'Abhishek'
 FEATURE:	Added GOS module (including sub modules such as GQUEUE)
 FEATURE:	Added some functionalities to the TDISP module by user 'Frysk'
+FEATURE:	Added RA8875 GDISP driver
 
 
 *** changes after 1.4 ***
