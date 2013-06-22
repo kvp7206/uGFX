@@ -18,7 +18,7 @@
 #define _GINPUT_LLD_MOUSE_BOARD_H
 
 /* I2C interface #2 - Touchscreen controller */
-static const I2CConfig i2cfg2 = {
+static const I2CConfig i2ccfg2 = {
     OPMODE_I2C,
     400000,
     FAST_DUTY_CYCLE_2,
