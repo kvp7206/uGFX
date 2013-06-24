@@ -51,23 +51,20 @@ extern "C" {
  * @return  NULL if there is no resultant drawing area, otherwise a window handle.
  *
  * @param[in] gc		The GConsoleObject structure to initialise. If this is NULL the structure is dynamically allocated.
- * @param[in] x,y		The screen co-ordinates for the top left corner of the window
- * @param[in] width		The width of the window
- * @param[in] height	The height of the window
+ * @param[in] pInit		The initialization parameters to use
  *
  * @note				The drawing color and the background color get set to the current defaults. If you haven't called
  * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are White and Black respectively.
  * @note				The font gets set to the current default font. If you haven't called @p gwinSetDefaultFont() then there
  * 						is no default font and text drawing operations will no nothing.
- * @note				The dimensions and position may be changed to fit on the real screen.
- * @note				On creation the window is marked as visible but is not automatically cleared. You may do that by calling @p gwinClear()
- * 						(possibly after changing your background color)
+ * @note				On creation even if the window is visible it is not automatically cleared.
+ * 						You may do that by calling @p gwinClear() (possibly after changing your background color)
  * @note				A console does not save the drawing state. It is not automatically redrawn if the window is moved or
  * 						its visibility state is changed.
  *
  * @api
  */
-GHandle gwinCreateConsole(GConsoleObject *gc, coord_t x, coord_t y, coord_t width, coord_t height);
+GHandle gwinCreateConsole(GConsoleObject *gc, GWindowInit *pInit);
 
 #if GFX_USE_OS_CHIBIOS && GWIN_CONSOLE_USE_BASESTREAM
 	/**

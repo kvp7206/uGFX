@@ -64,35 +64,47 @@ int main(void) {
 		gwinAttachMouse(0);
 	#endif
 
-	// Create out gwin windows/widgets
-	ghConsole = gwinCreateConsole(NULL, ScrWidth/2+1, ScrHeight/2+1, ScrWidth/2-1, ScrHeight/2-1);
-	ghButton1 = gwinCreateButton(NULL, 0+0*(BUTTON_WIDTH+1), 0, BUTTON_WIDTH, BUTTON_HEIGHT);
-	ghButton2 = gwinCreateButton(NULL, 0+1*(BUTTON_WIDTH+1), 0, BUTTON_WIDTH, BUTTON_HEIGHT);
-	ghButton3 = gwinCreateButton(NULL, 0+2*(BUTTON_WIDTH+1), 0, BUTTON_WIDTH, BUTTON_HEIGHT);
-	ghButton4 = gwinCreateButton(NULL, 0+3*(BUTTON_WIDTH+1), 0, BUTTON_WIDTH, BUTTON_HEIGHT);
-	ghSlider1 = gwinCreateSlider(NULL, ScrWidth/2+1, ScrHeight/2-2*(SLIDER_WIDTH+1), ScrWidth/2-2, SLIDER_WIDTH);
-	ghSlider2 = gwinCreateSlider(NULL, ScrWidth/2+1, ScrHeight/2-1*(SLIDER_WIDTH+1), ScrWidth/2-2, SLIDER_WIDTH);
-	ghSlider3 = gwinCreateSlider(NULL, 0+0*(SLIDER_WIDTH+1), ScrHeight/2+1, SLIDER_WIDTH, ScrHeight/2-2);
-	ghSlider4 = gwinCreateSlider(NULL, 0+1*(SLIDER_WIDTH+1), ScrHeight/2+1, SLIDER_WIDTH, ScrHeight/2-2);
-	ghCheckbox1 = gwinCreateCheckbox(NULL, 0, BUTTON_HEIGHT+1, CHECKBOX_WIDTH, CHECKBOX_HEIGHT);
-	ghCheckbox2 = gwinCreateCheckbox(NULL, 0, BUTTON_HEIGHT+1+1*(CHECKBOX_HEIGHT+1), CHECKBOX_WIDTH, CHECKBOX_HEIGHT);
+	// Create the gwin windows/widgets
+	{
+		GWidgetInit		wi;
 
-	// Color everything and set special drawing for some widgets
-    gwinSetColor(ghConsole, Yellow);
-    gwinSetBgColor(ghConsole, Black);
-    gwinSetCustomDraw(ghCheckbox2, gwinCheckboxDraw_CheckOnRight, 0);
+		wi.g.show = TRUE;
 
-    // Set the text on all the controls
-    gwinSetText(ghButton1, "B1", FALSE);
-	gwinSetText(ghButton2, "B2", FALSE);
-	gwinSetText(ghButton3, "B3", FALSE);
-	gwinSetText(ghButton4, "B4", FALSE);
-	gwinSetText(ghSlider1, "S1", FALSE);
-	gwinSetText(ghSlider2, "S2", FALSE);
-	gwinSetText(ghSlider3, "S3", FALSE);
-	gwinSetText(ghSlider4, "S4", FALSE);
-	gwinSetText(ghCheckbox1, "C1", FALSE);
-	gwinSetText(ghCheckbox2, "C2", FALSE);
+		// Buttons
+		wi.g.width = BUTTON_WIDTH; wi.g.height = BUTTON_HEIGHT; wi.g.y = 0;
+		wi.g.x = 0+0*(BUTTON_WIDTH+1); wi.text = "B1"; ghButton1 = gwinCreateButton(NULL, &wi);
+		wi.g.x = 0+1*(BUTTON_WIDTH+1); wi.text = "B2"; ghButton2 = gwinCreateButton(NULL, &wi);
+		wi.g.x = 0+2*(BUTTON_WIDTH+1); wi.text = "B3"; ghButton3 = gwinCreateButton(NULL, &wi);
+		wi.g.x = 0+3*(BUTTON_WIDTH+1); wi.text = "B4"; ghButton4 = gwinCreateButton(NULL, &wi);
+
+		// Horizontal Sliders
+		wi.g.width = ScrWidth/2-2; wi.g.height = SLIDER_WIDTH; wi.g.x = ScrWidth/2+1;
+		wi.g.y = ScrHeight/2-2*(SLIDER_WIDTH+1); wi.text = "S1"; ghSlider1 = gwinCreateSlider(NULL, &wi);
+		wi.g.y = ScrHeight/2-1*(SLIDER_WIDTH+1); wi.text = "S2"; ghSlider2 = gwinCreateSlider(NULL, &wi);
+
+		// Vertical Sliders
+		wi.g.width = SLIDER_WIDTH; wi.g.height = ScrHeight/2-2; wi.g.y = ScrHeight/2+1;
+		wi.g.x = 0+0*(SLIDER_WIDTH+1); wi.text = "S3"; ghSlider3 = gwinCreateSlider(NULL, &wi);
+		wi.g.x = 0+1*(SLIDER_WIDTH+1); wi.text = "S4"; ghSlider4 = gwinCreateSlider(NULL, &wi);
+
+		// Checkboxes - for the 2nd checkbox we apply special drawing before making it visible
+		wi.g.width = CHECKBOX_WIDTH; wi.g.height = CHECKBOX_HEIGHT; wi.g.x = 0;
+		wi.g.y = BUTTON_HEIGHT+1+0*(CHECKBOX_HEIGHT+1); wi.text = "C1"; ghCheckbox1 = gwinCreateCheckbox(NULL, &wi);
+		wi.g.show = FALSE;
+		wi.g.y = BUTTON_HEIGHT+1+1*(CHECKBOX_HEIGHT+1); wi.text = "C2"; ghCheckbox2 = gwinCreateCheckbox(NULL, &wi);
+	    gwinSetCustomDraw(ghCheckbox2, gwinCheckboxDraw_CheckOnRight, 0);
+		gwinSetVisible(ghCheckbox2, TRUE);
+
+		// Console - we apply some special colors before making it visible
+		wi.g.show = FALSE;
+		wi.g.width = ScrWidth/2-1; wi.g.height = ScrHeight/2-1;
+		wi.g.x = ScrWidth/2+1; wi.g.y = ScrHeight/2+1;
+		ghConsole = gwinCreateConsole(NULL, &wi.g);
+	    gwinSetColor(ghConsole, Yellow);
+	    gwinSetBgColor(ghConsole, Black);
+		gwinSetVisible(ghConsole, TRUE);
+		gwinClear(ghConsole);
+	}
 
     // Assign toggles and dials to the buttons & sliders etc.
 	#if GINPUT_NEED_TOGGLE
@@ -103,19 +115,6 @@ int main(void) {
 		gwinAttachDial(ghSlider1, 0, 0);
 		gwinAttachDial(ghSlider3, 0, 1);
 	#endif
-
-	// Draw everything on the screen
-	gwinClear(ghConsole);
-	gwinSetVisible(ghButton1, TRUE);
-	gwinSetVisible(ghButton2, TRUE);
-	gwinSetVisible(ghButton3, TRUE);
-	gwinSetVisible(ghButton4, TRUE);
-	gwinSetVisible(ghSlider1, TRUE);
-	gwinSetVisible(ghSlider2, TRUE);
-	gwinSetVisible(ghSlider3, TRUE);
-	gwinSetVisible(ghSlider4, TRUE);
-	gwinSetVisible(ghCheckbox1, TRUE);
-	gwinSetVisible(ghCheckbox2, TRUE);
 
 	while(1) {
 		// Get an Event

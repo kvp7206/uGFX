@@ -73,7 +73,7 @@
 /* Features for the GWIN sub-system. */
 #define GWIN_NEED_WINDOWMANAGER	TRUE
 #define GWIN_NEED_CONSOLE		TRUE
-#define GWIN_NEED_GRAPH			FALSE
+#define GWIN_NEED_GRAPH			TRUE
 #define GWIN_NEED_WIDGET		TRUE
 #define GWIN_NEED_BUTTON		TRUE
 #define GWIN_NEED_SLIDER		TRUE

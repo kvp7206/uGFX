@@ -165,15 +165,15 @@ void _gwidgetInit(void) {
 	geventRegisterCallback(&gl, gwidgetEvent, 0);
 }
 
-GHandle _gwidgetCreate(GWidgetObject *pgw, coord_t x, coord_t y, coord_t width, coord_t height, size_t size, const gwidgetVMT *vmt) {
-	if (!(pgw = (GWidgetObject *)_gwindowCreate((GWindowObject *)pgw, x, y, width, height, size, (const gwinVMT *)vmt, GWIN_FLG_WIDGET|GWIN_FLG_ENABLED)))
+GHandle _gwidgetCreate(GWidgetObject *pgw, GWidgetInit *pInit, const gwidgetVMT *vmt) {
+	if (!(pgw = (GWidgetObject *)_gwindowCreate(&pgw->g, &pInit->g, &vmt->g, GWIN_FLG_WIDGET|GWIN_FLG_ENABLED)))
 		return 0;
 
-	pgw->txt = "";
+	pgw->txt = pInit->text ? pInit->text : "";
 	pgw->fnDraw = vmt->DefaultDraw;
 	pgw->fnParam = 0;
 
-	return (GHandle)pgw;
+	return 	&pgw->g;
 }
 
 void _gwidgetDestroy(GHandle gh) {

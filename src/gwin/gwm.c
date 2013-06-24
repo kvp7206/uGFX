@@ -25,7 +25,7 @@
 
 static void WM_Init(void);
 static void WM_DeInit(void);
-static bool_t WM_Add(GHandle gh, coord_t x, coord_t y, coord_t w, coord_t h);
+static bool_t WM_Add(GHandle gh, GWindowInit *pInit);
 static void WM_Delete(GHandle gh);
 static void WM_Visible(GHandle gh);
 static void WM_Redim(GHandle gh, coord_t x, coord_t y, coord_t w, coord_t h);
@@ -65,12 +65,12 @@ static void WM_DeInit(void) {
 	// A full window manager would remove any borders etc
 }
 
-static bool_t WM_Add(GHandle gh, coord_t x, coord_t y, coord_t w, coord_t h) {
+static bool_t WM_Add(GHandle gh, GWindowInit *pInit) {
 	// Put it on the queue
 	gfxQueueASyncPut(&_GWINList, &gh->wmq);
 
 	// Make sure the size is valid
-	WM_Redim(gh, x, y, w, h);
+	WM_Redim(gh, pInit->x, pInit->y, pInit->width, pInit->height);
 
 	// Display it if it is visible
 	WM_Visible(gh);

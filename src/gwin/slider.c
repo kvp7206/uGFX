@@ -43,6 +43,7 @@ static uint16_t DialGet(GWidgetObject *gw, uint16_t role);
 static const gwidgetVMT sliderVMT = {
 	{
 		"Slider",				// The classname
+		sizeof(GSliderObject),	// The object size
 		_gwidgetDestroy,		// The destroy routine
 		_gwidgetRedraw,			// The redraw routine
 		0,						// The after-clear routine
@@ -232,8 +233,8 @@ static uint16_t DialGet(GWidgetObject *gw, uint16_t role) {
 	return ((GSliderObject *)gw)->dial;
 }
 
-GHandle gwinCreateSlider(GSliderObject *gs, coord_t x, coord_t y, coord_t width, coord_t height) {
-	if (!(gs = (GSliderObject *)_gwidgetCreate((GWidgetObject *)gs, x, y, width, height, sizeof(GSliderObject), &sliderVMT)))
+GHandle gwinCreateSlider(GSliderObject *gs, GWidgetInit *pInit) {
+	if (!(gs = (GSliderObject *)_gwidgetCreate(&gs->w, pInit, &sliderVMT)))
 		return 0;
 	gs->t_dn = (uint16_t) -1;
 	gs->t_up = (uint16_t) -1;
@@ -243,6 +244,7 @@ GHandle gwinCreateSlider(GSliderObject *gs, coord_t x, coord_t y, coord_t width,
 	gs->max = 100;
 	gs->pos = 0;
 	ResetDisplayPos(gs);
+	gwinSetVisible((GHandle)gs, pInit->g.show);
 	return (GHandle)gs;
 }
 

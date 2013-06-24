@@ -34,6 +34,7 @@ static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role);
 static const gwidgetVMT checkboxVMT = {
 	{
 		"Checkbox",				// The classname
+		sizeof(GCheckboxObject),// The object size
 		_gwidgetDestroy,		// The destroy routine
 		_gwidgetRedraw,			// The redraw routine
 		0,						// The after-clear routine
@@ -112,12 +113,13 @@ static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role) {
 	return ((GCheckboxObject *)gw)->toggle;
 }
 
-GHandle gwinCreateCheckbox(GCheckboxObject *gb, coord_t x, coord_t y, coord_t width, coord_t height) {
-	if (!(gb = (GCheckboxObject *)_gwidgetCreate((GWidgetObject *)gb, x, y, width, height, sizeof(GCheckboxObject), &checkboxVMT)))
+GHandle gwinCreateCheckbox(GCheckboxObject *gb, GWidgetInit *pInit) {
+	if (!(gb = (GCheckboxObject *)_gwidgetCreate(&gb->w, pInit, &checkboxVMT)))
 		return 0;
 
 	gb->toggle = (uint16_t) -1;
 	gb->c = defaultColors;			// assign the default colors
+	gwinSetVisible((GHandle)gb, pInit->g.show);
 	return (GHandle)gb;
 }
 

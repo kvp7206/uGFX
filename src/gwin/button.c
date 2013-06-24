@@ -41,6 +41,7 @@ static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role);
 static const gwidgetVMT buttonVMT = {
 	{
 		"Button",				// The classname
+		sizeof(GButtonObject),	// The object size
 		_gwidgetDestroy,		// The destroy routine
 		_gwidgetRedraw,			// The redraw routine
 		0,						// The after-clear routine
@@ -150,14 +151,15 @@ static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role) {
 	return ((GButtonObject *)gw)->toggle;
 }
 
-GHandle gwinCreateButton(GButtonObject *gw, coord_t x, coord_t y, coord_t width, coord_t height) {
-	if (!(gw = (GButtonObject *)_gwidgetCreate((GWidgetObject *)gw, x, y, width, height, sizeof(GButtonObject), &buttonVMT)))
+GHandle gwinCreateButton(GButtonObject *gw, GWidgetInit *pInit) {
+	if (!(gw = (GButtonObject *)_gwidgetCreate(&gw->w, pInit, &buttonVMT)))
 		return 0;
 
 	gw->toggle = GWIDGET_NO_INSTANCE;
 	gw->c_up = GButtonDefaultColorsUp;
 	gw->c_dn = GButtonDefaultColorsDown;
 	gw->c_dis = GButtonDefaultColorsDisabled;
+	gwinSetVisible((GHandle)gw, pInit->g.show);
 	return (GHandle)gw;
 }
 

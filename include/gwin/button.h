@@ -70,26 +70,21 @@ extern "C" {
  * @return  NULL if there is no resultant drawing area, otherwise a window handle.
  *
  * @param[in] gb		The GButtonObject structure to initialise. If this is NULL the structure is dynamically allocated.
- * @param[in] x,y		The screen co-ordinates for the top left corner of the window
- * @param[in] width		The width of the window
- * @param[in] height	The height of the window
+ * @param[in] pInit		The initialisation parameters
  *
  * @note				The drawing color and the background color get set to the current defaults. If you haven't called
  * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are White and Black respectively.
  * @note				The font gets set to the current default font. If you haven't called @p gwinSetDefaultFont() then there
  * 						is no default font and text drawing operations will no nothing.
- * @note				The dimensions and position may be changed to fit on the real screen.
  * @note				A button remembers its normal drawing state. If there is a window manager then it is automatically
  * 						redrawn if the window is moved or its visibility state is changed.
- * @note				The button is initially marked as invisible so that more properties can be set before display.
- * 						Call @p gwinSetVisible() to display it when ready.
  * @note				A button supports mouse and a toggle input.
  * @note				When assigning a toggle, only one toggle is supported. If you try to assign more than one toggle it will
  * 						forget the previous toggle. When assigning a toggle the role parameter must be 0.
  *
  * @api
  */	
-GHandle gwinCreateButton(GButtonObject *gb, coord_t x, coord_t y, coord_t width, coord_t height);
+GHandle gwinCreateButton(GButtonObject *gb, GWidgetInit *pInit);
 
 /**
  * @brief   Set the colors of a button.

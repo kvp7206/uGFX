@@ -53,6 +53,22 @@ typedef struct GWidgetObject {
 /* @} */
 
 /**
+ * @brief	The structure to initialise a widget.
+ *
+ * @note	Some widgets may have extra parameters.
+ * @note	The text element must be static string (not stack allocated). If you want to use
+ * 			a dynamic string (eg a stack allocated string) use NULL for this member and then call
+ * 			@p gwinSetText() with useAlloc set to TRUE.
+ *
+ * @{
+ */
+typedef struct GWidgetInit {
+	GWindowInit		g;								// @< The GWIN initializer
+	const char *	text;							// @< The initial text
+} GWidgetInit;
+/* @} */
+
+/**
  * A comment/rant on the above structure:
  * We would really like the GWindowObject member to be anonymous. While this is
  * allowed under the C11, C99, GNU and various other standards which have been

@@ -45,6 +45,7 @@
  */
 typedef struct gwinVMT {
 	const char *		classname;						// @< The GWIN classname (mandatory)
+	size_t				size;							// @< The size of the class object
 	void (*Destroy)		(GWindowObject *gh);			// @< The GWIN destroy function (optional)
 	void (*Redraw)		(GWindowObject *gh);			// @< The GWIN redraw routine (optional)
 	void (*AfterClear)	(GWindowObject *gh);			// @< The GWIN after-clear function (optional)
@@ -116,7 +117,7 @@ typedef struct gwinVMT {
 	typedef struct gwmVMT {
 		void (*Init)		(void);									// @< The window manager has just been set as the current window manager
 		void (*DeInit)		(void);									// @< The window manager has just been removed as the current window manager
-		bool_t (*Add)		(GHandle gh, coord_t x, coord_t y, coord_t w, coord_t h);	// @< A window has been added
+		bool_t (*Add)		(GHandle gh, GWindowInit *pInit);		// @< A window has been added
 		void (*Delete)		(GHandle gh);							// @< A window has been deleted
 		void (*Visible)		(GHandle gh);							// @< A window has changed its visibility state
 		void (*Redim)		(GHandle gh, coord_t x, coord_t y, coord_t w, coord_t h);	// @< A window wants to be moved or resized
@@ -139,15 +140,13 @@ extern "C" {
  * @brief	Initialise (and allocate if necessary) the base GWIN object
  *
  * @param[in]	pgw		The GWindowObject structure. If NULL one is allocated from the heap
- * @param[in]	x, y	The top left corner of the GWIN relative to the screen
- * @param[in]	w, h	The width and height of the GWIN window
- * @param[in]	size	The size of the GWIN object to allocate
+ * @param[in]	pInit	The user initialization parameters
  * @param[in]	vmt		The virtual method table for the GWIN object
  * @param[in]	flags	The default flags to use
  *
  * @notapi
  */
-GHandle _gwindowCreate(GWindowObject *pgw, coord_t x, coord_t y, coord_t w, coord_t h, size_t size, const gwinVMT *vmt, uint16_t flags);
+GHandle _gwindowCreate(GWindowObject *pgw, GWindowInit *pInit, const gwinVMT *vmt, uint16_t flags);
 
 #if GWIN_NEED_WIDGET || defined(__DOXYGEN__)
 	/**
@@ -161,7 +160,7 @@ GHandle _gwindowCreate(GWindowObject *pgw, coord_t x, coord_t y, coord_t w, coor
 	 *
 	 * @notapi
 	 */
-	GHandle _gwidgetCreate(GWidgetObject *pgw, coord_t x, coord_t y, coord_t w, coord_t h, size_t size, const gwidgetVMT *vmt);
+	GHandle _gwidgetCreate(GWidgetObject *pgw, GWidgetInit *pInit, const gwidgetVMT *vmt);
 
 	/**
 	 * @brief	Destroy the Widget object

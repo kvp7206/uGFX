@@ -31,6 +31,7 @@ static const GGraphStyle GGraphDefaultStyle = {
 
 static const gwinVMT graphVMT = {
 		"Graph",				// The classname
+		sizeof(GGraphObject),	// The object size
 		0,						// The destroy routine
 		0,						// The redraw routine
 		0,						// The after-clear routine
@@ -164,12 +165,13 @@ static void lineto(GGraphObject *gg, coord_t x0, coord_t y0, coord_t x1, coord_t
 	}
 }
 
-GHandle gwinCreateGraph(GGraphObject *gg, coord_t x, coord_t y, coord_t width, coord_t height) {
-	if (!(gg = (GGraphObject *)_gwindowCreate((GWindowObject *)gg, x, y, width, height, sizeof(GGraphObject), &graphVMT, GWIN_FLG_VISIBLE)))
+GHandle gwinCreateGraph(GGraphObject *gg, GWindowInit *pInit) {
+	if (!(gg = (GGraphObject *)_gwindowCreate(&gg->g, pInit, &graphVMT, 0)))
 		return 0;
 	gg->xorigin = gg->yorigin = 0;
 	gg->lastx = gg->lasty = 0;
 	gwinGraphSetStyle((GHandle)gg, &GGraphDefaultStyle);
+	gwinSetVisible((GHandle)gg, pInit->show);
 	return (GHandle)gg;
 }
 

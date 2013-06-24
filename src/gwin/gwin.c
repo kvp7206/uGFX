@@ -21,6 +21,7 @@
 
 static const gwinVMT basegwinVMT = {
 		"GWIN",					// The classname
+		sizeof(GWindowObject),	// The object size
 		0,						// The destroy routine
 		0,						// The redraw routine
 		0,						// The after-clear routine
@@ -51,17 +52,17 @@ static color_t	defaultBgColor = Black;
 		} else
 			gwinClear(gh);
 	}
-	static void _gwm_redim(GHandle gh, coord_t x, coord_t y, coord_t w, coord_t h) {
-		if (x < 0) { w += x; x = 0; }
-		if (y < 0) { h += y; y = 0; }
-		if (x > gdispGetWidth()-MIN_WIN_WIDTH)		x = gdispGetWidth()-MIN_WIN_WIDTH;
-		if (y > gdispGetHeight()-MIN_WIN_HEIGHT)	y = gdispGetHeight()-MIN_WIN_HEIGHT;
-		if (w < MIN_WIN_WIDTH) { w = MIN_WIN_WIDTH; }
-		if (h < MIN_WIN_HEIGHT) { h = MIN_WIN_HEIGHT; }
-		if (x+w > gdispGetWidth()) w = gdispGetWidth() - x;
-		if (y+h > gdispGetHeight()) h = gdispGetHeight() - y;
-		gh->x = x; gh->y = y;
-		gh->width = w; gh->height = h;
+	static void _gwm_redim(GHandle gh, GWindowInit *pInit) {
+		gh->x = pInit->x; gh->y = pInit->y;
+		gh->width = pInit->width; gh->height = pInit->height;
+		if (gh->x < 0) { gh->width += gh->x; gh->x = 0; }
+		if (gh->y < 0) { gh->height += gh->y; gh->y = 0; }
+		if (gh->x > gdispGetWidth()-MIN_WIN_WIDTH)		gh->x = gdispGetWidth()-MIN_WIN_WIDTH;
+		if (gh->y > gdispGetHeight()-MIN_WIN_HEIGHT)	gh->y = gdispGetHeight()-MIN_WIN_HEIGHT;
+		if (gh->width < MIN_WIN_WIDTH) { gh->width = MIN_WIN_WIDTH; }
+		if (gh->height < MIN_WIN_HEIGHT) { gh->height = MIN_WIN_HEIGHT; }
+		if (gh->x+gh->width > gdispGetWidth()) gh->width = gdispGetWidth() - gh->x;
+		if (gh->y+gh->height > gdispGetHeight()) gh->height = gdispGetHeight() - gh->y;
 	}
 #endif
 
@@ -84,10 +85,10 @@ void _gwinInit(void) {
 
 // Internal routine for use by GWIN components only
 // Initialise a window creating it dynamically if required.
-GHandle _gwindowCreate(GWindowObject *pgw, coord_t x, coord_t y, coord_t width, coord_t height, size_t size, const gwinVMT *vmt, uint16_t flags) {
+GHandle _gwindowCreate(GWindowObject *pgw, GWindowInit *pInit, const gwinVMT *vmt, uint16_t flags) {
 	// Allocate the structure if necessary
 	if (!pgw) {
-		if (!(pgw = (GWindowObject *)gfxAlloc(size)))
+		if (!(pgw = (GWindowObject *)gfxAlloc(vmt->size)))
 			return 0;
 		pgw->flags = flags|GWIN_FLG_DYNAMIC;
 	} else
@@ -101,17 +102,15 @@ GHandle _gwindowCreate(GWindowObject *pgw, coord_t x, coord_t y, coord_t width, 
 		pgw->font = defaultFont;
 	#endif
 
-	#if GWIN_NEED_WINDOWMANAGER
-		if (!cwm->vmt->Add(pgw, x, y, width, height)) {
-			if ((pgw->flags & GWIN_FLG_DYNAMIC))
-				gfxFree(pgw);
-			return 0;
-		}
-	#else
-		_gwm_redim(pgw, x, y, width, height);
-		if ((pgw->flags & GWIN_FLG_VISIBLE))
-			_gwm_vis(pgw);
-	#endif
+#if GWIN_NEED_WINDOWMANAGER
+	if (!cwm->vmt->Add(pgw, pInit)) {
+		if ((pgw->flags & GWIN_FLG_DYNAMIC))
+			gfxFree(pgw);
+		return 0;
+	}
+#else
+	_gwm_redim(pgw, pInit->x, pInit->y, pInit->width, pInit->height);
+#endif
 
 	return (GHandle)pgw;
 }
@@ -150,8 +149,11 @@ void gwinSetDefaultBgColor(color_t bgclr) {
  * The GWindow Routines
  *-----------------------------------------------*/
 
-GHandle gwinCreateWindow(GWindowObject *pgw, coord_t x, coord_t y, coord_t width, coord_t height) {
-	return _gwindowCreate(pgw, x, y, width, height, sizeof(GWindowObject), &basegwinVMT, GWIN_FLG_VISIBLE);
+GHandle gwinCreateWindow(GWindowObject *pgw, GWindowInit *pInit) {
+	if (!(pgw = _gwindowCreate(pgw, pInit, &basegwinVMT, 0)))
+		return 0;
+	gwinSetVisible(pgw, pInit->show);
+	return pgw;
 }
 
 void gwinDestroy(GHandle gh) {
