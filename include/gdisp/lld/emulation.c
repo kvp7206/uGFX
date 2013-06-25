@@ -54,7 +54,7 @@ GDISPDriver	GDISP;
 			if (x1 > x0)
 				gdisp_lld_fill_area(x0, y0, x1-x0+1, 1, color);
 			else
-				gdisp_lld_fill_area(x0, y1, x0-x1+1, 1, color);
+				gdisp_lld_fill_area(x1, y0, x0-x1+1, 1, color);
 			return;
 		}
 		#endif
