@@ -6,7 +6,7 @@
  */
 
 /**
- * @file    drivers/ginput/touch/FT5x06/ginput_lld_mouse_board_.h
+ * @file    drivers/ginput/touch/FT5x06/ginput_lld_mouse_board.h
  * @brief   GINPUT Touch low level driver source for the FT5x06.
  *
  * @defgroup Mouse Mouse
@@ -30,7 +30,7 @@ static const I2CConfig i2ccfg2 = {
  * @notapi
  */
 static void init_board(void) {
-	i2cStart(&I2CD2, &i2ccfg2);
+
 }
 
 

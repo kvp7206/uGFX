@@ -6,7 +6,7 @@
  */
 
 /**
- * @file    drivers/ginput/touch/FT5x06/ft5x05.h
+ * @file    drivers/ginput/touch/FT5x06/ft5x06.h
  * @brief   Register definition header for the STMPE811 touch controller.
  *
  * @addtogroup GINPUT
