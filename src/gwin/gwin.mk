@@ -7,4 +7,5 @@ GFXSRC +=   $(GFXLIB)/src/gwin/gwin.c \
 			$(GFXLIB)/src/gwin/slider.c \
 			$(GFXLIB)/src/gwin/checkbox.c \
 			$(GFXLIB)/src/gwin/image.c \
-			
+			$(GFXLIB)/src/gwin/label.c \
+	
