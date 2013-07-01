@@ -63,7 +63,7 @@ GHandle gwinImageCreate(GImageWidget *widget, GWindowInit *pInit);
  * @return				TRUE if the IO open function succeeds
  *
  * @param[in] gh		The widget (must be an image widget)
- * @param[in[ memory	A pointer to the image in RAM or Flash
+ * @param[in] memory	A pointer to the image in RAM or Flash
  *
  * @api
  */
@@ -76,7 +76,7 @@ bool_t gwinImageOpenMemory(GHandle gh, const void* memory);
 	 * @return				TRUE if the IO open function succeeds
 	 *
 	 * @param[in] gh		The widget (must be an image widget)
-	 * @param[in[ memory	The filename to open
+	 * @param[in] filename	The filename to open
 	 *
 	 * @api
 	 */
@@ -90,7 +90,7 @@ bool_t gwinImageOpenMemory(GHandle gh, const void* memory);
 	 * @return				TRUE if the IO open function succeeds
 	 *
 	 * @param[in] gh		The widget (must be an image widget)
-	 * @param[in[ memory	A pointer to the (open) BaseFileStream object.
+	 * @param[in] streamPtr	A pointer to the (open) BaseFileStream object.
 	 *
 	 * @api
 	 */
