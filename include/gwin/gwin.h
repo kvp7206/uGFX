@@ -154,7 +154,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	GHandle gwinCreateWindow(GWindowObject *pgw, GWindowInit *pInit);
+	GHandle gwinCreateWindow(GWindowObject *pgw, const GWindowInit *pInit);
 
 	/**
 	 * @brief   Destroy a window (of any type). Releases any dynamically allocated memory.

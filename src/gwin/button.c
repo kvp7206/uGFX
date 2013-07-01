@@ -151,7 +151,7 @@ static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role) {
 	return ((GButtonObject *)gw)->toggle;
 }
 
-GHandle gwinCreateButton(GButtonObject *gw, GWidgetInit *pInit) {
+GHandle gwinCreateButton(GButtonObject *gw, const GWidgetInit *pInit) {
 	if (!(gw = (GButtonObject *)_gwidgetCreate(&gw->w, pInit, &buttonVMT)))
 		return 0;
 

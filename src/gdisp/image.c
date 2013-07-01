@@ -184,6 +184,14 @@ void gdispImageClose(gdispImage *img) {
 		img->fns->close(img);
 	else
 		img->io.fns->close(&img->io);
+	img->type = GDISP_IMAGE_TYPE_UNKNOWN;
+	img->flags = 0;
+	img->fns = 0;
+	img->priv = 0;
+}
+
+bool_t gdispImageIsOpen(gdispImage *img) {
+	return img->type != GDISP_IMAGE_TYPE_UNKNOWN && img->fns != 0;
 }
 
 void gdispImageSetBgColor(gdispImage *img, color_t bgcolor) {

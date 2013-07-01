@@ -233,7 +233,7 @@ static uint16_t DialGet(GWidgetObject *gw, uint16_t role) {
 	return ((GSliderObject *)gw)->dial;
 }
 
-GHandle gwinCreateSlider(GSliderObject *gs, GWidgetInit *pInit) {
+GHandle gwinCreateSlider(GSliderObject *gs, const GWidgetInit *pInit) {
 	if (!(gs = (GSliderObject *)_gwidgetCreate(&gs->w, pInit, &sliderVMT)))
 		return 0;
 	gs->t_dn = (uint16_t) -1;

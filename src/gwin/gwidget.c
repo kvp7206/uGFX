@@ -165,7 +165,7 @@ void _gwidgetInit(void) {
 	geventRegisterCallback(&gl, gwidgetEvent, 0);
 }
 
-GHandle _gwidgetCreate(GWidgetObject *pgw, GWidgetInit *pInit, const gwidgetVMT *vmt) {
+GHandle _gwidgetCreate(GWidgetObject *pgw, const GWidgetInit *pInit, const gwidgetVMT *vmt) {
 	if (!(pgw = (GWidgetObject *)_gwindowCreate(&pgw->g, &pInit->g, &vmt->g, GWIN_FLG_WIDGET|GWIN_FLG_ENABLED)))
 		return 0;
 

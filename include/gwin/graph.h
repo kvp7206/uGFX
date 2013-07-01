@@ -107,7 +107,7 @@ extern "C" {
  *
  * @api
  */
-GHandle gwinCreateGraph(GGraphObject *gg, GWindowInit *pInit);
+GHandle gwinCreateGraph(GGraphObject *gg, const GWindowInit *pInit);
 
 /**
  * @brief   Set the style of the graphing operations.

@@ -113,7 +113,7 @@ static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role) {
 	return ((GCheckboxObject *)gw)->toggle;
 }
 
-GHandle gwinCreateCheckbox(GCheckboxObject *gb, GWidgetInit *pInit) {
+GHandle gwinCreateCheckbox(GCheckboxObject *gb, const GWidgetInit *pInit) {
 	if (!(gb = (GCheckboxObject *)_gwidgetCreate(&gb->w, pInit, &checkboxVMT)))
 		return 0;
 
