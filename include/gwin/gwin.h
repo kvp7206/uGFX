@@ -105,7 +105,6 @@ extern "C" {
 	/**
 	 * @brief	Set the default foreground color for all new GWIN windows
 	 *
-	 * @param[in] gh	The window
 	 * @param[in] clr	The color to be set
 	 *
 	 * @api
@@ -115,7 +114,6 @@ extern "C" {
 	/**
 	 * @brief	Set the default background color for all new GWIN windows
 	 *
-	 * @param[in] gh	The window
 	 * @param[in] bgclr	The background color
 	 *
 	 * @api
@@ -126,7 +124,7 @@ extern "C" {
 		/**
 		 * @brief	Set the default font for all new GWIN windows
 		 *
-		 * @param[in] gh	The window
+		 * @param[in] font	The new font to be set
 		 *
 		 * @api
 		 */
