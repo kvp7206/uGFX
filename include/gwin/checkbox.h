@@ -73,7 +73,7 @@ typedef struct GCheckboxObject_t {
  *
  * @api
  */
-GHandle gwinCreateCheckbox(GCheckboxObject *gb, GWidgetInit *pInit);
+GHandle gwinCreateCheckbox(GCheckboxObject *gb, const GWidgetInit *pInit);
 
 /**
  * @brief	Get the state of a checkbox

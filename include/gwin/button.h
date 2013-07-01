@@ -84,7 +84,7 @@ extern "C" {
  *
  * @api
  */	
-GHandle gwinCreateButton(GButtonObject *gb, GWidgetInit *pInit);
+GHandle gwinCreateButton(GButtonObject *gb, const GWidgetInit *pInit);
 
 /**
  * @brief   Set the colors of a button.

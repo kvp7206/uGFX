@@ -165,7 +165,7 @@ static void lineto(GGraphObject *gg, coord_t x0, coord_t y0, coord_t x1, coord_t
 	}
 }
 
-GHandle gwinCreateGraph(GGraphObject *gg, GWindowInit *pInit) {
+GHandle gwinCreateGraph(GGraphObject *gg, const GWindowInit *pInit) {
 	if (!(gg = (GGraphObject *)_gwindowCreate(&gg->g, pInit, &graphVMT, 0)))
 		return 0;
 	gg->xorigin = gg->yorigin = 0;

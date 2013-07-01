@@ -52,7 +52,7 @@ static color_t	defaultBgColor = Black;
 		} else
 			gwinClear(gh);
 	}
-	static void _gwm_redim(GHandle gh, GWindowInit *pInit) {
+	static void _gwm_redim(GHandle gh, const GWindowInit *pInit) {
 		gh->x = pInit->x; gh->y = pInit->y;
 		gh->width = pInit->width; gh->height = pInit->height;
 		if (gh->x < 0) { gh->width += gh->x; gh->x = 0; }
@@ -85,7 +85,7 @@ void _gwinInit(void) {
 
 // Internal routine for use by GWIN components only
 // Initialise a window creating it dynamically if required.
-GHandle _gwindowCreate(GWindowObject *pgw, GWindowInit *pInit, const gwinVMT *vmt, uint16_t flags) {
+GHandle _gwindowCreate(GWindowObject *pgw, const GWindowInit *pInit, const gwinVMT *vmt, uint16_t flags) {
 	// Allocate the structure if necessary
 	if (!pgw) {
 		if (!(pgw = (GWindowObject *)gfxAlloc(vmt->size)))
@@ -149,7 +149,7 @@ void gwinSetDefaultBgColor(color_t bgclr) {
  * The GWindow Routines
  *-----------------------------------------------*/
 
-GHandle gwinCreateWindow(GWindowObject *pgw, GWindowInit *pInit) {
+GHandle gwinCreateWindow(GWindowObject *pgw, const GWindowInit *pInit) {
 	if (!(pgw = _gwindowCreate(pgw, pInit, &basegwinVMT, 0)))
 		return 0;
 	gwinSetVisible(pgw, pInit->show);

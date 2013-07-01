@@ -23,7 +23,7 @@
  * 				via an input device such as a mouse or toggle buttons. It is the
  * 				base class for widgets such as buttons and sliders.
  *
- * @pre		GFX_USE_GWIN must be set to TRUE in your gfxconf.h
+ * @pre		GFX_USE_GWIN and GWIN_NEED_WIDGET must be set to TRUE in your gfxconf.h
  * @{
  */
 
@@ -40,7 +40,7 @@ typedef void (*CustomWidgetDrawFunction)(struct GWidgetObject *gw, void *param);
  * @note	A widget is a GWIN window that accepts user input.
  * 			It also has a number of other properties such as its ability
  * 			to redraw itself (a widget maintains drawing state).
- * @note	Do you access the members directly. Treat it as a black-box and use the method functions.
+ * @note	Do not access the members directly. Treat it as a black-box and use the method functions.
  *
  * @{
  */

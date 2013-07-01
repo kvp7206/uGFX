@@ -82,7 +82,7 @@ extern "C" {
  *
  * @api
  */	
-GHandle gwinCreateSlider(GSliderObject *gb, GWidgetInit *pInit);
+GHandle gwinCreateSlider(GSliderObject *gb, const GWidgetInit *pInit);
 
 /**
  * @brief   Set the slider range.

@@ -64,7 +64,7 @@ extern "C" {
  *
  * @api
  */
-GHandle gwinCreateConsole(GConsoleObject *gc, GWindowInit *pInit);
+GHandle gwinCreateConsole(GConsoleObject *gc, const GWindowInit *pInit);
 
 #if GFX_USE_OS_CHIBIOS && GWIN_CONSOLE_USE_BASESTREAM
 	/**
