@@ -185,7 +185,7 @@ extern "C" {
 	gdispImageError gdispImageOpen(gdispImage *img);
 	
 	/**
-	 * @brief	Close an image and release any dynamicly allocated working storage.
+	 * @brief	Close an image and release any dynamically allocated working storage.
 	 * 
 	 * @param[in] img   The image structure
 	 * 
@@ -194,6 +194,19 @@ extern "C" {
 	 * @note	Also calls the IO close function (if it hasn't already been called).
 	 */
 	void gdispImageClose(gdispImage *img);
+
+	/**
+	 * @brief	Is an image open.
+	 * @return	TRUE if the image is currently open.
+	 *
+	 * @param[in] img   The image structure
+	 *
+	 * @note	Be careful with calling this on an uninitialized image structure as the image
+	 * 			will contain random data which may be interpreted as meaning the image
+	 * 			is open. Clearing the Image structure to 0's will guarantee the image
+	 * 			is seen as being closed.
+	 */
+	bool_t gdispImageIsOpen(gdispImage *img);
 
 	/**
 	 * @brief	Set the background color of the image.
