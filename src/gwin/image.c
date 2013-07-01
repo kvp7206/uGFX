@@ -87,7 +87,7 @@ void gwinImageSetBgColor(GHandle gh, color_t bgColor) {
 }
 
 void gwinImageDraw(GHandle gh) {
-	gdispImageDraw(widget(gh)->image, widget(gh)->g.x, widget(gh)->g.y, widget(gh)->g.width, widget(gh)->g.height, 0, 0);
+	gdispImageDraw(widget(gh)->image, widget(gh)->g.x, widget(gh)->g.y, widget(gh)->image->width, widget(gh)->image->height, 0, 0);
 } 
 
 #endif // GFX_USE_GWIN && GWIN_NEED_IMAGE
