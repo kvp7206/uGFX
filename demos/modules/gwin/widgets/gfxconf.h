@@ -81,7 +81,7 @@
 
 /* Features for the GINPUT sub-system. */
 #define GINPUT_NEED_MOUSE		TRUE
-#define GINPUT_NEED_TOGGLE		TRUE
+#define GINPUT_NEED_TOGGLE		FALSE
 #define GINPUT_NEED_DIAL		FALSE
 
 #endif /* _GFXCONF_H */
