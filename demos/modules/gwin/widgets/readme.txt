@@ -4,3 +4,7 @@ gfxconf.h
 
 Note that you will need to include the drivers into your project
 makefile for whichever inputs you decide to use.
+
+Note that you need to link to the math library. Add -lm to your 
+library paths in your Makefile.
+
