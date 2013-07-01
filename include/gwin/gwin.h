@@ -746,8 +746,13 @@ extern "C" {
 	#if GWIN_NEED_CONSOLE || defined(__DOXYGEN__)
 		#include "gwin/console.h"
 	#endif
+
 	#if GWIN_NEED_GRAPH || defined(__DOXYGEN__)
 		#include "gwin/graph.h"
+	#endif
+
+	#if GWIN_NEED_IMAGE || defined(__DOXYGEN__)
+		#include "gwin/image.h"
 	#endif
 
 #endif /* GFX_USE_GWIN */
