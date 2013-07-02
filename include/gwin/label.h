@@ -19,7 +19,7 @@
  * @pre			GFX_USE_GWIN must be set to TRUE in your gfxconf.h
  * @pre			GDISP_NEED_TEXT must be set to TRUE in your gfxconf.h
  * @pre			GWIN_NEED_LABEL must be set to TRUE in your gfxconf.h
- * @pre			The font you want to use must be enabled in your gfxconf.h
+ * @pre			The fonts you want to use must be enabled in your gfxconf.h
  *
  * @{
  */
@@ -33,17 +33,29 @@
 typedef struct GLabelWidget_t {
 	GWindowObject	g;
 
-	char*			text;
+	const char*		text;
 } GLabelWidget;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/**
+ * @brief		Create a label widget.
+ * @details		A label widget is a simple window which has a static text.
+ * 
+ * @param[in] widget	The label structure to initialise. If this is NULL, the structure is dynamically allocated.
+ * @param[in] pinit		The initialisation parameters to use.
+ *
+ * @return				NULL if there is no resultat drawing area, otherwise the widget handle.
+ *
+ * @api
+ */
 GHandle gwinLabelCreate(GLabelWidget *widget, GWindowInit *pInit);
 void gwinLabelSetColor(GHandle gh, color_t color);
 void gwinLabelSetBgColor(GHandle gh, color_t bgColor);
-void gwinLabelSetText(GHandle gh, char* text);
+void gwinLabelSetFont(GHandle gh, font_t font);
+void gwinLabelSetText(GHandle gh, const char* text);
 void gwinLabelDraw(GHandle gh);
 
 #ifdef __cplusplus
