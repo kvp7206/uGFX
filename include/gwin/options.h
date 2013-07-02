@@ -69,6 +69,20 @@
 	#ifndef GWIN_NEED_CHECKBOX
 		#define GWIN_NEED_CHECKBOX	FALSE
 	#endif
+	/**
+	 * @brief   Should image functions be included.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GWIN_NEED_IMAGE
+		#define GWIN_NEED_IMAGE		FALSE
+	#endif
+	/**
+	 * @brief   Should label functions be included.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GWIN_NEED_LABEL
+		#define GWIN_NEED_LABEL		FALSE
+	#endif
 /**
  * @}
  *

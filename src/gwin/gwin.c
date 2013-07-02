@@ -143,6 +143,10 @@ void gwinSetDefaultBgColor(color_t bgclr) {
 	void gwinSetDefaultFont(font_t font) {
 		defaultFont = font;
 	}
+
+	font_t gwinGetDefaultFont(void) {
+		return defaultFont;
+	}
 #endif
 
 /*-----------------------------------------------

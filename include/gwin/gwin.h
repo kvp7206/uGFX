@@ -129,8 +129,16 @@ extern "C" {
 		 * @api
 		 */
 		void gwinSetDefaultFont(font_t font);
-	#endif
 
+		/**
+		 * @brief	Get the current default font
+		 *
+		 * @return	The current default font
+		 *
+		 * @api
+		 */
+		font_t gwinGetDefaultFont(void);
+	#endif
 
 /*-------------------------------------------------
  * Base functions

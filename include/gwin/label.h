@@ -31,9 +31,7 @@
 
 // An label window
 typedef struct GLabelWidget_t {
-	GWindowObject	g;
-
-	const char*		text;
+	GWidgetObject	w;
 } GLabelWidget;
 
 #ifdef __cplusplus
@@ -51,12 +49,7 @@ extern "C" {
  *
  * @api
  */
-GHandle gwinLabelCreate(GLabelWidget *widget, GWindowInit *pInit);
-void gwinLabelSetColor(GHandle gh, color_t color);
-void gwinLabelSetBgColor(GHandle gh, color_t bgColor);
-void gwinLabelSetFont(GHandle gh, font_t font);
-void gwinLabelSetText(GHandle gh, const char* text);
-void gwinLabelDraw(GHandle gh);
+GHandle gwinLabelCreate(GLabelWidget *widget, GWidgetInit *pInit);
 
 #ifdef __cplusplus
 }

@@ -21,73 +21,79 @@
 
 #include "gwin/class_gwin.h"
 
-#define widget(gh)	((GLabelWidget*)gh) 
+#define widget(gh)				((GLabelWidget*)gh) 
+#define GLABEL_FLG_WAUTO		(GWIN_FIRST_CONTROL_FLAG<<0)
+#define GLABEL_FLG_HAUTO		(GWIN_FIRST_CONTROL_FLAG<<1)
 
-static void _destroy(GWindowObject *gh) {
-	(void)gh;
+static void gwinLabelDefaultDraw(GHandle gh) {
+	//	if( check if auto flag is set )
+	//		if(	call current size != font size )
+	//			gwinResize();
 
-	return;
+	gdispFillString(	widget(gh)->w.g.x,
+						widget(gh)->w.g.y,
+						widget(gh)->w.txt,
+						widget(gh)->w.g.font,
+						widget(gh)->w.g.color,
+						widget(gh)->w.g.bgcolor
+					);
+
+	gdispFillArea( widget(gh)->w.g.x, widget(gh)->w.g.y, widget(gh)->w.g.width, widget(gh)->w.g.height, Green);
+
+	printf("Text: %s\r\n", widget(gh)->w.txt);
 }
 
-static void _redraw(GWindowObject *gh) {
-	(void)gh;
-
-	return;
-}
-
-static void _afterClear(GWindowObject *gh) {
-	(void)gh;
-
-	return;
-}
-
-static const gwinVMT labelVMT = {
-	"Label",				// The class name
-	sizeof(GLabelWidget),	// The object size
-	_destroy,				// The destroy routine
-	0,						// The redraw routine
-	_afterClear				// The after-clear routine
+static const gwidgetVMT labelVMT = {
+	{
+		"Label",				// The class name
+		sizeof(GLabelWidget),	// The object size
+		_gwidgetDestroy,		// The destroy routine
+		_gwidgetRedraw, 		// The redraw routine
+		0,						// The after-clear routine
+	},
+	gwinLabelDefaultDraw,		// default drawing routine
+	{
+		0,						// Process mose down events (NOT USED)
+		0,						// Process mouse up events (NOT USED)
+		0,						// Process mouse move events (NOT USED)
+	},
+	{
+		0,						// No toggle role
+		0,						// Assign Toggles (NOT USED)
+		0,						// Get Toggles (NOT USED)
+		0,						// Process toggle off event (NOT USED)
+		0,						// Process toggle on event (NOT USED)
+	},
+	{
+		0,						// No dial roles
+		0,						// Assign Dials (NOT USED)
+		0, 						// Get Dials (NOT USED)
+		0,						// Procees dial move events (NOT USED)
+	}
 };
 
-GHandle gwinLabelCreate(GLabelWidget *widget, GWindowInit *pInit) {
-	if (!(widget = (GLabelWidget *)_gwindowCreate(&widget->g, pInit, &labelVMT, 0)))
+GHandle gwinLabelCreate(GLabelWidget *widget, GWidgetInit *pInit) {
+	uint16_t flags = 0;
+
+	// auto assign width
+	if (pInit->g.width <= 0) {
+		flags |= GLABEL_FLG_WAUTO;
+		pInit->g.width = gdispGetStringWidth(pInit->text, gwinGetDefaultFont()); 
+	}
+ 
+	// auto assign height
+	if (pInit->g.height <= 0) {
+		flags |= GLABEL_FLG_HAUTO;
+		pInit->g.height = gdispGetFontMetric(gwinGetDefaultFont(), fontHeight);
+	}
+
+	if (!(widget = (GLabelWidget *)_gwidgetCreate(&widget->w, pInit, &labelVMT)))
 		return 0;
 
-	widget->g.x = pInit->x;
-	widget->g.y = pInit->y;
-	widget->g.width = pInit->width;
-	widget->g.height = pInit->height;
-	gwinSetVisible((GHandle)widget, pInit->show);
+	gwinLabelDefaultDraw((GHandle)widget);
+	widget->w.g.flags |= flags;
 
 	return (GHandle)widget;
-}
-
-void gwinLabelSetColor(GHandle gh, color_t color) {
-	widget(gh)->g.color = color;
-}
-
-void gwinLabelSetBgColor(GHandle gh, color_t bgColor) {
-	widget(gh)->g.bgcolor = bgColor;
-}
-
-void gwinLabelSetFont(GHandle gh, font_t font) {
-	widget(gh)->g.font = font;
-}
-
-void gwinLabelSetText(GHandle gh, const char* text) {
-	widget(gh)->text = text;
-
-	gwinLabelDraw(gh);
-}
-
-void gwinLabelDraw(GHandle gh) {
-	gdispFillString(	widget(gh)->g.x,
-						widget(gh)->g.y,
-						widget(gh)->text,
-						widget(gh)->g.font,
-						widget(gh)->g.color,
-						widget(gh)->g.bgcolor
-					);
 }
 
 #endif // GFX_USE_GWIN && GFX_NEED_LABEL
