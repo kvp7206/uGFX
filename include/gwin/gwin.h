@@ -769,7 +769,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		gdispImageError gwinImageDraw(GHandle gh, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy);
+		gdispImageError gwinDrawImage(GHandle gh, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy);
 	#endif
 
 #ifdef __cplusplus
