@@ -226,23 +226,6 @@ void _gwidgetRedraw(GHandle gh) {
 	gw->fnDraw(gw, gw->fnParam);
 }
 
-void gwinSetEnabled(GHandle gh, bool_t enabled) {
-	if (!(gh->flags & GWIN_FLG_WIDGET))
-		return;
-
-	if (enabled) {
-		if (!(gh->flags & GWIN_FLG_ENABLED)) {
-			gh->flags |= GWIN_FLG_ENABLED;
-			_gwidgetRedraw(gh);
-		}
-	} else {
-		if ((gh->flags & GWIN_FLG_ENABLED)) {
-			gh->flags &= ~GWIN_FLG_ENABLED;
-			_gwidgetRedraw(gh);
-		}
-	}
-}
-
 void gwinSetText(GHandle gh, const char *txt, bool_t useAlloc) {
 	if (!(gh->flags & GWIN_FLG_WIDGET))
 		return;

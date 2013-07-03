@@ -84,19 +84,6 @@ extern "C" {
 #endif
 
 /**
- * @brief	Enable or disable a widget
- *
- * @param[in] gh		The widget handle
- * @param[in] enabled	Enable or disable the widget
- *
- * @note				The widget is automatically redrawn.
- * @note				Non-widgets will ignore this call.
- *
- * @api
- */
-void gwinSetEnabled(GHandle gh, bool_t enabled);
-
-/**
  * @brief   Set the text of a widget.
  *
  * @param[in] gh		The widget handle

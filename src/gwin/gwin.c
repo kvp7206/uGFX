@@ -223,6 +223,34 @@ bool_t gwinGetVisible(GHandle gh) {
 	return (gh->flags & GWIN_FLG_VISIBLE) ? TRUE : FALSE;
 }
 
+void gwinSetEnabled(GHandle gh, bool_t enabled) {
+	if (enabled) {
+		if (!(gh->flags & GWIN_FLG_ENABLED)) {
+			gh->flags |= GWIN_FLG_ENABLED;
+			if (gh->vmt->Redraw) {
+				#if GDISP_NEED_CLIP
+					gdispSetClip(gh->x, gh->y, gh->width, gh->height);
+				#endif
+				gh->vmt->Redraw(gh);
+			}
+		}
+	} else {
+		if ((gh->flags & GWIN_FLG_ENABLED)) {
+			gh->flags &= ~GWIN_FLG_ENABLED;
+			if (gh->vmt->Redraw) {
+				#if GDISP_NEED_CLIP
+					gdispSetClip(gh->x, gh->y, gh->width, gh->height);
+				#endif
+				gh->vmt->Redraw(gh);
+			}
+		}
+	}
+}
+
+bool_t gwinGetEnabled(GHandle gh) {
+	return (gh->flags & GWIN_FLG_ENABLED) ? TRUE : FALSE;
+}
+
 void gwinMove(GHandle gh, coord_t x, coord_t y) {
 	#if GWIN_NEED_WINDOWMANAGER
 		cwm->vmt->Redim(gh, x, y, gh->width, gh->height);

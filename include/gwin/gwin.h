@@ -298,6 +298,29 @@ extern "C" {
 	bool_t gwinGetVisible(GHandle gh);
 
 	/**
+	 * @brief	Enable or disable a window
+	 *
+	 * @param[in] gh		The window handle
+	 * @param[in] enabled	Enable or disable the window
+	 *
+	 * @note				The window is automatically redrawn if it
+	 * 						supports self-redrawing.
+	 *
+	 * @api
+	 */
+	void gwinSetEnabled(GHandle gh, bool_t enabled);
+
+	/**
+	 * @brief	Gets the enabled state of a window
+	 * @return	TRUE if enabled
+	 *
+	 * @param[in] gh		The window
+	 *
+	 * @api
+	 */
+	bool_t gwinGetEnabled(GHandle gh);
+
+	/**
 	 * @brief	Move a window
 	 *
 	 * @param[in] gh		The window
