@@ -33,6 +33,7 @@ static GHandle		ghConsole;
 static GHandle		ghButton1, ghButton2, ghButton3, ghButton4;
 static GHandle		ghSlider1, ghSlider2, ghSlider3, ghSlider4;
 static GHandle		ghCheckbox1, ghCheckbox2;
+static GHandle		ghLabel1;
 
 #define	ScrWidth		gdispGetWidth()
 #define	ScrHeight		gdispGetHeight()
@@ -95,6 +96,9 @@ int main(void) {
 	    gwinSetCustomDraw(ghCheckbox2, gwinCheckboxDraw_CheckOnRight, 0);
 		gwinSetVisible(ghCheckbox2, TRUE);
 
+		wi.g.show = TRUE; wi.g.width = 0;
+		wi.g.y = BUTTON_HEIGHT+1+2*(CHECKBOX_HEIGHT+1); wi.text = "L1"; ghLabel1 = gwinLabelCreate(NULL, &wi);
+
 		// Console - we apply some special colors before making it visible
 		wi.g.show = FALSE;
 		wi.g.width = ScrWidth/2-1; wi.g.height = ScrHeight/2-1;
@@ -115,6 +119,16 @@ int main(void) {
 		gwinAttachDial(ghSlider1, 0, 0);
 		gwinAttachDial(ghSlider3, 0, 1);
 	#endif
+
+	gfxSleepMilliseconds(5000);
+    gwinSetBgColor(ghLabel1, Blue);
+    gwinSetColor(ghLabel1, Yellow);
+	gwinSetText(ghLabel1, "Very Big Label", FALSE);
+
+	gfxSleepMilliseconds(5000);
+    gwinSetBgColor(ghLabel1, Yellow);
+    gwinSetColor(ghLabel1, Red);
+	gwinSetText(ghLabel1, "L1", FALSE);
 
 	while(1) {
 		// Get an Event
