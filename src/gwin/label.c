@@ -21,26 +21,36 @@
 
 #include "gwin/class_gwin.h"
 
-#define widget(gh)				((GLabelWidget*)gh) 
 #define GLABEL_FLG_WAUTO		(GWIN_FIRST_CONTROL_FLAG<<0)
 #define GLABEL_FLG_HAUTO		(GWIN_FIRST_CONTROL_FLAG<<1)
 
-static void gwinLabelDefaultDraw(GHandle gh) {
-	//	if( check if auto flag is set )
-	//		if(	call current size != font size )
-	//			gwinResize();
+// Simple: single line with no wrapping
+static coord_t getwidth(const char *txt, font_t font, coord_t maxwidth) {
+	(void) maxwidth;
+	return gdispGetStringWidth(txt, font)+2;		// Allow one pixel of padding on each side
+}
 
-	gdispFillString(	widget(gh)->w.g.x,
-						widget(gh)->w.g.y,
-						widget(gh)->w.txt,
-						widget(gh)->w.g.font,
-						widget(gh)->w.g.color,
-						widget(gh)->w.g.bgcolor
-					);
+// Simple: single line with no wrapping
+static coord_t getheight(const char *txt, font_t font, coord_t maxwidth) {
+	(void) txt;
+	(void) maxwidth;
 
-	gdispFillArea( widget(gh)->w.g.x, widget(gh)->w.g.y, widget(gh)->w.g.width, widget(gh)->w.g.height, Green);
+	return gdispGetFontMetric(font, fontHeight);
+}
 
-	printf("Text: %s\r\n", widget(gh)->w.txt);
+static void gwinLabelDefaultDraw(GWidgetObject *gw, void *param) {
+	(void) param;
+	coord_t	w, h;
+
+	w = (gw->g.flags & GLABEL_FLG_WAUTO) ? getwidth(gw->txt, gw->g.font, gdispGetWidth() - gw->g.x) : gw->g.width;
+	h = (gw->g.flags & GLABEL_FLG_HAUTO) ? getheight(gw->txt, gw->g.font, gdispGetWidth() - gw->g.x) : gw->g.height;
+
+	if (gw->g.width != w || gw->g.height != h) {
+		gwinResize(&gw->g, w, h);
+		return;
+	}
+
+	gdispFillStringBox(gw->g.x, gw->g.y, gw->g.width, gw->g.height, gw->txt, gw->g.font, gw->g.color, gw->g.bgcolor, justifyLeft);
 }
 
 static const gwidgetVMT labelVMT = {
@@ -78,21 +88,21 @@ GHandle gwinLabelCreate(GLabelWidget *widget, GWidgetInit *pInit) {
 	// auto assign width
 	if (pInit->g.width <= 0) {
 		flags |= GLABEL_FLG_WAUTO;
-		pInit->g.width = gdispGetStringWidth(pInit->text, gwinGetDefaultFont()); 
+		pInit->g.width = getwidth(pInit->text, gwinGetDefaultFont(), gdispGetWidth() - pInit->g.x);
 	}
  
 	// auto assign height
 	if (pInit->g.height <= 0) {
 		flags |= GLABEL_FLG_HAUTO;
-		pInit->g.height = gdispGetFontMetric(gwinGetDefaultFont(), fontHeight);
+		pInit->g.height = getheight(pInit->text, gwinGetDefaultFont(), gdispGetWidth() - pInit->g.x);
 	}
 
 	if (!(widget = (GLabelWidget *)_gwidgetCreate(&widget->w, pInit, &labelVMT)))
 		return 0;
 
-	gwinLabelDefaultDraw((GHandle)widget);
 	widget->w.g.flags |= flags;
 
+	gwinSetVisible(&widget->w.g, pInit->g.show);
 	return (GHandle)widget;
 }
 

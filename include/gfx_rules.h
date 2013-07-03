@@ -46,7 +46,12 @@
 			#warning "GWIN: Drawing can occur outside the defined windows as GDISP_NEED_CLIP is FALSE"
 		#endif
 	#endif
-	#if GWIN_NEED_BUTTON || GWIN_NEED_SLIDER || GWIN_NEED_CHECKBOX
+	#if GWIN_NEED_IMAGE
+		#if !GDISP_NEED_IMAGE
+			#error "GWIN: GDISP_NEED_IMAGE is required when GWIN_NEED_IMAGE is TRUE."
+		#endif
+	#endif
+	#if GWIN_NEED_BUTTON || GWIN_NEED_SLIDER || GWIN_NEED_CHECKBOX || GWIN_NEED_LABEL
 		#if !GWIN_NEED_WIDGET
 			#if GFX_DISPLAY_RULE_WARNINGS
 				#warning "GWIN: GWIN_NEED_WIDGET is required when a Widget is used. It has been turned on for you."

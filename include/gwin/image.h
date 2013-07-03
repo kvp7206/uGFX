@@ -32,9 +32,7 @@
 // An image window
 typedef struct GImageWidget_t {
 	GWindowObject	g;
-
-	gdispImage		*image;
-	color_t			bgColor;
+	gdispImage		image;
 } GImageWidget;
 
 #ifdef __cplusplus
@@ -50,11 +48,10 @@ extern "C" {
  * @param[in] pInit		The initialization parameters to use.
  *
  * @note				The default background color gets set to the current default one.
- * @note				An image widget does not save the current drawing state. It is not automatically redrawn if the window
- *						is moved or its visibility state is changed.
+ * @note				An image window knows how to redraw.
  *
  * @api
- */	
+ */
 GHandle gwinImageCreate(GImageWidget *widget, GWindowInit *pInit);
 
 /**
@@ -98,7 +95,7 @@ bool_t gwinImageOpenMemory(GHandle gh, const void* memory);
 #endif
 
 /**
- * @brief				Cache an image.
+ * @brief				Cache the image.
  * @details				Decodes and caches the current frame into RAM.
  *
  * param[in] gh			The widget (must be an image widget)
@@ -108,20 +105,6 @@ bool_t gwinImageOpenMemory(GHandle gh, const void* memory);
  * @api
  */
 gdispImageError gwinImageCache(GHandle gh);
-
-/**
- * @brief				Set the background color of an image widget.
- * @details				Transparent images need a background color. If no background color has been set, the current default
- *						on is used.
- *
- * @param[in] gh		The widget (must be an image widget)
- * @param[in] bgColor	The background color to be set
- *
- * @api
- */
-void gwinImageSetBgColor(GHandle gh, color_t bgColor);
-
-void gwinImageDraw(GHandle gh);
 
 #ifdef __cplusplus
 }

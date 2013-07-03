@@ -25,7 +25,7 @@
 
 static void WM_Init(void);
 static void WM_DeInit(void);
-static bool_t WM_Add(GHandle gh, GWindowInit *pInit);
+static bool_t WM_Add(GHandle gh, const GWindowInit *pInit);
 static void WM_Delete(GHandle gh);
 static void WM_Visible(GHandle gh);
 static void WM_Redim(GHandle gh, coord_t x, coord_t y, coord_t w, coord_t h);
@@ -65,23 +65,25 @@ static void WM_DeInit(void) {
 	// A full window manager would remove any borders etc
 }
 
-static bool_t WM_Add(GHandle gh, GWindowInit *pInit) {
+static bool_t WM_Add(GHandle gh, const GWindowInit *pInit) {
+	// Note the window will not be marked as visible yet
+
 	// Put it on the queue
 	gfxQueueASyncPut(&_GWINList, &gh->wmq);
 
 	// Make sure the size is valid
 	WM_Redim(gh, pInit->x, pInit->y, pInit->width, pInit->height);
-
-	// Display it if it is visible
-	WM_Visible(gh);
 	return TRUE;
 }
 
 static void WM_Delete(GHandle gh) {
-	// A real window manager would make the window invisible
-	//	(and then clear the area underneath)
+	// Make the window invisible and clear the area underneath
+	if ((gh->flags & GWIN_FLG_VISIBLE)) {
+		gh->flags &= ~GWIN_FLG_VISIBLE;
+		gdispFillArea(gh->x, gh->y, gh->width, gh->height, gwinGetDefaultBgColor());
+	}
 
-	// Just remove it from the queue
+	// Remove it from the queue
 	gfxQueueASyncRemove(&_GWINList, &gh->wmq);
 }
 
@@ -97,10 +99,8 @@ static void WM_Visible(GHandle gh) {
 		// A real window manager would also redraw the borders
 	}
 
-	// else
-	// A real window manager would make the window invisible
-	//	(and then clear the area underneath)
-
+	else
+		gdispFillArea(gh->x, gh->y, gh->width, gh->height, gwinGetDefaultBgColor());
 }
 
 static void WM_Redim(GHandle gh, coord_t x, coord_t y, coord_t w, coord_t h) {
@@ -114,8 +114,28 @@ static void WM_Redim(GHandle gh, coord_t x, coord_t y, coord_t w, coord_t h) {
 	if (h < MIN_WIN_HEIGHT) { h = MIN_WIN_HEIGHT; }
 	if (x+w > gdispGetWidth()) w = gdispGetWidth() - x;
 	if (y+h > gdispGetHeight()) h = gdispGetHeight() - y;
+
+	// If there has been no resize just exit
+	if (gh->x == x && gh->y == y && gh->width == w && gh->height == h)
+		return;
+
+	// Clear the old area
+	if ((gh->flags & GWIN_FLG_VISIBLE))
+		gdispFillArea(gh->x, gh->y, gh->width, gh->height, gwinGetDefaultBgColor());
+
+	// Set the new size
 	gh->x = x; gh->y = y;
 	gh->width = w; gh->height = h;
+
+	// Redraw the window (if possible)
+	if ((gh->flags & GWIN_FLG_VISIBLE)) {
+		if (gh->vmt->Redraw) {
+			#if GDISP_NEED_CLIP
+				gdispSetClip(gh->x, gh->y, gh->width, gh->height);
+			#endif
+			gh->vmt->Redraw(gh);
+		}
+	}
 }
 
 static void WM_MinMax(GHandle gh, GWindowMinMax minmax) {

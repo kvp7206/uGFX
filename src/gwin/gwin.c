@@ -63,6 +63,16 @@ static color_t	defaultBgColor = Black;
 		if (gh->height < MIN_WIN_HEIGHT) { gh->height = MIN_WIN_HEIGHT; }
 		if (gh->x+gh->width > gdispGetWidth()) gh->width = gdispGetWidth() - gh->x;
 		if (gh->y+gh->height > gdispGetHeight()) gh->height = gdispGetHeight() - gh->y;
+
+		// Redraw the window
+		if ((gh->flags & GWIN_FLG_VISIBLE)) {
+			if (gh->vmt->Redraw) {
+				#if GDISP_NEED_CLIP
+					gdispSetClip(gh->x, gh->y, gh->width, gh->height);
+				#endif
+				gh->vmt->Redraw(gh);
+			}
+		}
 	}
 #endif
 
@@ -135,8 +145,16 @@ void gwinSetDefaultColor(color_t clr) {
 	defaultFgColor = clr;
 }
 
+color_t gwinGetDefaultColor(void) {
+	return defaultFgColor;
+}
+
 void gwinSetDefaultBgColor(color_t bgclr) {
 	defaultBgColor = bgclr;
+}
+
+color_t gwinGetDefaultBgColor(void) {
+	return defaultBgColor;
 }
 
 #if GDISP_NEED_TEXT

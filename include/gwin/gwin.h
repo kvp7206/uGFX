@@ -112,6 +112,13 @@ extern "C" {
 	void gwinSetDefaultColor(color_t clr);
 
 	/**
+	 * @brief	Get the default foreground color for all new GWIN windows
+	 *
+	 * @api
+	 */
+	color_t gwinGetDefaultColor(void);
+
+	/**
 	 * @brief	Set the default background color for all new GWIN windows
 	 *
 	 * @param[in] bgclr	The background color
@@ -119,6 +126,13 @@ extern "C" {
 	 * @api
 	 */
 	void gwinSetDefaultBgColor(color_t bgclr);
+
+	/**
+	 * @brief	Get the default background color for all new GWIN windows
+	 *
+	 * @api
+	 */
+	color_t gwinGetDefaultBgColor(void);
 
 	#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 		/**
