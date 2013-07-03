@@ -501,6 +501,18 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 	}
 #endif
 
+#if GDISP_NEED_IMAGE
+	gdispImageError gwinImageDraw(GHandle gh, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy) {
+		if (!((gh->flags & GWIN_FLG_VISIBLE)))
+			return GDISP_IMAGE_ERR_OK;
+
+		#if GDISP_NEED_CLIP
+			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
+		#endif
+		return gdispImageDraw(img, gh->x+x, gh->y+y, cx, cy, sx, sy);
+	}
+#endif
+
 #endif /* GFX_USE_GWIN */
 /** @} */
 
