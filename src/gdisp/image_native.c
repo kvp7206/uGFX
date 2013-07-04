@@ -56,6 +56,7 @@ gdispImageError gdispImageOpen_NATIVE(gdispImage *img) {
 		return GDISP_IMAGE_ERR_NOMEMORY;
 	img->priv->frame0cache = 0;
 
+	img->type = GDISP_IMAGE_TYPE_NATIVE;
 	return GDISP_IMAGE_ERR_OK;
 }
 

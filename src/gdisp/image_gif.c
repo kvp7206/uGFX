@@ -609,6 +609,7 @@ gdispImageError gdispImageOpen_GIF(gdispImage *img) {
 	// Read the first frame descriptor
 	switch(initFrame(img)) {
 	case GDISP_IMAGE_ERR_OK:					// Everything OK
+		img->type = GDISP_IMAGE_TYPE_GIF;
 		return GDISP_IMAGE_ERR_OK;
 	case GDISP_IMAGE_ERR_UNSUPPORTED:			// Unsupported
 		gdispImageClose_GIF(img);					// Clean up the private data area

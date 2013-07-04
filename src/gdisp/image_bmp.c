@@ -407,6 +407,7 @@ gdispImageError gdispImageOpen_BMP(gdispImage *img) {
 	}
 #endif
 
+	img->type = GDISP_IMAGE_TYPE_BMP;
 	return GDISP_IMAGE_ERR_OK;
 
 baddatacleanup:
