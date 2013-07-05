@@ -51,7 +51,14 @@
 			#error "GWIN: GDISP_NEED_IMAGE is required when GWIN_NEED_IMAGE is TRUE."
 		#endif
 	#endif
-	#if GWIN_NEED_BUTTON || GWIN_NEED_SLIDER || GWIN_NEED_CHECKBOX || GWIN_NEED_LABEL
+	#if GWIN_NEED_RADIO
+		#if !GDISP_NEED_CIRCLE
+			#if GFX_DISPLAY_RULE_WARNINGS
+				#warning "GWIN: GDISP_NEED_CIRCLE should be set to TRUE for much nicer radio button widgets."
+			#endif
+		#endif
+	#endif
+	#if GWIN_NEED_BUTTON || GWIN_NEED_SLIDER || GWIN_NEED_CHECKBOX || GWIN_NEED_LABEL || GWIN_NEED_RADIO
 		#if !GWIN_NEED_WIDGET
 			#if GFX_DISPLAY_RULE_WARNINGS
 				#warning "GWIN: GWIN_NEED_WIDGET is required when a Widget is used. It has been turned on for you."

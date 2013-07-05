@@ -8,4 +8,5 @@ GFXSRC +=   $(GFXLIB)/src/gwin/gwin.c \
 			$(GFXLIB)/src/gwin/checkbox.c \
 			$(GFXLIB)/src/gwin/gimage.c \
 			$(GFXLIB)/src/gwin/label.c \
+			$(GFXLIB)/src/gwin/radio.c \
 	

@@ -83,6 +83,13 @@
 	#ifndef GWIN_NEED_LABEL
 		#define GWIN_NEED_LABEL		FALSE
 	#endif
+	/**
+	 * @brief   Should radio button functions be included.
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GWIN_NEED_RADIO
+		#define GWIN_NEED_RADIO		FALSE
+	#endif
 /**
  * @}
  *

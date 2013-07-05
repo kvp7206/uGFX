@@ -30,19 +30,36 @@
 
 static GListener	gl;
 static GHandle		ghConsole;
+static GHandle		ghTabButtons, ghTabSliders, ghTabCheckboxes, ghTabLabels, ghTabRadios, ghTabImages;
 static GHandle		ghButton1, ghButton2, ghButton3, ghButton4;
 static GHandle		ghSlider1, ghSlider2, ghSlider3, ghSlider4;
 static GHandle		ghCheckbox1, ghCheckbox2;
 static GHandle		ghLabel1;
+static GHandle		ghRadio1, ghRadio2;
+//static GHandle	ghImage1;
 
 #define	ScrWidth		gdispGetWidth()
 #define	ScrHeight		gdispGetHeight()
 
+#define TAB_HEIGHT		30
 #define BUTTON_WIDTH	50
 #define BUTTON_HEIGHT	30
 #define SLIDER_WIDTH	20
 #define CHECKBOX_WIDTH	80
 #define CHECKBOX_HEIGHT	20
+#define RADIO_WIDTH		50
+#define RADIO_HEIGHT	20
+#define GROUP_TABS		0
+#define GROUP_R1R2		1
+
+static GHandle createTab(GWidgetInit *pwi) {
+	GHandle		gh;
+
+	gh = gwinCreateRadio(NULL, pwi, GROUP_TABS);
+	gwinSetCustomDraw(gh, gwinRadioDraw_Tab, 0);
+	gwinSetVisible(gh, TRUE);
+	return gh;
+}
 
 int main(void) {
 	GEvent *			pe;
@@ -69,10 +86,17 @@ int main(void) {
 	{
 		GWidgetInit		wi;
 
-		wi.g.show = TRUE;
+		// Create the Tabs
+		wi.g.show = FALSE; wi.g.width = ScrWidth/6; wi.g.height = TAB_HEIGHT; wi.g.y = 0;
+		wi.g.x = 0*wi.g.width; wi.text = "Buttons";		ghTabButtons	= createTab(&wi);
+		wi.g.x = 1*wi.g.width; wi.text = "Sliders";		ghTabSliders	= createTab(&wi);
+		wi.g.x = 2*wi.g.width; wi.text = "Checkbox";	ghTabCheckboxes	= createTab(&wi);
+		wi.g.x = 3*wi.g.width; wi.text = "Labels";		ghTabLabels		= createTab(&wi);
+		wi.g.x = 4*wi.g.width; wi.text = "Radios";		ghTabRadios		= createTab(&wi);
+		wi.g.x = 5*wi.g.width; wi.text = "Images";		ghTabImages		= createTab(&wi);
 
 		// Buttons
-		wi.g.width = BUTTON_WIDTH; wi.g.height = BUTTON_HEIGHT; wi.g.y = 0;
+		wi.g.width = BUTTON_WIDTH; wi.g.height = BUTTON_HEIGHT; wi.g.y = TAB_HEIGHT+5;
 		wi.g.x = 0+0*(BUTTON_WIDTH+1); wi.text = "B1"; ghButton1 = gwinCreateButton(NULL, &wi);
 		wi.g.x = 0+1*(BUTTON_WIDTH+1); wi.text = "B2"; ghButton2 = gwinCreateButton(NULL, &wi);
 		wi.g.x = 0+2*(BUTTON_WIDTH+1); wi.text = "B3"; ghButton3 = gwinCreateButton(NULL, &wi);
@@ -90,24 +114,25 @@ int main(void) {
 
 		// Checkboxes - for the 2nd checkbox we apply special drawing before making it visible
 		wi.g.width = CHECKBOX_WIDTH; wi.g.height = CHECKBOX_HEIGHT; wi.g.x = 0;
-		wi.g.y = BUTTON_HEIGHT+1+0*(CHECKBOX_HEIGHT+1); wi.text = "C1"; ghCheckbox1 = gwinCreateCheckbox(NULL, &wi);
-		wi.g.show = FALSE;
-		wi.g.y = BUTTON_HEIGHT+1+1*(CHECKBOX_HEIGHT+1); wi.text = "C2"; ghCheckbox2 = gwinCreateCheckbox(NULL, &wi);
+		wi.g.y = TAB_HEIGHT+5+0*(CHECKBOX_HEIGHT+1); wi.text = "C1"; ghCheckbox1 = gwinCreateCheckbox(NULL, &wi);
+		wi.g.y = TAB_HEIGHT+5+1*(CHECKBOX_HEIGHT+1); wi.text = "C2"; ghCheckbox2 = gwinCreateCheckbox(NULL, &wi);
 	    gwinSetCustomDraw(ghCheckbox2, gwinCheckboxDraw_CheckOnRight, 0);
-		gwinSetVisible(ghCheckbox2, TRUE);
 
-		wi.g.show = TRUE; wi.g.width = 0;
-		wi.g.y = BUTTON_HEIGHT+1+2*(CHECKBOX_HEIGHT+1); wi.text = "L1"; ghLabel1 = gwinLabelCreate(NULL, &wi);
+	    // Labels
+		wi.g.width = 0;		// dynamic width
+		wi.g.y = TAB_HEIGHT+5+2*(CHECKBOX_HEIGHT+1); wi.text = "L1"; ghLabel1 = gwinLabelCreate(NULL, &wi);
+
+		// Radio Buttons
+		wi.g.width = RADIO_WIDTH; wi.g.height = RADIO_HEIGHT; wi.g.y = TAB_HEIGHT+5;
+		wi.g.x = 0*wi.g.width; wi.text = "Yes";		ghRadio1	= gwinCreateRadio(NULL, &wi, GROUP_R1R2);
+		wi.g.x = 1*wi.g.width; wi.text = "No";		ghRadio2	= gwinCreateRadio(NULL, &wi, GROUP_R1R2);
 
 		// Console - we apply some special colors before making it visible
-		wi.g.show = FALSE;
 		wi.g.width = ScrWidth/2-1; wi.g.height = ScrHeight/2-1;
 		wi.g.x = ScrWidth/2+1; wi.g.y = ScrHeight/2+1;
 		ghConsole = gwinCreateConsole(NULL, &wi.g);
 	    gwinSetColor(ghConsole, Yellow);
 	    gwinSetBgColor(ghConsole, Black);
-		gwinSetVisible(ghConsole, TRUE);
-		gwinClear(ghConsole);
 	}
 
     // Assign toggles and dials to the buttons & sliders etc.
@@ -120,15 +145,12 @@ int main(void) {
 		gwinAttachDial(ghSlider3, 0, 1);
 	#endif
 
-	gfxSleepMilliseconds(5000);
-    gwinSetBgColor(ghLabel1, Blue);
-    gwinSetColor(ghLabel1, Yellow);
-	gwinSetText(ghLabel1, "Very Big Label", FALSE);
+	// Make the console visible
+	gwinSetVisible(ghConsole, TRUE);
+	gwinClear(ghConsole);
 
-	gfxSleepMilliseconds(5000);
-    gwinSetBgColor(ghLabel1, Yellow);
-    gwinSetColor(ghLabel1, Red);
-	gwinSetText(ghLabel1, "L1", FALSE);
+	// Press the Buttons Tab
+	gwinPressRadio(ghTabButtons);
 
 	while(1) {
 		// Get an Event
@@ -143,6 +165,48 @@ int main(void) {
 			break;
 		case GEVENT_GWIN_CHECKBOX:
 			gwinPrintf(ghConsole, "Checkbox %s=%s\n", gwinGetText(((GEventGWinCheckbox *)pe)->checkbox), ((GEventGWinCheckbox *)pe)->isChecked ? "Checked" : "UnChecked");
+			break;
+		case GEVENT_GWIN_RADIO:
+			gwinPrintf(ghConsole, "Radio Group %u=%s\n", ((GEventGWinRadio *)pe)->group, gwinGetText(((GEventGWinRadio *)pe)->radio));
+
+			// Is this the tab radio's
+			if (((GEventGWinRadio *)pe)->group == GROUP_TABS) {
+
+				// Do some special animation for Label1
+				if (((GEventGWinRadio *)pe)->radio == ghTabLabels) {
+					gwinSetBgColor(ghLabel1, gwinGetDefaultBgColor());
+					gwinSetColor(ghLabel1, gwinGetDefaultColor());
+				}
+
+				// Set control visibility depending on the tab selected
+				gwinSetVisible(ghButton1, ((GEventGWinRadio *)pe)->radio == ghTabButtons);
+				gwinSetVisible(ghButton2, ((GEventGWinRadio *)pe)->radio == ghTabButtons);
+				gwinSetVisible(ghButton3, ((GEventGWinRadio *)pe)->radio == ghTabButtons);
+				gwinSetVisible(ghButton4, ((GEventGWinRadio *)pe)->radio == ghTabButtons);
+				gwinSetVisible(ghSlider1, ((GEventGWinRadio *)pe)->radio == ghTabSliders);
+				gwinSetVisible(ghSlider2, ((GEventGWinRadio *)pe)->radio == ghTabSliders);
+				gwinSetVisible(ghSlider3, ((GEventGWinRadio *)pe)->radio == ghTabSliders);
+				gwinSetVisible(ghSlider4, ((GEventGWinRadio *)pe)->radio == ghTabSliders);
+				gwinSetVisible(ghCheckbox1, ((GEventGWinRadio *)pe)->radio == ghTabCheckboxes);
+				gwinSetVisible(ghCheckbox2, ((GEventGWinRadio *)pe)->radio == ghTabCheckboxes);
+				gwinSetVisible(ghLabel1, ((GEventGWinRadio *)pe)->radio == ghTabLabels);
+				gwinSetVisible(ghRadio1, ((GEventGWinRadio *)pe)->radio == ghTabRadios);
+				gwinSetVisible(ghRadio2, ((GEventGWinRadio *)pe)->radio == ghTabRadios);
+				//gwinSetVisible(ghImage1, ((GEventGWinRadio *)pe)->radio == ghTabImages);
+
+				// Do some special animation for Label1
+				if (((GEventGWinRadio *)pe)->radio == ghTabLabels) {
+					gfxSleepMilliseconds(1000);
+				    gwinSetBgColor(ghLabel1, Blue);
+				    gwinSetColor(ghLabel1, Yellow);
+					gwinSetText(ghLabel1, "Very Big Label", FALSE);
+
+					gfxSleepMilliseconds(1000);
+				    gwinSetBgColor(ghLabel1, Yellow);
+				    gwinSetColor(ghLabel1, Red);
+					gwinSetText(ghLabel1, "L1", FALSE);
+				}
+			}
 			break;
 		default:
 			gwinPrintf(ghConsole, "Unknown %d\n", pe->type);

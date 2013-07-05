@@ -195,6 +195,9 @@ bool_t gwinAttachListener(GListener *pl);
 #if GWIN_NEED_CHECKBOX || defined(__DOXYGEN__)
 	#include "gwin/checkbox.h"
 #endif
+#if GWIN_NEED_RADIO || defined(__DOXYGEN__)
+	#include "gwin/radio.h"
+#endif
 
 #endif /* _GWIDGET_H */
 /** @} */
