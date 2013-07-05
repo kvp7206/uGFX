@@ -88,18 +88,16 @@ static void WM_Delete(GHandle gh) {
 }
 
 static void WM_Visible(GHandle gh) {
+	#if GDISP_NEED_CLIP
+		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
+	#endif
 	if ((gh->flags & GWIN_FLG_VISIBLE)) {
-		if (gh->vmt->Redraw) {
-			#if GDISP_NEED_CLIP
-				gdispSetClip(gh->x, gh->y, gh->width, gh->height);
-			#endif
+		if (gh->vmt->Redraw)
 			gh->vmt->Redraw(gh);
-		} else
-			gwinClear(gh);
-		// A real window manager would also redraw the borders
-	}
-
-	else
+		else
+			gdispFillArea(gh->x, gh->y, gh->width, gh->height, gh->bgcolor);
+		// A real window manager would also redraw the borders here
+	} else
 		gdispFillArea(gh->x, gh->y, gh->width, gh->height, gwinGetDefaultBgColor());
 }
 
