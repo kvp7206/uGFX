@@ -24,42 +24,6 @@
 // Our checked state
 #define GCHECKBOX_FLG_CHECKED		(GWIN_FIRST_CONTROL_FLAG<<0)
 
-// Prototypes for button VMT functions
-static void MouseDown(GWidgetObject *gw, coord_t x, coord_t y);
-static void ToggleOn(GWidgetObject *gw, uint16_t role);
-static void ToggleAssign(GWidgetObject *gw, uint16_t role, uint16_t instance);
-static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role);
-
-// The button VMT table
-static const gwidgetVMT checkboxVMT = {
-	{
-		"Checkbox",				// The classname
-		sizeof(GCheckboxObject),// The object size
-		_gwidgetDestroy,		// The destroy routine
-		_gwidgetRedraw,			// The redraw routine
-		0,						// The after-clear routine
-	},
-	gwinCheckboxDraw_CheckOnLeft,	// The default drawing routine
-	{
-		MouseDown,				// Process mouse down events
-		0,						// Process mouse up events (NOT USED)
-		0,						// Process mouse move events (NOT USED)
-	},
-	{
-		1,						// 1 toggle role
-		ToggleAssign,			// Assign Toggles
-		ToggleGet,				// Get Toggles
-		0,						// Process toggle off events (NOT USED)
-		ToggleOn,				// Process toggle on events
-	},
-	{
-		0,						// No dial roles
-		0,						// Assign Dials (NOT USED)
-		0,						// Get Dials (NOT USED)
-		0,						// Process dial move events (NOT USED)
-	}
-};
-
 static const GCheckboxColors defaultColors = {
 	Black,	// border
 	Grey,	// selected
@@ -87,37 +51,77 @@ static void SendCheckboxEvent(GWidgetObject *gw) {
 	#undef pce
 }
 
-// A mouse down has occurred over the checkbox
-static void MouseDown(GWidgetObject *gw, coord_t x, coord_t y) {
-	(void) x; (void) y;
-	gw->g.flags ^= GCHECKBOX_FLG_CHECKED;
-	_gwidgetRedraw((GHandle)gw);
-	SendCheckboxEvent(gw);
-}
+#if GINPUT_NEED_MOUSE
+	static void MouseDown(GWidgetObject *gw, coord_t x, coord_t y) {
+		(void) x; (void) y;
+		gw->g.flags ^= GCHECKBOX_FLG_CHECKED;
+		_gwidgetRedraw((GHandle)gw);
+		SendCheckboxEvent(gw);
+	}
+#endif
 
-// A toggle on has occurred
-static void ToggleOn(GWidgetObject *gw, uint16_t role) {
-	(void) role;
-	gw->g.flags ^= GCHECKBOX_FLG_CHECKED;
-	_gwidgetRedraw((GHandle)gw);
-	SendCheckboxEvent(gw);
-}
+#if GINPUT_NEED_TOGGLE
+	static void ToggleOn(GWidgetObject *gw, uint16_t role) {
+		(void) role;
+		gw->g.flags ^= GCHECKBOX_FLG_CHECKED;
+		_gwidgetRedraw((GHandle)gw);
+		SendCheckboxEvent(gw);
+	}
 
-static void ToggleAssign(GWidgetObject *gw, uint16_t role, uint16_t instance) {
-	(void) role;
-	((GCheckboxObject *)gw)->toggle = instance;
-}
+	static void ToggleAssign(GWidgetObject *gw, uint16_t role, uint16_t instance) {
+		(void) role;
+		((GCheckboxObject *)gw)->toggle = instance;
+	}
 
-static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role) {
-	(void) role;
-	return ((GCheckboxObject *)gw)->toggle;
-}
+	static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role) {
+		(void) role;
+		return ((GCheckboxObject *)gw)->toggle;
+	}
+#endif
+
+// The checkbox VMT table
+static const gwidgetVMT checkboxVMT = {
+	{
+		"Checkbox",				// The classname
+		sizeof(GCheckboxObject),// The object size
+		_gwidgetDestroy,		// The destroy routine
+		_gwidgetRedraw,			// The redraw routine
+		0,						// The after-clear routine
+	},
+	gwinCheckboxDraw_CheckOnLeft,	// The default drawing routine
+	#if GINPUT_NEED_MOUSE
+		{
+			MouseDown,				// Process mouse down events
+			0,						// Process mouse up events (NOT USED)
+			0,						// Process mouse move events (NOT USED)
+		},
+	#endif
+	#if GINPUT_NEED_TOGGLE
+		{
+			1,						// 1 toggle role
+			ToggleAssign,			// Assign Toggles
+			ToggleGet,				// Get Toggles
+			0,						// Process toggle off events (NOT USED)
+			ToggleOn,				// Process toggle on events
+		},
+	#endif
+	#if GINPUT_NEED_DIAL
+		{
+			0,						// No dial roles
+			0,						// Assign Dials (NOT USED)
+			0,						// Get Dials (NOT USED)
+			0,						// Process dial move events (NOT USED)
+		},
+	#endif
+};
 
 GHandle gwinCreateCheckbox(GCheckboxObject *gb, const GWidgetInit *pInit) {
 	if (!(gb = (GCheckboxObject *)_gwidgetCreate(&gb->w, pInit, &checkboxVMT)))
 		return 0;
 
-	gb->toggle = (uint16_t) -1;
+	#if GINPUT_NEED_TOGGLE
+		gb->toggle = GWIDGET_NO_INSTANCE;
+	#endif
 	gb->c = defaultColors;			// assign the default colors
 	gwinSetVisible((GHandle)gb, pInit->g.show);
 	return (GHandle)gb;

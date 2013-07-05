@@ -55,7 +55,9 @@ typedef struct GButtonColors {
  */
 typedef struct GButtonObject_t {
 	GWidgetObject		w;
-	uint16_t			toggle;
+	#if GINPUT_NEED_TOGGLE
+		uint16_t			toggle;
+	#endif
 	GButtonColors		c_up;
 	GButtonColors		c_dn;
 	GButtonColors		c_dis;

@@ -17,7 +17,7 @@
 
 #include "gfx.h"
 
-#if (GFX_USE_GWIN && GWIN_NEED_BUTTON) || defined(__DOXYGEN__)
+#if GFX_USE_GWIN && GWIN_NEED_BUTTON
 
 #include "gwin/class_gwin.h"
 
@@ -28,44 +28,6 @@
 
 // Our pressed state
 #define GBUTTON_FLG_PRESSED		(GWIN_FIRST_CONTROL_FLAG<<0)
-
-// Prototypes for button VMT functions
-static void MouseDown(GWidgetObject *gw, coord_t x, coord_t y);
-static void MouseUp(GWidgetObject *gw, coord_t x, coord_t y);
-static void ToggleOff(GWidgetObject *gw, uint16_t role);
-static void ToggleOn(GWidgetObject *gw, uint16_t role);
-static void ToggleAssign(GWidgetObject *gw, uint16_t role, uint16_t instance);
-static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role);
-
-// The button VMT table
-static const gwidgetVMT buttonVMT = {
-	{
-		"Button",				// The classname
-		sizeof(GButtonObject),	// The object size
-		_gwidgetDestroy,		// The destroy routine
-		_gwidgetRedraw,			// The redraw routine
-		0,						// The after-clear routine
-	},
-	gwinButtonDraw_3D,			// The default drawing routine
-	{
-		MouseDown,				// Process mouse down events
-		MouseUp,				// Process mouse up events
-		0,						// Process mouse move events (NOT USED)
-	},
-	{
-		1,						// 1 toggle role
-		ToggleAssign,			// Assign Toggles
-		ToggleGet,				// Get Toggles
-		ToggleOff,				// Process toggle off events
-		ToggleOn,				// Process toggle on events
-	},
-	{
-		0,						// No dial roles
-		0,						// Assign Dials (NOT USED)
-		0,						// Get Dials (NOT USED)
-		0,						// Process dial move events (NOT USED)
-	}
-};
 
 // Default color scheme
 static const GButtonColors GButtonDefaultColorsUp = {
@@ -103,59 +65,101 @@ static void SendButtonEvent(GWidgetObject *gw) {
 	#undef pbe
 }
 
-// A mouse down has occurred over the button
-static void MouseDown(GWidgetObject *gw, coord_t x, coord_t y) {
-	(void) x; (void) y;
-	gw->g.flags |= GBUTTON_FLG_PRESSED;
-	_gwidgetRedraw((GHandle)gw);
-}
+#if GINPUT_NEED_MOUSE
+	// A mouse down has occurred over the button
+	static void MouseDown(GWidgetObject *gw, coord_t x, coord_t y) {
+		(void) x; (void) y;
+		gw->g.flags |= GBUTTON_FLG_PRESSED;
+		_gwidgetRedraw((GHandle)gw);
+	}
 
-// A mouse up has occurred (it may or may not be over the button)
-static void MouseUp(GWidgetObject *gw, coord_t x, coord_t y) {
-	(void) x; (void) y;
-	gw->g.flags &= ~GBUTTON_FLG_PRESSED;
-	_gwidgetRedraw((GHandle)gw);
+	// A mouse up has occurred (it may or may not be over the button)
+	static void MouseUp(GWidgetObject *gw, coord_t x, coord_t y) {
+		(void) x; (void) y;
+		gw->g.flags &= ~GBUTTON_FLG_PRESSED;
+		_gwidgetRedraw((GHandle)gw);
 
-	#if !GWIN_BUTTON_LAZY_RELEASE
-		// If the mouse up was not over the button then cancel the event
-		if (x < 0 || y < 0 || x >= gw->g.width || y >= gw->g.height)
-			return;
+		#if !GWIN_BUTTON_LAZY_RELEASE
+			// If the mouse up was not over the button then cancel the event
+			if (x < 0 || y < 0 || x >= gw->g.width || y >= gw->g.height)
+				return;
+		#endif
+
+		SendButtonEvent(gw);
+	}
+#endif
+
+#if GINPUT_NEED_TOGGLE
+	// A toggle off has occurred
+	static void ToggleOff(GWidgetObject *gw, uint16_t role) {
+		(void) role;
+		gw->g.flags &= ~GBUTTON_FLG_PRESSED;
+		_gwidgetRedraw((GHandle)gw);
+	}
+
+	// A toggle on has occurred
+	static void ToggleOn(GWidgetObject *gw, uint16_t role) {
+		(void) role;
+		gw->g.flags |= GBUTTON_FLG_PRESSED;
+		_gwidgetRedraw((GHandle)gw);
+		// Trigger the event on button down (different than for mouse/touch)
+		SendButtonEvent(gw);
+	}
+
+	static void ToggleAssign(GWidgetObject *gw, uint16_t role, uint16_t instance) {
+		(void) role;
+		((GButtonObject *)gw)->toggle = instance;
+	}
+
+	static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role) {
+		(void) role;
+		return ((GButtonObject *)gw)->toggle;
+	}
+#endif
+
+// The button VMT table
+static const gwidgetVMT buttonVMT = {
+	{
+		"Button",				// The classname
+		sizeof(GButtonObject),	// The object size
+		_gwidgetDestroy,		// The destroy routine
+		_gwidgetRedraw,			// The redraw routine
+		0,						// The after-clear routine
+	},
+	gwinButtonDraw_3D,			// The default drawing routine
+	#if GINPUT_NEED_MOUSE
+		{
+			MouseDown,				// Process mouse down events
+			MouseUp,				// Process mouse up events
+			0,						// Process mouse move events (NOT USED)
+		},
 	#endif
-
-	SendButtonEvent(gw);
-}
-
-// A toggle off has occurred
-static void ToggleOff(GWidgetObject *gw, uint16_t role) {
-	(void) role;
-	gw->g.flags &= ~GBUTTON_FLG_PRESSED;
-	_gwidgetRedraw((GHandle)gw);
-}
-
-// A toggle on has occurred
-static void ToggleOn(GWidgetObject *gw, uint16_t role) {
-	(void) role;
-	gw->g.flags |= GBUTTON_FLG_PRESSED;
-	_gwidgetRedraw((GHandle)gw);
-	// Trigger the event on button down (different than for mouse/touch)
-	SendButtonEvent(gw);
-}
-
-static void ToggleAssign(GWidgetObject *gw, uint16_t role, uint16_t instance) {
-	(void) role;
-	((GButtonObject *)gw)->toggle = instance;
-}
-
-static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role) {
-	(void) role;
-	return ((GButtonObject *)gw)->toggle;
-}
+	#if GINPUT_NEED_TOGGLE
+		{
+			1,						// 1 toggle role
+			ToggleAssign,			// Assign Toggles
+			ToggleGet,				// Get Toggles
+			ToggleOff,				// Process toggle off events
+			ToggleOn,				// Process toggle on events
+		},
+	#endif
+	#if GINPUT_NEED_DIAL
+		{
+			0,						// No dial roles
+			0,						// Assign Dials (NOT USED)
+			0,						// Get Dials (NOT USED)
+			0,						// Process dial move events (NOT USED)
+		},
+	#endif
+};
 
 GHandle gwinCreateButton(GButtonObject *gw, const GWidgetInit *pInit) {
 	if (!(gw = (GButtonObject *)_gwidgetCreate(&gw->w, pInit, &buttonVMT)))
 		return 0;
 
-	gw->toggle = GWIDGET_NO_INSTANCE;
+	#if GINPUT_NEED_TOGGLE
+		gw->toggle = GWIDGET_NO_INSTANCE;
+	#endif
 	gw->c_up = GButtonDefaultColorsUp;
 	gw->c_dn = GButtonDefaultColorsDown;
 	gw->c_dis = GButtonDefaultColorsDisabled;

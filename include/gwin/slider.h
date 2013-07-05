@@ -45,9 +45,13 @@ typedef struct GSliderColors {
 // A slider window
 typedef struct GSliderObject_t {
 	GWidgetObject		w;
-	uint16_t			t_dn;
-	uint16_t			t_up;
-	uint16_t			dial;
+	#if GINPUT_NEED_TOGGLE
+		uint16_t		t_dn;
+		uint16_t		t_up;
+	#endif
+	#if GINPUT_NEED_DIAL
+		uint16_t		dial;
+	#endif
 	coord_t				dpos;
 	int					min;
 	int					max;

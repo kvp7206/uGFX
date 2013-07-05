@@ -50,7 +50,9 @@ typedef struct GCheckboxColors {
 /* A Checkbox window */
 typedef struct GCheckboxObject_t {
 	GWidgetObject			w;
-	uint16_t				toggle;
+	#if GINPUT_NEED_TOGGLE
+		uint16_t			toggle;
+	#endif
 	GCheckboxColors			c;
 } GCheckboxObject;
 

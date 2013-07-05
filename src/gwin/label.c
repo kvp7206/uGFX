@@ -62,24 +62,30 @@ static const gwidgetVMT labelVMT = {
 		0,						// The after-clear routine
 	},
 	gwinLabelDefaultDraw,		// default drawing routine
-	{
-		0,						// Process mose down events (NOT USED)
-		0,						// Process mouse up events (NOT USED)
-		0,						// Process mouse move events (NOT USED)
-	},
-	{
-		0,						// No toggle role
-		0,						// Assign Toggles (NOT USED)
-		0,						// Get Toggles (NOT USED)
-		0,						// Process toggle off event (NOT USED)
-		0,						// Process toggle on event (NOT USED)
-	},
-	{
-		0,						// No dial roles
-		0,						// Assign Dials (NOT USED)
-		0, 						// Get Dials (NOT USED)
-		0,						// Procees dial move events (NOT USED)
-	}
+	#if GINPUT_NEED_MOUSE
+		{
+			0,						// Process mose down events (NOT USED)
+			0,						// Process mouse up events (NOT USED)
+			0,						// Process mouse move events (NOT USED)
+		},
+	#endif
+	#if GINPUT_NEED_TOGGLE
+		{
+			0,						// No toggle role
+			0,						// Assign Toggles (NOT USED)
+			0,						// Get Toggles (NOT USED)
+			0,						// Process toggle off event (NOT USED)
+			0,						// Process toggle on event (NOT USED)
+		},
+	#endif
+	#if GINPUT_NEED_DIAL
+		{
+			0,						// No dial roles
+			0,						// Assign Dials (NOT USED)
+			0, 						// Get Dials (NOT USED)
+			0,						// Procees dial move events (NOT USED)
+		},
+	#endif
 };
 
 GHandle gwinLabelCreate(GLabelWidget *widget, GWidgetInit *pInit) {
