@@ -28,6 +28,9 @@
 
 #include "gfx.h"
 
+// include our chibios logo in a .gif format
+#include "image_chibios.h"
+
 static GListener	gl;
 static GHandle		ghConsole;
 static GHandle		ghTabButtons, ghTabSliders, ghTabCheckboxes, ghTabLabels, ghTabRadios, ghTabImages;
@@ -36,7 +39,7 @@ static GHandle		ghSlider1, ghSlider2, ghSlider3, ghSlider4;
 static GHandle		ghCheckbox1, ghCheckbox2;
 static GHandle		ghLabel1;
 static GHandle		ghRadio1, ghRadio2;
-//static GHandle	ghImage1;
+static GHandle	ghImage1;
 
 #define	ScrWidth		gdispGetWidth()
 #define	ScrHeight		gdispGetHeight()
@@ -127,6 +130,12 @@ int main(void) {
 		wi.g.x = 0*wi.g.width; wi.text = "Yes";		ghRadio1	= gwinCreateRadio(NULL, &wi, GROUP_R1R2);
 		wi.g.x = 1*wi.g.width; wi.text = "No";		ghRadio2	= gwinCreateRadio(NULL, &wi, GROUP_R1R2);
 
+		// Image
+		wi.g.x = ScrWidth-210; wi.g.y = TAB_HEIGHT + 10; wi.g.width = 200; wi.g.height = 200;
+		ghImage1 = gwinImageCreate(NULL, &wi);
+		gwinImageOpenMemory(ghImage1, image_chibios);
+		gwinImageCache(ghImage1);
+
 		// Console - we apply some special colors before making it visible
 		wi.g.width = ScrWidth/2-1; wi.g.height = ScrHeight/2-1;
 		wi.g.x = ScrWidth/2+1; wi.g.y = ScrHeight/2+1;
@@ -192,7 +201,7 @@ int main(void) {
 				gwinSetVisible(ghLabel1, ((GEventGWinRadio *)pe)->radio == ghTabLabels);
 				gwinSetVisible(ghRadio1, ((GEventGWinRadio *)pe)->radio == ghTabRadios);
 				gwinSetVisible(ghRadio2, ((GEventGWinRadio *)pe)->radio == ghTabRadios);
-				//gwinSetVisible(ghImage1, ((GEventGWinRadio *)pe)->radio == ghTabImages);
+				gwinSetVisible(ghImage1, ((GEventGWinRadio *)pe)->radio == ghTabImages);
 
 				// Do some special animation for Label1
 				if (((GEventGWinRadio *)pe)->radio == ghTabLabels) {
