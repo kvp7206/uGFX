@@ -25,16 +25,18 @@ static void _destroy(GWindowObject *gh) {
 
 static void _redraw(GHandle gh) {
 	coord_t		x, y, w, h, dx, dy;
+	color_t		bg;
 
 	// The default display area
 	x = gh->x;
 	y = gh->y;
 	w = gh->width;
 	h = gh->height;
+	bg = gwinGetDefaultBgColor();
 
 	// If the image isn't open just clear the area
 	if (!gdispImageIsOpen(&widget(gh)->image)) {
-		gdispFillArea(x, y, w, h, gh->bgcolor);
+		gdispFillArea(x, y, w, h, bg);
 		return;
 	}
 
@@ -44,8 +46,8 @@ static void _redraw(GHandle gh) {
 		dx = (gh->width-w)/2;
 		x += dx;
 		if (dx)
-			gdispFillArea(gh->x, y, dx, h, gh->bgcolor);
-		gdispFillArea(x+w, y, gh->width-dx-w, h, gh->bgcolor);
+			gdispFillArea(gh->x, y, dx, h, bg);
+		gdispFillArea(x+w, y, gh->width-dx-w, h, bg);
 		dx = 0;
 	}
 
@@ -60,8 +62,8 @@ static void _redraw(GHandle gh) {
 		dy = (gh->height-h)/2;
 		y += dy;
 		if (dy)
-			gdispFillArea(x, gh->y, w, dy, gh->bgcolor);
-		gdispFillArea(x, y+h, w, gh->height-dy-h, gh->bgcolor);
+			gdispFillArea(x, gh->y, w, dy, bg);
+		gdispFillArea(x, y+h, w, gh->height-dy-h, bg);
 		dy = 0;
 	}
 
@@ -71,7 +73,7 @@ static void _redraw(GHandle gh) {
 	}
 
 	// Reset the background color in case it has changed
-	gdispImageSetBgColor(&widget(gh)->image, gh->bgcolor);
+	gdispImageSetBgColor(&widget(gh)->image, bg);
 
 	// Display the image
 	gdispImageDraw(&widget(gh)->image, x, y, w, h, dx, dy);
