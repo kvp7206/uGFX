@@ -174,7 +174,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	GHandle gwinCreateWindow(GWindowObject *pgw, const GWindowInit *pInit);
+	GHandle gwinWindowCreate(GWindowObject *pgw, const GWindowInit *pInit);
 
 	/**
 	 * @brief   Destroy a window (of any type). Releases any dynamically allocated memory.
@@ -357,46 +357,63 @@ extern "C" {
 	void gwinResize(GHandle gh, coord_t width, coord_t height);
 
 	/**
-	 * @brief	Minimize, Maximize or Restore a window
+	 * @brief	Redraw a window
 	 *
 	 * @param[in] gh				The window
-	 * @param[in] minmax			The new minimized/maximized state
 	 *
-	 * @note	The final window state may not be the requested state. Window Managers
-	 * 			do not need to implement changing the minmax state. If there is no
-	 * 			window manager this call is ignored.
-	 * @note	The window is redrawn if it is changed. See the comments in @p gwinSetVisible()
-	 * 			with regard to what can be redrawn and what can't.
-	 * @note	It is up to the window manager to determine what happens with any screen area
-	 * 			uncovered by resizing the window.
-	 * @note	When a window is minimised it may be asked to draw the window or the window
-	 * 			manager may draw the minimised window.
+	 * @note	This is normally never required as windows and widgets will redraw as required.
+	 * 			Note that some windows are incapable of redrawing themselves as they don't save
+	 * 			their drawing state.
 	 *
 	 * @api
 	 */
-	void gwinSetMinMax(GHandle gh, GWindowMinMax minmax);
+	void gwinRedraw(GHandle gh);
 
-	/**
-	 * @brief	Get the Minimized/Maximized state of a window
-	 *
-	 * @param[in] gh				The window
-	 *
-	 * @api
-	 */
-	GWindowMinMax gwinGetMinMax(GHandle gh);
+	#if GWIN_NEED_WINDOWMANAGER
+		/**
+		 * @brief	Minimize, Maximize or Restore a window
+		 * @pre		GWIN_NEED_WINDOWMANAGER must be TRUE
+		 *
+		 * @param[in] gh				The window
+		 * @param[in] minmax			The new minimized/maximized state
+		 *
+		 * @note	The final window state may not be the requested state. Window Managers
+		 * 			do not need to implement changing the minmax state. If there is no
+		 * 			window manager this call is ignored.
+		 * @note	The window is redrawn if it is changed. See the comments in @p gwinSetVisible()
+		 * 			with regard to what can be redrawn and what can't.
+		 * @note	It is up to the window manager to determine what happens with any screen area
+		 * 			uncovered by resizing the window.
+		 * @note	When a window is minimised it may be asked to draw the window or the window
+		 * 			manager may draw the minimised window.
+		 *
+		 * @api
+		 */
+		void gwinSetMinMax(GHandle gh, GWindowMinMax minmax);
 
-	/**
-	 * @brief	Raise a window to the top of the z-order
-	 *
-	 * @param[in] gh				The window
-	 *
-	 * @note	The window z-order is only supported by some window managers. If there is no
-	 * 			window manager this call simple tries to redraw the window. See the comments
-	 * 			in @p gwinSetVisible() with regard to what can be redrawn and what can't.
-	 *
-	 * @api
-	 */
-	void gwinRaise(GHandle gh);
+		/**
+		 * @brief	Get the Minimized/Maximized state of a window
+		 * @pre		GWIN_NEED_WINDOWMANAGER must be TRUE
+		 *
+		 * @param[in] gh				The window
+		 *
+		 * @api
+		 */
+		GWindowMinMax gwinGetMinMax(GHandle gh);
+
+		/**
+		 * @brief	Raise a window to the top of the z-order
+		 * @pre		GWIN_NEED_WINDOWMANAGER must be TRUE
+		 *
+		 * @param[in] gh				The window
+		 *
+		 * @note	The window z-order is only supported by some window managers. See the comments
+		 * 			in @p gwinSetVisible() with regard to what can be redrawn and what can't.
+		 *
+		 * @api
+		 */
+		void gwinRaise(GHandle gh);
+	#endif
 
 	#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 		/**

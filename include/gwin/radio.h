@@ -40,27 +40,15 @@ typedef struct GEventGWinRadio {
 } GEventGWinRadio;
 
 /**
- * @brief	Button colors
- */
-typedef struct GRadioColors {
-	color_t				color_edge;
-	color_t				color_fill;
-	color_t				color_txt;
-} GRadioColors;
-
-/**
  * @brief	The radio button widget structure
  * @note	Do not use the members directly - treat it as a black-box.
  */
-typedef struct GRadioObject_t {
+typedef struct GRadioObject {
 	GWidgetObject		w;
 	#if GINPUT_NEED_TOGGLE
 		uint16_t		toggle;
 	#endif
 	uint16_t			group;
-	GRadioColors		c_up;
-	GRadioColors		c_dn;
-	GRadioColors		c_dis;
 } GRadioObject;
 
 #ifdef __cplusplus
@@ -89,26 +77,7 @@ extern "C" {
  *
  * @api
  */	
-GHandle gwinCreateRadio(GRadioObject *gb, const GWidgetInit *pInit, uint16_t group);
-
-/**
- * @brief   Set the colors of a button.
- *
- * @param[in] gh		The window handle (must be a radio widget)
- * @param[in] pUp		The colors for the button when in the up state.
- * @param[in] pDown		The colors for the button when in the down state.
- * @param[in] pDisabled	The colors for the button when it is disabled.
- *
- * @note				The button is not automatically redrawn. Call gwinButtonDraw() after changing the button style
- * @note				The button style is copied into the internal button structure - there is no need to
- * 						maintain static style structures (they can be temporary structures on the stack).
- * @note				The pUp, pDown and pDisabled parameters can be NULL. If they are then the existing color styles
- * 						are not changed for that button state.
- * @note				Some custom drawn buttons will ignore he specified colors
- *
- * @api
- */
-void gwinSetRadioColors(GHandle gh, const GRadioColors *pUp, const GRadioColors *pDown, const GRadioColors *pDisabled);
+GHandle gwinRadioCreate(GRadioObject *gb, const GWidgetInit *pInit, uint16_t group);
 
 /**
  * @brief	Press this radio button (and by definition unset any others in the group)
@@ -117,7 +86,7 @@ void gwinSetRadioColors(GHandle gh, const GRadioColors *pUp, const GRadioColors 
  *
  * @api
  */
-void gwinPressRadio(GHandle gh);
+void gwinRadioPress(GHandle gh);
 
 /**
  * @brief	Is the radio button currently pressed
@@ -127,7 +96,7 @@ void gwinPressRadio(GHandle gh);
  *
  * @api
  */
-bool_t gwinIsRadioPressed(GHandle gh);
+bool_t gwinRadioIsPressed(GHandle gh);
 
 /**
  * @brief	Find the currently pressed radio button in the specified group
@@ -137,7 +106,7 @@ bool_t gwinIsRadioPressed(GHandle gh);
  *
  * @api
  */
-GHandle gwinActiveRadio(uint16_t group);
+GHandle gwinRadioGetActive(uint16_t group);
 
 /**
  * @brief	Some custom radio button drawing routines

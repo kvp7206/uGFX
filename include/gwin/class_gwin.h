@@ -136,6 +136,11 @@ typedef struct gwinVMT {
 	 * @brief	The list of all windows in the system
 	 */
 	extern gfxQueueASync	_GWINList;
+
+	/**
+	 * @brief	The current window manager
+	 */
+	extern GWindowManager * _GWINwm;
 #endif
 
 #ifdef __cplusplus

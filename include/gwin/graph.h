@@ -71,7 +71,7 @@ typedef struct GGraphStyle_t {
 } GGraphStyle;
 
 // A graph window
-typedef struct GGraphObject_t {
+typedef struct GGraphObject {
 	GWindowObject		g;
 	GGraphStyle			style;
 	coord_t				xorigin, yorigin;
@@ -107,7 +107,7 @@ extern "C" {
  *
  * @api
  */
-GHandle gwinCreateGraph(GGraphObject *gg, const GWindowInit *pInit);
+GHandle gwinGraphCreate(GGraphObject *gg, const GWindowInit *pInit);
 
 /**
  * @brief   Set the style of the graphing operations.

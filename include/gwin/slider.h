@@ -26,7 +26,7 @@
 
 #define GEVENT_GWIN_SLIDER		(GEVENT_GWIN_FIRST+1)
 
-typedef struct GEventGWinSlider_t {
+typedef struct GEventGWinSlider {
 	GEventType		type;				// The type of this event (GEVENT_GWIN_BUTTON)
 	GHandle			slider;				// The slider that is returning results
 	int				position;
@@ -34,16 +34,8 @@ typedef struct GEventGWinSlider_t {
 
 // There are currently no GEventGWinSlider listening flags - use 0
 
-typedef struct GSliderColors {
-	color_t				color_edge;
-	color_t				color_thumb;
-	color_t				color_active;
-	color_t				color_inactive;
-	color_t				color_txt;
-} GSliderColors;
-
 // A slider window
-typedef struct GSliderObject_t {
+typedef struct GSliderObject {
 	GWidgetObject		w;
 	#if GINPUT_NEED_TOGGLE
 		uint16_t		t_dn;
@@ -56,7 +48,6 @@ typedef struct GSliderObject_t {
 	int					min;
 	int					max;
 	int					pos;
-	GSliderColors		c;
 } GSliderObject;
 
 #ifdef __cplusplus
@@ -86,7 +77,7 @@ extern "C" {
  *
  * @api
  */	
-GHandle gwinCreateSlider(GSliderObject *gb, const GWidgetInit *pInit);
+GHandle gwinSliderCreate(GSliderObject *gb, const GWidgetInit *pInit);
 
 /**
  * @brief   Set the slider range.
@@ -99,7 +90,7 @@ GHandle gwinCreateSlider(GSliderObject *gb, const GWidgetInit *pInit);
  *
  * @api
  */
-void gwinSetSliderRange(GHandle gh, int min, int max);
+void gwinSliderSetRange(GHandle gh, int min, int max);
 
 /**
  * @brief   Set the slider position.
@@ -112,22 +103,7 @@ void gwinSetSliderRange(GHandle gh, int min, int max);
  *
  * @api
  */
-void gwinSetSliderPosition(GHandle gh, int pos);
-
-/**
- * @brief   Set the style of a slider.
- * @details	The slider style is defined by its colours.
- *
- * @param[in] gh		The window handle (must be a slider window)
- * @param[in] pStyle	The styling for the slider.
- *
- * @note				The slider is not automatically redrawn. Call gwinSliderDraw() after changing the slider style
- * @note				The slider style is copied into the internal slider structure - there is no need to
- * 						maintain a static style structure.
- *
- * @api
- */
-void gwinSetSliderColors(GHandle gh, const GSliderColors *pStyle);
+void gwinSliderSetPosition(GHandle gh, int pos);
 
 /**
  * @brief   Get the current slider position.
@@ -140,7 +116,7 @@ void gwinSetSliderColors(GHandle gh, const GSliderColors *pStyle);
  *
  * @api
  */
-#define gwinGetSliderPosition(gh)		(((GSliderObject *)(gh))->pos)
+#define gwinSliderGetPosition(gh)		(((GSliderObject *)(gh))->pos)
 
 /**
  * @brief	Some custom slider drawing routines

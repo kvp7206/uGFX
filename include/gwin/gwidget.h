@@ -31,26 +31,48 @@
 struct GWidgetObject;
 
 /**
+ * @brief	The GColorSet structure
+ * @{
+ */
+typedef struct GColorSet {
+	color_t			text;				// @< The text color
+	color_t			edge;				// @< The edge color
+	color_t			fill;				// @< The fill color
+	color_t			progress;			// @< The color of progress bars
+} GColorSet;
+/* @} */
+
+/**
+ * @brief		The GWidgetStyle structure
+ * @details		A GWidgetStyle is a set of colors that together form a "style".
+ * 				These colors should not be confused with the GWindow foreground
+ * 				and background colors which are used for drawing operations.
+ * @{
+ */
+typedef struct GWidgetStyle {
+	color_t			background;			// @< The window background color
+	GColorSet		enabled;			// @< The colors when enabled
+	GColorSet		disabled;			// @< The colors when disabled
+	GColorSet		pressed;			// @< The colors when pressed
+} GWidgetStyle;
+/* @} */
+
+/**
+ * @brief	We define a couple of GWidgetStyle's that you can use in your
+ * 			application. The Black style is the default style if you don't
+ * 			specify one.
+ * @note	BlackWidgetStyle means that it is designed for a Black background.
+ * 			Similarly WhiteWidgetStyle is designed for a White background.
+ * @{
+ */
+extern const GWidgetStyle BlackWidgetStyle;
+extern const GWidgetStyle WhiteWidgetStyle;
+/* @} */
+
+/**
  * @brief	Defines a custom drawing function for a widget
  */
 typedef void (*CustomWidgetDrawFunction)(struct GWidgetObject *gw, void *param);
-
-/**
- * @brief	The GWIN Widget structure
- * @note	A widget is a GWIN window that accepts user input.
- * 			It also has a number of other properties such as its ability
- * 			to redraw itself (a widget maintains drawing state).
- * @note	Do not access the members directly. Treat it as a black-box and use the method functions.
- *
- * @{
- */
-typedef struct GWidgetObject {
-	GWindowObject				g;					// @< This is still a GWIN
-	const char *				txt;				// @< The widget text
-	CustomWidgetDrawFunction	fnDraw;				// @< The current draw function
-	void *						fnParam;			// @< A parameter for the current draw function
-} GWidgetObject;
-/* @} */
 
 /**
  * @brief	The structure to initialise a widget.
@@ -63,9 +85,30 @@ typedef struct GWidgetObject {
  * @{
  */
 typedef struct GWidgetInit {
-	GWindowInit		g;								// @< The GWIN initializer
-	const char *	text;							// @< The initial text
+	GWindowInit					g;						// @< The GWIN initializer
+	const char *				text;					// @< The initial text
+	CustomWidgetDrawFunction	customDraw;				// @< A custom draw function - use NULL for the standard
+	void *						customParam;			// @< A parameter for the custom draw function (default = NULL)
+	const GWidgetStyle *		customStyle;			// @< A custom style to use - use NULL for the default style
 } GWidgetInit;
+/* @} */
+
+/**
+ * @brief	The GWIN Widget structure
+ * @note	A widget is a GWIN window that accepts user input.
+ * 			It also has a number of other properties such as its ability
+ * 			to redraw itself (a widget maintains drawing state).
+ * @note	Do not access the members directly. Treat it as a black-box and use the method functions.
+ *
+ * @{
+ */
+typedef struct GWidgetObject {
+	GWindowObject				g;					// @< This is still a GWIN
+	const char *				text;				// @< The widget text
+	CustomWidgetDrawFunction	fnDraw;				// @< The current draw function
+	void *						fnParam;			// @< A parameter for the current draw function
+	const GWidgetStyle *		pstyle;				// @< The current widget style colors
+} GWidgetObject;
 /* @} */
 
 /**
@@ -84,10 +127,31 @@ extern "C" {
 #endif
 
 /**
+ * @brief   Set the default style for widgets created hereafter.
+ *
+ * @param[in] pstyle	The default style. Passing NULL uses the system compiled style.
+ * @param[in] updateAll	If TRUE then all existing widgets that are using the current default style
+ * 						will be updated to use this new style. Widgets that have custom styles different
+ * 						from the default style will not be updated.
+ *
+ * @note	The style must be allocated statically (not on the stack) as only the pointer is stored.
+ *
+ * @api
+ */
+void gwinSetDefaultStyle(const GWidgetStyle *pstyle, bool_t updateAll);
+
+/**
+ * @brief   Get the current default style.
+ *
+ * @api
+ */
+const GWidgetStyle *gwinGetDefaultStyle(void);
+
+/**
  * @brief   Set the text of a widget.
  *
  * @param[in] gh		The widget handle
- * @param[in] txt		The text to set. This must be a constant string unless useAlloc is set.
+ * @param[in] text		The text to set. This must be a constant string unless useAlloc is set.
  * @param[in] useAlloc	If TRUE the string specified will be copied into dynamically allocated memory.
  *
  * @note				The widget is automatically redrawn
@@ -95,7 +159,7 @@ extern "C" {
  *
  * @api
  */
-void gwinSetText(GHandle gh, const char *txt, bool_t useAlloc);
+void gwinSetText(GHandle gh, const char *text, bool_t useAlloc);
 
 /**
  * @brief   Get the text of a widget.
@@ -106,6 +170,30 @@ void gwinSetText(GHandle gh, const char *txt, bool_t useAlloc);
  * @api
  */
 const char *gwinGetText(GHandle gh);
+
+/**
+ * @brief   Set the style of a widget.
+ *
+ * @param[in] gh		The widget handle
+ * @param[in] pstyle	The style to set. This must be a static structure (not allocated on a transient stack).
+ * 						Use NULL to reset to the default style.
+ *
+ * @note				The widget is automatically redrawn
+ * @note				Non-widgets will ignore this call.
+ *
+ * @api
+ */
+void gwinSetStyle(GHandle gh, const GWidgetStyle *pstyle);
+
+/**
+ * @brief   Get the style of a widget.
+ * @return	The widget style or NULL if it isn't a widget
+ *
+ * @param[in] gh		The widget handle
+ *
+ * @api
+ */
+const GWidgetStyle *gwinGetStyle(GHandle gh);
 
 /**
  * @brief   Set the routine to perform a custom widget drawing.

@@ -14,7 +14,67 @@
 #include "gwin/class_gwin.h"
 
 /* Our listener for events for widgets */
-static GListener	gl;
+static GListener			gl;
+
+/* Our default style - a white background theme */
+const GWidgetStyle WhiteWidgetStyle = {
+	HTML2COLOR(0xFFFFFF),			// window background
+
+	// enabled color set
+	{
+		HTML2COLOR(0x000000),		// text
+		HTML2COLOR(0x404040),		// edge
+		HTML2COLOR(0xE0E0E0),		// fill
+		HTML2COLOR(0xE0E0E0),		// progress - inactive area
+	},
+
+	// disabled color set
+	{
+		HTML2COLOR(0xC0C0C0),		// text
+		HTML2COLOR(0x808080),		// edge
+		HTML2COLOR(0xE0E0E0),		// fill
+		HTML2COLOR(0xC0E0C0),		// progress - active area
+	},
+
+	// pressed color set
+	{
+		HTML2COLOR(0x404040),		// text
+		HTML2COLOR(0x404040),		// edge
+		HTML2COLOR(0x808080),		// fill
+		HTML2COLOR(0x00E000),		// progress - active area
+	},
+};
+
+/* Our black style */
+const GWidgetStyle BlackWidgetStyle = {
+	HTML2COLOR(0x000000),			// window background
+
+	// enabled color set
+	{
+		HTML2COLOR(0xC0C0C0),		// text
+		HTML2COLOR(0xC0C0C0),		// edge
+		HTML2COLOR(0x606060),		// fill
+		HTML2COLOR(0x404040),		// progress - inactive area
+	},
+
+	// disabled color set
+	{
+		HTML2COLOR(0x808080),		// text
+		HTML2COLOR(0x404040),		// edge
+		HTML2COLOR(0x404040),		// fill
+		HTML2COLOR(0x004000),		// progress - active area
+	},
+
+	// pressed color set
+	{
+		HTML2COLOR(0xFFFFFF),		// text
+		HTML2COLOR(0xC0C0C0),		// edge
+		HTML2COLOR(0xE0E0E0),		// fill
+		HTML2COLOR(0x008000),		// progress - active area
+	},
+};
+
+static const GWidgetStyle *	defaultStyle = &BlackWidgetStyle;
 
 /* We use these everywhere in this file */
 #define gw		((GWidgetObject *)gh)
@@ -169,9 +229,10 @@ GHandle _gwidgetCreate(GWidgetObject *pgw, const GWidgetInit *pInit, const gwidg
 	if (!(pgw = (GWidgetObject *)_gwindowCreate(&pgw->g, &pInit->g, &vmt->g, GWIN_FLG_WIDGET|GWIN_FLG_ENABLED)))
 		return 0;
 
-	pgw->txt = pInit->text ? pInit->text : "";
-	pgw->fnDraw = vmt->DefaultDraw;
-	pgw->fnParam = 0;
+	pgw->text = pInit->text ? pInit->text : "";
+	pgw->fnDraw = pInit->customDraw ? pInit->customDraw : vmt->DefaultDraw;
+	pgw->fnParam = pInit->customParam;
+	pgw->pstyle = pInit->customStyle ? pInit->customStyle : defaultStyle;
 
 	return 	&pgw->g;
 }
@@ -184,7 +245,7 @@ void _gwidgetDestroy(GHandle gh) {
 	// Deallocate the text (if necessary)
 	if ((gh->flags & GWIN_FLG_ALLOCTXT)) {
 		gh->flags &= ~GWIN_FLG_ALLOCTXT;
-		gfxFree((void *)gw->txt);
+		gfxFree((void *)gw->text);
 	}
 
 	#if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
@@ -226,32 +287,60 @@ void _gwidgetRedraw(GHandle gh) {
 	gw->fnDraw(gw, gw->fnParam);
 }
 
-void gwinSetText(GHandle gh, const char *txt, bool_t useAlloc) {
+void gwinSetDefaultStyle(const GWidgetStyle *pstyle, bool_t updateAll) {
+	if (!pstyle)
+		pstyle = &BlackWidgetStyle;
+
+	if (updateAll) {
+		const gfxQueueASyncItem *	qi;
+		GHandle						gh;
+
+		for(qi = gfxQueueASyncPeek(&_GWINList); qi; qi = gfxQueueASyncNext(qi)) {
+			gh = QItem2GWindow(qi);
+			if ((gh->flags & GWIN_FLG_WIDGET) && ((GWidgetObject *)gh)->pstyle == defaultStyle)
+				gwinSetStyle(gh, pstyle);
+		}
+	}
+	gwinSetDefaultBgColor(pstyle->background);
+	defaultStyle = pstyle;
+}
+
+/**
+ * @brief   Get the current default style.
+ *
+ * @api
+ */
+const GWidgetStyle *gwinGetDefaultStyle(void) {
+	return defaultStyle;
+}
+
+
+void gwinSetText(GHandle gh, const char *text, bool_t useAlloc) {
 	if (!(gh->flags & GWIN_FLG_WIDGET))
 		return;
 
 	// Dispose of the old string
 	if ((gh->flags & GWIN_FLG_ALLOCTXT)) {
 		gh->flags &= ~GWIN_FLG_ALLOCTXT;
-		if (gw->txt) {
-			gfxFree((void *)gw->txt);
-			gw->txt = "";
+		if (gw->text) {
+			gfxFree((void *)gw->text);
+			gw->text = "";
 		}
 	}
 
 	// Alloc the new text if required
-	if (txt && !*txt) txt = 0;
-	if (txt && useAlloc) {
+	if (!text || !*text)
+		gw->text = "";
+	else if (useAlloc) {
 		char *str;
 
-		if ((str = (char *)gfxAlloc(strlen(txt)+1))) {
+		if ((str = (char *)gfxAlloc(strlen(text)+1))) {
 			gh->flags |= GWIN_FLG_ALLOCTXT;
-			strcpy(str, txt);
+			strcpy(str, text);
 		}
-		txt = (const char *)str;
-	}
-
-	gw->txt = txt ? txt : "";
+		gw->text = (const char *)str;
+	} else
+		gw->text = text;
 	_gwidgetRedraw(gh);
 }
 
@@ -259,7 +348,20 @@ const char *gwinGetText(GHandle gh) {
 	if (!(gh->flags & GWIN_FLG_WIDGET))
 		return 0;
 
-	return gw->txt;
+	return gw->text;
+}
+
+void gwinSetStyle(GHandle gh, const GWidgetStyle *pstyle) {
+	if (!(gh->flags & GWIN_FLG_WIDGET))
+		return;
+	gw->pstyle = pstyle ? pstyle : defaultStyle;
+	gh->bgcolor = pstyle->background;
+	gh->color = pstyle->enabled.text;
+	_gwidgetRedraw(gh);
+}
+
+const GWidgetStyle *gwinGetStyle(GHandle gh) {
+	return gw->pstyle;
 }
 
 void gwinSetCustomDraw(GHandle gh, CustomWidgetDrawFunction fn, void *param) {

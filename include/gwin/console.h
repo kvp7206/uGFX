@@ -27,7 +27,7 @@
 /* This file is included within "gwin/gwin.h" */
 
 // A console window. Supports wrapped text writing and a cursor.
-typedef struct GConsoleObject_t {
+typedef struct GConsoleObject {
 	GWindowObject	g;
 	coord_t			cx, cy;			// Cursor position
 
@@ -46,8 +46,8 @@ extern "C" {
 
 /**
  * @brief   Create a console window.
- * @details	A console window allows text to be written using chprintf() (and the console functions defined here).
- * @brief	Text in a console window supports newlines and will wrap text as required.
+ * @details	A console window allows text to be written.
+ * @note	Text in a console window supports newlines and will wrap text as required.
  * @return  NULL if there is no resultant drawing area, otherwise a window handle.
  *
  * @param[in] gc		The GConsoleObject structure to initialise. If this is NULL the structure is dynamically allocated.
@@ -64,7 +64,7 @@ extern "C" {
  *
  * @api
  */
-GHandle gwinCreateConsole(GConsoleObject *gc, const GWindowInit *pInit);
+GHandle gwinConsoleCreate(GConsoleObject *gc, const GWindowInit *pInit);
 
 #if GFX_USE_OS_CHIBIOS && GWIN_CONSOLE_USE_BASESTREAM
 	/**
@@ -77,7 +77,7 @@ GHandle gwinCreateConsole(GConsoleObject *gc, const GWindowInit *pInit);
 	 *
 	 * @api
 	 */
-	BaseSequentialStream *gwinGetConsoleStream(GHandle gh);
+	BaseSequentialStream *gwinConsoleGetStream(GHandle gh);
 #endif
 
 /**

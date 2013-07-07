@@ -66,7 +66,7 @@ static const gwinVMT consoleVMT = {
 		AfterClear,				// The after-clear routine
 };
 
-GHandle gwinCreateConsole(GConsoleObject *gc, const GWindowInit *pInit) {
+GHandle gwinConsoleCreate(GConsoleObject *gc, const GWindowInit *pInit) {
 	if (!(gc = (GConsoleObject *)_gwindowCreate(&gc->g, pInit, &consoleVMT, 0)))
 		return 0;
 	#if GFX_USE_OS_CHIBIOS && GWIN_CONSOLE_USE_BASESTREAM
@@ -79,7 +79,7 @@ GHandle gwinCreateConsole(GConsoleObject *gc, const GWindowInit *pInit) {
 }
 
 #if GFX_USE_OS_CHIBIOS && GWIN_CONSOLE_USE_BASESTREAM
-	BaseSequentialStream *gwinGetConsoleStream(GHandle gh) {
+	BaseSequentialStream *gwinConsoleGetStream(GHandle gh) {
 		if (gh->vmt != &consoleVMT)
 			return 0;
 		return (BaseSequentialStream *)&(((GConsoleObject *)(gh))->stream);

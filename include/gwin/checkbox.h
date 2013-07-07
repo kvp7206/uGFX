@@ -34,26 +34,18 @@
 /* Type definitions                                                          */
 /*===========================================================================*/
 
-typedef struct GEventGWinCheckbox_t {
+typedef struct GEventGWinCheckbox {
 	GEventType		type;			// The type of this event (GEVENT_GWIN_CHECKBOX)
 	GHandle			checkbox;		// The checkbox that has been depressed (actually triggered on release)
 	bool_t			isChecked;		// Is the checkbox currently checked or unchecked?
 } GEventGWinCheckbox;
 
-typedef struct GCheckboxColors {
-	color_t	color_border;
-	color_t color_checked;
-	color_t color_bg;
-	color_t color_txt;
-} GCheckboxColors;
-
 /* A Checkbox window */
-typedef struct GCheckboxObject_t {
+typedef struct GCheckboxObject {
 	GWidgetObject			w;
 	#if GINPUT_NEED_TOGGLE
 		uint16_t			toggle;
 	#endif
-	GCheckboxColors			c;
 } GCheckboxObject;
 
 /**
@@ -75,7 +67,17 @@ typedef struct GCheckboxObject_t {
  *
  * @api
  */
-GHandle gwinCreateCheckbox(GCheckboxObject *gb, const GWidgetInit *pInit);
+GHandle gwinCheckboxCreate(GCheckboxObject *gb, const GWidgetInit *pInit);
+
+/**
+ * @brief	Set the state of a checkbox
+ *
+ * @param[in] gh		The window handle (must be a checkbox window)
+ * @param[in] isChecked	TRUE to set the check, FALSE to uncheck.
+ *
+ * @api
+ */
+void gwinCheckboxCheck(GHandle gh, bool_t isChecked);
 
 /**
  * @brief	Get the state of a checkbox
@@ -85,17 +87,7 @@ GHandle gwinCreateCheckbox(GCheckboxObject *gb, const GWidgetInit *pInit);
  *
  * @api
  */
-bool_t gwinIsCheckboxChecked(GHandle gh);
-
-/**
- * @brief	Set the colors used to draw the checkbox
- *
- * @param[in] gh		The window handle (must be a checkbox window)
- * @param[in] pColors	The colors to use
- *
- * @api
- */
-void gwinCheckboxSetColors(GHandle gh, GCheckboxColors *pColors);
+bool_t gwinCheckboxIsChecked(GHandle gh);
 
 /**
  * @brief	Some custom checkbox drawing routines

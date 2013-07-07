@@ -25,38 +25,40 @@
 #define GLABEL_FLG_HAUTO		(GWIN_FIRST_CONTROL_FLAG<<1)
 
 // Simple: single line with no wrapping
-static coord_t getwidth(const char *txt, font_t font, coord_t maxwidth) {
+static coord_t getwidth(const char *text, font_t font, coord_t maxwidth) {
 	(void) maxwidth;
-	return gdispGetStringWidth(txt, font)+2;		// Allow one pixel of padding on each side
+	return gdispGetStringWidth(text, font)+2;		// Allow one pixel of padding on each side
 }
 
 // Simple: single line with no wrapping
-static coord_t getheight(const char *txt, font_t font, coord_t maxwidth) {
-	(void) txt;
+static coord_t getheight(const char *text, font_t font, coord_t maxwidth) {
+	(void) text;
 	(void) maxwidth;
 
 	return gdispGetFontMetric(font, fontHeight);
 }
 
 static void gwinLabelDefaultDraw(GWidgetObject *gw, void *param) {
-	(void) param;
-	coord_t	w, h;
+	coord_t				w, h;
+	(void)				param;
 
-	w = (gw->g.flags & GLABEL_FLG_WAUTO) ? getwidth(gw->txt, gw->g.font, gdispGetWidth() - gw->g.x) : gw->g.width;
-	h = (gw->g.flags & GLABEL_FLG_HAUTO) ? getheight(gw->txt, gw->g.font, gdispGetWidth() - gw->g.x) : gw->g.height;
+	w = (gw->g.flags & GLABEL_FLG_WAUTO) ? getwidth(gw->text, gw->g.font, gdispGetWidth() - gw->g.x) : gw->g.width;
+	h = (gw->g.flags & GLABEL_FLG_HAUTO) ? getheight(gw->text, gw->g.font, gdispGetWidth() - gw->g.x) : gw->g.height;
 
 	if (gw->g.width != w || gw->g.height != h) {
 		gwinResize(&gw->g, w, h);
 		return;
 	}
 
-	gdispFillStringBox(gw->g.x, gw->g.y, gw->g.width, gw->g.height, gw->txt, gw->g.font, gw->g.color, gw->g.bgcolor, justifyLeft);
+	gdispFillStringBox(gw->g.x, gw->g.y, gw->g.width, gw->g.height, gw->text, gw->g.font,
+			(gw->g.flags & GWIN_FLG_ENABLED) ? gw->pstyle->enabled.text : gw->pstyle->disabled.text, gw->pstyle->background,
+			justifyLeft);
 }
 
 static const gwidgetVMT labelVMT = {
 	{
 		"Label",				// The class name
-		sizeof(GLabelWidget),	// The object size
+		sizeof(GLabelObject),	// The object size
 		_gwidgetDestroy,		// The destroy routine
 		_gwidgetRedraw, 		// The redraw routine
 		0,						// The after-clear routine
@@ -88,7 +90,7 @@ static const gwidgetVMT labelVMT = {
 	#endif
 };
 
-GHandle gwinLabelCreate(GLabelWidget *widget, GWidgetInit *pInit) {
+GHandle gwinLabelCreate(GLabelObject *widget, GWidgetInit *pInit) {
 	uint16_t flags = 0;
 
 	// auto assign width
@@ -103,7 +105,7 @@ GHandle gwinLabelCreate(GLabelWidget *widget, GWidgetInit *pInit) {
 		pInit->g.height = getheight(pInit->text, gwinGetDefaultFont(), gdispGetWidth() - pInit->g.x);
 	}
 
-	if (!(widget = (GLabelWidget *)_gwidgetCreate(&widget->w, pInit, &labelVMT)))
+	if (!(widget = (GLabelObject *)_gwidgetCreate(&widget->w, pInit, &labelVMT)))
 		return 0;
 
 	widget->w.g.flags |= flags;

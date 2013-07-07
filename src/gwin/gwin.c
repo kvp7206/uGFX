@@ -32,11 +32,6 @@ static color_t	defaultBgColor = Black;
 #if GDISP_NEED_TEXT
 	static font_t	defaultFont;
 #endif
-#if GWIN_NEED_WINDOWMANAGER
-	gfxQueueASync			_GWINList;
-	extern GWindowManager	GNullWindowManager;
-	static GWindowManager *	cwm;
-#endif
 
 /*-----------------------------------------------
  * Helper Routines
@@ -52,9 +47,9 @@ static color_t	defaultBgColor = Black;
 		} else
 			gwinClear(gh);
 	}
-	static void _gwm_redim(GHandle gh, const GWindowInit *pInit) {
-		gh->x = pInit->x; gh->y = pInit->y;
-		gh->width = pInit->width; gh->height = pInit->height;
+	static void _gwm_redim(GHandle gh, coord_t x, coord_t y, coord_t width, coord_t height) {
+		gh->x = x; gh->y = y;
+		gh->width = width; gh->height = height;
 		if (gh->x < 0) { gh->width += gh->x; gh->x = 0; }
 		if (gh->y < 0) { gh->height += gh->y; gh->y = 0; }
 		if (gh->x > gdispGetWidth()-MIN_WIN_WIDTH)		gh->x = gdispGetWidth()-MIN_WIN_WIDTH;
@@ -87,9 +82,9 @@ void _gwinInit(void) {
 		_gwidgetInit();
 	#endif
 	#if GWIN_NEED_WINDOWMANAGER
-		gfxQueueASyncInit(&_GWINList);
-		cwm = &GNullWindowManager;
-		cwm->vmt->Init();
+		extern void _gwmInit(void);
+
+		_gwmInit();
 	#endif
 }
 
@@ -113,7 +108,7 @@ GHandle _gwindowCreate(GWindowObject *pgw, const GWindowInit *pInit, const gwinV
 	#endif
 
 #if GWIN_NEED_WINDOWMANAGER
-	if (!cwm->vmt->Add(pgw, pInit)) {
+	if (!_GWINwm->vmt->Add(pgw, pInit)) {
 		if ((pgw->flags & GWIN_FLG_DYNAMIC))
 			gfxFree(pgw);
 		return 0;
@@ -128,18 +123,6 @@ GHandle _gwindowCreate(GWindowObject *pgw, const GWindowInit *pInit, const gwinV
 /*-----------------------------------------------
  * Routines that affect all windows
  *-----------------------------------------------*/
-
-#if GWIN_NEED_WINDOWMANAGER
-	void gwinSetWindowManager(struct GWindowManager *gwm) {
-		if (!gwm)
-			gwm = &GNullWindowManager;
-		if (cwm != gwm) {
-			cwm->vmt->DeInit();
-			cwm = gwm;
-			cwm->vmt->Init();
-		}
-	}
-#endif
 
 void gwinSetDefaultColor(color_t clr) {
 	defaultFgColor = clr;
@@ -171,7 +154,7 @@ color_t gwinGetDefaultBgColor(void) {
  * The GWindow Routines
  *-----------------------------------------------*/
 
-GHandle gwinCreateWindow(GWindowObject *pgw, const GWindowInit *pInit) {
+GHandle gwinWindowCreate(GWindowObject *pgw, const GWindowInit *pInit) {
 	if (!(pgw = _gwindowCreate(pgw, pInit, &basegwinVMT, 0)))
 		return 0;
 	gwinSetVisible(pgw, pInit->show);
@@ -181,7 +164,7 @@ GHandle gwinCreateWindow(GWindowObject *pgw, const GWindowInit *pInit) {
 void gwinDestroy(GHandle gh) {
 	// Remove from the window manager
 	#if GWIN_NEED_WINDOWMANAGER
-		cwm->vmt->Delete(gh);
+		_GWINwm->vmt->Delete(gh);
 	#endif
 
 	// Class destroy routine
@@ -204,7 +187,7 @@ void gwinSetVisible(GHandle gh, bool_t visible) {
 		if (!(gh->flags & GWIN_FLG_VISIBLE)) {
 			gh->flags |= GWIN_FLG_VISIBLE;
 			#if GWIN_NEED_WINDOWMANAGER
-				cwm->vmt->Visible(gh);
+				_GWINwm->vmt->Visible(gh);
 			#else
 				_gwm_vis(gh);
 			#endif
@@ -213,7 +196,7 @@ void gwinSetVisible(GHandle gh, bool_t visible) {
 		if ((gh->flags & GWIN_FLG_VISIBLE)) {
 			gh->flags &= ~GWIN_FLG_VISIBLE;
 			#if GWIN_NEED_WINDOWMANAGER
-				cwm->vmt->Visible(gh);
+				_GWINwm->vmt->Visible(gh);
 			#endif
 		}
 	}
@@ -253,7 +236,7 @@ bool_t gwinGetEnabled(GHandle gh) {
 
 void gwinMove(GHandle gh, coord_t x, coord_t y) {
 	#if GWIN_NEED_WINDOWMANAGER
-		cwm->vmt->Redim(gh, x, y, gh->width, gh->height);
+		_GWINwm->vmt->Redim(gh, x, y, gh->width, gh->height);
 	#else
 		_gwm_redim(gh, x, y, gh->width, gh->height);
 	#endif
@@ -261,42 +244,19 @@ void gwinMove(GHandle gh, coord_t x, coord_t y) {
 
 void gwinResize(GHandle gh, coord_t width, coord_t height) {
 	#if GWIN_NEED_WINDOWMANAGER
-		cwm->vmt->Redim(gh, gh->x, gh->y, width, height);
+		_GWINwm->vmt->Redim(gh, gh->x, gh->y, width, height);
 	#else
 		_gwm_redim(gh, gh->x, gh->y, width, height);
 	#endif
 }
 
-void gwinSetMinMax(GHandle gh, GWindowMinMax minmax) {
+void gwinRedraw(GHandle gh) {
 	#if GWIN_NEED_WINDOWMANAGER
-		cwm->vmt->MinMax(gh, minmax);
+		gwinRaise(gh);
 	#else
-		(void) gh;
-		(void) minmax;
+		if ((gh->flags & GWIN_FLG_VISIBLE))
+			_gwm_vis(gh);
 	#endif
-}
-
-void gwinRaise(GHandle gh) {
-	#if GWIN_NEED_WINDOWMANAGER
-		cwm->vmt->Raise(gh);
-	#else
-		if ((gh->flags & GWIN_FLG_VISIBLE)) {
-			if (gh->vmt->Redraw) {
-				#if GDISP_NEED_CLIP
-					gdispSetClip(gh->x, gh->y, gh->width, gh->height);
-				#endif
-				gh->vmt->Redraw(gh);
-			}
-		}
-	#endif
-}
-
-GWindowMinMax gwinGetMinMax(GHandle gh) {
-	if (gh->flags & GWIN_FLG_MINIMIZED)
-		return GWIN_MINIMIZE;
-	if (gh->flags & GWIN_FLG_MAXIMIZED)
-		return GWIN_MAXIMIZE;
-	return GWIN_NORMAL;
 }
 
 #if GDISP_NEED_TEXT

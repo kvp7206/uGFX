@@ -30,9 +30,9 @@
 // This file is included within "gwin/gwin.h"
 
 // An label window
-typedef struct GLabelWidget_t {
+typedef struct GLabelObject {
 	GWidgetObject	w;
-} GLabelWidget;
+} GLabelObject;
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,7 +49,7 @@ extern "C" {
  *
  * @api
  */
-GHandle gwinLabelCreate(GLabelWidget *widget, GWidgetInit *pInit);
+GHandle gwinLabelCreate(GLabelObject *widget, GWidgetInit *pInit);
 
 #ifdef __cplusplus
 }

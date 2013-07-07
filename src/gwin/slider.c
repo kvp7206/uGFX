@@ -29,14 +29,6 @@
 	#define GWIN_SLIDER_TOGGLE_INC	20			// How many toggles to go from minimum to maximum
 #endif
 
-static const GSliderColors GSliderDefaultColors = {
-	HTML2COLOR(0x404040),		// color_edge
-	HTML2COLOR(0x000000),		// color_thumb
-	HTML2COLOR(0x00E000),		// color_active
-	HTML2COLOR(0xE0E0E0),		// color_inactive
-	HTML2COLOR(0xFFFFFF),		// color_txt
-};
-
 // Send the slider event
 static void SendSliderEvent(GWidgetObject *gw) {
 	GSourceListener	*	psl;
@@ -146,10 +138,10 @@ static void ResetDisplayPos(GSliderObject *gsw) {
 		#define gsw		((GSliderObject *)gw)
 
 		if (role) {
-			gwinSetSliderPosition((GHandle)gw, gsw->pos+(gsw->max-gsw->min)/GWIN_SLIDER_TOGGLE_INC);
+			gwinSliderSetPosition((GHandle)gw, gsw->pos+(gsw->max-gsw->min)/GWIN_SLIDER_TOGGLE_INC);
 			SendSliderEvent(gw);
 		} else {
-			gwinSetSliderPosition((GHandle)gw, gsw->pos-(gsw->max-gsw->min)/GWIN_SLIDER_TOGGLE_INC);
+			gwinSliderSetPosition((GHandle)gw, gsw->pos-(gsw->max-gsw->min)/GWIN_SLIDER_TOGGLE_INC);
 			SendSliderEvent(gw);
 		}
 		#undef gsw
@@ -231,7 +223,7 @@ static const gwidgetVMT sliderVMT = {
 	#endif
 };
 
-GHandle gwinCreateSlider(GSliderObject *gs, const GWidgetInit *pInit) {
+GHandle gwinSliderCreate(GSliderObject *gs, const GWidgetInit *pInit) {
 	if (!(gs = (GSliderObject *)_gwidgetCreate(&gs->w, pInit, &sliderVMT)))
 		return 0;
 	#if GINPUT_NEED_TOGGLE
@@ -241,7 +233,6 @@ GHandle gwinCreateSlider(GSliderObject *gs, const GWidgetInit *pInit) {
 	#if GINPUT_NEED_DIAL
 		gs->dial = GWIDGET_NO_INSTANCE;
 	#endif
-	gs->c = GSliderDefaultColors;
 	gs->min = 0;
 	gs->max = 100;
 	gs->pos = 0;
@@ -250,7 +241,7 @@ GHandle gwinCreateSlider(GSliderObject *gs, const GWidgetInit *pInit) {
 	return (GHandle)gs;
 }
 
-void gwinSetSliderRange(GHandle gh, int min, int max) {
+void gwinSliderSetRange(GHandle gh, int min, int max) {
 	#define gsw		((GSliderObject *)gh)
 
 	if (gh->vmt != (gwinVMT *)&sliderVMT)
@@ -265,7 +256,7 @@ void gwinSetSliderRange(GHandle gh, int min, int max) {
 	#undef gsw
 }
 
-void gwinSetSliderPosition(GHandle gh, int pos) {
+void gwinSliderSetPosition(GHandle gh, int pos) {
 	#define gsw		((GSliderObject *)gh)
 
 	if (gh->vmt != (gwinVMT *)&sliderVMT)
@@ -284,61 +275,70 @@ void gwinSetSliderPosition(GHandle gh, int pos) {
 	#undef gsw
 }
 
-void gwinSetSliderColors(GHandle gh, const GSliderColors *pColors) {
-	if (gh->vmt != (gwinVMT *)&sliderVMT)
-		return;
-
-	((GSliderObject *)gh)->c = *pColors;
-}
+/*----------------------------------------------------------
+ * Custom Draw Routines
+ *----------------------------------------------------------*/
 
 void gwinSliderDraw_Std(GWidgetObject *gw, void *param) {
-	#define gsw		((GSliderObject *)gw)
-	(void) param;
+	#define gsw			((GSliderObject *)gw)
+	const GColorSet *	pcol;
+	(void)				param;
 
 	if (gw->g.vmt != (gwinVMT *)&sliderVMT)
 		return;
 
+	if ((gw->g.flags & GWIN_FLG_ENABLED))
+		pcol = &gw->pstyle->pressed;
+	else
+		pcol = &gw->pstyle->disabled;
+
 	if (gw->g.width < gw->g.height) {			// Vertical slider
 		if (gsw->dpos != gw->g.height-1)
-			gdispFillArea(gw->g.x, gw->g.y+gsw->dpos, gw->g.width, gw->g.height - gsw->dpos, gsw->c.color_active);
+			gdispFillArea(gw->g.x, gw->g.y+gsw->dpos, gw->g.width, gw->g.height - gsw->dpos, pcol->progress);	// Active Area
 		if (gsw->dpos != 0)
-			gdispFillArea(gw->g.x, gw->g.y, gw->g.width, gsw->dpos, gsw->c.color_inactive);
-		gdispDrawBox(gw->g.x, gw->g.y, gw->g.width, gw->g.height, gsw->c.color_edge);
-		gdispDrawLine(gw->g.x, gw->g.y+gsw->dpos, gw->g.x+gw->g.width-1, gw->g.y+gsw->dpos, gsw->c.color_thumb);
+			gdispFillArea(gw->g.x, gw->g.y, gw->g.width, gsw->dpos, gw->pstyle->enabled.progress);			// Inactive area
+		gdispDrawBox(gw->g.x, gw->g.y, gw->g.width, gw->g.height, pcol->edge);								// Edge
+		gdispDrawLine(gw->g.x, gw->g.y+gsw->dpos, gw->g.x+gw->g.width-1, gw->g.y+gsw->dpos, pcol->edge);	// Thumb
 		if (gsw->dpos >= 2)
-			gdispDrawLine(gw->g.x, gw->g.y+gsw->dpos-2, gw->g.x+gw->g.width-1, gw->g.y+gsw->dpos-2, gsw->c.color_thumb);
+			gdispDrawLine(gw->g.x, gw->g.y+gsw->dpos-2, gw->g.x+gw->g.width-1, gw->g.y+gsw->dpos-2, pcol->edge);	// Thumb
 		if (gsw->dpos <= gw->g.height-2)
-			gdispDrawLine(gw->g.x, gw->g.y+gsw->dpos+2, gw->g.x+gw->g.width-1, gw->g.y+gsw->dpos+2, gsw->c.color_thumb);
+			gdispDrawLine(gw->g.x, gw->g.y+gsw->dpos+2, gw->g.x+gw->g.width-1, gw->g.y+gsw->dpos+2, pcol->edge);	// Thumb
 
 	// Horizontal slider
 	} else {
 		if (gsw->dpos != gw->g.width-1)
-			gdispFillArea(gw->g.x+gsw->dpos, gw->g.y, gw->g.width-gsw->dpos, gw->g.height, gsw->c.color_inactive);
+			gdispFillArea(gw->g.x+gsw->dpos, gw->g.y, gw->g.width-gsw->dpos, gw->g.height, gw->pstyle->enabled.progress);	// Inactive area
 		if (gsw->dpos != 0)
-			gdispFillArea(gw->g.x, gw->g.y, gsw->dpos, gw->g.height, gsw->c.color_active);
-		gdispDrawBox(gw->g.x, gw->g.y, gw->g.width, gw->g.height, gsw->c.color_edge);
-		gdispDrawLine(gw->g.x+gsw->dpos, gw->g.y, gw->g.x+gsw->dpos, gw->g.y+gw->g.height-1, gsw->c.color_thumb);
+			gdispFillArea(gw->g.x, gw->g.y, gsw->dpos, gw->g.height, pcol->progress);	// Active Area
+		gdispDrawBox(gw->g.x, gw->g.y, gw->g.width, gw->g.height, pcol->edge);								// Edge
+		gdispDrawLine(gw->g.x+gsw->dpos, gw->g.y, gw->g.x+gsw->dpos, gw->g.y+gw->g.height-1, pcol->edge);	// Thumb
 		if (gsw->dpos >= 2)
-			gdispDrawLine(gw->g.x+gsw->dpos-2, gw->g.y, gw->g.x+gsw->dpos-2, gw->g.y+gw->g.height-1, gsw->c.color_thumb);
+			gdispDrawLine(gw->g.x+gsw->dpos-2, gw->g.y, gw->g.x+gsw->dpos-2, gw->g.y+gw->g.height-1, pcol->edge);	// Thumb
 		if (gsw->dpos <= gw->g.width-2)
-			gdispDrawLine(gw->g.x+gsw->dpos+2, gw->g.y, gw->g.x+gsw->dpos+2, gw->g.y+gw->g.height-1, gsw->c.color_thumb);
+			gdispDrawLine(gw->g.x+gsw->dpos+2, gw->g.y, gw->g.x+gsw->dpos+2, gw->g.y+gw->g.height-1, pcol->edge);	// Thumb
 	}
-	gdispDrawStringBox(gw->g.x+1, gw->g.y+1, gw->g.width-2, gw->g.height-2, gw->txt, gw->g.font, gsw->c.color_txt, justifyCenter);
+	gdispDrawStringBox(gw->g.x+1, gw->g.y+1, gw->g.width-2, gw->g.height-2, gw->text, gw->g.font, pcol->text, justifyCenter);
 
 	#undef gsw
 }
 
 void gwinSliderDraw_Image(GWidgetObject *gw, void *param) {
-	#define gsw		((GSliderObject *)gw)
-	#define gi		((gdispImage *)param)
-	coord_t			z, v;
+	#define gsw			((GSliderObject *)gw)
+	#define gi			((gdispImage *)param)
+	const GColorSet *	pcol;
+	coord_t				z, v;
 
 	if (gw->g.vmt != (gwinVMT *)&sliderVMT)
 		return;
 
+	if ((gw->g.flags & GWIN_FLG_ENABLED))
+		pcol = &gw->pstyle->pressed;
+	else
+		pcol = &gw->pstyle->disabled;
+
 	if (gw->g.width < gw->g.height) {			// Vertical slider
 		if (gsw->dpos != 0)							// The unfilled area
-			gdispFillArea(gw->g.x, gw->g.y, gw->g.width, gsw->dpos, gsw->c.color_inactive);
+			gdispFillArea(gw->g.x, gw->g.y, gw->g.width, gsw->dpos, gw->pstyle->enabled.progress);	// Inactive area
 		if (gsw->dpos != gw->g.height-1) {			// The filled area
 			for(z=gw->g.height, v=gi->height; z > gsw->dpos;) {
 				z -= v;
@@ -349,13 +349,13 @@ void gwinSliderDraw_Image(GWidgetObject *gw, void *param) {
 				gdispImageDraw(gi, gw->g.x, gw->g.y+z, gw->g.width, v, 0, gi->height-v);
 			}
 		}
-		gdispDrawBox(gw->g.x, gw->g.y, gw->g.width, gw->g.height, gsw->c.color_edge);
-		gdispDrawLine(gw->g.x, gw->g.y+gsw->dpos, gw->g.x+gw->g.width-1, gw->g.y+gsw->dpos, gsw->c.color_thumb);
+		gdispDrawBox(gw->g.x, gw->g.y, gw->g.width, gw->g.height, pcol->edge);								// Edge
+		gdispDrawLine(gw->g.x, gw->g.y+gsw->dpos, gw->g.x+gw->g.width-1, gw->g.y+gsw->dpos, pcol->edge);	// Thumb
 
 	// Horizontal slider
 	} else {
 		if (gsw->dpos != gw->g.width-1)				// The unfilled area
-			gdispFillArea(gw->g.x+gsw->dpos, gw->g.y, gw->g.width-gsw->dpos, gw->g.height, gsw->c.color_inactive);
+			gdispFillArea(gw->g.x+gsw->dpos, gw->g.y, gw->g.width-gsw->dpos, gw->g.height, gw->pstyle->enabled.progress);	// Inactive area
 		if (gsw->dpos != 0) {						// The filled area
 			for(z=0, v=gi->width; z < gsw->dpos; z += v) {
 				if (z+v > gsw->dpos)
@@ -363,10 +363,10 @@ void gwinSliderDraw_Image(GWidgetObject *gw, void *param) {
 				gdispImageDraw(gi, gw->g.x+z, gw->g.y, v, gw->g.height, 0, 0);
 			}
 		}
-		gdispDrawBox(gw->g.x, gw->g.y, gw->g.width, gw->g.height, gsw->c.color_edge);
-		gdispDrawLine(gw->g.x+gsw->dpos, gw->g.y, gw->g.x+gsw->dpos, gw->g.y+gw->g.height-1, gsw->c.color_thumb);
+		gdispDrawBox(gw->g.x, gw->g.y, gw->g.width, gw->g.height, pcol->edge);								// Edge
+		gdispDrawLine(gw->g.x+gsw->dpos, gw->g.y, gw->g.x+gsw->dpos, gw->g.y+gw->g.height-1, pcol->edge);	// Thumb
 	}
-	gdispDrawStringBox(gw->g.x+1, gw->g.y+1, gw->g.width-2, gw->g.height-2, gw->txt, gw->g.font, gsw->c.color_txt, justifyCenter);
+	gdispDrawStringBox(gw->g.x+1, gw->g.y+1, gw->g.width-2, gw->g.height-2, gw->text, gw->g.font, pcol->text, justifyCenter);
 
 	#undef gsw
 }

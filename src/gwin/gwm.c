@@ -43,9 +43,48 @@ static const gwmVMT GNullWindowManagerVMT = {
 	WM_MinMax,
 };
 
-const GWindowManager	GNullWindowManager = {
+static const GWindowManager	GNullWindowManager = {
 	&GNullWindowManagerVMT,
 };
+
+gfxQueueASync			_GWINList;
+GWindowManager *		_GWINwm;
+
+/*-----------------------------------------------
+ * Window Routines
+ *-----------------------------------------------*/
+
+void _gwmInit(void) {
+	gfxQueueASyncInit(&_GWINList);
+	_GWINwm = (GWindowManager *)&GNullWindowManager;
+	_GWINwm->vmt->Init();
+}
+
+void gwinSetWindowManager(struct GWindowManager *gwm) {
+	if (!gwm)
+		gwm = (GWindowManager *)&GNullWindowManager;
+	if (_GWINwm != gwm) {
+		_GWINwm->vmt->DeInit();
+		_GWINwm = gwm;
+		_GWINwm->vmt->Init();
+	}
+}
+
+void gwinSetMinMax(GHandle gh, GWindowMinMax minmax) {
+	_GWINwm->vmt->MinMax(gh, minmax);
+}
+
+void gwinRaise(GHandle gh) {
+	_GWINwm->vmt->Raise(gh);
+}
+
+GWindowMinMax gwinGetMinMax(GHandle gh) {
+	if (gh->flags & GWIN_FLG_MINIMIZED)
+		return GWIN_MINIMIZE;
+	if (gh->flags & GWIN_FLG_MAXIMIZED)
+		return GWIN_MAXIMIZE;
+	return GWIN_NORMAL;
+}
 
 /*-----------------------------------------------
  * Window Manager Routines

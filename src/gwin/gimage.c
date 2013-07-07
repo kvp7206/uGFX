@@ -16,7 +16,7 @@
 
 #include "gwin/class_gwin.h"
 
-#define widget(gh)	((GImageWidget*)gh) 
+#define widget(gh)	((GImageObject *)gh)
 
 static void _destroy(GWindowObject *gh) {
 	if (gdispImageIsOpen(&widget(gh)->image))
@@ -80,14 +80,14 @@ static void _redraw(GHandle gh) {
 
 static const gwinVMT imageVMT = {
 	"Image",					// The class name
-	sizeof(GImageWidget),		// The object size
+	sizeof(GImageObject),		// The object size
 	_destroy,					// The destroy routine
 	_redraw,					// The redraw routine
 	0,							// The after-clear routine
 };
 
-GHandle gwinImageCreate(GImageWidget *gobj, GWindowInit *pInit) {
-	if (!(gobj = (GImageWidget *)_gwindowCreate(&gobj->g, pInit, &imageVMT, 0)))
+GHandle gwinImageCreate(GImageObject *gobj, GWindowInit *pInit) {
+	if (!(gobj = (GImageObject *)_gwindowCreate(&gobj->g, pInit, &imageVMT, 0)))
 		return 0;
 
 	// Ensure the gdispImageIsOpen() gives valid results

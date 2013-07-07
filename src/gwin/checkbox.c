@@ -24,13 +24,6 @@
 // Our checked state
 #define GCHECKBOX_FLG_CHECKED		(GWIN_FIRST_CONTROL_FLAG<<0)
 
-static const GCheckboxColors defaultColors = {
-	Black,	// border
-	Grey,	// selected
-	White,	// background
-	Black,	// text
-};
-
 // Send the checkbox event
 static void SendCheckboxEvent(GWidgetObject *gw) {
 	GSourceListener	*	psl;
@@ -115,70 +108,89 @@ static const gwidgetVMT checkboxVMT = {
 	#endif
 };
 
-GHandle gwinCreateCheckbox(GCheckboxObject *gb, const GWidgetInit *pInit) {
+GHandle gwinCheckboxCreate(GCheckboxObject *gb, const GWidgetInit *pInit) {
 	if (!(gb = (GCheckboxObject *)_gwidgetCreate(&gb->w, pInit, &checkboxVMT)))
 		return 0;
 
 	#if GINPUT_NEED_TOGGLE
 		gb->toggle = GWIDGET_NO_INSTANCE;
 	#endif
-	gb->c = defaultColors;			// assign the default colors
 	gwinSetVisible((GHandle)gb, pInit->g.show);
 	return (GHandle)gb;
 }
 
-bool_t gwinIsCheckboxChecked(GHandle gh) {
+void gwinCheckboxCheck(GHandle gh, bool_t isChecked) {
+	if (gh->vmt != (gwinVMT *)&checkboxVMT)
+		return;
+
+	if (isChecked) {
+		if ((gh->flags & GCHECKBOX_FLG_CHECKED)) return;
+		gh->flags |= GCHECKBOX_FLG_CHECKED;
+	} else {
+		if (!(gh->flags & GCHECKBOX_FLG_CHECKED)) return;
+		gh->flags &= ~GCHECKBOX_FLG_CHECKED;
+	}
+	_gwidgetRedraw(gh);
+	SendCheckboxEvent((GWidgetObject *)gh);
+}
+
+bool_t gwinCheckboxIsChecked(GHandle gh) {
 	if (gh->vmt != (gwinVMT *)&checkboxVMT)
 		return FALSE;
 
 	return (gh->flags & GCHECKBOX_FLG_CHECKED) ? TRUE : FALSE;
 }
 
-void gwinCheckboxSetColors(GHandle gh, GCheckboxColors *pColors) {
-	if (gh->vmt != (gwinVMT *)&checkboxVMT)
-		return;
+/*----------------------------------------------------------
+ * Custom Draw Routines
+ *----------------------------------------------------------*/
 
-	((GCheckboxObject *)gh)->c = *pColors;
+static const GColorSet *getDrawColors(GWidgetObject *gw) {
+	if (!(gw->g.flags & GWIN_FLG_ENABLED))		return &gw->pstyle->disabled;
+	if ((gw->g.flags & GCHECKBOX_FLG_CHECKED))	return &gw->pstyle->pressed;
+	return &gw->pstyle->enabled;
 }
 
 void gwinCheckboxDraw_CheckOnLeft(GWidgetObject *gw, void *param) {
-	#define gcw		((GCheckboxObject *)gw)
-	coord_t	ld, df;
-	(void) param;
+	#define gcw			((GCheckboxObject *)gw)
+	coord_t				ld, df;
+	const GColorSet *	pcol;
+	(void)				param;
 
-	if (gw->g.vmt != (gwinVMT *)&checkboxVMT)
-		return;
+	if (gw->g.vmt != (gwinVMT *)&checkboxVMT) return;
+	pcol = getDrawColors(gw);
 
 	ld = gw->g.width < gw->g.height ? gw->g.width : gw->g.height;
-	gdispFillArea(gw->g.x+1, gw->g.y+1, ld, ld-2, gcw->c.color_bg);
-	gdispDrawBox(gw->g.x, gw->g.y, ld, ld, gcw->c.color_border);
+	gdispFillArea(gw->g.x+1, gw->g.y+1, ld, ld-2, gw->pstyle->background);
+	gdispDrawBox(gw->g.x, gw->g.y, ld, ld, pcol->edge);
 
 	df = ld < 4 ? 1 : 2;
 	if (gw->g.flags & GCHECKBOX_FLG_CHECKED)
-		gdispFillArea(gw->g.x+df, gw->g.y+df, ld-2*df, ld-2*df, gcw->c.color_checked);
+		gdispFillArea(gw->g.x+df, gw->g.y+df, ld-2*df, ld-2*df, pcol->fill);
 
-	gdispFillStringBox(gw->g.x+ld+1, gw->g.y, gw->g.width-ld-1, gw->g.height, gw->txt, gw->g.font, gcw->c.color_txt, gcw->c.color_bg, justifyLeft);
+	gdispFillStringBox(gw->g.x+ld+1, gw->g.y, gw->g.width-ld-1, gw->g.height, gw->text, gw->g.font, pcol->text, gw->pstyle->background, justifyLeft);
 	#undef gcw
 }
 
 void gwinCheckboxDraw_CheckOnRight(GWidgetObject *gw, void *param) {
-	#define gcw		((GCheckboxObject *)gw)
-	coord_t	ep, ld, df;
-	(void) param;
+	#define gcw			((GCheckboxObject *)gw)
+	coord_t				ep, ld, df;
+	const GColorSet *	pcol;
+	(void)				param;
 
-	if (gw->g.vmt != (gwinVMT *)&checkboxVMT)
-		return;
+	if (gw->g.vmt != (gwinVMT *)&checkboxVMT) return;
+	pcol = getDrawColors(gw);
 
 	ld = gw->g.width < gw->g.height ? gw->g.width : gw->g.height;
 	ep = gw->g.width-ld-1;
-	gdispFillArea(gw->g.x+ep-1, gw->g.y+1, ld, ld-2, gcw->c.color_bg);
-	gdispDrawBox(gw->g.x+ep, gw->g.y, ld, ld, gcw->c.color_border);
+	gdispFillArea(gw->g.x+ep-1, gw->g.y+1, ld, ld-2, gw->pstyle->background);
+	gdispDrawBox(gw->g.x+ep, gw->g.y, ld, ld, pcol->edge);
 
 	df = ld < 4 ? 1 : 2;
 	if (gw->g.flags & GCHECKBOX_FLG_CHECKED)
-		gdispFillArea(gw->g.x+ep+df, gw->g.y+df, ld-2*df, ld-2*df, gcw->c.color_checked);
+		gdispFillArea(gw->g.x+ep+df, gw->g.y+df, ld-2*df, ld-2*df, pcol->fill);
 
-	gdispFillStringBox(gw->g.x, gw->g.y, ep, gw->g.height, gw->txt, gw->g.font, gcw->c.color_txt, gcw->c.color_bg, justifyRight);
+	gdispFillStringBox(gw->g.x, gw->g.y, ep, gw->g.height, gw->text, gw->g.font, pcol->text, gw->pstyle->background, justifyRight);
 	#undef gcw
 }
 

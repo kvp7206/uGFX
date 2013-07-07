@@ -24,25 +24,8 @@
 // Our pressed state
 #define GRADIO_FLG_PRESSED		(GWIN_FIRST_CONTROL_FLAG<<0)
 
-// Default color scheme
-static const GRadioColors GRadioDefaultColorsUp = {
-	HTML2COLOR(0x404040),		// color_up_edge;
-	HTML2COLOR(0xE0E0E0),		// color_up_fill;
-	HTML2COLOR(0x000000),		// color_up_txt;
-};
-static const GRadioColors GRadioDefaultColorsDown = {
-	HTML2COLOR(0x404040),		// color_dn_edge;
-	HTML2COLOR(0x808080),		// color_dn_fill;
-	HTML2COLOR(0x404040),		// color_dn_txt;
-};
-static const GRadioColors GRadioDefaultColorsDisabled = {
-	HTML2COLOR(0x808080),		// color_dis_edge;
-	HTML2COLOR(0xE0E0E0),		// color_dis_fill;
-	HTML2COLOR(0xC0C0C0),		// color_dis_txt;
-};
-
 // Send the button event
-static void SendButtonEvent(GWidgetObject *gw) {
+static void SendRadioEvent(GWidgetObject *gw) {
 	GSourceListener	*	psl;
 	GEvent *			pe;
 	#define pbe			((GEventGWinRadio *)pe)
@@ -66,7 +49,7 @@ static void SendButtonEvent(GWidgetObject *gw) {
 	static void MouseDown(GWidgetObject *gw, coord_t x, coord_t y) {
 		(void) x; (void) y;
 
-		gwinPressRadio((GHandle)gw);
+		gwinRadioPress((GHandle)gw);
 	}
 #endif
 
@@ -75,7 +58,7 @@ static void SendButtonEvent(GWidgetObject *gw) {
 	static void ToggleOn(GWidgetObject *gw, uint16_t role) {
 		(void) role;
 
-		gwinPressRadio((GHandle)gw);
+		gwinRadioPress((GHandle)gw);
 	}
 
 	static void ToggleAssign(GWidgetObject *gw, uint16_t role, uint16_t instance) {
@@ -125,7 +108,7 @@ static const gwidgetVMT radioVMT = {
 	#endif
 };
 
-GHandle gwinCreateRadio(GRadioObject *gw, const GWidgetInit *pInit, uint16_t group) {
+GHandle gwinRadioCreate(GRadioObject *gw, const GWidgetInit *pInit, uint16_t group) {
 	if (!(gw = (GRadioObject *)_gwidgetCreate(&gw->w, pInit, &radioVMT)))
 		return 0;
 
@@ -133,53 +116,33 @@ GHandle gwinCreateRadio(GRadioObject *gw, const GWidgetInit *pInit, uint16_t gro
 		gw->toggle = GWIDGET_NO_INSTANCE;
 	#endif
 	gw->group = group;
-	gw->c_up = GRadioDefaultColorsUp;
-	gw->c_dn = GRadioDefaultColorsDown;
-	gw->c_dis = GRadioDefaultColorsDisabled;
 	gwinSetVisible((GHandle)gw, pInit->g.show);
 	return (GHandle)gw;
 }
 
-void gwinSetRadioColors(GHandle gh, const GRadioColors *pUp, const GRadioColors *pDown, const GRadioColors *pDisabled) {
-	if (gh->vmt != (gwinVMT *)&radioVMT)
-		return;
-
-	if (pUp)		((GRadioObject *)gh)->c_up = *pUp;
-	if (pDown)		((GRadioObject *)gh)->c_dn = *pDown;
-	if (pDisabled)	((GRadioObject *)gh)->c_dis = *pDisabled;
-}
-
-void gwinPressRadio(GHandle gh) {
+void gwinRadioPress(GHandle gh) {
 	GHandle		gx;
 
 	if (gh->vmt != (gwinVMT *)&radioVMT || (gh->flags & GRADIO_FLG_PRESSED))
 		return;
 
-	if ((gx = gwinActiveRadio(((GRadioObject *)gh)->group))) {
+	if ((gx = gwinRadioGetActive(((GRadioObject *)gh)->group))) {
 		gx->flags &= ~GRADIO_FLG_PRESSED;
 		_gwidgetRedraw(gx);
 	}
 	gh->flags |= GRADIO_FLG_PRESSED;
 	_gwidgetRedraw(gh);
-	SendButtonEvent((GWidgetObject *)gh);
+	SendRadioEvent((GWidgetObject *)gh);
 }
 
-bool_t gwinIsRadioPressed(GHandle gh) {
+bool_t gwinRadioIsPressed(GHandle gh) {
 	if (gh->vmt != (gwinVMT *)&radioVMT)
 		return FALSE;
 
 	return (gh->flags & GRADIO_FLG_PRESSED) ? TRUE : FALSE;
 }
 
-/**
- * @brief	Find the currently pressed radio button in the specified group
- * @return	The handle of the pressed radio button or NULL if none are pressed
- *
- * @param[in] gh	The window handle (must be a radio widget)
- *
- * @api
- */
-GHandle gwinActiveRadio(uint16_t group) {
+GHandle gwinRadioGetActive(uint16_t group) {
 	const gfxQueueASyncItem *	qi;
 	GHandle						gh;
 
@@ -195,17 +158,17 @@ GHandle gwinActiveRadio(uint16_t group) {
  * Custom Draw Routines
  *----------------------------------------------------------*/
 
-static GRadioColors *getDrawColors(GWidgetObject *gw) {
-	if (!(gw->g.flags & GWIN_FLG_ENABLED))		return &((GRadioObject *)gw)->c_dis;
-	if ((gw->g.flags & GRADIO_FLG_PRESSED))		return &((GRadioObject *)gw)->c_dn;
-	return &((GRadioObject *)gw)->c_up;
+static const GColorSet *getDrawColors(GWidgetObject *gw) {
+	if (!(gw->g.flags & GWIN_FLG_ENABLED))	return &gw->pstyle->disabled;
+	if ((gw->g.flags & GRADIO_FLG_PRESSED))	return &gw->pstyle->pressed;
+	return &gw->pstyle->enabled;
 }
 
 void gwinRadioDraw_Radio(GWidgetObject *gw, void *param) {
-	#define gcw		((GRadioObject *)gw)
-	coord_t			ld, df;
-	GRadioColors *	pcol;
-	(void) param;
+	#define gcw			((GRadioObject *)gw)
+	coord_t				ld, df;
+	const GColorSet *	pcol;
+	(void)				param;
 
 	if (gw->g.vmt != (gwinVMT *)&radioVMT) return;
 	pcol = getDrawColors(gw);
@@ -213,46 +176,52 @@ void gwinRadioDraw_Radio(GWidgetObject *gw, void *param) {
 	ld = gw->g.width < gw->g.height ? gw->g.width : gw->g.height;
 
 	#if GDISP_NEED_CIRCLE
-		df = ld/2;
-		gdispFillArea(gw->g.x, gw->g.y, ld, ld, gw->g.bgcolor);
-		gdispDrawCircle(gw->g.x+df, gw->g.y+df, df, pcol->color_edge);
+		df = (ld-1)/2;
+		gdispFillArea(gw->g.x, gw->g.y, ld, ld, gw->pstyle->background);
+		gdispDrawCircle(gw->g.x+df, gw->g.y+df, df, pcol->edge);
 
 		if (gw->g.flags & GRADIO_FLG_PRESSED)
-			gdispFillCircle(gw->g.x+df, gw->g.y+df, df <= 2 ? 1 : (df-2), pcol->color_fill);
+			gdispFillCircle(gw->g.x+df, gw->g.y+df, df <= 2 ? 1 : (df-2), pcol->fill);
 	#else
-		gdispFillArea(gw->g.x+1, gw->g.y+1, ld, ld-2, gw->g.bgcolor);
-		gdispDrawBox(gw->g.x, gw->g.y, ld, ld, pcol->color_edge);
+		gdispFillArea(gw->g.x+1, gw->g.y+1, ld, ld-2, gw->pstyle->background);
+		gdispDrawBox(gw->g.x, gw->g.y, ld, ld, pcol->edge);
 
 		df = ld < 4 ? 1 : 2;
 		if (gw->g.flags & GRADIO_FLG_PRESSED)
-			gdispFillArea(gw->g.x+df, gw->g.y+df, ld-2*df, ld-2*df, pcol->color_fill);
+			gdispFillArea(gw->g.x+df, gw->g.y+df, ld-2*df, ld-2*df, pcol->fill);
 	#endif
 
-	gdispFillStringBox(gw->g.x+ld+1, gw->g.y, gw->g.width-ld-1, gw->g.height, gw->txt, gw->g.font, pcol->color_txt, gw->g.bgcolor, justifyLeft);
+	gdispFillStringBox(gw->g.x+ld+1, gw->g.y, gw->g.width-ld-1, gw->g.height, gw->text, gw->g.font, pcol->text, gw->pstyle->background, justifyLeft);
 	#undef gcw
 }
 
 void gwinRadioDraw_Button(GWidgetObject *gw, void *param) {
-	(void)			param;
-	GRadioColors *	pcol;
+	const GColorSet *	pcol;
+	(void)				param;
 
 	if (gw->g.vmt != (gwinVMT *)&radioVMT) return;
 	pcol = getDrawColors(gw);
 	
-	gdispFillStringBox(gw->g.x, gw->g.y, gw->g.width-1, gw->g.height-1, gw->txt, gw->g.font, pcol->color_txt, pcol->color_fill, justifyCenter);
-	gdispDrawLine(gw->g.x+gw->g.width-1, gw->g.y, gw->g.x+gw->g.width-1, gw->g.y+gw->g.height-1, pcol->color_edge);
-	gdispDrawLine(gw->g.x, gw->g.y+gw->g.height-1, gw->g.x+gw->g.width-2, gw->g.y+gw->g.height-1, pcol->color_edge);
+	gdispFillStringBox(gw->g.x, gw->g.y, gw->g.width-1, gw->g.height-1, gw->text, gw->g.font, pcol->text, pcol->fill, justifyCenter);
+	gdispDrawLine(gw->g.x+gw->g.width-1, gw->g.y, gw->g.x+gw->g.width-1, gw->g.y+gw->g.height-1, pcol->edge);
+	gdispDrawLine(gw->g.x, gw->g.y+gw->g.height-1, gw->g.x+gw->g.width-2, gw->g.y+gw->g.height-1, pcol->edge);
 }
 
 void gwinRadioDraw_Tab(GWidgetObject *gw, void *param) {
-	(void)			param;
-	GRadioColors *	pcol;
+	const GColorSet *	pcol;
+	(void)				param;
 
 	if (gw->g.vmt != (gwinVMT *)&radioVMT)	return;
 	pcol = getDrawColors(gw);
 	
-	gdispFillStringBox(gw->g.x+1, gw->g.y+1, gw->g.width-2, gw->g.height-2, gw->txt, gw->g.font, pcol->color_txt, pcol->color_fill, justifyCenter);
-	gdispDrawBox(gw->g.x, gw->g.y, gw->g.width, gw->g.height, pcol->color_edge);
+	if ((gw->g.flags & GRADIO_FLG_PRESSED)) {
+		gdispDrawBox(gw->g.x, gw->g.y, gw->g.width, gw->g.height, pcol->edge);
+		gdispFillStringBox(gw->g.x+1, gw->g.y+1, gw->g.width-2, gw->g.height-1, gw->text, gw->g.font, pcol->text, pcol->fill, justifyCenter);
+	} else {
+		gdispFillStringBox(gw->g.x, gw->g.y, gw->g.width-1, gw->g.height-1, gw->text, gw->g.font, pcol->text, pcol->fill, justifyCenter);
+		gdispDrawLine(gw->g.x+gw->g.width-1, gw->g.y, gw->g.x+gw->g.width-1, gw->g.y+gw->g.height-1, pcol->edge);
+		gdispDrawLine(gw->g.x, gw->g.y+gw->g.height-1, gw->g.x+gw->g.width-2, gw->g.y+gw->g.height-1, pcol->edge);
+	}
 }
 
 #endif /* GFX_USE_GWIN && GWIN_NEED_BUTTON */

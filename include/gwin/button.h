@@ -41,26 +41,14 @@ typedef struct GEventGWinButton {
 } GEventGWinButton;
 
 /**
- * @brief	Button colors
- */
-typedef struct GButtonColors {
-	color_t				color_edge;
-	color_t				color_fill;
-	color_t				color_txt;
-} GButtonColors;
-
-/**
  * @brief	The button widget structure
  * @note	Do not use the members directly - treat it as a black-box.
  */
-typedef struct GButtonObject_t {
+typedef struct GButtonObject {
 	GWidgetObject		w;
 	#if GINPUT_NEED_TOGGLE
-		uint16_t			toggle;
+		uint16_t		toggle;
 	#endif
-	GButtonColors		c_up;
-	GButtonColors		c_dn;
-	GButtonColors		c_dis;
 } GButtonObject;
 
 #ifdef __cplusplus
@@ -86,26 +74,7 @@ extern "C" {
  *
  * @api
  */	
-GHandle gwinCreateButton(GButtonObject *gb, const GWidgetInit *pInit);
-
-/**
- * @brief   Set the colors of a button.
- *
- * @param[in] gh		The window handle (must be a button widget)
- * @param[in] pUp		The colors for the button when in the up state.
- * @param[in] pDown		The colors for the button when in the down state.
- * @param[in] pDisabled	The colors for the button when it is disabled.
- *
- * @note				The button is not automatically redrawn. Call gwinButtonDraw() after changing the button style
- * @note				The button style is copied into the internal button structure - there is no need to
- * 						maintain static style structures (they can be temporary structures on the stack).
- * @note				The pUp, pDown and pDisabled parameters can be NULL. If they are then the existing color styles
- * 						are not changed for that button state.
- * @note				Some custom drawn buttons will ignore he specified colors
- *
- * @api
- */
-void gwinSetButtonColors(GHandle gh, const GButtonColors *pUp, const GButtonColors *pDown, const GButtonColors *pDisabled);
+GHandle gwinButtonCreate(GButtonObject *gb, const GWidgetInit *pInit);
 
 /**
  * @brief	Is the button current pressed
@@ -115,7 +84,7 @@ void gwinSetButtonColors(GHandle gh, const GButtonColors *pUp, const GButtonColo
  *
  * @api
  */
-bool_t gwinIsButtonPressed(GHandle gh);
+bool_t gwinButtonIsPressed(GHandle gh);
 
 /**
  * @brief	Some custom button drawing routines
@@ -141,7 +110,6 @@ bool_t gwinIsButtonPressed(GHandle gh);
  * @{
  */
 void gwinButtonDraw_3D(GWidgetObject *gw, void *param);					// @< A standard 3D button
-void gwinButtonDraw_Box(GWidgetObject *gw, void *param);				// @< A very simple box style button
 #if GDISP_NEED_ARC || defined(__DOXYGEN__)
 	void gwinButtonDraw_Rounded(GWidgetObject *gw, void *param);		// @< A rounded rectangle button
 #endif

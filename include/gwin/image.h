@@ -30,10 +30,10 @@
 // This file is included within "gwin/gwin.h"
 
 // An image window
-typedef struct GImageWidget_t {
+typedef struct GImageObject {
 	GWindowObject	g;
 	gdispImage		image;
-} GImageWidget;
+} GImageObject;
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,7 +41,7 @@ extern "C" {
 
 /**
  * @brief				Create an image widget.
- * @details				A console widget allows to display a picture.
+ * @details				Display's a picture.
  * @return				NULL if there is no resultant drawing area, otherwise the widget handle.
  *
  * @param[in] widget	The image widget structure to initialise. If this is NULL, the structure is dynamically allocated.
@@ -52,10 +52,10 @@ extern "C" {
  *
  * @api
  */
-GHandle gwinImageCreate(GImageWidget *widget, GWindowInit *pInit);
+GHandle gwinImageCreate(GImageObject *widget, GWindowInit *pInit);
 
 /**
- * @brief				Sets the sets the io fields in the image structure to routines that support reading from an image stored
+ * @brief				Sets the input routines that support reading the image from memory
  *						in RAM or flash.
  * @return				TRUE if the IO open function succeeds
  *
@@ -68,8 +68,7 @@ bool_t gwinImageOpenMemory(GHandle gh, const void* memory);
 
 #if defined(WIN32) || GFX_USE_OS_WIN32 || GFX_USE_OS_POSIX || defined(__DOXYGEN__)
 	/**
-	 * @brief				Sets the sets the io fields in the image structure to routines that support reading from an image stored
-	 *						in a simulators native file system.
+	 * @brief				Sets the input routines that support reading the image from a file
 	 * @return				TRUE if the IO open function succeeds
 	 *
 	 * @param[in] gh		The widget (must be an image widget)
@@ -82,8 +81,7 @@ bool_t gwinImageOpenMemory(GHandle gh, const void* memory);
 
 #if GFX_USE_OS_CHIBIOS || defined(__DOXYGEN__)
 	/**
-	 * @brief				Sets the sets the io fields in the image structure to routines that support reading from an image stored
-	 *						on a BaseFileStream (eg. an SD-Card).
+	 * @brief				Sets the input routines that support reading the image from a BaseFileStream (eg. an SD-Card).
 	 * @return				TRUE if the IO open function succeeds
 	 *
 	 * @param[in] gh		The widget (must be an image widget)
