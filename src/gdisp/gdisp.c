@@ -135,6 +135,10 @@
 		gdisp_lld_init();
 		gfxMutexExit(&gdispMutex);
 	}
+#else
+	void _gdispInit(void) {
+		gdisp_lld_init();
+	}
 #endif
 
 #if GDISP_NEED_MULTITHREAD

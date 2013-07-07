@@ -572,7 +572,6 @@ extern "C" {
 	#include "gdisp/lld/gdisp_lld.h"
 
 	/* The same as above but use the low level driver directly if no multi-thread support is needed */
-	#define _gdispInit(gdisp)									gdisp_lld_init()
 	#define gdispIsBusy()										FALSE
 	#define gdispClear(color)									gdisp_lld_clear(color)
 	#define gdispDrawPixel(x, y, color)							gdisp_lld_draw_pixel(x, y, color)
