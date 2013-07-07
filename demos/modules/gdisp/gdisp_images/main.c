@@ -30,7 +30,7 @@
 #include "gfx.h"
 
 #ifdef WIN32
-	#define USE_MEMORY_FILE		FALSE				// Can be true or false for Win32
+	#define USE_MEMORY_FILE		TRUE				// Can be true or false for Win32
 #else
 	#define USE_MEMORY_FILE		TRUE				// Non-Win32 - use the compiled in image
 #endif
