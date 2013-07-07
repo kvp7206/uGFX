@@ -28,6 +28,9 @@
 
 #include "gfx.h"
 
+// include our chibios logo in a .gif format
+#include "image_chibios.h"
+
 /**
  * This demo demonstrates many of the GWIN widgets.
  * On the "Radio" tab try playing with the color radio buttons.
@@ -73,11 +76,11 @@ static GHandle		ghCheckbox1, ghCheckbox2, ghCheckDisableAll;
 static GHandle		ghLabel1;
 static GHandle		ghRadio1, ghRadio2;
 static GHandle		ghRadioBlack, ghRadioWhite, ghRadioYellow;
-//static GHandle	ghImage1;
+static GHandle		ghImage1;
 
 /* Some useful macros */
-#define	ScrWidth		gdispGetWidth()
-#define	ScrHeight		gdispGetHeight()
+#define	ScrWidth			gdispGetWidth()
+#define	ScrHeight			gdispGetHeight()
 
 #define TAB_HEIGHT			30
 #define LABEL_HEIGHT		40
@@ -153,6 +156,12 @@ static void createWidgets(void) {
 	wi.g.x = 2*wi.g.width; wi.text = "Yellow";	ghRadioYellow	= gwinRadioCreate(NULL, &wi, GROUP_COLORS);
 	gwinRadioPress(ghRadioWhite);
 
+	// Image
+	wi.g.x = ScrWidth-210; wi.g.y = TAB_HEIGHT + 10; wi.g.width = 200; wi.g.height = 200;
+	ghImage1 = gwinImageCreate(NULL, &wi.g);
+	gwinImageOpenMemory(ghImage1, image_chibios);
+	gwinImageCache(ghImage1);
+
 	// Console - we apply some special colors before making it visible
 	wi.g.width = ScrWidth/2-1; wi.g.height = ScrHeight/2-1;
 	wi.g.x = ScrWidth/2+1; wi.g.y = ScrHeight/2+1;
@@ -174,7 +183,7 @@ static void setTab(GHandle tab) {
 	gwinSetVisible(ghLabel1, FALSE);
 	gwinSetVisible(ghRadio1, FALSE);	gwinSetVisible(ghRadio2, FALSE);
 	gwinSetVisible(ghRadioWhite, FALSE);gwinSetVisible(ghRadioBlack, FALSE);gwinSetVisible(ghRadioYellow, FALSE);
-	//gwinSetVisible(ghImage1, FALSE);
+	gwinSetVisible(ghImage1, FALSE);
 
 	/* Turn on widgets depending on the tab selected */
 	if (tab == ghTabButtons) {
@@ -191,7 +200,7 @@ static void setTab(GHandle tab) {
 		gwinSetVisible(ghRadio1, TRUE);		gwinSetVisible(ghRadio2, TRUE);
 		gwinSetVisible(ghRadioWhite, TRUE);	gwinSetVisible(ghRadioBlack, TRUE);	gwinSetVisible(ghRadioYellow, TRUE);
 	} else if (tab == ghTabImages) {
-		//gwinSetVisible(ghImage1, TRUE);
+		gwinSetVisible(ghImage1, TRUE);
 	}
 }
 
@@ -207,7 +216,7 @@ static void setEnabled(bool_t ena) {
 	gwinSetEnabled(ghLabel1, ena);
 	gwinSetEnabled(ghRadio1, ena);		gwinSetEnabled(ghRadio2, ena);
 	gwinSetEnabled(ghRadioWhite, ena);	gwinSetEnabled(ghRadioBlack, ena);	gwinSetEnabled(ghRadioYellow, ena);
-	//gwinSetEnabled(ghImage1, ena);
+	gwinSetEnabled(ghImage1, ena);
 }
 
 int main(void) {
