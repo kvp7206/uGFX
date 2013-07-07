@@ -40,8 +40,14 @@ int main(void) {
     gdispClear(Lime);
 
     /* Create two windows */
-    GW1 = gwinCreateWindow(NULL, 20, 10, 200, 150);
-    GW2 = gwinCreateWindow(NULL, 50, 190, 150, 100);
+    {
+    	GWindowInit	wi;
+
+    	wi.show = TRUE; wi.x = 20; wi.y = 10; wi.width = 200; wi.height = 150;
+        GW1 = gwinWindowCreate(NULL, &wi);
+    	wi.show = TRUE; wi.x = 50; wi.y = 190; wi.width = 150; wi.height = 100;
+        GW2 = gwinWindowCreate(NULL, &wi);
+    }
 
     /* Set fore- and background colors for both windows */
     gwinSetColor(GW1, Black);
@@ -53,9 +59,9 @@ int main(void) {
     gwinClear(GW1);
     gwinClear(GW2);
 
-    gwinDrawLine (GW1, 5, 30, 150, 110);
+    gwinDrawLine(GW1, 5, 30, 150, 110);
     for(i=5, j=0; i < 200 && j < 150; i+=3, j+=i/20)
-        	gwinDrawPixel (GW1, i, j);
+        	gwinDrawPixel(GW1, i, j);
 
     /*  
      * Draw two filled circles at the same coordinate
