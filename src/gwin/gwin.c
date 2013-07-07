@@ -210,7 +210,7 @@ void gwinSetEnabled(GHandle gh, bool_t enabled) {
 	if (enabled) {
 		if (!(gh->flags & GWIN_FLG_ENABLED)) {
 			gh->flags |= GWIN_FLG_ENABLED;
-			if (gh->vmt->Redraw) {
+			if ((gh->flags & GWIN_FLG_VISIBLE) && gh->vmt->Redraw) {
 				#if GDISP_NEED_CLIP
 					gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 				#endif
@@ -220,7 +220,7 @@ void gwinSetEnabled(GHandle gh, bool_t enabled) {
 	} else {
 		if ((gh->flags & GWIN_FLG_ENABLED)) {
 			gh->flags &= ~GWIN_FLG_ENABLED;
-			if (gh->vmt->Redraw) {
+			if ((gh->flags & GWIN_FLG_VISIBLE) && gh->vmt->Redraw) {
 				#if GDISP_NEED_CLIP
 					gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 				#endif
