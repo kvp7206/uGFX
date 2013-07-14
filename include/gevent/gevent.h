@@ -48,7 +48,7 @@ typedef uint16_t						GEventType;
 typedef union GEvent_u {
 	GEventType			type;								// The type of this event
 	char				pad[GEVENT_MAXIMUM_SIZE];			// This is here to allow static initialisation of GEventObject's in the application.
-	} GEvent;
+} GEvent;
 
 // A special callback function
 typedef void (*GEventCallbackFn)(void *param, GEvent *pe);

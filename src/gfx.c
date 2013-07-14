@@ -19,7 +19,7 @@ void DEPRECATED("Use gfxInit() instead") gdispInit() { gfxInit(); }
 
 /* These init functions are defined by each module but not published */
 extern void _gosInit(void);
-#if GFX_USE_GDISP && (GDISP_NEED_MULTITHREAD || GDISP_NEED_ASYNC)
+#if GFX_USE_GDISP
 	extern void _gdispInit(void);
 #endif
 #if GFX_USE_TDISP

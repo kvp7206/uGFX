@@ -9,6 +9,9 @@
  * @file    src/gqueue/gqueue.c
  * @brief   GQUEUE source file.
  */
+
+#include "gfx.h"
+
 #if GFX_USE_GQUEUE
 
 #if GQUEUE_NEED_ASYNC
@@ -22,7 +25,8 @@
 		gfxSystemLock();
 		if ((pi = pqueue->head))
 			pqueue->head = pi->next;
-		gfxSytemUnlock();
+		pi->next = 0;
+		gfxSystemUnlock();
 		return pi;
 	}
 	void gfxQueueASyncPut(gfxQueueASync *pqueue, gfxQueueASyncItem *pitem) {
@@ -46,17 +50,21 @@
 		gfxSystemUnlock();
 	}
 	void gfxQueueASyncRemove(gfxQueueASync *pqueue, gfxQueueASyncItem *pitem) {
+		gfxQueueASyncItem *pi;
+
 		if (!pitem) return;
 		gfxSystemLock();
 		if (pqueue->head) {
 			if (pqueue->head == pitem) {
 				pqueue->head = pitem->next;
+				pitem->next = 0;
 			} else {
-				for(gfxQueueASyncItem *pi = pqueue->head; pi->next; pi = pi->next) {
+				for(pi = pqueue->head; pi->next; pi = pi->next) {
 					if (pi->next == pitem) {
 						pi->next = pitem->next;
 						if (pqueue->tail == pitem)
 							pqueue->tail = pi;
+						pitem->next = 0;
 						break;
 					}
 				}
@@ -68,8 +76,10 @@
 		return pqueue->head == NULL;
 	}
 	bool_t gfxQueueASyncIsIn(gfxQueueASync *pqueue, gfxQueueASyncItem *pitem) {
+		gfxQueueASyncItem *pi;
+
 		gfxSystemLock();
-		for(gfxQueueASyncItem *pi = pqueue->head; pi; pi = pi->next) {
+		for(pi = pqueue->head; pi; pi = pi->next) {
 			if (pi == pitem) {
 				gfxSystemUnlock();
 				return TRUE;
@@ -92,6 +102,7 @@
 		gfxSystemLock();
 		pi = pqueue->head;
 		pqueue->head = pi->next;
+		pi->next = 0;
 		gfxSytemUnlock();
 		return pi;
 	}
@@ -120,17 +131,21 @@
 		gfxSemSignal(&pqueue->sem);
 	}
 	void gfxQueueGSyncRemove(gfxQueueGSync *pqueue, gfxQueueGSyncItem *pitem) {
+		gfxQueueGSyncItem *pi;
+
 		if (!pitem) return;
 		gfxSystemLock();
 		if (pqueue->head) {
 			if (pqueue->head == pitem) {
 				pqueue->head = pitem->next;
+				pitem->next = 0;
 			} else {
-				for(gfxQueueGSyncItem *pi = pqueue->head; pi->next; pi = pi->next) {
+				for(pi = pqueue->head; pi->next; pi = pi->next) {
 					if (pi->next == pitem) {
 						pi->next = pitem->next;
 						if (pqueue->tail == pitem)
 							pqueue->tail = pi;
+						pitem->next = 0;
 						break;
 					}
 				}
@@ -142,8 +157,10 @@
 		return pqueue->head == NULL;
 	}
 	bool_t gfxQueueGSyncIsIn(gfxQueueGSync *pqueue, gfxQueueGSyncItem *pitem) {
+		gfxQueueGSyncItem *pi;
+
 		gfxSystemLock();
-		for(gfxQueueGSyncItem *pi = pqueue->head; pi; pi = pi->next) {
+		for(pi = pqueue->head; pi; pi = pi->next) {
 			if (pi == pitem) {
 				gfxSystemUnlock();
 				return TRUE;
@@ -166,6 +183,7 @@
 		gfxSystemLock();
 		pi = pqueue->head;
 		pqueue->head = pi->next;
+		pi->next = 0;
 		gfxSytemUnlock();
 
 		gfxSemSignalI(&pi->sem);
@@ -202,18 +220,21 @@
 		return gfxSemWait(&pitem->sem, ms);
 	}
 	void gfxQueueFSyncRemove(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem) {
+		gfxQueueFSyncItem *pi;
+
 		if (!pitem) return;
 		gfxSystemLock();
 		if (pqueue->head) {
 			if (pqueue->head == pitem) {
 				pqueue->head = pitem->next;
 			found:
+				pitem->next = 0;
 				gfxSystemUnlock();
 				gfxSemSignal(&pitem->sem);
 				gfxSemDestroy(&pitem->sem);
 				return;
 			}
-			for(gfxQueueFSyncItem *pi = pqueue->head; pi->next; pi = pi->next) {
+			for(pi = pqueue->head; pi->next; pi = pi->next) {
 				if (pi->next == pitem) {
 					pi->next = pitem->next;
 					if (pqueue->tail == pitem)
@@ -228,8 +249,10 @@
 		return pqueue->head == NULL;
 	}
 	bool_t gfxQueueFSyncIsIn(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem) {
+		gfxQueueASyncItem *pi;
+
 		gfxSystemLock();
-		for(gfxQueueFSyncItem *pi = pqueue->head; pi; pi = pi->next) {
+		for(pi = pqueue->head; pi; pi = pi->next) {
 			if (pi == pitem) {
 				gfxSystemUnlock();
 				return TRUE;

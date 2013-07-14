@@ -8,20 +8,15 @@
 /**
  * @file    src/gwin/console.c
  * @brief   GWIN sub-system console code.
- *
- * @defgroup Console Console
- * @ingroup GWIN
- *
- * @{
  */
 
 #include "gfx.h"
 
-#if (GFX_USE_GWIN && GWIN_NEED_CONSOLE) || defined(__DOXYGEN__)
+#if GFX_USE_GWIN && GWIN_NEED_CONSOLE
 
 #include <string.h>
 
-#include "gwin/internal.h"
+#include "gwin/class_gwin.h"
 
 #define GWIN_CONSOLE_USE_CLEAR_LINES			TRUE
 #define GWIN_CONSOLE_USE_FILLED_CHARS			FALSE
@@ -58,32 +53,48 @@
 	};
 #endif
 
-GHandle gwinCreateConsole(GConsoleObject *gc, coord_t x, coord_t y, coord_t width, coord_t height, font_t font) {
-	if (!(gc = (GConsoleObject *)_gwinInit((GWindowObject *)gc, x, y, width, height, sizeof(GConsoleObject))))
+static void AfterClear(GWindowObject *gh) {
+	((GConsoleObject *)gh)->cx = 0;
+	((GConsoleObject *)gh)->cy = 0;
+}
+
+static const gwinVMT consoleVMT = {
+		"Console",				// The classname
+		sizeof(GConsoleObject),	// The object size
+		0,						// The destroy routine
+		0,						// The redraw routine
+		AfterClear,				// The after-clear routine
+};
+
+GHandle gwinConsoleCreate(GConsoleObject *gc, const GWindowInit *pInit) {
+	if (!(gc = (GConsoleObject *)_gwindowCreate(&gc->g, pInit, &consoleVMT, 0)))
 		return 0;
-	gc->gwin.type = GW_CONSOLE;
-	gwinSetFont(&gc->gwin, font);
 	#if GFX_USE_OS_CHIBIOS && GWIN_CONSOLE_USE_BASESTREAM
 		gc->stream.vmt = &GWindowConsoleVMT;
 	#endif
 	gc->cx = 0;
 	gc->cy = 0;
+	gwinSetVisible((GHandle)gc, pInit->show);
 	return (GHandle)gc;
 }
 
 #if GFX_USE_OS_CHIBIOS && GWIN_CONSOLE_USE_BASESTREAM
-	BaseSequentialStream *gwinGetConsoleStream(GHandle gh) {
-		if (gh->type != GW_CONSOLE)
+	BaseSequentialStream *gwinConsoleGetStream(GHandle gh) {
+		if (gh->vmt != &consoleVMT)
 			return 0;
 		return (BaseSequentialStream *)&(((GConsoleObject *)(gh))->stream);
 	}
 #endif
 
 void gwinPutChar(GHandle gh, char c) {
-	uint8_t			width;
 	#define gcw		((GConsoleObject *)gh)
+	uint8_t			width, fy, fp;
 
-	if (gh->type != GW_CONSOLE || !gh->font) return;
+	if (gh->vmt != &consoleVMT || !gh->font)
+		return;
+
+	fy = gdispGetFontMetric(gh->font, fontHeight);
+	fp = gdispGetFontMetric(gh->font, fontCharPadding);
 
 	#if GDISP_NEED_CLIP
 		gdispSetClip(gh->x, gh->y, gh->width, gh->height);
@@ -91,24 +102,24 @@ void gwinPutChar(GHandle gh, char c) {
 	
 	if (c == '\n') {
 		gcw->cx = 0;
-		gcw->cy += gcw->fy;
+		gcw->cy += fy;
 		// We use lazy scrolling here and only scroll when the next char arrives
 	} else if (c == '\r') {
 		// gcw->cx = 0;
 	} else {
-		width = gdispGetCharWidth(c, gh->font) + gcw->fp;
+		width = gdispGetCharWidth(c, gh->font) + fp;
 		if (gcw->cx + width >= gh->width) {
 			gcw->cx = 0;
-			gcw->cy += gcw->fy;
+			gcw->cy += fy;
 		}
 
-		if (gcw->cy + gcw->fy > gh->height) {
+		if (gcw->cy + fy > gh->height) {
 #if GDISP_NEED_SCROLL
 			/* scroll the console */
-			gdispVerticalScroll(gh->x, gh->y, gh->width, gh->height, gcw->fy, gh->bgcolor);
+			gdispVerticalScroll(gh->x, gh->y, gh->width, gh->height, fy, gh->bgcolor);
 			/* reset the cursor to the start of the last line */
 			gcw->cx = 0;
-			gcw->cy = (((coord_t)(gh->height/gcw->fy))-1)*gcw->fy;
+			gcw->cy = (((coord_t)(gh->height/fy))-1)*fy;
 #else
 			/* clear the console */
 			gdispFillArea(gh->x, gh->y, gh->width, gh->height, gh->bgcolor);
@@ -121,7 +132,7 @@ void gwinPutChar(GHandle gh, char c) {
 #if GWIN_CONSOLE_USE_CLEAR_LINES
 		/* clear to the end of the line */
 		if (gcw->cx == 0)
-			gdispFillArea(gh->x, gh->y + gcw->cy, gh->width, gcw->fy, gh->bgcolor);
+			gdispFillArea(gh->x, gh->y + gcw->cy, gh->width, fy, gh->bgcolor);
 #endif
 #if GWIN_CONSOLE_USE_FILLED_CHARS
 		gdispFillChar(gh->x + gcw->cx, gh->y + gcw->cy, c, gh->font, gh->color, gh->bgcolor);
@@ -200,7 +211,8 @@ void gwinPrintf(GHandle gh, const char *fmt, ...) {
 		char tmpbuf[MAX_FILLER + 1];
 	#endif
 
-	if (gh->type != GW_CONSOLE || !gh->font) return;
+	if (gh->vmt != &consoleVMT || !gh->font)
+		return;
 
 	va_start(ap, fmt);
 	while (TRUE) {
@@ -343,5 +355,5 @@ void gwinPrintf(GHandle gh, const char *fmt, ...) {
 }
 
 #endif /* GFX_USE_GWIN && GWIN_NEED_CONSOLE */
-/** @} */
+
 

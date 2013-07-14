@@ -24,22 +24,13 @@
 #ifndef _GWIN_CONSOLE_H
 #define _GWIN_CONSOLE_H
 
-#if GWIN_NEED_CONSOLE || defined(__DOXYGEN__)
-
-/*===========================================================================*/
-/* Driver constants.														 */
-/*===========================================================================*/
-
-#define GW_CONSOLE				0x0001
-
-/*===========================================================================*/
-/* Type definitions                                                          */
-/*===========================================================================*/
+/* This file is included within "gwin/gwin.h" */
 
 // A console window. Supports wrapped text writing and a cursor.
-typedef struct GConsoleObject_t {
-	GWindowObject		gwin;
-	
+typedef struct GConsoleObject {
+	GWindowObject	g;
+	coord_t			cx, cy;			// Cursor position
+
 	#if GFX_USE_OS_CHIBIOS && GWIN_CONSOLE_USE_BASESTREAM
 		struct GConsoleWindowStream_t {
 			const struct GConsoleWindowVMT_t *vmt;
@@ -47,14 +38,7 @@ typedef struct GConsoleObject_t {
 			} stream;
 	#endif
 	
-	coord_t		cx,cy;			// Cursor position
-	uint8_t		fy;				// Current font height
-	uint8_t		fp;				// Current font inter-character spacing
 	} GConsoleObject;
-
-/*===========================================================================*/
-/* External declarations.                                                    */
-/*===========================================================================*/
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,23 +46,25 @@ extern "C" {
 
 /**
  * @brief   Create a console window.
- * @details	A console window allows text to be written using chprintf() (and the console functions defined here).
- * @brief	Text in a console window supports newlines and will wrap text as required.
+ * @details	A console window allows text to be written.
+ * @note	Text in a console window supports newlines and will wrap text as required.
  * @return  NULL if there is no resultant drawing area, otherwise a window handle.
  *
  * @param[in] gc		The GConsoleObject structure to initialise. If this is NULL the structure is dynamically allocated.
- * @param[in] x,y		The screen co-ordinates for the bottom left corner of the window
- * @param[in] width		The width of the window
- * @param[in] height	The height of the window
- * @param[in] font		The font to use
- * @note				The console is not automatically cleared on creation. You must do that by calling gwinClear() (possibly after changing your background color)
- * @note				If the dispay does not support scrolling, the window will be cleared when the bottom line is reached.
- * @note				The default drawing color gets set to White and the background drawing color to Black.
- * @note				The dimensions and position may be changed to fit on the real screen.
+ * @param[in] pInit		The initialization parameters to use
+ *
+ * @note				The drawing color and the background color get set to the current defaults. If you haven't called
+ * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are White and Black respectively.
+ * @note				The font gets set to the current default font. If you haven't called @p gwinSetDefaultFont() then there
+ * 						is no default font and text drawing operations will no nothing.
+ * @note				On creation even if the window is visible it is not automatically cleared.
+ * 						You may do that by calling @p gwinClear() (possibly after changing your background color)
+ * @note				A console does not save the drawing state. It is not automatically redrawn if the window is moved or
+ * 						its visibility state is changed.
  *
  * @api
  */
-GHandle gwinCreateConsole(GConsoleObject *gc, coord_t x, coord_t y, coord_t width, coord_t height, font_t font);
+GHandle gwinConsoleCreate(GConsoleObject *gc, const GWindowInit *pInit);
 
 #if GFX_USE_OS_CHIBIOS && GWIN_CONSOLE_USE_BASESTREAM
 	/**
@@ -91,7 +77,7 @@ GHandle gwinCreateConsole(GConsoleObject *gc, coord_t x, coord_t y, coord_t widt
 	 *
 	 * @api
 	 */
-	BaseSequentialStream *gwinGetConsoleStream(GHandle gh);
+	BaseSequentialStream *gwinConsoleGetStream(GHandle gh);
 #endif
 
 /**
@@ -156,8 +142,6 @@ void gwinPrintf(GHandle gh, const char *fmt, ...);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* GWIN_NEED_CONSOLE */
 
 #endif /* _GWIN_CONSOLE_H */
 /** @} */

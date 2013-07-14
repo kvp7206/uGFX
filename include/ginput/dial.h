@@ -36,6 +36,7 @@ typedef struct GEventDial_t {
 	GEventType		type;				// The type of this event (GEVENT_DIAL)
 	uint16_t		instance;			// The dial instance
 	uint16_t		value;				// The dial value
+	uint16_t		maxvalue;			// The maximum dial value
 	} GEventDial;
 
 /*===========================================================================*/

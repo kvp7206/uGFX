@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2012, 2013, Joel Bodenmann aka Tectu <joel@unormal.org>
  * Copyright (c) 2012, 2013, Andrew Hannam aka inmarket
- *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,10 +29,9 @@
 #ifndef _GFXCONF_H
 #define _GFXCONF_H
 
-/* The operating system to use - one of these must be defined */
 #define GFX_USE_OS_CHIBIOS		TRUE
-#define GFX_USE_OS_WIN32		FALSE
-#define GFX_USE_OS_POSIX		FALSE
+//#define GFX_USE_OS_WIN32		TRUE
+//#define GFX_USE_OS_POSIX		TRUE
 
 /* GFX sub-systems to turn on */
 #define GFX_USE_GDISP			TRUE
@@ -46,14 +44,14 @@
 #define GDISP_NEED_VALIDATION		TRUE
 #define GDISP_NEED_CLIP				TRUE
 #define GDISP_NEED_TEXT				TRUE
-#define GDISP_NEED_CIRCLE			FALSE
+#define GDISP_NEED_CIRCLE			TRUE
 #define GDISP_NEED_ELLIPSE			FALSE
 #define GDISP_NEED_ARC				FALSE
 #define GDISP_NEED_CONVEX_POLYGON	FALSE
 #define GDISP_NEED_SCROLL			FALSE
 #define GDISP_NEED_PIXELREAD		FALSE
 #define GDISP_NEED_CONTROL			FALSE
-#define GDISP_NEED_IMAGE			FALSE
+#define GDISP_NEED_IMAGE			TRUE
 #define GDISP_NEED_MULTITHREAD		TRUE
 #define GDISP_NEED_ASYNC			FALSE
 #define GDISP_NEED_MSGAPI			FALSE
@@ -67,18 +65,26 @@
 
 /* GDISP image decoders */
 #define GDISP_NEED_IMAGE_NATIVE		FALSE
-#define GDISP_NEED_IMAGE_GIF		FALSE
+#define GDISP_NEED_IMAGE_GIF		TRUE
 #define GDISP_NEED_IMAGE_BMP		FALSE
 #define GDISP_NEED_IMAGE_JPG		FALSE
 #define GDISP_NEED_IMAGE_PNG		FALSE
 
 /* Features for the GWIN sub-system. */
-#define GWIN_NEED_BUTTON		FALSE
+#define GWIN_NEED_WINDOWMANAGER	TRUE
 #define GWIN_NEED_CONSOLE		TRUE
+#define GWIN_NEED_GRAPH			TRUE
+#define GWIN_NEED_WIDGET		TRUE
+#define GWIN_NEED_BUTTON		TRUE
 #define GWIN_NEED_SLIDER		TRUE
+#define GWIN_NEED_CHECKBOX		TRUE
+#define GWIN_NEED_LABEL			TRUE
+#define GWIN_NEED_IMAGE			TRUE
+#define GWIN_NEED_RADIO			TRUE
 
 /* Features for the GINPUT sub-system. */
 #define GINPUT_NEED_MOUSE		TRUE
-#define GINPUT_NEED_DIAL		TRUE
+#define GINPUT_NEED_TOGGLE		FALSE
+#define GINPUT_NEED_DIAL		FALSE
 
 #endif /* _GFXCONF_H */

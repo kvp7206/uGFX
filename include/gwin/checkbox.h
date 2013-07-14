@@ -12,7 +12,7 @@
  * @defgroup Checkbox Checkbox
  * @ingroup GWIN
  *
- * @details		GWIN allows it to easily create checkboxes.
+ * @details		GWIN allows it to easily create a group of checkbox buttons.
  *
  * @pre			GFX_USE_GWIN must be set to TRUE in your gfxconf.h
  * @pre			GWIN_NEED_CHECKBOX must be set to TRUE in your gfxconf.h
@@ -22,143 +22,92 @@
 #ifndef _GWIN_CHECKBOX_H
 #define _GWIN_CHECKBOX_H
 
-#if GWIN_NEED_CHECKBOX || defined(__DOXYGEN__)
+/* This file is included within "gwin/gwidget.h" */
 
 /*===========================================================================*/
 /* Driver constants.														 */
 /*===========================================================================*/
 
-#define GW_CHECKBOX				0x0005
 #define GEVENT_GWIN_CHECKBOX		(GEVENT_GWIN_FIRST+2)
 
 /*===========================================================================*/
 /* Type definitions                                                          */
 /*===========================================================================*/
 
-typedef struct GEventGWinCheckbox_t {
+typedef struct GEventGWinCheckbox {
 	GEventType		type;			// The type of this event (GEVENT_GWIN_CHECKBOX)
 	GHandle			checkbox;		// The checkbox that has been depressed (actually triggered on release)
 	bool_t			isChecked;		// Is the checkbox currently checked or unchecked?
 } GEventGWinCheckbox;
 
-typedef enum GCheckboxState_e {
-	GCHBX_UNCHECKED, GCHBX_CHECKED
-} GCheckboxState;
-
-typedef struct GCheckboxColor_t {
-	color_t	border;
-	color_t checked;
-	color_t bg;
-} GCheckboxColor;
-
-/* custom rendering interface */
-typedef void (*GCheckboxDrawFunction)(GHandle gh, bool_t enabled, bool_t state, void* param);
-
 /* A Checkbox window */
-typedef struct GCheckboxObject_t {
-	GWindowObject			gwin;
-	GListener				listener;
-
-	GCheckboxDrawFunction	fn;
-	GCheckboxColor			*colors;
-	bool_t					isChecked;
-	void					*param;
+typedef struct GCheckboxObject {
+	GWidgetObject			w;
+	#if GINPUT_NEED_TOGGLE
+		uint16_t			toggle;
+	#endif
 } GCheckboxObject;
 
 /**
- * @brief	Create a checkbox window.
- *
- * @param[in] gb		The GCheckboxObject structure to initialise. If this is NULL, the structure is dynamically allocated.
- * @param[in] x,y		The screen co-ordinates for the bottom left corner of the window
- * @param[in] width		The width of the window
- * @param[in] height	The height of the window
- *
- * @note				The checkbox is not automatically drawn. Call gwinCheckboxDraw() after changing the checkbox style.
- *
+ * @brief				Create a checkbox window.
  * @return				NULL if there is no resultant drawing area, otherwise a window handle.
  *
+ * @param[in] gb		The GCheckboxObject structure to initialise. If this is NULL, the structure is dynamically allocated.
+ * @param[in] pInit		The initialization parameters to use
+ *
+ * @note				The drawing color and the background color get set to the current defaults. If you haven't called
+ * 						@p gwinSetDefaultColor() or @p gwinSetDefaultBgColor() then these are White and Black respectively.
+ * @note				The font gets set to the current default font. If you haven't called @p gwinSetDefaultFont() then there
+ * 						is no default font and text drawing operations will no nothing.
+ * @note				A checkbox remembers its normal drawing state. If there is a window manager then it is automatically
+ * 						redrawn if the window is moved or its visibility state is changed.
+ * @note				A checkbox supports mouse and a toggle input.
+ * @note				When assigning a toggle, only one toggle is supported. If you try to assign more than one toggle it will
+ * 						forget the previous toggle. When assigning a toggle the role parameter must be 0.
+ *
  * @api
  */
-GHandle gwinCheckboxCreate(GCheckboxObject *gb, coord_t x, coord_t y, coord_t width, coord_t height);
+GHandle gwinCheckboxCreate(GCheckboxObject *gb, const GWidgetInit *pInit);
 
 /**
- * @brief	Redraw a checkbox
+ * @brief	Set the state of a checkbox
  *
  * @param[in] gh		The window handle (must be a checkbox window)
+ * @param[in] isChecked	TRUE to set the check, FALSE to uncheck.
  *
  * @api
  */
-void gwinCheckboxDraw(GHandle gh);
-
-/**
- * @brief	Enable or disable a button
- *
- * @param[in] gh		The window handle (must be a checkbox window)
- * @param[in] enabled	Enable or disable the button
- *
- * @api
- */
-void gwinCheckboxSetEnabled(GHandle gh, bool_t enabled);
-
-/**
- * @brief	Set the callback routine to perform a custom drawing.
- *
- * @param[in] gh		The window handle (must be a checkbox window)
- * @param[in] fn		The function to use to draw the checkbox
- * @param[in] param		A parameter to pass to the checkbox drawing function
- *
- * @api
- */
-void gwinCheckboxSetCustom(GHandle gh, GCheckboxDrawFunction fn, void *param);
-
-/**
- * @brief Enable a checkbox
- *
- * @api
- */
-#define gwinCheckboxEnable(gh)		gwinCheckboxSetEnabled( ((GCheckboxObject *)(gh)), TRUE)
-
-/**
- * @brief Disable a checkbox
- *
- * @api
-*/
-#define gwinCheckboxDisable(gh)		gwinCheckboxSetEnabled( ((GCheckboxObject *)(gh)), FALSE)
+void gwinCheckboxCheck(GHandle gh, bool_t isChecked);
 
 /**
  * @brief	Get the state of a checkbox
+ * @return	TRUE if the checkbox is currently checked
  *
  * @param[in] gh	The window handle (must be a checkbox window)
  *
- * @return	The state of the checkbox (GCHBX_CHECKED or GCHBX_UNCHECKED)
- *
  * @api
  */
-#define gwinCheckboxGetState(gh)	(((GCheckboxObject *)(gh))->isChecked)
+bool_t gwinCheckboxIsChecked(GHandle gh);
 
 /**
- * @brief 	Get the source handle of a checkbox
- * @details	Get the source handle of a checkbox so the application can listen for events
+ * @brief	Some custom checkbox drawing routines
+ * @details	These function may be passed to @p gwinSetCustomDraw() to get different checkbox drawing styles
  *
- * @param[in] gh	The window handle (must be a checkbox window)
+ * @param[in] gw			The widget (which must be a checkbox)
+ * @param[in] param			A parameter passed in from the user
+ *
+ * @note				In your custom checkbox drawing function you may optionally call this
+ * 						standard functions and then draw your extra details on top.
+ * @note				The standard functions below ignore the param parameter.
+ * @note				These custom drawing routines don't have to worry about setting clipping as the framework
+ * 						sets clipping to the object window prior to calling these routines.
  *
  * @api
+ * @{
  */
-#define gwinCheckboxGetSource(gh)     ((GSourceHandle)(gh))
-
-#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
-	/**
-	 * @brief	Attach a mouse to a checkbox
-	 *
-	 * @param[in] gh		The checkbox handle
-	 * @param[in] instance	The mouse instance
-	 *
-	 * @api
-	 */
-	bool_t gwinCheckboxAttachMouse(GHandle gh, uint16_t instance);
-#endif /* GFX_USE_GINPUT && GINPUT_NEED_MOUSE */
-
-#endif /* _GWIN_NEED_CHECKBOX */
+void gwinCheckboxDraw_CheckOnLeft(GWidgetObject *gw, void *param);
+void gwinCheckboxDraw_CheckOnRight(GWidgetObject *gw, void *param);
+/* @} */
 
 #endif /* _GWIN_CHECKBOX_H */
 /** @} */

@@ -7,6 +7,7 @@ within each file:
 
 /*
  * Copyright (c) 2012, 2013, Joel Bodenmann aka Tectu <joel@unormal.org>
+ * Copyright (c) 2012, 2013, Andrew Hannam aka inmarket
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,3 +33,4 @@ within each file:
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+Files under the 3rdparty directory are licensed as per the original contributor.
