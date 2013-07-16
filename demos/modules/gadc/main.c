@@ -37,7 +37,6 @@
  * It also demonstrates how to write your own custom GWIN window type.
  */
 #include "gfx.h"
-#include "chprintf.h"
 
 /* Include our custom gwin oscilloscope */
 #include "gwinosc.h"
@@ -82,7 +81,7 @@ static GTimer				lsTimer;
 				|| (lastdial > dialvalue && lastdial - dialvalue > MY_DIAL_JITTER)) {
 
 			/* Write the value */
-			chprintf((BaseSequentialStream *)param, "DIAL: %u\n", dialvalue);
+			gwinPrintf((GHandle)param, "DIAL: %u\n", dialvalue);
 
 			/* Save for next time */
 			lastdial = dialvalue;
@@ -107,7 +106,7 @@ static GTimer				lsTimer;
 				|| (lasttemp > tempvalue && lasttemp - tempvalue > MY_TEMP_JITTER)) {
 
 			/* Write the value */
-			chprintf((BaseSequentialStream *)param, "TEMP: %u\n", tempvalue);
+			gwinPrintf((GHandle)param, "TEMP: %u\n", tempvalue);
 
 			/* Save for next time */
 			lasttemp = tempvalue;
@@ -138,7 +137,6 @@ int main(void) {
 	coord_t					swidth, sheight;
 	#if defined(MY_DIAL_DEVICE) || defined(MY_TEMP_DEVICE)
 		GHandle					ghText;
-		BaseSequentialStream	*gsText;
 		font_t					font;
 	#endif
 
@@ -151,19 +149,34 @@ int main(void) {
 	#if defined(MY_DIAL_DEVICE) || defined(MY_TEMP_DEVICE)
 		/* Set up the console window we use for dial readings */
 		font = gdispOpenFont("UI2");
-		ghText = gwinCreateConsole(&gTextWindow, 0, 0, swidth-SCOPE_CX, sheight, font);
+		gwinSetDefaultFont(font);
+		{
+			GWindowInit	wi;
+			wi.show = TRUE;
+			wi.x = wi.y = 0;
+			wi.width = swidth-SCOPE_CX;
+			wi.height = sheight;
+			ghText = gwinConsoleCreate(&gTextWindow, &wi);
+		}
 		gwinSetBgColor(ghText, Black);
 		gwinSetColor(ghText, Yellow);
 		gwinClear(ghText);
-		gsText = gwinGetConsoleStream(ghText);
 
 		/* Start our timer for reading the dial */
 		gtimerInit(&lsTimer);
-		gtimerStart(&lsTimer, LowSpeedTimer, gsText, TRUE, MY_LS_DELAY);
+		gtimerStart(&lsTimer, LowSpeedTimer, ghText, TRUE, MY_LS_DELAY);
 	#endif
 
 	/* Set up the scope window in the top right on the screen */
-	ghScope = gwinCreateScope(&gScopeWindow, swidth-SCOPE_CX, 0, SCOPE_CX, SCOPE_CY, MY_MIC_DEVICE, MY_MIC_FREQUENCY);
+	{
+		GWindowInit	wi;
+		wi.show = TRUE;
+		wi.x = swidth-SCOPE_CX;
+		wi.y = 0;
+		wi.width = SCOPE_CX;
+		wi.height = SCOPE_CY;
+		ghScope = gwinScopeCreate(&gScopeWindow, &wi, MY_MIC_DEVICE, MY_MIC_FREQUENCY);
+	}
 	gwinSetBgColor(ghScope, White);
 	gwinSetColor(ghScope, Red);
 	gwinClear(ghScope);
@@ -174,6 +187,6 @@ int main(void) {
 		 * The function below internally performs a wait thus giving the timer thread a
 		 * chance to run.
 		 */
-		gwinWaitForScopeTrace(ghScope);
+		gwinScopeWaitForTrace(ghScope);
 	}
 }

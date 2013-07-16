@@ -43,10 +43,7 @@
 #include "gwinosc.h"
 
 /* Include internal GWIN routines so we can build our own superset class */
-#include "gwin/internal.h"
-
-/* Our GWIN identifier */
-#define GW_SCOPE				(GW_FIRST_USER_WINDOW+0)
+#include "gwin/class_gwin.h"
 
 /* The size of our dynamically allocated audio buffer */
 #define AUDIOBUFSZ				64*2
@@ -54,23 +51,42 @@
 /* How many flat-line sample before we trigger */
 #define FLATLINE_SAMPLES		8
 
-GHandle gwinCreateScope(GScopeObject *gs, coord_t x, coord_t y, coord_t cx, coord_t cy, uint16_t channel, uint32_t frequency) {
+static void _destroy(GHandle gh) {
+	gaudinStop();
+	if (((GScopeObject *)gh)->lastscopetrace) {
+		gfxFree(((GScopeObject *)gh)->lastscopetrace);
+		((GScopeObject *)gh)->lastscopetrace = 0;
+	}
+	if (((GScopeObject *)gh)->audiobuf) {
+		gfxFree(((GScopeObject *)gh)->audiobuf);
+		((GScopeObject *)gh)->audiobuf = 0;
+	}
+}
+
+static const gwinVMT scopeVMT = {
+		"Scope",				// The classname
+		sizeof(GScopeObject),	// The object size
+		_destroy,				// The destroy routine
+		0,						// The redraw routine
+		0,						// The after-clear routine
+};
+
+GHandle gwinScopeCreate(GScopeObject *gs, GWindowInit *pInit, uint16_t channel, uint32_t frequency) {
 	/* Initialise the base class GWIN */
-	if (!(gs = (GScopeObject *)_gwinInit((GWindowObject *)gs, x, y, cx, cy, sizeof(GScopeObject))))
+	if (!(gs = (GScopeObject *)_gwindowCreate(&gs->g, pInit, &scopeVMT, 0)))
 		return 0;
 
 	/* Initialise the scope object members and allocate memory for buffers */
-	gs->gwin.type = GW_SCOPE;
 	gfxSemInit(&gs->bsem, 0, 1);
 	gs->nextx = 0;
-	if (!(gs->lastscopetrace = (coord_t *)gfxAlloc(NULL, gs->gwin.width * sizeof(coord_t))))
+	if (!(gs->lastscopetrace = (coord_t *)gfxAlloc(gs->g.width * sizeof(coord_t))))
 		return 0;
-	if (!(gs->audiobuf = (adcsample_t *)gfxAlloc(NULL, AUDIOBUFSZ * sizeof(adcsample_t))))
+	if (!(gs->audiobuf = (adcsample_t *)gfxAlloc(AUDIOBUFSZ * sizeof(adcsample_t))))
 		return 0;
 #if TRIGGER_METHOD == TRIGGER_POSITIVERAMP
-	gs->lasty = gs->gwin.height/2;
+	gs->lasty = gs->g.height/2;
 #elif TRIGGER_METHOD == TRIGGER_MINVALUE
-	gs->lasty = gs->gwin.height/2;
+	gs->lasty = gs->g.height/2;
 	gs->scopemin = 0;
 #endif
 
@@ -79,10 +95,11 @@ GHandle gwinCreateScope(GScopeObject *gs, coord_t x, coord_t y, coord_t cx, coor
 	gaudinSetBSem(&gs->bsem, &gs->myEvent);
 	gaudinStart();
 
+	gwinSetVisible((GHandle)gs, pInit->show);
 	return (GHandle)gs;
 }
 
-void gwinWaitForScopeTrace(GHandle gh) {
+void gwinScopeWaitForTrace(GHandle gh) {
 	#define 		gs	((GScopeObject *)(gh))
 	int				i;
 	coord_t			x, y;
@@ -97,6 +114,9 @@ void gwinWaitForScopeTrace(GHandle gh) {
 	int				flsamples;
 	coord_t			scopemin;
 #endif
+
+	if (gh->vmt != &scopeVMT)
+		return;
 
 	/* Wait for a set of audio conversions */
 	gfxSemWait(&gs->bsem, TIME_INFINITE);

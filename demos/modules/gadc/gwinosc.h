@@ -56,7 +56,7 @@
 
 /* A scope window object. Treat it as a black box */
 typedef struct GScopeObject_t {
-	GWindowObject		gwin;					// Base Class
+	GWindowObject		g;						// Base Class
 
 	coord_t				*lastscopetrace;		// To store last scope trace
 	gfxSem				bsem;					// We get signalled on this
@@ -78,18 +78,12 @@ extern "C" {
 	/**
 	 * Create a scope window.
 	 */
-	GHandle gwinCreateScope(GScopeObject *gs, coord_t x, coord_t y, coord_t cx, coord_t cy, uint32_t physdev, uint32_t frequency);
+	GHandle gwinScopeCreate(GScopeObject *gs, GWindowInit *pInit, uint32_t physdev, uint32_t frequency);
 
 	/**
 	 * Wait for a scope trace to be ready and then draw it.
 	 */
-	void gwinWaitForScopeTrace(GHandle gh);
-
-	/**
-	 * We should also have a special destroy routine here as we have dynamically
-	 * allocated some memory. There is no point implementing this however as, for
-	 * this demo, we never destroy the window.
-	 */
+	void gwinScopeWaitForTrace(GHandle gh);
 
 #ifdef __cplusplus
 }

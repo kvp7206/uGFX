@@ -59,13 +59,20 @@ int main(void) {
 	sheight = gdispGetHeight();
 
 	/* Set up the scope window to fill the screen */
-	ghScope = gwinCreateScope(&gScopeWindow, 0, 0, swidth, sheight, MY_AUDIO_CHANNEL, MY_AUDIO_FREQUENCY);
+	{
+		GWindowInit	wi;
+
+		wi.show = TRUE;
+		wi.x = wi.y = 0;
+		wi.width = swidth; wi.height = sheight;
+		ghScope = gwinScopeCreate(&gScopeWindow, &wi, MY_AUDIO_CHANNEL, MY_AUDIO_FREQUENCY);
+	}
 	gwinSetBgColor(ghScope, White);
 	gwinSetColor(ghScope, Red);
 	gwinClear(ghScope);
 
 	/* Just keep displaying the scope traces */
 	while (TRUE) {
-		gwinWaitForScopeTrace(ghScope);
+		gwinScopeWaitForTrace(ghScope);
 	}
 }
