@@ -37,9 +37,10 @@ int main(void) {
 	// Attach the mouse input
 	gwinAttachMouse(0);
 
+	// create the widget
 	createWidgets();
 
-    // We want to listen for widget events
+	// We want to listen for widget events
 	geventListenerInit(&gl);
 	gwinAttachListener(&gl);
 
