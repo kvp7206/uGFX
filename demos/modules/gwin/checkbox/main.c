@@ -1,7 +1,7 @@
 #include "gfx.h"
 
 static GListener gl;
-static GHandle   ghButton1;
+static GHandle   ghCheckbox1;
 
 static void createWidgets(void) {
 	GWidgetInit	wi;
@@ -12,15 +12,15 @@ static void createWidgets(void) {
 	wi.customStyle = 0;
 	wi.g.show = TRUE;
 
-	// Apply the button parameters	
-	wi.g.width = 100;
-	wi.g.height = 30;
+	// Apply the checkbox parameters	
+	wi.g.width = 100;		// includes text
+	wi.g.height = 20;
 	wi.g.y = 10;
 	wi.g.x = 10;
-	wi.text = "Push Button";
+	wi.text = "Checkbox";
 
-	// Create the actual button
-	ghButton1 = gwinButtonCreate(NULL, &wi);
+	// Create the actual checkbox 
+	ghCheckbox1 = gwinCheckboxCreate(NULL, &wi);
 }
 
 int main(void) {
@@ -48,10 +48,10 @@ int main(void) {
 		pe = geventEventWait(&gl, TIME_INFINITE);
 
 		switch(pe->type) {
-			case GEVENT_GWIN_BUTTON:
-				if (((GEventGWinButton*)pe)->button == ghButton1) {
-					// Our button has been pressed
-					printf("Button clicked\r\n");
+			case GEVENT_GWIN_CHECKBOX:
+				if (((GEventGWinCheckbox*)pe)->checkbox == ghCheckbox1) {
+					// The state of our checkbox has changed
+					printf("Checkbox state: %d\r\n", ((GEventGWinCheckbox*)pe)->isChecked);
 				}
 				break;
 
