@@ -1,2 +1,2 @@
-please visit http://chibios-gfx.com
+please visit http://ugfx.org
 

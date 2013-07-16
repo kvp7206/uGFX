@@ -3,6 +3,8 @@
 *****************************************************************************
 
 current release: 1.6
+FEATURE:	Complete rework of the entire GWIN module
+FEATURE:	Rename of ChibiOS/GFX to uGFX
 
 
 *** changes after 1.5 ***
