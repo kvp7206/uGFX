@@ -67,6 +67,11 @@
 			#define GWIN_NEED_WIDGET	TRUE
 		#endif
 	#endif
+	#if GWIN_NEED_LIST
+		#if !GDISP_NEED_TEXT
+			#error "GWIN: GDISP_NEED_TEXT is required when GWIN_NEED_LIST is TRUE."
+		#endif
+	#endif
 	#if GWIN_NEED_WIDGET
 		#if !GDISP_NEED_TEXT
 			#error "GWIN: GDISP_NEED_TEXT is required if GWIN_NEED_WIDGET is TRUE."

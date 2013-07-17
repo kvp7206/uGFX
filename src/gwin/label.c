@@ -95,6 +95,7 @@ GHandle gwinLabelCreate(GLabelObject *widget, GWidgetInit *pInit) {
 
 	// auto assign width
 	if (pInit->g.width <= 0) {
+
 		flags |= GLABEL_FLG_WAUTO;
 		pInit->g.width = getwidth(pInit->text, gwinGetDefaultFont(), gdispGetWidth() - pInit->g.x);
 	}

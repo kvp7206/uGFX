@@ -825,6 +825,10 @@ extern "C" {
 		#include "gwin/label.h"
 	#endif
 
+	#if GWIN_NEED_LIST || defined(__DOXYGEN__)
+		#include "gwin/list.h"
+	#endif
+
 #endif /* GFX_USE_GWIN */
 
 #endif /* _GWIN_H */
