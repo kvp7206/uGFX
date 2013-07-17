@@ -172,7 +172,12 @@ gdispImageError gwinImageCache(GHandle gh) {
 }
 
 delaytime_t gwinImageNext(GHandle gh) {
-	return gdispImageNext(&widget(gh)->image);
+	delaytime_t delay;
+
+	delay = gdispImageNext(&widget(gh)->image);
+	_redraw(gh);
+
+	return delay;
 }
 
 #endif // GFX_USE_GWIN && GWIN_NEED_IMAGE
