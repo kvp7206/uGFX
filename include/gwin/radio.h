@@ -102,7 +102,9 @@ bool_t gwinRadioIsPressed(GHandle gh);
  * @brief	Find the currently pressed radio button in the specified group
  * @return	The handle of the pressed radio button or NULL if none are pressed
  *
- * @param[in] gh	The window handle (must be a radio widget)
+ * @param[in] group		The radio button group to be examined
+ *
+ * @return	The handle of the currently pressed radio button
  *
  * @api
  */

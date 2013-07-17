@@ -43,7 +43,7 @@ extern "C" {
  * @details		A label widget is a simple window which has a static text.
  * 
  * @param[in] widget	The label structure to initialise. If this is NULL, the structure is dynamically allocated.
- * @param[in] pinit		The initialisation parameters to use.
+ * @param[in] pInit		The initialisation parameters to use.
  *
  * @return				NULL if there is no resultat drawing area, otherwise the widget handle.
  *

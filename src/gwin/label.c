@@ -115,4 +115,5 @@ GHandle gwinLabelCreate(GLabelObject *widget, GWidgetInit *pInit) {
 }
 
 #endif // GFX_USE_GWIN && GFX_NEED_LABEL
+/** @} */
 

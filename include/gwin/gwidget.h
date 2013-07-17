@@ -143,6 +143,8 @@ void gwinSetDefaultStyle(const GWidgetStyle *pstyle, bool_t updateAll);
 /**
  * @brief   Get the current default style.
  *
+ * @return	The current default style.
+ * 
  * @api
  */
 const GWidgetStyle *gwinGetDefaultStyle(void);

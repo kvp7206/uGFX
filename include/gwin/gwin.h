@@ -114,6 +114,8 @@ extern "C" {
 	/**
 	 * @brief	Get the default foreground color for all new GWIN windows
 	 *
+	 * @return	The current default color for all new GWIN windows
+	 *
 	 * @api
 	 */
 	color_t gwinGetDefaultColor(void);
@@ -129,6 +131,8 @@ extern "C" {
 
 	/**
 	 * @brief	Get the default background color for all new GWIN windows
+	 *
+	 * @return	The current default background color for all new GWIN windows
 	 *
 	 * @api
 	 */
@@ -191,9 +195,11 @@ extern "C" {
 	 *
 	 * @param[in] gh	The window
 	 *
+	 * @return	A string describing the object class.
+	 *
 	 * @api
 	 */
-	const char *gwinGetClassName(GHandle gh);
+	const char* gwinGetClassName(GHandle gh);
 
 	/**
 	 * @brief	Get an ID that uniquely describes the class of the GHandle

@@ -6,7 +6,7 @@
  */
 
 /**
- * @file	src/gwin/image.c
+ * @file	src/gwin/gimage.c
  * @brief	GWIN sub-system image code.
  */
 

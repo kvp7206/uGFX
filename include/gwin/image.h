@@ -96,7 +96,7 @@ bool_t gwinImageOpenMemory(GHandle gh, const void* memory);
  * @brief				Cache the image.
  * @details				Decodes and caches the current frame into RAM.
  *
- * param[in] gh			The widget (must be an image widget)
+ * @param[in] gh		The widget (must be an image widget)
  *
  * @return				GDISP_IMAGE_ERR_OK (0) on success or an error code.
  *
