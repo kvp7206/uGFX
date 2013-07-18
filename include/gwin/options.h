@@ -123,6 +123,13 @@
 	#ifndef GWIN_CONSOLE_USE_BASESTREAM
 		#define GWIN_CONSOLE_USE_BASESTREAM		FALSE
 	#endif
+	/**
+	 * @brief   Image windows can optionally support animated images
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GWIN_NEED_IMAGE_ANIMATION
+		#define GWIN_NEED_IMAGE_ANIMATION		FALSE
+	#endif
 /** @} */
 
 #endif /* _GWIN_OPTIONS_H */

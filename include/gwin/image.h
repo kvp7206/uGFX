@@ -32,8 +32,10 @@
 // An image window
 typedef struct GImageObject {
 	GWindowObject	g;
-	gdispImage		image;		// The image itself
-	GTimer			timer;		// Timer used for animated images
+	gdispImage		image;			// The image itself
+	#if GWIN_NEED_IMAGE_ANIMATION
+		GTimer			timer;		// Timer used for animated images
+	#endif
 } GImageObject;
 
 #ifdef __cplusplus

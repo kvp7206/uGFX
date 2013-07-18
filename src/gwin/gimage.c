@@ -23,9 +23,22 @@ static void _destroy(GWindowObject *gh) {
 		gdispImageClose(&widget(gh)->image);
 }
 
+#if GWIN_NEED_IMAGE_ANIMATION
+	static void _redraw(GHandle gh);
+
+	static void _timer(void *gh) {
+		// We need to re-test the visibility in case it has been made invisible since the last frame.
+		if ((((GHandle)gh)->flags & GWIN_FLG_VISIBLE))
+			_redraw((GHandle)gh);
+	}
+#endif
+
 static void _redraw(GHandle gh) {
 	coord_t		x, y, w, h, dx, dy;
 	color_t		bg;
+	#if GWIN_NEED_IMAGE_ANIMATION
+		delaytime_t	delay;
+	#endif
 
 	// The default display area
 	x = gh->x;
@@ -77,8 +90,27 @@ static void _redraw(GHandle gh) {
 
 	// Display the image
 	gdispImageDraw(&widget(gh)->image, x, y, w, h, dx, dy);
-}
 
+	#if GWIN_NEED_IMAGE_ANIMATION
+		// read the delay for the next frame
+		delay = gdispImageNext(&widget((GHandle)gh)->image);
+
+		// Wait for that delay if required
+		switch(delay) {
+		case TIME_INFINITE:
+			// Everything is done
+			break;
+		case TIME_IMMEDIATE:
+			// We can't allow a continuous loop here as it would lock the system up so we delay for the minimum period
+			delay = 1;
+			// Fall through
+		default:
+			// Start the timer to draw the next frame of the animation
+			gtimerStart(&widget((GHandle)gh)->timer, _timer, (void*)gh, FALSE, delay);
+			break;
+		}
+	#endif
+}
 
 static const gwinVMT imageVMT = {
 	"Image",					// The class name
@@ -88,33 +120,17 @@ static const gwinVMT imageVMT = {
 	0,							// The after-clear routine
 };
 
-// This is the callback for the automated redraw for animated images
-static void _animatedRedraw(void* gh) {
-	// draw pending frame
-	_redraw((GHandle)gh);
-
-	// read the delay for the next frame and set the timer
-	gtimerStart(&(widget((GHandle)gh)->timer), _animatedRedraw, (void*)gh, FALSE, gdispImageNext(&(widget((GHandle)gh)->image)));
-}
-
-// check for an animated image
-static bool_t _checkAnimated(GHandle gh) {
-	if (widget(gh)->image.flags & GDISP_IMAGE_FLG_ANIMATED) {
-		gtimerInit(&(widget(gh)->timer));
-		gtimerStart(&(widget(gh)->timer), _animatedRedraw, (void*)gh, FALSE, gdispImageNext(&(widget(gh)->image)));
-
-		return true;
-	}
-
-	return false;
-}
-
 GHandle gwinImageCreate(GImageObject *gobj, GWindowInit *pInit) {
 	if (!(gobj = (GImageObject *)_gwindowCreate(&gobj->g, pInit, &imageVMT, 0)))
 		return 0;
 
 	// Ensure the gdispImageIsOpen() gives valid results
 	gobj->image.type = 0;
+
+	// Initialise the timer
+	#if GWIN_NEED_IMAGE_ANIMATION
+		gtimerInit(&gobj->timer);
+	#endif
 	
 	gwinSetVisible((GHandle)gobj, pInit->show);
 
@@ -137,10 +153,8 @@ bool_t gwinImageOpenMemory(GHandle gh, const void* memory) {
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
-	}
-
-	if(!_checkAnimated(gh))
 		_redraw(gh);
+	}
 
 	return TRUE;
 }
@@ -162,10 +176,8 @@ bool_t gwinImageOpenFile(GHandle gh, const char* filename) {
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
-	}
-
-	if(!_checkAnimated(gh))
 		_redraw(gh);
+	}
 
 	return TRUE;
 }
@@ -188,10 +200,8 @@ bool_t gwinImageOpenStream(GHandle gh, void *streamPtr) {
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
-	}
-
-	if(!_checkAnimated(gh))
 		_redraw(gh);
+	}
 
 	return TRUE;
 }
