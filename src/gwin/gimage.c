@@ -88,13 +88,34 @@ static const gwinVMT imageVMT = {
 	0,							// The after-clear routine
 };
 
+// This is the callback for the automated redraw for animated images
+static void _animatedRedraw(void* gh) {
+	// draw pending frame
+	_redraw((GHandle)gh);
+
+	// read the delay for the next frame and set the timer
+	gtimerStart(&(widget((GHandle)gh)->timer), _animatedRedraw, (void*)gh, FALSE, gdispImageNext(&(widget((GHandle)gh)->image)));
+}
+
+// check for an animated image
+static bool_t _checkAnimated(GHandle gh) {
+	if (widget(gh)->image.flags & GDISP_IMAGE_FLG_ANIMATED) {
+		gtimerInit(&(widget(gh)->timer));
+		gtimerStart(&(widget(gh)->timer), _animatedRedraw, (void*)gh, FALSE, gdispImageNext(&(widget(gh)->image)));
+
+		return true;
+	}
+
+	return false;
+}
+
 GHandle gwinImageCreate(GImageObject *gobj, GWindowInit *pInit) {
 	if (!(gobj = (GImageObject *)_gwindowCreate(&gobj->g, pInit, &imageVMT, 0)))
 		return 0;
 
 	// Ensure the gdispImageIsOpen() gives valid results
 	gobj->image.type = 0;
-
+	
 	gwinSetVisible((GHandle)gobj, pInit->show);
 
 	return (GHandle)gobj;
@@ -116,8 +137,11 @@ bool_t gwinImageOpenMemory(GHandle gh, const void* memory) {
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
-		_redraw(gh);
 	}
+
+	if(!_checkAnimated(gh))
+		_redraw(gh);
+
 	return TRUE;
 }
 
@@ -138,8 +162,11 @@ bool_t gwinImageOpenFile(GHandle gh, const char* filename) {
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
-		_redraw(gh);
 	}
+
+	if(!_checkAnimated(gh))
+		_redraw(gh);
+
 	return TRUE;
 }
 #endif 
@@ -161,23 +188,17 @@ bool_t gwinImageOpenStream(GHandle gh, void *streamPtr) {
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
 		#endif
-		_redraw(gh);
 	}
+
+	if(!_checkAnimated(gh))
+		_redraw(gh);
+
 	return TRUE;
 }
 #endif
 
 gdispImageError gwinImageCache(GHandle gh) {
 	return gdispImageCache(&widget(gh)->image);
-}
-
-delaytime_t gwinImageNext(GHandle gh) {
-	delaytime_t delay;
-
-	delay = gdispImageNext(&widget(gh)->image);
-	_redraw(gh);
-
-	return delay;
 }
 
 #endif // GFX_USE_GWIN && GWIN_NEED_IMAGE

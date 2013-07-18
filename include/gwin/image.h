@@ -32,7 +32,8 @@
 // An image window
 typedef struct GImageObject {
 	GWindowObject	g;
-	gdispImage		image;
+	gdispImage		image;		// The image itself
+	GTimer			timer;		// Timer used for animated images
 } GImageObject;
 
 #ifdef __cplusplus
@@ -103,26 +104,6 @@ bool_t gwinImageOpenMemory(GHandle gh, const void* memory);
  * @api
  */
 gdispImageError gwinImageCache(GHandle gh);
-
-
-/**
- * @brief	Prepare for the next frame/page in the image file.
- * @return	A time in milliseconds to keep displaying the current frame before trying to draw
- * 			the next frame. Watch out for the special values TIME_IMMEDIATE and TIME_INFINITE.
- * 
- * @param[in] gh   The widget handle (must be an image box handle)
- * 
- * @pre		gwinImageOpenXxx() must have returned successfully.
- *
- * @note	It will return TIME_IMMEDIATE if the first frame/page hasn't been drawn or if the next frame
- * 			should be drawn immediately.
- * @note	It will return TIME_INFINITE if another image frame doesn't exist or an error has occurred.
- * @note	Images that support multiple pages (eg TIFF files) will return TIME_IMMEDIATE between pages
- * 			and then TIME_INFINITE when there are no more pages.
- * @note	An image that displays a looped animation will never return TIME_INFINITE unless it
- * 			gets an error.
- */
-delaytime_t gwinImageNext(GHandle gh);
 
 #ifdef __cplusplus
 }
