@@ -2,9 +2,13 @@
 *** Releases                                                              ***
 *****************************************************************************
 
-current release: 1.6
-FEATURE:	Complete rework of the entire GWIN module
-FEATURE:	Rename of ChibiOS/GFX to uGFX
+current release: 1.7
+
+
+*** changes after 1.6 ***
+FEATURE:	Added RA8875 GDISP driver
+FEATURE:	Added FT5x06 GINPUT/touch driver
+FIX:		Several bugfixes
 
 
 *** changes after 1.5 ***
@@ -37,8 +41,6 @@ FEATURE:	Added HX8347D driver by user 'Eddie'
 FEATURE:	Added enhanced notepad demo by user 'Abhishek'
 FEATURE:	Added GOS module (including sub modules such as GQUEUE)
 FEATURE:	Added some functionalities to the TDISP module by user 'Frysk'
-FEATURE:	Added RA8875 GDISP driver
-FEATURE:	Added FT5x06 GINPUT/touch driver
 
 
 *** changes after 1.4 ***
