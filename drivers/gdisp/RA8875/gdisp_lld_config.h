@@ -23,15 +23,14 @@
 /*===========================================================================*/
 
 #define GDISP_DRIVER_NAME				"RA8875"
-#define GDISP_LLD(x)					gdisp_lld_##x##_RA8875
 
 #define GDISP_HARDWARE_FILLS			TRUE
-#define GDISP_HARDWARE_BITFILLS		TRUE
-#define GDISP_HARDWARE_READPIXEL    TRUE
+#define GDISP_HARDWARE_BITFILL			TRUE
+#define GDISP_HARDWARE_READPIXEL		TRUE
 
 /* Maybe someday soon */
 #define GDISP_HARDWARE_SCROLL			FALSE
-#define GDISP_HARDWARE_CONTROL		FALSE
+#define GDISP_HARDWARE_CONTROL			TRUE
 
 #define GDISP_PIXELFORMAT				GDISP_PIXELFORMAT_RGB565
 

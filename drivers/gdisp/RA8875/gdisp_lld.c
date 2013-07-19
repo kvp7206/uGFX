@@ -436,7 +436,8 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 				GDISP.Orientation = (gdisp_orientation_t)value;
 				return;
 			case GDISP_CONTROL_BACKLIGHT:
-				gdisp_lld_bg_dimmer(54 + ((uint8_t)value) << 1);//turn 0..100% in 54..255
+				set_backlight((uint8_t )value);
+				//gdisp_lld_bg_dimmer(54 + ((uint8_t)value) << 1);//turn 0..100% in 54..255
 				return;
 /*
 			case GDISP_CONTROL_CONTRAST:
