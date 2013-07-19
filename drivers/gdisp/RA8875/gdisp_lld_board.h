@@ -16,22 +16,9 @@
 #ifndef _GDISP_LLD_BOARD_H
 #define _GDISP_LLD_BOARD_H
 
-#if defined(GDISP_USE_GPIO)
-	#define Set_CS		palSetPad(GDISP_CMD_PORT, GDISP_CS);
-	#define Clr_CS		palClearPad(GDISP_CMD_PORT, GDISP_CS);
-	#define Set_RS		palSetPad(GDISP_CMD_PORT, GDISP_RS);
-	#define Clr_RS		palClearPad(GDISP_CMD_PORT, GDISP_RS);
-	#define Set_WR		palSetPad(GDISP_CMD_PORT, GDISP_WR);
-	#define Clr_WR		palClearPad(GDISP_CMD_PORT, GDISP_WR);
-	#define Set_RD		palSetPad(GDISP_CMD_PORT, GDISP_RD);
-	#define Clr_RD		palClearPad(GDISP_CMD_PORT, GDISP_RD);
-#endif
-
-#if defined(GDISP_USE_FSMC)
-	/* Using FSMC A16 as RS */
-	#define GDISP_RAM              (*((volatile uint16_t *) 0x68000000)) /* RS = 0 */
-	#define GDISP_REG              (*((volatile uint16_t *) 0x68020000)) /* RS = 1 */
-#endif
+/* Using FSMC A16 as RS */
+#define GDISP_RAM              (*((volatile uint16_t *) 0x68000000)) /* RS = 0 */
+#define GDISP_REG              (*((volatile uint16_t *) 0x68020000)) /* RS = 1 */
 
 /**
  * @brief   Send data to the index register.
@@ -40,7 +27,9 @@
  *
  * @notapi
  */
-static inline void write_index(uint16_t index) { GDISP_REG = index; }
+static inline void write_index(uint16_t index) {
+	GDISP_REG = index;
+}
 
 /**
  * @brief   Send data to the lcd.
@@ -49,7 +38,9 @@ static inline void write_index(uint16_t index) { GDISP_REG = index; }
  * 
  * @notapi
  */
-static inline void write_data(uint16_t data) { GDISP_RAM = data; }
+static inline void write_data(uint16_t data) {
+	GDISP_RAM = data;
+}
 
 /**
  * @brief   Read data from the lcd.
@@ -60,7 +51,9 @@ static inline void write_data(uint16_t data) { GDISP_RAM = data; }
  *
  * @notapi
  */
-static inline uint16_t read_data(void) { return GDISP_RAM; }
+static inline uint16_t read_data(void) {
+	return GDISP_RAM;
+}
 
 /**
  * @brief   Initialise the board for the display.
@@ -197,3 +190,4 @@ static inline void release_bus(void) {
 
 #endif /* _GDISP_LLD_BOARD_H */
 /** @} */
+

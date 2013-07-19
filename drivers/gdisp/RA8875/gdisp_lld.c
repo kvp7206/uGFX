@@ -387,23 +387,13 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 					return;
 				switch((gdisp_powermode_t)value) {
 					case powerOff:
-						write_index(SSD1963_EXIT_SLEEP_MODE); // leave sleep mode
-						chThdSleepMilliseconds(5);
-						write_index(SSD1963_SET_DISPLAY_OFF);
-						write_index(SSD1963_SET_DEEP_SLEEP); // enter deep sleep mode
+						/* ToDo */
 						break;
 					case powerOn:
-						read_reg(0x0000); chThdSleepMilliseconds(5); // 2x Dummy reads to wake up from deep sleep
-						read_reg(0x0000); chThdSleepMilliseconds(5);
-						if (GDISP.Powermode != powerSleep)
-							gdisp_lld_init();
-						write_index(SSD1963_SET_DISPLAY_ON);
-	
+						/* ToDo */
 						break;
 					case powerSleep:
-						write_index(SSD1963_SET_DISPLAY_OFF);
-						write_index(SSD1963_ENTER_SLEEP_MODE); // enter sleep mode
-						chThdSleepMilliseconds(5);
+						/* ToDo */
 						break;
 					default:
 						return;
