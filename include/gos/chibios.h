@@ -76,6 +76,7 @@ extern "C" {
 #define gfxMutexDestroy(pmutex)		{}
 #define gfxMutexEnter(pmutex)		chMtxLock(pmutex)
 #define gfxMutexExit(pmutex)		chMtxUnlock()
+void *gfxRealloc(void *ptr, size_t oldsz, size_t newsz);
 void gfxSleepMilliseconds(delaytime_t ms);
 void gfxSleepMicroseconds(delaytime_t ms);
 void gfxSemInit(gfxSem *psem, semcount_t val, semcount_t limit);

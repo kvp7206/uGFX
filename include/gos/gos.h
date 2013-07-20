@@ -128,6 +128,26 @@
 	void *gfxAlloc(size_t sz);
 
 	/**
+	 * @brief	Re-allocate memory
+	 * @return	A pointer to the new memory area or NULL if there is no more memory available
+	 *
+	 * @param[in] ptr		The old memory area to be increased/decreased in size
+	 * @param[in] oldsz		The size in bytes of the old memory area
+	 * @param[in] newsz		The size in bytes of the new memory area
+	 *
+	 * @note		Some operating systems don't use the oldsz parameter as they implicitly know the size of
+	 * 				old memory area. The parameter must always be supplied however for API compatibility.
+	 * @note		gfxRealloc() can make the area smaller or larger but may have to return a different pointer.
+	 * 				If this occurs the new area contains a copy of the data from the old area. The old memory
+	 * 				pointer should not be used after this routine as the original area may have been freed.
+	 * @note		If there is insufficient memory to create the new memory region, NULL is returned and the
+	 * 				old memory area is left unchanged.
+	 *
+	 * @api
+	 */
+	void *gfxRealloc(void *ptr, size_t oldsz, size_t newsz);
+
+	/**
 	 * @brief	Free memory
 	 *
 	 * @param[in] ptr	The memory to free

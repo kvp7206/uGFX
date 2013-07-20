@@ -55,6 +55,7 @@ typedef HANDLE gfxThreadHandle;
 
 #define gfxExit()						ExitProcess(0)
 #define gfxAlloc(sz)					malloc(sz)
+#define gfxRealloc(p,osz,nsz)			realloc(p, nsz)
 #define gfxFree(ptr)					free(ptr)
 #define gfxSleepMilliseconds(ms)		Sleep(ms)
 #define gfxYield()						Sleep(0)

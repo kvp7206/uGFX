@@ -13,6 +13,8 @@
 
 #if GFX_USE_OS_CHIBIOS
 
+#include <string.h>
+
 #if !CH_USE_MUTEXES
 	#error "GOS: CH_USE_MUTEXES must be defined in chconf.h"
 #endif
@@ -27,6 +29,22 @@ void _gosInit(void) {
 		halInit();
 		chSysInit();
 	}
+}
+
+void *gfxRealloc(void *ptr, size_t oldsz, size_t newsz) {
+	void *np;
+
+	if (newsz <= oldsz)
+		return ptr;
+
+	np = gfxAlloc(newsz);
+	if (!np)
+		return 0;
+
+	if (oldsz)
+		memcpy(np, ptr, oldsz);
+
+	return np;
 }
 
 void gfxSleepMilliseconds(delaytime_t ms) {
