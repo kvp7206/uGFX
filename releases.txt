@@ -2,7 +2,17 @@
 *** Releases                                                              ***
 *****************************************************************************
 
-current release: 1.7
+current release: 1.8
+
+*** changes after 1.7 ***
+FEATURE:	Rename of the project from ChibiOS/GFX to uGFX
+FEATURE:	New website with a lot more of documentation
+FEATURE:	Introduced dedicated discussion forum
+FEATURE:	Complete rework of the widget manager (GWIN)
+FEATURE:	Added a lot of new widgets
+FEATURE:	Added gfxRealloc() to the GOS module
+FIX:		gfxHalt() fix for the Win32 port
+FIX:		Cleaned up board file mess
 
 
 *** changes after 1.6 ***
