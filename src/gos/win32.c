@@ -21,7 +21,8 @@ void _gosInit(void) {
 }
 
 void gfxHalt(const char *msg) {
-	fprintf(stderr, "%s\n", msg);
+	if (msg)
+		fprintf(stderr, "%s\n", msg);
 	ExitProcess(1);
 }
 
