@@ -70,4 +70,5 @@ GHandle gwinListCreate(GListObject* widget, GWidgetInit* pInit) {
 }
 
 #endif // GFX_USE_GWIN && GWIN_NEED_LIST
+/** @} */
 

@@ -7,9 +7,10 @@
 
 /**
  * @file    include/ginput/ginput.h
- * @brief   GINPUT GFX User Input subsystem header file.
  *
  * @addtogroup GINPUT
+ *
+ * @brief		Module to interface different hardware input sources such as touchscreens
  *
  * @details		GINPUT provides an easy and common interface to use different input devices
  *				such as touchscreens and mices.

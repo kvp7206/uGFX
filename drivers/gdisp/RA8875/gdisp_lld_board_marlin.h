@@ -6,8 +6,8 @@
  */
 
 /**
- * @file    drivers/gdisp/SSD1289/gdisp_lld_board_example_fsmc.h
- * @brief   GDISP Graphic Driver subsystem board interface for the SSD1289 display.
+ * @file    drivers/gdisp/RA8875/gdisp_lld_board_marlin.h
+ * @brief   GDISP Graphic Driver subsystem board interface for the RA8875 display.
  *
  * @addtogroup GDISP
  * @{

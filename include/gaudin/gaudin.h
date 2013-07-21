@@ -7,9 +7,10 @@
 
 /**
  * @file    include/gaudin/gaudin.h
- * @brief   GAUDIN - Audio Input subsystem header file.
  *
  * @addtogroup GAUDIN
+ *
+ * @brief	Module to read audio inputs (under development)
  *
  * @{
  */

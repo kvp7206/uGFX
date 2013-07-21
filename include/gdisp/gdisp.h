@@ -11,6 +11,8 @@
  *
  * @addtogroup GDISP
  *
+ * @brief		Module to interface graphic / pixel oriented displays
+ *
  * @details		The GDISP module provides high level abstraction to interface pixel oriented graphic displays.
  *
  * @pre			GFX_USE_GDISP must be set to TRUE in gfxconf.h

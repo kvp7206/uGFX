@@ -7,10 +7,11 @@
 
 /**
  * @file    include/gevent/gevent.h
- * @brief   GEVENT GFX User Event subsystem header file.
  *
  * @addtogroup GEVENT
  *
+ * @brief		Module to build a complete many-to-many event system
+ * 
  * @details		GEVENT provides a simple to use but yet powerful event
  *				system.
  *

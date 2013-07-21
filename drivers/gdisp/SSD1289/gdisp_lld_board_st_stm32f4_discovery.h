@@ -6,7 +6,7 @@
  */
 
 /**
- * @file    drivers/gdisp/SSD1289/gdisp_lld_board_example_fsmc.h
+ * @file    drivers/gdisp/SSD1289/gdisp_lld_board_st_stm32f4_discovery.h
  * @brief   GDISP Graphic Driver subsystem board interface for the SSD1289 display.
  *
  * @addtogroup GDISP

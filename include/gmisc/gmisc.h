@@ -9,7 +9,9 @@
  * @file    include/gmisc/gmisc.h
  * @brief   GMISC - Miscellaneous Routines header file.
  *
- * @addtogroup GAUDIN
+ * @addtogroup GMISC
+ *
+ * @brief	Module which contains different features such as array conversions
  *
  * @{
  */

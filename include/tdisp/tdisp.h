@@ -11,6 +11,8 @@
  *
  * @addtogroup TDISP
  *
+ * @brief		Module to drive character / dot matrix based displays
+ * 
  * @details		The TDISP module provides high level abstraction to interface pixel oriented graphic displays.
  *				Due the TDISP module is completely encapsulated from the other modules, it's very fast and lightweight.
  *

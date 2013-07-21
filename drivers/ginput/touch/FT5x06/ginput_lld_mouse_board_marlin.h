@@ -6,7 +6,7 @@
  */
 
 /**
- * @file    drivers/ginput/touch/FT5x06/ginput_lld_mouse_board.h
+ * @file    drivers/ginput/touch/FT5x06/ginput_lld_mouse_board_marlin.h
  * @brief   GINPUT Touch low level driver source for the FT5x06.
  *
  * @defgroup Mouse Mouse

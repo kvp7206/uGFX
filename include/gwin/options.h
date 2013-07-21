@@ -10,6 +10,8 @@
  * @brief   GWIN sub-system options header file.
  *
  * @addtogroup GWIN
+ * @brief	Module which provides a complete GUI toolkit based on widgets
+ * 
  * @{
  */
 

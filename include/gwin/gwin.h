@@ -7,7 +7,6 @@
 
 /**
  * @file    include/gwin/gwin.h
- * @brief   GWIN Graphic window subsystem header file.
  *
  * @defgroup Window Window
  * @ingroup GWIN

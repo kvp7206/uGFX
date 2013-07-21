@@ -10,6 +10,9 @@
  * @brief   GFX system header file.
  *
  * @addtogroup GFX
+ *
+ * @brief	Main module to glue all the others together
+ *
  * @{
  */
 

@@ -7,9 +7,10 @@
 
 /**
  * @file    include/gaudout/gaudout.h
- * @brief   GAUDOUT - Audio Output subsystem header file.
  *
  * @addtogroup GAUDOUT
+ *
+ * @brief	Module to output audio data (under development)
  *
  * @{
  */

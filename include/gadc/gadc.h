@@ -7,9 +7,10 @@
 
 /**
  * @file    include/gadc/gadc.h
- * @brief   GADC - Periodic ADC subsystem header file.
  *
  * @addtogroup GADC
+ *
+ * @brief	Module to abstract the very variable ADC interfaces of the underlying systems
  *
  * @details	The reason why ChibiOS/GFX has it's own ADC abstraction is because
  *			the Chibi-OS drivers are very CPU specific and do not

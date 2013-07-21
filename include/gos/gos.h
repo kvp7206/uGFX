@@ -7,10 +7,12 @@
 
 /**
  * @file    include/gos/gos.h
- * @brief   GOS - Operating System Support header file.
+ * @brief   GOS - Operating System Support header file
  *
  * @addtogroup GOS
- * @brief	GOS provides the operating system interface with the GFX library.
+ *
+ * @brief	Module to build a uniform abstraction layer between uGFX and the underlying system
+ *
  * @note	Some of the routines specified below may be implemented simply as
  * 			a macro to the real operating system call.
  * @{

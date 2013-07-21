@@ -155,6 +155,8 @@ extern "C" {
  * @param[in]	vmt		The virtual method table for the GWIN object
  * @param[in]	flags	The default flags to use
  *
+ * @return	The GHandle of the created window
+ *
  * @notapi
  */
 GHandle _gwindowCreate(GWindowObject *pgw, const GWindowInit *pInit, const gwinVMT *vmt, uint16_t flags);
@@ -167,6 +169,8 @@ GHandle _gwindowCreate(GWindowObject *pgw, const GWindowInit *pInit, const gwinV
 	 * @param[in]	pInit	The user initialization parameters
 	 * @param[in]	vmt		The virtual method table for the Widget object
 	 *
+	 * @return	The GHandle of the created widget
+ 	 *
 	 * @notapi
 	 */
 	GHandle _gwidgetCreate(GWidgetObject *pgw, const GWidgetInit *pInit, const gwidgetVMT *vmt);

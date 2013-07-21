@@ -7,9 +7,10 @@
 
 /**
  * @file    include/gtimer/gtimer.h
- * @brief   GTIMER GFX User Timer subsystem header file.
  *
  * @addtogroup GTIMER
+ *
+ * @brief	Module which provides software based timers for user-space applications
  *
  * @details	The reason why ChibiOS/GFX has it's own timer abstraction is because
  *			virtual timers provided by ChibiOS/RT are interrupt context only.

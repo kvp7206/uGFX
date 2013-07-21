@@ -10,7 +10,10 @@
  * @brief   GQUEUE header file.
  *
  * @addtogroup GQUEUE
- * @brief	GQUEUE provides queue management. There are 3 types of queues:
+ *
+ * @brief	Module which provides queue management (only internally used)
+ *
+ * @details	There are 3 types of queues:
  * 			<ul><li><b>Asynchronous Queues (ASync) </b> - Queue operations never block</li>
  * 				<li><b>Get Synchronous Queues (GSync) </b> - Queue Get operations block until something is placed in the Queue</li>
  * 				<li><b>Put Synchronous Queues (PSync)</b> - Queue Put operations block until the element is removed from the Queue</li>
@@ -128,7 +131,7 @@ bool_t gfxQueueFSyncPut(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, delayti
 
 /**
  * @brief	Pop an item from the head of the queue (and remove it from the queue).
- * @detail	This is exactly the same as the Get operation above.
+ * @details	This is exactly the same as the Get operation above.
  *
  * @api
  * @{
