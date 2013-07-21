@@ -319,7 +319,7 @@
 	 * @return	FALSE if the wait timeout occurred otherwise TRUE
 	 *
 	 * @param[in] psem		A pointer to the semaphore
-	 * @param[in] ms		The maxmimum time to wait for the semaphore
+	 * @param[in] ms		The maximum time to wait for the semaphore
 	 *
 	 * @api
 	 */
@@ -415,7 +415,7 @@
 	 *
 	 * @api
 	 */
-	 void gfxThreadClose(gfxThreadHandle thread);
+	void gfxThreadClose(gfxThreadHandle thread);
 
 	#ifdef __cplusplus
 	}
