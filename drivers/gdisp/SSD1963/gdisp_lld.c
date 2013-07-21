@@ -25,12 +25,7 @@
 /* All the board specific code should go in these include file so the driver
  * can be ported to another board just by creating a suitable file.
  */
-#if defined(BOARD_YOURBOARDNAME)
-	#include "gdisp_lld_board_yourboardname.h"
-#else
-	/* Include the user supplied board definitions */
-	#include "gdisp_lld_board.h"
-#endif
+#include "gdisp_lld_board.h"
 
 /*===========================================================================*/
 /* Driver interrupt handlers.                                                */

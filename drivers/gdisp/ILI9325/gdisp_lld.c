@@ -20,14 +20,7 @@
 /* Include the emulation code for things we don't support */
 #include "gdisp/lld/emulation.c"
 
-#if defined(GDISP_USE_CUSTOM_BOARD) && GDISP_USE_CUSTOM_BOARD
-	/* Include the user supplied board definitions */
-	#include "gdisp_lld_board.h"
-#elif defined(BOARD_HY_STM32_100P)
-	#include "gdisp_lld_board_hy_stm32_100p.h"
-#else
-	#include "gdisp_lld_board.h"
-#endif
+#include "gdisp_lld_board.h"
 
 /*===========================================================================*/
 /* Driver local definitions.                                                 */

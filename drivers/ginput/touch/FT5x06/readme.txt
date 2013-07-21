@@ -1,8 +1,0 @@
-To use this driver:
-
-1. Add in your gfxconf.h:
-	a) #define GFX_USE_GINPUT			TRUE
-	b) #define GINPUT_NEED_MOUSE		TRUE
-
-2. To your makefile add the following lines:
-	include $(GFXLIB)/drivers/ginput/touch/FT5x06/ginput_lld.mk

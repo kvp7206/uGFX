@@ -43,14 +43,7 @@
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
 
-#if defined(GDISP_USE_CUSTOM_BOARD) && GDISP_USE_CUSTOM_BOARD
-	/* Include the user supplied board definitions */
-	#include "gdisp_lld_board.h"
-#elif defined(BOARD_OLIMEX_STM32_E407)
-	#include "gdisp_lld_board_olimex_e407.h"
-#else
-	#include "gdisp_lld_board.h"
-#endif
+#include "gdisp_lld_board.h"
 
 /* Some common routines and macros */
 #define write_reg(reg, data)        { write_index(reg); write_data(data); }

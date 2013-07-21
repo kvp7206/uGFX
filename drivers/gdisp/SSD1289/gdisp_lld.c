@@ -38,17 +38,7 @@
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
-#if defined(GDISP_USE_CUSTOM_BOARD) && GDISP_USE_CUSTOM_BOARD
-	/* Include the user supplied board definitions */
-	#include "gdisp_lld_board.h"
-#elif defined(BOARD_FIREBULL_STM32_F103)
-	#include "gdisp_lld_board_firebullstm32f103.h"
-#elif defined(BOARD_ST_STM32F4_DISCOVERY)
-    #include "gdisp_lld_board_st_stm32f4_discovery.h"
-#else
-	/* Include the user supplied board definitions */
-	#include "gdisp_lld_board.h"
-#endif
+#include "gdisp_lld_board.h"
 
 // Some common routines and macros
 #define write_reg(reg, data)		{ write_index(reg); write_data(data); }

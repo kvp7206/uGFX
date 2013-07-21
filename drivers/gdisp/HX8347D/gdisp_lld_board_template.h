@@ -6,8 +6,8 @@
  */
 
 /**
- * @file    drivers/gdisp/S6D1121/gdisp_lld_board_example.h
- * @brief   GDISP Graphic Driver subsystem board interface for the S6D1121 display.
+ * @file    drivers/gdisp/HX8347D/gdisp_lld_board_template.h
+ * @brief   GDISP Graphic Driver subsystem board SPI interface for the HX8347D display.
  *
  * @addtogroup GDISP
  * @{
@@ -18,54 +18,54 @@
 
 /**
  * @brief   Initialise the board for the display.
+ * @notes	This board definition uses GPIO and assumes exclusive access to these GPIO pins
  *
  * @notapi
  */
 static inline void init_board(void) {
-	/* Code here */
-#error "SSD1289: You must supply a definition for init_board for your board"
+
 }
 
 /**
  * @brief   Set or clear the lcd reset pin.
  *
  * @param[in] state		TRUE = lcd in reset, FALSE = normal operation
- * 
+ *
  * @notapi
  */
 static inline void setpin_reset(bool_t state) {
-	/* Code here */
-#error "SSD1289: You must supply a definition for setpin_reset for your board"
+
 }
 
 /**
  * @brief   Set the lcd back-light level.
  *
  * @param[in] percent		0 to 100%
- * 
+ *
  * @notapi
  */
 static inline void set_backlight(uint8_t percent) {
-	/* Code here */
-#error "SSD1289: You must supply a definition for set_backlight for your board"
+
 }
 
 /**
  * @brief   Take exclusive control of the bus
+ * @note	Not needed, not implemented
  *
  * @notapi
  */
 static inline void acquire_bus(void) {
-#error "SSD1289: You must supply a definition for acquire_bus for your board"
+
 }
 
 /**
  * @brief   Release exclusive control of the bus
+ * @note	Not needed, not implemented
  *
  * @notapi
  */
 static inline void release_bus(void) {
-#error "SSD1289: You must supply a definition for release_bus for your board"
+
 }
 
 /**
@@ -75,38 +75,46 @@ static inline void release_bus(void) {
  *
  * @notapi
  */
-static inline void write_index(uint16_t index) {
-	/* Code here */
-#error "SSD1289: You must supply a definition for write_index for your board"
+static inline void write_index(uint8_t cmd) {
+
 }
 
 /**
  * @brief   Send data to the lcd.
  *
  * @param[in] data		The data to send
- * 
+ *
  * @notapi
  */
-static inline void write_data(uint16_t data) {
-	/* Code here */
-#error "SSD1289: You must supply a definition for write_data for your board"
+static inline void write_data(uint8_t data) {
+
+
+
 }
 
-#if GDISP_HARDWARE_READPIXEL || GDISP_HARDWARE_SCROLL || defined(__DOXYGEN__)
+static inline void write_ram8(uint8_t data1, uint8_t data2) {
+
+}
+
+static inline void write_ram16(uint16_t data) {
+
+}
+
+#if GDISP_HARDWARE_READPIXEL || defined(__DOXYGEN__)
 /**
  * @brief   Read data from the lcd.
  *
  * @return	The data from the lcd
  * @note	The chip select may need to be asserted/de-asserted
  * 			around the actual spi read
- * 
+ *
  * @notapi
  */
 static inline uint16_t read_data(void) {
-	/* Code here */
-#error "SSD1289: You must supply a definition for read_data for your board"
+
 }
 #endif
 
 #endif /* _GDISP_LLD_BOARD_H */
 /** @} */
+

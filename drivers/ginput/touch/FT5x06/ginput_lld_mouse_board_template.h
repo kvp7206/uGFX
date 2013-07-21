@@ -6,7 +6,7 @@
  */
 
 /**
- * @file    drivers/ginput/touch/FT5x06/ginput_lld_mouse_board_example.h
+ * @file    drivers/ginput/touch/FT5x06/ginput_lld_mouse_board_template.h
  * @brief   GINPUT Touch low level driver source for the FT5x06 on the example board.
  *
  * @defgroup Mouse Mouse
@@ -23,8 +23,7 @@
  * @notapi
  */
 static void init_board(void) {
-	/* Code here */
-	#error "ginputFT5x06: You must supply a definition for init_board for your board"
+
 }
 
 /**
@@ -34,8 +33,7 @@ static void init_board(void) {
  * @notapi
  */
 static inline bool_t getpin_irq(void) {
-	/* Code here */
-	#error "ginputFT5x06: You must supply a definition for getpin_irq for your board"
+
 }
 
 /**
@@ -48,8 +46,7 @@ static inline bool_t getpin_irq(void) {
  * @notapi
  */
 static void write_reg(uint8_t reg, uint8_t n, uint16_t val) {
-	/* Code here */
-	#error "ginputFT5x06: You must supply a definition for write_reg for your board"
+
 }
 
 /**
@@ -63,8 +60,7 @@ static void write_reg(uint8_t reg, uint8_t n, uint16_t val) {
  * @notapi
  */
 static uint16_t read_reg(uint8_t reg, uint8_t n) {
-	/* Code here */
-	#error "ginputFT5x06: You must supply a definition for read_reg for your board"
+
 }
 
 #endif /* _GINPUT_LLD_MOUSE_BOARD_H */

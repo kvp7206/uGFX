@@ -54,15 +54,7 @@
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
-#if defined(GDISP_USE_CUSTOM_BOARD) && GDISP_USE_CUSTOM_BOARD
-	/* Include the user supplied board definitions */
-	#include "gdisp_lld_board.h"
-#elif defined(BOARD_OLIMEX_SAM7_EX256)
-	#include "gdisp_lld_board_olimexsam7ex256.h"
-#else
-	/* Include the user supplied board definitions */
-	#include "gdisp_lld_board.h"
-#endif
+#include "gdisp_lld_board.h"
 
 // Some macros just to make reading the code easier
 #define delayms(ms)					gfxSleepMilliseconds(ms)

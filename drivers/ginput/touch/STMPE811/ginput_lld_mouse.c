@@ -22,13 +22,7 @@
 
 #include "ginput/lld/mouse.h"
 
-#if defined(GINPUT_MOUSE_USE_CUSTOM_BOARD) && GINPUT_MOUSE_USE_CUSTOM_BOARD
-	#include "ginput_lld_mouse_board.h"
-#elif defined(BOARD_EMBEST_DMSTF4BB)
-	#include "ginput_lld_mouse_board_embest_dmstf4bb.h"
-#else
-	#include "ginput_lld_mouse_board_example.h"
-#endif
+#include "ginput_lld_mouse_board.h"
 
 #ifndef STMP811_NO_GPIO_IRQPIN
 	#define STMP811_NO_GPIO_IRQPIN	FALSE
