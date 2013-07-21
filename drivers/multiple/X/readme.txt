@@ -20,8 +20,3 @@ and a touchscreen driver.
 
 3. Modify your makefile to add -lX11 to the DLIBS line. i.e.
 	DLIBS = -lX11
-
-3. If you changed your threading model to POSIX modify your makefile
-		to add -pthread to the CC (or DDEFS) line. i.e.
-	CC = $(TRGT)gcc -pthread
-

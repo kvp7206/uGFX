@@ -14,11 +14,6 @@
 
 #if GFX_USE_GDISP
 
-/* Our threading model - ChibiOS or POSIX */
-#ifndef GDISP_THREAD_CHIBIOS	
-	#define GDISP_THREAD_CHIBIOS	TRUE
-#endif
-
 /**
  * Our color model - Default or 24 bit only.
  *
@@ -42,9 +37,6 @@
 #include <X11/Xutil.h>
 #include <stdio.h>
 #include <stdlib.h>
-#if !GDISP_THREAD_CHIBIOS
-	#include <pthread.h>
-#endif
 
 #ifndef GDISP_SCREEN_HEIGHT
 	#define GDISP_SCREEN_HEIGHT		480
@@ -116,34 +108,19 @@ static void ProcessEvent(void) {
 }
 
 /* this is the X11 thread which keeps track of all events */
-#if GDISP_THREAD_CHIBIOS
-	static DECLARE_THREAD_STACK(waXThread, 1024);
-	static DECLARE_THREAD_FUNCTION(ThreadX, arg) {
-		(void)arg;
+static DECLARE_THREAD_STACK(waXThread, 1024);
+static DECLARE_THREAD_FUNCTION(ThreadX, arg) {
+	(void)arg;
 
-		while(1) {
-			gfxSleepMilliseconds(100);
-			while(XPending(dis)) {
-				XNextEvent(dis, &evt);
-				ProcessEvent();
-			}
+	while(1) {
+		gfxSleepMilliseconds(100);
+		while(XPending(dis)) {
+			XNextEvent(dis, &evt);
+			ProcessEvent();
 		}
-		return 0;
 	}
-#else
-	static void * ThreadX(void *arg) {
-		(void)arg;
-
-		while(1) {
-			pthread_yield();		// This could be a 100ms delay
-			while(XPending(dis)) {
-				XNextEvent(dis, &evt);
-				ProcessEvent();
-			}
-		}
-		return 0;
-	}
-#endif
+	return 0;
+}
  
 static int FatalXIOError(Display *d) {
 	(void) d;
@@ -159,12 +136,9 @@ bool_t gdisp_lld_init(void)
 	XSetWindowAttributes	xa;
 	XTextProperty			WindowTitle;
 	char *					WindowTitleText;
-	#if GDISP_THREAD_CHIBIOS
-		gfxThreadHandle			hth;
-	#else
-		pthread_attr_t			thattr;
-		pthread_t				thid;
+	gfxThreadHandle			hth;
 
+	#if GFX_USE_OS_POSIX
 		XInitThreads();
 	#endif
 
@@ -227,22 +201,15 @@ bool_t gdisp_lld_init(void)
 	XSelectInput(dis, win,
 		ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask);
 
-	#if GDISP_THREAD_CHIBIOS
-		if (!(hth = gfxThreadCreate(waXThread, sizeof(waXThread), HIGH_PRIORITY, ThreadX, 0))) {
-			fprintf(stderr, "Cannot start X Thread\n");
-			XCloseDisplay(dis);
-			exit(0);
-		}
-		gfxThreadClose(hth);
-	#else
-		if (pthread_attr_init(&thattr)
-				|| pthread_attr_setdetachstate(&thattr, PTHREAD_CREATE_DETACHED)
-				|| pthread_create(&thid, &thattr, ThreadX, 0)) {
-			fprintf(stderr, "Cannot start X Thread\n");
-			XCloseDisplay(dis);
-			exit(0);
-		}
+	if (!(hth = gfxThreadCreate(waXThread, sizeof(waXThread), HIGH_PRIORITY, ThreadX, 0))) {
+		fprintf(stderr, "Cannot start X Thread\n");
+		XCloseDisplay(dis);
+		exit(0);
+	}
+	#if GFX_USE_OS_POSIX
+		pthread_detach(hth);
 	#endif
+	gfxThreadClose(hth);
 	
     /* Initialise the GDISP structure to match */
     GDISP.Orientation = GDISP_ROTATE_0;
