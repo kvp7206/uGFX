@@ -6,7 +6,7 @@
  */
 
 /**
- * @file    src/gos/chibios.c
+ * @file    src/gos/posix.c
  * @brief   GOS ChibiOS Operating System support.
  */
 #include "gfx.h"
