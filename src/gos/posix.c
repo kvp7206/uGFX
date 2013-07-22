@@ -25,11 +25,11 @@ void _gosInit(void) {
 }
 
 void gfxSystemLock(void) {
-	//gfxMutexEnter(&SystemMutex);
+	gfxMutexEnter(&SystemMutex);
 }
 
 void gfxSystemUnlock(void) {
-	//gfxMutexLeave(&SystemMutex);
+	gfxMutexLeave(&SystemMutex);
 }
 
 void gfxHalt(const char *msg) {
