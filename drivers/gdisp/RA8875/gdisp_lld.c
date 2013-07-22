@@ -13,8 +13,6 @@
  * @{
  */
 
-#include "ch.h"
-#include "hal.h"
 #include "gfx.h"
 
 #if GFX_USE_GDISP /*|| defined(__DOXYGEN__)*/
@@ -56,22 +54,22 @@ bool_t gdisp_lld_init(void) {
 	write_index(0x01);
 	write_data(0x01);
 	write_data(0x00);
-	chThdSleepMilliseconds(1);
+	gfxSleepMilliseconds(1);
 
 	/* Driver PLL config 480x272*/
 	write_index(0x88);
 	write_data(0x08);
-	chThdSleepMilliseconds(1);
+	gfxSleepMilliseconds(1);
 	 write_index(0x89);
 	write_data(0x02);
-	chThdSleepMilliseconds(1);
+	gfxSleepMilliseconds(1);
 
 	write_index(0x10);	//SYSR   bit[4:3]=00 256 color  bit[2:1]=  00 8bit MPU interface
 	write_data(0x0F);	// if 16bit MCU interface   and 65k color display
 
 	write_index(0x04);	//set PCLK invers
 	write_data(0x82);
-	chThdSleepMilliseconds(1);
+	gfxSleepMilliseconds(1);
 
 	//Horizontal set
 	write_index(0x14); //HDWR//Horizontal Display Width Setting Bit[6:0]
