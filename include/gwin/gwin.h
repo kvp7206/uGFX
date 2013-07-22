@@ -766,39 +766,6 @@ extern "C" {
 	#endif
 
 /*-------------------------------------------------
- * Image functions
- *-------------------------------------------------*/
-
-	#if GDISP_NEED_IMAGE || defined(__DOXYGEN__)
-		/**
-		 * @brief	Draw the image
-		 * @return	GDISP_IMAGE_ERR_OK (0) on success or an error code.
-		 *
-		 * @param[in] gh		The window handle
-		 * @param[in] img   	The image structure
-		 * @param[in] x,y		The window location to draw the image
-		 * @param[in] cx,cy		The area on the screen to draw
-		 * @param[in] sx,sy		The image position to start drawing at
-		 *
-		 * @pre		gdispImageOpen() must have returned successfully.
-		 *
-		 * @note	If sx,sy + cx,cy is outside the image boundaries the area outside the image
-		 * 			is simply not drawn.
-		 * @note	If @p gdispImageCache() has been called first for this frame, this routine will draw using a
-		 * 			fast blit from the cached frame. If not, it reads the input and decodes it as it
-		 * 			is drawing. This may be significantly slower than if the image has been cached (but
-		 * 			uses a lot less RAM)
-		 *
-		 * @api
-		 */
-		gdispImageError gwinDrawImage(GHandle gh, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy);
-	#endif
-
-#ifdef __cplusplus
-}
-#endif
-
-/*-------------------------------------------------
  * Additional functionality
  *-------------------------------------------------*/
 
