@@ -29,7 +29,7 @@ void gfxSystemLock(void) {
 }
 
 void gfxSystemUnlock(void) {
-	gfxMutexLeave(&SystemMutex);
+	gfxMutexExit(&SystemMutex);
 }
 
 void gfxHalt(const char *msg) {
