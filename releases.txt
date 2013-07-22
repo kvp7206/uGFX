@@ -4,8 +4,10 @@
 
 current release: 1.8
 
+
 *** changes after 1.7 ***
 FEATURE:	Rename of the project from ChibiOS/GFX to uGFX
+FEATURE:        Moved from github.com to bitbucket.org
 FEATURE:	New website with a lot more of documentation
 FEATURE:	Introduced dedicated discussion forum
 FEATURE:	Complete rework of the widget manager (GWIN)
