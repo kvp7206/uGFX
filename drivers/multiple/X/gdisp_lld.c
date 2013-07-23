@@ -138,7 +138,7 @@ bool_t gdisp_lld_init(void)
 	char *					WindowTitleText;
 	gfxThreadHandle			hth;
 
-	#if GFX_USE_OS_POSIX
+	#if GFX_USE_OS_LINUX || GFX_USE_OS_OSX
 		XInitThreads();
 	#endif
 
@@ -206,7 +206,7 @@ bool_t gdisp_lld_init(void)
 		XCloseDisplay(dis);
 		exit(0);
 	}
-	#if GFX_USE_OS_POSIX
+	#if GFX_USE_OS_LINUX || GFX_USE_OS_OSX
 		pthread_detach(hth);
 	#endif
 	gfxThreadClose(hth);

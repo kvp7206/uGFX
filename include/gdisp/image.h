@@ -143,7 +143,7 @@ extern "C" {
 		bool_t gdispImageSetBaseFileStreamReader(gdispImage *img, void *BaseFileStreamPtr);
 	#endif
 
-	#if defined(WIN32) || GFX_USE_OS_WIN32 || GFX_USE_OS_POSIX || defined(__DOXYGEN__)
+	#if defined(WIN32) || GFX_USE_OS_WIN32 || GFX_USE_OS_LINUX || GFX_USE_OS_OSX || defined(__DOXYGEN__)
 		/**
 		 * @brief	Sets the io fields in the image structure to routines
 		 * 			that support reading from an image stored in Win32 simulators native

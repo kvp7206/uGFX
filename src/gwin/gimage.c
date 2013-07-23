@@ -159,7 +159,7 @@ bool_t gwinImageOpenMemory(GHandle gh, const void* memory) {
 	return TRUE;
 }
 
-#if defined(WIN32) || GFX_USE_OS_WIN32 || GFX_USE_OS_POSIX || defined(__DOXYGEN__)
+#if defined(WIN32) || GFX_USE_OS_WIN32 || GFX_USE_OS_LINUX || GFX_USE_OS_OSX || defined(__DOXYGEN__)
 bool_t gwinImageOpenFile(GHandle gh, const char* filename) {
 	if (gdispImageIsOpen(&widget(gh)->image))
 		gdispImageClose(&widget(gh)->image);

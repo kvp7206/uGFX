@@ -69,7 +69,7 @@ GHandle gwinImageCreate(GImageObject *widget, GWindowInit *pInit);
  */
 bool_t gwinImageOpenMemory(GHandle gh, const void* memory);
 
-#if defined(WIN32) || GFX_USE_OS_WIN32 || GFX_USE_OS_POSIX || defined(__DOXYGEN__)
+#if defined(WIN32) || GFX_USE_OS_WIN32 || GFX_USE_OS_LINUX || GFX_USE_OS_OSX || defined(__DOXYGEN__)
 	/**
 	 * @brief				Sets the input routines that support reading the image from a file
 	 * @return				TRUE if the IO open function succeeds

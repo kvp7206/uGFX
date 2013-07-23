@@ -6,7 +6,7 @@
  */
 
 /**
- * @file    include/gos/posix.h
+ * @file    include/gos/chibios.h
  * @brief   GOS - Operating System Support header file for ChibiOS.
  */
 

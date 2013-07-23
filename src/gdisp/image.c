@@ -117,7 +117,7 @@ bool_t gdispImageSetMemoryReader(gdispImage *img, const void *memimage) {
 	}
 #endif
 
-#if defined(WIN32) || GFX_USE_OS_WIN32 || GFX_USE_OS_POSIX
+#if defined(WIN32) || GFX_USE_OS_WIN32 || GFX_USE_OS_LINUX
 	#include <stdio.h>
 
 	static size_t ImageFileRead(struct gdispImageIO *pio, void *buf, size_t len) {

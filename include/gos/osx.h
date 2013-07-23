@@ -7,7 +7,7 @@
 
 /**
  * @file    include/gos/osx.h
- * @brief   GOS - Operating System Support header file for POSIX.
+ * @brief   GOS - Operating System Support header file for Mac OS-X.
  */
 
 #ifndef _GOS_OSX_H
