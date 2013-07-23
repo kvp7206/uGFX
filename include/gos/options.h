@@ -35,11 +35,18 @@
 		#define GFX_USE_OS_WIN32		FALSE
 	#endif
 	/**
-	 * @brief   Use a unix variant with posix threads
+	 * @brief   Use a linux based system running X11 
 	 * @details	Defaults to FALSE
 	 */
-	#ifndef GFX_USE_OS_POSIX
-		#define GFX_USE_OS_POSIX		FALSE
+	#ifndef GFX_USE_OS_LINUX
+		#define GFX_USE_OS_LINUX		FALSE
+	#endif
+	/**
+	 * @brief   Use a Mac OS-X based system
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GFX_USE_OS_OSX
+		#define GFX_USE_OS_OSX			FALSE
 	#endif
 /**
  * @}

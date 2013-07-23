@@ -7,7 +7,7 @@
 
 /**
  * @file    include/gos/linux.h
- * @brief   GOS - Operating System Support header file for POSIX.
+ * @brief   GOS - Operating System Support header file for LINUX.
  */
 
 #ifndef _GOS_LINUX_H

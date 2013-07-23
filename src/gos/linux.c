@@ -6,12 +6,12 @@
  */
 
 /**
- * @file    src/gos/osx.c
+ * @file    src/gos/linux.c
  * @brief   GOS ChibiOS Operating System support.
  */
 #include "gfx.h"
 
-#if GFX_USE_OS_OSX
+#if GFX_USE_OS_LINUX
 
 #include <stdio.h>
 #include <unistd.h>
@@ -165,6 +165,6 @@ semcount_t gfxSemCounter(gfxSem *pSem) {
 	return res;
 }
 
-#endif /* GFX_USE_OS_OSX */
+#endif /* GFX_USE_OS_LINUX */
 /** @} */
 

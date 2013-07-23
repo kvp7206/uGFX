@@ -26,14 +26,14 @@
 	#define GFX_DISPLAY_RULE_WARNINGS	FALSE
 #endif
 
-#if !GFX_USE_OS_CHIBIOS && !GFX_USE_OS_WIN32 && !GFX_USE_OS_POSIX
+#if !GFX_USE_OS_CHIBIOS && !GFX_USE_OS_WIN32 && !GFX_USE_OS_LINUX && !GFX_USE_OS_OSX
 	#if GFX_DISPLAY_RULE_WARNINGS
 		#warning "GOS: No Operating System has been defined. ChibiOS (GFX_USE_OS_CHIBIOS) has been turned on for you."
 	#endif
 	#undef GFX_USE_OS_CHIBIOS
 	#define GFX_USE_OS_CHIBIOS	TRUE
 #endif
-#if GFX_USE_OS_CHIBIOS + GFX_USE_OS_WIN32 + GFX_USE_OS_POSIX != 1 * TRUE
+#if GFX_USE_OS_CHIBIOS + GFX_USE_OS_WIN32 + GFX_USE_OS_LINUX + GFX_USE_OS_OSX != 1 * TRUE
 	#error "GOS: More than one operation system has been defined as TRUE."
 #endif
 

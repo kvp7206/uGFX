@@ -431,8 +431,10 @@
 	#include "gos/chibios.h"
 #elif GFX_USE_OS_WIN32
 	#include "gos/win32.h"
-#elif GFX_USE_OS_POSIX
-	#include "gos/posix.h"
+#elif GFX_USE_OS_LINUX
+	#include "gos/linux.h"
+#elif GFX_USE_OS_OSX
+	#include "gos/osx.h"
 #else
 	#error "Your operating system is not supported yet"
 #endif
