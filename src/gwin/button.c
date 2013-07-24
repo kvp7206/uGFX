@@ -184,7 +184,7 @@ void gwinButtonDraw_3D(GWidgetObject *gw, void *param) {
 		if (gw->g.vmt != (gwinVMT *)&buttonVMT)	return;
 		pcol = getDrawColors(gw);
 
-		gdispFillArea(gw->g.x, gw->g.y, ld, ld, gw->pstyle->background);
+		gdispFillArea(gw->g.x, gw->g.y, gw->g.width, gw->g.height, gw->pstyle->background);
 		if (gw->g.width >= 2*RND_CNR_SIZE+10) {
 			gdispFillRoundedBox(gw->g.x+1, gw->g.y+1, gw->g.width-2, gw->g.height-2, RND_CNR_SIZE-1, pcol->fill);
 			gdispDrawStringBox(gw->g.x+1, gw->g.y+RND_CNR_SIZE, gw->g.width-2, gw->g.height-(2*RND_CNR_SIZE), gw->text, gw->g.font, pcol->text, justifyCenter);
@@ -204,7 +204,7 @@ void gwinButtonDraw_3D(GWidgetObject *gw, void *param) {
 		if (gw->g.vmt != (gwinVMT *)&buttonVMT)	return;
 		pcol = getDrawColors(gw);
 
-		gdispFillArea(gw->g.x, gw->g.y, ld, ld, gw->pstyle->background);
+		gdispFillArea(gw->g.x, gw->g.y, gw->g.width, gw->g.height, gw->pstyle->background);
 		gdispFillEllipse(gw->g.x+1, gw->g.y+1, gw->g.width/2-1, gw->g.height/2-1, pcol->fill);
 		gdispDrawStringBox(gw->g.x+1, gw->g.y+1, gw->g.width-2, gw->g.height-2, gw->text, gw->g.font, pcol->text, justifyCenter);
 		gdispDrawEllipse(gw->g.x, gw->g.y, gw->g.width/2, gw->g.height/2, pcol->edge);
@@ -228,7 +228,7 @@ void gwinButtonDraw_3D(GWidgetObject *gw, void *param) {
 		arw[5].x = (gw->g.width - gw->g.width/ARROWBODY_DIVIDER)/2; arw[5].y = gw->g.height/ARROWHEAD_DIVIDER;
 		arw[6].x = 0; arw[6].y = gw->g.height/ARROWHEAD_DIVIDER;
 
-		gdispFillArea(gw->g.x, gw->g.y, ld, ld, gw->pstyle->background);
+		gdispFillArea(gw->g.x, gw->g.y, gw->g.width, gw->g.height, gw->pstyle->background);
 		gdispFillConvexPoly(gw->g.x, gw->g.y, arw, 7, pcol->fill);
 		gdispDrawPoly(gw->g.x, gw->g.y, arw, 7, pcol->edge);
 		gdispDrawStringBox(gw->g.x+1, gw->g.y+1, gw->g.width-2, gw->g.height-2, gw->text, gw->g.font, pcol->text, justifyCenter);
@@ -250,7 +250,7 @@ void gwinButtonDraw_3D(GWidgetObject *gw, void *param) {
 		arw[5].x = (gw->g.width - gw->g.width/ARROWBODY_DIVIDER)/2; arw[5].y = gw->g.height-1-gw->g.height/ARROWHEAD_DIVIDER;
 		arw[6].x = 0; arw[6].y = gw->g.height-1-gw->g.height/ARROWHEAD_DIVIDER;
 
-		gdispFillArea(gw->g.x, gw->g.y, ld, ld, gw->pstyle->background);
+		gdispFillArea(gw->g.x, gw->g.y, gw->g.width, gw->g.height, gw->pstyle->background);
 		gdispFillConvexPoly(gw->g.x, gw->g.y, arw, 7, pcol->fill);
 		gdispDrawPoly(gw->g.x, gw->g.y, arw, 7, pcol->edge);
 		gdispDrawStringBox(gw->g.x+1, gw->g.y+1, gw->g.width-2, gw->g.height-2, gw->text, gw->g.font, pcol->text, justifyCenter);
@@ -272,7 +272,7 @@ void gwinButtonDraw_3D(GWidgetObject *gw, void *param) {
 		arw[5].x = gw->g.width/ARROWHEAD_DIVIDER; arw[5].y = (gw->g.height + gw->g.height/ARROWBODY_DIVIDER)/2;
 		arw[6].x = gw->g.width/ARROWHEAD_DIVIDER; arw[6].y = gw->g.height-1;
 
-		gdispFillArea(gw->g.x, gw->g.y, ld, ld, gw->pstyle->background);
+		gdispFillArea(gw->g.x, gw->g.y, gw->g.width, gw->g.height, gw->pstyle->background);
 		gdispFillConvexPoly(gw->g.x, gw->g.y, arw, 7, pcol->fill);
 		gdispDrawPoly(gw->g.x, gw->g.y, arw, 7, pcol->edge);
 		gdispDrawStringBox(gw->g.x+1, gw->g.y+1, gw->g.width-2, gw->g.height-2, gw->text, gw->g.font, pcol->text, justifyCenter);
@@ -294,7 +294,7 @@ void gwinButtonDraw_3D(GWidgetObject *gw, void *param) {
 		arw[5].x = gw->g.width-1-gw->g.width/ARROWHEAD_DIVIDER; arw[5].y = (gw->g.height + gw->g.height/ARROWBODY_DIVIDER)/2;
 		arw[6].x = gw->g.width-1-gw->g.width/ARROWHEAD_DIVIDER; arw[6].y = gw->g.height-1;
 
-		gdispFillArea(gw->g.x, gw->g.y, ld, ld, gw->pstyle->background);
+		gdispFillArea(gw->g.x, gw->g.y, gw->g.width, gw->g.height, gw->pstyle->background);
 		gdispFillConvexPoly(gw->g.x, gw->g.y, arw, 7, pcol->fill);
 		gdispDrawPoly(gw->g.x, gw->g.y, arw, 7, pcol->edge);
 		gdispDrawStringBox(gw->g.x+1, gw->g.y+1, gw->g.width-2, gw->g.height-2, gw->text, gw->g.font, pcol->text, justifyCenter);
