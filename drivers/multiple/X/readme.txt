@@ -11,8 +11,6 @@ and a touchscreen driver.
 	d) Optionally the following (with appropriate values):
 		#define GDISP_SCREEN_WIDTH	640
 		#define GDISP_SCREEN_HEIGHT	480
-	e) Optionally change the threading model to LINUX (instead of ChibiOS)
-		#define GDISP_THREAD_CHIBIOS	FALSE
 
 2. To your makefile add the following lines:
 	include $(GFXLIB)/gfx.mk
