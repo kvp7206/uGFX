@@ -37,13 +37,16 @@
  * @brief	A list event
  */
 typedef struct GEventGWinList {
-	GEventType		type;			// The type of this event (GEVENT_GWIN_LIST)
-	GHandle			list;			// THe list that has generated the event
+	GEventType		type;		// The type of this event (GEVENT_GWIN_LIST)
+	GHandle			list;		// The list
+	int				item;		// The item that has been selected (or unselected in a multi-select listbox)
 } GEventGWinList;
 
 // A list window
 typedef struct GListObject {
 	GWidgetObject	w;
+	int				cnt;		// Number of items currently in the list (quicker than counting each time)
+	gfxQueueASync	list_head;	// The list of items
 } GListObject;
 
 #ifdef __cplusplus
@@ -51,6 +54,8 @@ extern "C" {
 #endif
 
 GHandle gwinListCreate(GListObject *widget, GWidgetInit *pInit);
+
+int gwinListAddItem(GHandle gh, const char* item, bool_t useAlloc);
 
 #ifdef __cplusplus
 }
