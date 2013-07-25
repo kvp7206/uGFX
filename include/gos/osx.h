@@ -48,8 +48,6 @@ typedef pthread_mutex_t		gfxMutex;
 #define gfxSemSignalI(psem)				gfxSemSignal(psem)
 #define gfxSemCounterI(pSem)			((pSem)->cnt)
 
-
-#define FALSE						0
 #define TRUE						1
 #define TIME_IMMEDIATE				0
 #define TIME_INFINITE				((delaytime_t)-1)
@@ -63,7 +61,7 @@ typedef struct gfxSem {
 	pthread_cond_t	cond;
 	semcount_t		cnt;
 	semcount_t		max;
-	} gfxSem;
+} gfxSem;
 
 /*===========================================================================*/
 /* Function declarations.                                                    */

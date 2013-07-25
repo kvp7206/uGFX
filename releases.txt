@@ -15,6 +15,7 @@ FEATURE:	Added a lot of new widgets
 FEATURE:	Added gfxRealloc() to the GOS module
 FIX:		gfxHalt() fix for the Win32 port
 FIX:		Cleaned up board file mess
+FIX:		POSIX port removed, now dedicated OS-X and Linux ports
 
 
 *** changes after 1.6 ***
