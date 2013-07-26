@@ -29,7 +29,7 @@
 #ifndef _GFXCONF_H
 #define _GFXCONF_H
 
-#define GFX_USE_OS_CHIBIOS		TRUE
+//#define GFX_USE_OS_CHIBIOS		TRUE
 //#define GFX_USE_OS_WIN32		TRUE
 //#define GFX_USE_OS_POSIX		TRUE
 
