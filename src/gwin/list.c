@@ -50,19 +50,7 @@ typedef struct ListItem {
 	#endif
 } ListItem;
 
-static int _getSelected(GWidgetObject *gw) {
-	gfxQueueASyncItem*	qi;
-	uint16_t i;
-
-	for(qi = gfxQueueASyncPeek(&((GListObject*)gw)->list_head), i = 0; qi; qi = gfxQueueASyncNext(qi), i++) {
-		if (((ListItem*)qi)->flags & GLIST_FLG_SELECTED)
-			return i;
-	}
-
-	return -1;
-}
-
-static void sendListEvent(GWidgetObject *gw) {
+static void sendListEvent(GWidgetObject *gw, int item) {
 	GSourceListener*	psl;
 	GEvent*				pe;
 	#define pse			((GEventGWinList *)pe)
@@ -72,11 +60,11 @@ static void sendListEvent(GWidgetObject *gw) {
 
 	while ((psl = geventGetSourceListener(GWIDGET_SOURCE, psl))) {
 		if (!(pe = geventGetEventBuffer(psl)))
-			continue
+			continue;
 
-		pse->type = GEVENT_GWIN_SLIDER;
+		pse->type = GEVENT_GWIN_LIST;
 		pse->list = (GHandle)gw;
-		pse->item = _getSelected(gw);
+		pse->item = item;
 
 		geventSendEvent(psl);
 	}
@@ -89,7 +77,7 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 	(void)param;
 
 	uint16_t i, fheight;
-	gfxQueueASyncItem* qi;
+	const gfxQueueASyncItem* qi;
 
 	fheight = gdispGetFontMetric(gwinGetDefaultFont(), fontHeight);	
 
@@ -109,9 +97,11 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 	// A mouse down has occured over the list area
 	static void MouseDown(GWidgetObject* gw, coord_t x, coord_t y) {
 		#define gcw			((GListObject *)gw)
+		#define li			((ListItem *)qi)
+		(void)				x;
 
 		uint16_t i, item_id, item_height;
-		gfxQueueASyncItem* qi;
+		const gfxQueueASyncItem* qi;
 
 		item_height = gdispGetFontMetric(gwinGetDefaultFont(), fontHeight) + 2;
 
@@ -119,23 +109,32 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 
 		for(qi = gfxQueueASyncPeek(&gcw->list_head), i = 0; qi; qi = gfxQueueASyncNext(qi), i++) {
 			if (item_id == i)
-				((ListItem*)qi)->flags |= GLIST_FLG_SELECTED;
+				li->flags |= GLIST_FLG_SELECTED;
 			else
-				((ListItem*)qi)->flags &=~ GLIST_FLG_SELECTED;
+				li->flags &=~ GLIST_FLG_SELECTED;
 		}
 
 		_gwidgetRedraw((GHandle)gw);
-		sendListEvent(gw);
+		sendListEvent(gw, item_id);
 
 		#undef gcw
+		#undef li
 	}
 #endif
+
+static void _destroy(GHandle gh) {
+	const gfxQueueASyncItem* qi;
+
+	while((qi = gfxQueueASyncGet(&((GListObject *)gh)->list_head)))
+		gfxFree((void *)qi);
+	_gwidgetDestroy(gh);
+}
 
 static const gwidgetVMT listVMT = {
 	{
 		"List",					// The class name
 		sizeof(GListObject),	// The object size
-		_gwidgetDestroy,		// The destroy routine
+		_destroy,		// The destroy routine
 		_gwidgetRedraw,			// The redraw routine
 		0,						// The after-clear routine
 	},
@@ -180,43 +179,46 @@ GHandle gwinListCreate(GListObject* widget, GWidgetInit* pInit) {
 }
 
 int gwinListAddItem(GHandle gh, const char* item_name, bool_t useAlloc) {
-	ListItem* newItem;
+	size_t		sz;
+	ListItem	*newItem;
+
+	sz = useAlloc ? sizeof(ListItem)+strlen(item_name)+1 : sizeof(ListItem);
+
+	if (!(newItem = (ListItem *)gfxAlloc(sz)))
+		return -1;
 
 	if (useAlloc) {
-		newItem = gfxAlloc(sizeof(newItem) + strlen(item_name) + 1);
-
-		// allocate string
-		newItem->text = gfxAlloc(strlen(item_name) + 1);
-		if (newItem->text == NULL)
-			return -1;
-
-		// assign text
-		newItem->text = item_name;		
-
-	} else {
-		newItem = gfxAlloc(sizeof(newItem));
-
-		if (newItem == NULL)
-			return -1;
+		strcpy((char *)(newItem+1), item_name);
+		item_name = (const char *)(newItem+1);
 	}
 
 	// the item is not selected when added
-	newItem->flags &=~ GLIST_FLG_SELECTED;
+	newItem->flags = 0;
+	newItem->param = 0;
+	newItem->text = item_name;
 
 	// add the new item to the list
-	gfxQueueASyncPut(&(widget(gh)->list_head), &newItem->q_item);
+	gfxQueueASyncPut(&widget(gh)->list_head, &newItem->q_item);
 
 	// increment the total amount of entries in the list widget
 	widget(gh)->cnt++;
+
+	return widget(gh)->cnt-1;
 }
 
 int gwinListGetSelected(GHandle gh) {
-	gfxQueueASyncItem* qi;
-	uint16_t i;
+	const gfxQueueASyncItem	*qi;
+	int i;
 
-	//for(qi = gfxQueueASyncPeek(&gcw->list_head), i = 0; qi; qi = gfxQueueASyncNext(qi), i++) {
+	if (gh->vmt != (gwinVMT *)&listVMT)
+		return -1;
 
-	
+	for(qi = gfxQueueASyncPeek(&widget(gh)->list_head), i = 0; qi; qi = gfxQueueASyncNext(qi), i++) {
+		if (((ListItem*)qi)->flags & GLIST_FLG_SELECTED)
+			return i;
+	}
+
+	return -1;
 }
 
 #endif // GFX_USE_GWIN && GWIN_NEED_LIST
