@@ -103,7 +103,7 @@
 		pi = pqueue->head;
 		pqueue->head = pi->next;
 		pi->next = 0;
-		gfxSytemUnlock();
+		gfxSystemUnlock();
 		return pi;
 	}
 	void gfxQueueGSyncPut(gfxQueueGSync *pqueue, gfxQueueGSyncItem *pitem) {
@@ -184,7 +184,7 @@
 		pi = pqueue->head;
 		pqueue->head = pi->next;
 		pi->next = 0;
-		gfxSytemUnlock();
+		gfxSystemUnlock();
 
 		gfxSemSignalI(&pi->sem);
 		gfxSemDestroy(&pi->sem);
