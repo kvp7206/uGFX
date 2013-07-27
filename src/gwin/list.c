@@ -78,7 +78,7 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 	(void)param;
 
 	uint16_t i, fheight;
-	gfxQueueASyncItem* qi;
+	const gfxQueueASyncItem* qi;
 	const GColorSet*	pcol;
 
 	fheight = gdispGetFontMetric(gwinGetDefaultFont(), fontHeight);	
@@ -103,7 +103,7 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 		(void)				x;
 
 		uint16_t i, item_id, item_height;
-		gfxQueueASyncItem* qi;
+		const gfxQueueASyncItem* qi;
 
 		item_height = gdispGetFontMetric(gwinGetDefaultFont(), fontHeight) + 2*BORDER;
 
@@ -130,7 +130,7 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 #endif
 
 static void _destroy(GHandle gh) {
-	gfxQueueASyncItem* qi;
+	const gfxQueueASyncItem* qi;
 
 	while((qi = gfxQueueASyncGet(&((GListObject *)gh)->list_head)))
 		gfxFree((void *)qi);
@@ -216,7 +216,7 @@ int gwinListAddItem(GHandle gh, const char* item_name, bool_t useAlloc) {
 }
 
 char* gwinListItemGetText(GHandle gh, int item) {
-	gfxQueueASyncItem* qi;
+	const gfxQueueASyncItem* qi;
 	uint16_t i;
 
 	// is it a valid handle?
@@ -237,7 +237,7 @@ char* gwinListItemGetText(GHandle gh, int item) {
 }
 
 int gwinListFindText(GHandle gh, const char* text) {
-	gfxQueueASyncItem* qi;
+	const gfxQueueASyncItem* qi;
 	uint16_t i;
 
 	// is it a valid handle?
@@ -259,7 +259,7 @@ int gwinListFindText(GHandle gh, const char* text) {
 }
 
 int gwinListGetSelected(GHandle gh) {
-	gfxQueueASyncItem	*qi;
+	const gfxQueueASyncItem	*qi;
 	int i;
 
 	// is it a valid handle?
@@ -275,7 +275,7 @@ int gwinListGetSelected(GHandle gh) {
 }
 
 void gwinListItemSetParam(GHandle gh, int item, uint16_t param) {
-	gfxQueueASyncItem* qi;
+	const gfxQueueASyncItem* qi;
 	uint16_t i;
 
 	// is it a valid handle?
@@ -296,14 +296,14 @@ void gwinListItemSetParam(GHandle gh, int item, uint16_t param) {
 }
 
 void gwinListDeleteAll(GHandle gh) {
-	gfxQueueASyncItem* qi;
+	const gfxQueueASyncItem* qi;
 
 	while((qi = gfxQueueASyncGet(&((GListObject *)gh)->list_head)))
 		gfxFree((void *)qi);
 }
 
 void gwinListItemDelete(GHandle gh, int item) {
-	gfxQueueASyncItem* qi;
+	const gfxQueueASyncItem* qi;
 	uint16_t i;
 
 	// is it a valid handle?
@@ -326,7 +326,7 @@ void gwinListItemDelete(GHandle gh, int item) {
 }
 
 uint16_t gwinListItemGetParam(GHandle gh, int item) {
-	gfxQueueASyncItem* qi;
+	const gfxQueueASyncItem* qi;
 	uint16_t i;
 
 	// is it a valid handle?
@@ -347,7 +347,7 @@ uint16_t gwinListItemGetParam(GHandle gh, int item) {
 }
 
 bool_t gwinListItemIsSelected(GHandle gh, int item) {
-	gfxQueueASyncItem* qi;
+	const gfxQueueASyncItem* qi;
 	uint16_t i;
 
 	// is it a valid handle?
