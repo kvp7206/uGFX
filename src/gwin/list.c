@@ -40,16 +40,27 @@ and use gw->pstyle->pressed->text for the selected text color
 typedef struct ListItem {
 	gfxQueueASyncItem	q_item;		// This must be the first member in the struct
 
-	uint16_t 			id;
 	uint16_t			flags;
 	    #define LISTITEM_ALLOCEDTEXT      0x0001
 	    #define LISTITEM_SELECTED         0x0002
-	uint16_t			uparam;
+	uint16_t			param;		// A parameter the user can specify himself
 	const char*			text;
 	#if GWIN_LIST_IMAGES
 	gdispImage*			pimg;
 	#endif
 } ListItem;
+
+static int _getSelected(GWidgetObject *gw) {
+	gfxQueueASyncItem*	qi;
+	uint16_t i;
+
+	for(qi = gfxQueueASyncPeek(&((GListObject*)gw)->list_head), i = 0; qi; qi = gfxQueueASyncNext(qi), i++) {
+		if (((ListItem*)qi)->flags & GLIST_FLG_SELECTED)
+			return i;
+	}
+
+	return -1;
+}
 
 static void sendListEvent(GWidgetObject *gw) {
 	GSourceListener*	psl;
@@ -58,17 +69,18 @@ static void sendListEvent(GWidgetObject *gw) {
 
 	// Trigger a GWIN list event
 	psl = 0;
+
 	while ((psl = geventGetSourceListener(GWIDGET_SOURCE, psl))) {
 		if (!(pe = geventGetEventBuffer(psl)))
 			continue
 
 		pse->type = GEVENT_GWIN_SLIDER;
 		pse->list = (GHandle)gw;
-		pse->item = 42;
+		pse->item = _getSelected(gw);
 
 		geventSendEvent(psl);
 	}
-
+	
 	#undef pse	
 }
 
@@ -104,7 +116,6 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 		item_height = gdispGetFontMetric(gwinGetDefaultFont(), fontHeight) + 2;
 
 		item_id = (y - gw->g.y) / item_height;
-		printf("item_id = %d\r\n", item_id);
 
 		for(qi = gfxQueueASyncPeek(&gcw->list_head), i = 0; qi; qi = gfxQueueASyncNext(qi), i++) {
 			if (item_id == i)
