@@ -57,6 +57,24 @@ GHandle gwinListCreate(GListObject *widget, GWidgetInit *pInit);
 
 int gwinListAddItem(GHandle gh, const char* item, bool_t useAlloc);
 
+char* gwinListItemGetText(GHandle gh, int item);
+
+int gwinListFindText(GHandle gh, const char* text);
+
+void gwinListItemSetParam(GHandle gh, int item, uint16_t param);
+
+uint16_t gwinListItemGetParam(GHandle gh, int item);
+
+void nListDeleteAll(GHandle gh);
+
+void gwinListItemDelete(GHandle gh, int item);
+
+int gwinListItemCount(GHandle gh);
+
+bool_t gwinListItemIsSelected(GHandle gh, int item);
+
+int gwinListGetSelected(GHandle gh);
+
 #ifdef __cplusplus
 }
 #endif
