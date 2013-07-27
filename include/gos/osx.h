@@ -48,7 +48,6 @@ typedef pthread_mutex_t		gfxMutex;
 #define gfxSemSignalI(psem)				gfxSemSignal(psem)
 #define gfxSemCounterI(pSem)			((pSem)->cnt)
 
-#define TRUE						1
 #define TIME_IMMEDIATE				0
 #define TIME_INFINITE				((delaytime_t)-1)
 #define MAX_SEMAPHORE_COUNT			((semcount_t)-1)
