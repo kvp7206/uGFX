@@ -201,18 +201,29 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 		#define gcw			((GListObject *)gw)
 
 		switch (role) {
-			// select up
+			// select down
 			case 0:
-				_selectUp(gw);
+				_selectDown(gw);
 				break;
 
-			// select down
+			// select up
 			case 1:
-				_selectDown(gw);
+				_selectUp(gw);
 				break;
 		}
 
 		#undef gcw
+	}
+
+	static void ToggleAssign(GWidgetObject *gw, uint16_t role, uint16_t instance) {
+		if (role)
+			((GListObject *)gw)->t_up = instance;
+		else
+			((GListObject *)gw)->t_dn = instance;
+	}
+
+	static uint16_t ToggleGet(GWidgetObject *gw, uint16_t role) {
+		return role ? ((GListObject *)gw)->t_up : ((GListObject *)gw)->t_dn;
 	}
 #endif
 
@@ -244,7 +255,7 @@ static const gwidgetVMT listVMT = {
 	#if GINPUT_NEED_TOGGLE
 		{
 			2,					// two toggle roles
-			ToggleAssin,		// Assign toggles
+			ToggleAssign,		// Assign toggles
 			ToggleGet,			// get toggles
 			0,
 			ToggleOn,			// process toggle on event

@@ -45,6 +45,12 @@ typedef struct GEventGWinList {
 // A list window
 typedef struct GListObject {
 	GWidgetObject	w;
+
+	#if GINPUT_NEED_TOGGLE
+		uint16_t	t_up;
+		uint16_t	t_dn;
+	#endif
+
 	int				cnt;		// Number of items currently in the list (quicker than counting each time)
 	gfxQueueASync	list_head;	// The list of items
 } GListObject;
