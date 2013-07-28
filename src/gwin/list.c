@@ -44,7 +44,8 @@ typedef struct ListItem {
 	#endif
 } ListItem;
 
-void _selectUp(GWidgetObject *gw) {
+// select the next item in the list
+static int _selectDown(GWidgetObject *gw) {
 	#define gcw			((GListObject *)gw)
 
 	gfxQueueASyncItem	*qi;
@@ -55,18 +56,43 @@ void _selectUp(GWidgetObject *gw) {
 			((ListItem*)qi)->flags &=~ GLIST_FLG_SELECTED;
 			qi = gfxQueueASyncNext(qi);
 			((ListItem*)qi)->flags |= GLIST_FLG_SELECTED;	
+
+			break;
 		}
 	}
 
 	_gwidgetRedraw((GHandle)gw);
 
+	return ++i;
+
 	#undef gcw
 }
 
-static void _selectDown(GWidgetObject *gw) {
+// select the previous item in the list
+static int _selectUp(GWidgetObject *gw) {
 	#define gcw			((GListObject *)gw)
 
+	gfxQueueASyncItem *qi;
+	gfxQueueASyncItem *qi2;
+	uint16_t i;
+
+	qi = gfxQueueASyncPeek(&gcw->list_head);
+	qi2 = qi;
+
+	for (i = 0; qi2; qi2 = gfxQueueASyncNext(qi), i++) {
+		if (((ListItem*)qi2)->flags & GLIST_FLG_SELECTED) {
+			((ListItem*)qi2)->flags &=~ GLIST_FLG_SELECTED;
+			((ListItem*)qi)->flags |= GLIST_FLG_SELECTED;
+		
+			break;
+		}
+
+		qi = qi2;
+	}
+
 	_gwidgetRedraw((GHandle)gw);
+
+	return --i;
 
 	#undef gcw
 }
@@ -137,14 +163,23 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 		uint16_t i, item_id, item_height;
 		const gfxQueueASyncItem* qi;
 
-		item_height = gdispGetFontMetric(gwinGetDefaultFont(), fontHeight) + 2*BORDER;
-		item_id = (y - gw->g.y) / item_height;
+		item_id = -1;
 
-		for(qi = gfxQueueASyncPeek(&gcw->list_head), i = 0; qi; qi = gfxQueueASyncNext(qi), i++) {
-			if (item_id == i)
-				li->flags |= GLIST_FLG_SELECTED;
-			else
-				li->flags &=~ GLIST_FLG_SELECTED;
+		if (x > gw->g.width - BORDER_SCROLL) {
+			if (y < BORDER_SCROLL)
+				item_id = _selectUp(gw);
+			else if (y > gw->g.height - BORDER_SCROLL)
+				item_id = _selectDown(gw);
+		} else if (x < gw->g.width - BORDER_SCROLL - BORDER) {
+			item_height = gdispGetFontMetric(gwinGetDefaultFont(), fontHeight) + 2*BORDER;
+			item_id = (y) / item_height;
+
+			for(qi = gfxQueueASyncPeek(&gcw->list_head), i = 0; qi; qi = gfxQueueASyncNext(qi), i++) {
+				if (item_id == i)
+					li->flags |= GLIST_FLG_SELECTED;
+				else
+					li->flags &=~ GLIST_FLG_SELECTED;
+			}
 		}
 
 		_gwidgetRedraw((GHandle)gw);
