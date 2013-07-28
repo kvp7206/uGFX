@@ -22,7 +22,10 @@
 #include "gwin/class_gwin.h"
 #include <string.h>
 
-#define BORDER		3
+// user for the default drawing routine
+#define BORDER			3	// the border from the the text to the frame
+#define BORDER_SCROLL	20	// the border from the scroll buttons to the frame
+#define ARROW			10	// arrow side length
 
 #define widget(gh)	((GListObject *)gh)
 
@@ -30,26 +33,51 @@
 #define GLIST_FLG_HASIMAGES			(GWIN_FIRST_CONTROL_FLAG << 1)
 #define GLIST_FLG_SELECTED			(GWIN_FIRST_CONTROL_FLAG << 2)
 
-/*
-Use gw->pstyle->background for the unselected fill.
-Use gw->pstyle->enabled/disabled->text for unselected text color
-Use gw->pstyle->enabled/disabled->edge for the surounding box
-Use gw->pstyle->enabled/disabled->fill for the selected text fill
-or gw->pstyle->pressed->fill for the selected text fill (which ever looks best)
-and use gw->pstyle->pressed->text for the selected text color
-*/
-
 typedef struct ListItem {
 	gfxQueueASyncItem	q_item;		// This must be the first member in the struct
 
 	uint16_t			flags;
-	    #define LISTITEM_ALLOCEDTEXT      0x0001
 	uint16_t			param;		// A parameter the user can specify himself
 	const char*			text;
 	#if GWIN_LIST_IMAGES
 	gdispImage*			pimg;
 	#endif
 } ListItem;
+
+void _selectUp(GWidgetObject *gw) {
+	#define gcw			((GListObject *)gw)
+
+	gfxQueueASyncItem	*qi;
+	uint16_t i;
+
+	for (i = 0, qi = gfxQueueASyncPeek(&gcw->list_head); qi; qi = gfxQueueASyncNext(qi), i++) {
+		if (((ListItem*)qi)->flags & GLIST_FLG_SELECTED && i < gcw->cnt - 1) {
+			((ListItem*)qi)->flags &=~ GLIST_FLG_SELECTED;
+			qi = gfxQueueASyncNext(qi);
+			((ListItem*)qi)->flags |= GLIST_FLG_SELECTED;	
+		}
+	}
+
+	_gwidgetRedraw((GHandle)gw);
+
+	#undef gcw
+}
+
+static void _selectDown(GWidgetObject *gw) {
+	#define gcw			((GListObject *)gw)
+
+	_gwidgetRedraw((GHandle)gw);
+
+	#undef gcw
+}
+
+static void _selectEnter(GWidgetObject *gw) {
+	#define gcw			((GListObject *)gw)
+
+
+
+	#undef gcw
+}
 
 static void sendListEvent(GWidgetObject *gw, int item) {
 	GSourceListener*	psl;
@@ -78,17 +106,29 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 	(void)param;
 
 	uint16_t i, fheight;
+	const point upArrow[] = { {0, ARROW}, {ARROW, ARROW}, {ARROW/2, 0} };
+	const point downArrow[] = { {0, 0}, {ARROW, 0}, {ARROW/2, ARROW} };
 	const gfxQueueASyncItem* qi;
 
 	fheight = gdispGetFontMetric(gwinGetDefaultFont(), fontHeight);	
 
+	// the list frame
 	gdispDrawBox(gw->g.x, gw->g.y, gw->g.width, gw->g.height, gw->pstyle->enabled.edge);
+	gdispDrawLine(gw->g.x + gw->g.width - BORDER_SCROLL, gw->g.y, gw->g.x + gw->g.width - BORDER_SCROLL, gw->g.y + gw->g.height, gw->pstyle->enabled.edge);
+	gdispDrawLine(gw->g.x + gw->g.width - BORDER_SCROLL, gw->g.y + BORDER_SCROLL, gw->g.x + gw->g.width, gw->g.y + BORDER_SCROLL, gw->pstyle->enabled.edge);
+	gdispDrawLine(gw->g.x + gw->g.width - BORDER_SCROLL, gw->g.y + gw->g.height - BORDER_SCROLL, gw->g.x + gw->g.width, gw->g.y + gw->g.height - BORDER_SCROLL, gw->pstyle->enabled.edge);
+
+	// the up-button
+	gdispFillConvexPoly(gw->g.x + gw->g.width - BORDER_SCROLL + ARROW/2, gw->g.y + BORDER_SCROLL - ARROW - ARROW/2, upArrow, 3, gw->pstyle->enabled.edge);
 	
+	// the down-button
+	gdispFillConvexPoly(gw->g.x + gw->g.width - BORDER_SCROLL + ARROW/2, gw->g.y + gw->g.height - BORDER_SCROLL + ARROW/2, downArrow, 3, gw->pstyle->enabled.edge);
+
 	for (qi = gfxQueueASyncPeek(&gcw->list_head), i = 0; qi; qi = gfxQueueASyncNext(qi), i += fheight + 2*BORDER) {
 		if (((ListItem*)qi)->flags & GLIST_FLG_SELECTED) {
-			gdispFillStringBox(gw->g.x + BORDER, gw->g.y + BORDER + i, gw->g.width - 2*BORDER, fheight, ((ListItem*)qi)->text, gwinGetDefaultFont(), gw->pstyle->background, gw->pstyle->enabled.text, justifyLeft);
+			gdispFillStringBox(gw->g.x + BORDER, gw->g.y + BORDER + i, gw->g.width - 2*BORDER - BORDER_SCROLL, fheight, ((ListItem*)qi)->text, gwinGetDefaultFont(), gw->pstyle->background, gw->pstyle->enabled.text, justifyLeft);
 		} else {
-			gdispFillStringBox(gw->g.x + BORDER, gw->g.y + BORDER + i, gw->g.width - 2*BORDER, fheight, ((ListItem*)qi)->text, gwinGetDefaultFont(), gw->pstyle->enabled.text, gw->pstyle->background, justifyLeft);
+			gdispFillStringBox(gw->g.x + BORDER, gw->g.y + BORDER + i, gw->g.width - 2*BORDER - BORDER_SCROLL, fheight, ((ListItem*)qi)->text, gwinGetDefaultFont(), gw->pstyle->enabled.text, gw->pstyle->background, justifyLeft);
 		}
 	}
 
@@ -96,7 +136,7 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 }
 
 #if GINPUT_NEED_MOUSE
-	// A mouse down has occured over the list area
+	// a mouse down has occured over the list area
 	static void MouseDown(GWidgetObject* gw, coord_t x, coord_t y) {
 		#define gcw			((GListObject *)gw)
 		#define li			((ListItem *)qi)
@@ -106,7 +146,6 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 		const gfxQueueASyncItem* qi;
 
 		item_height = gdispGetFontMetric(gwinGetDefaultFont(), fontHeight) + 2*BORDER;
-
 		item_id = (y - gw->g.y) / item_height;
 
 		for(qi = gfxQueueASyncPeek(&gcw->list_head), i = 0; qi; qi = gfxQueueASyncNext(qi), i++) {
@@ -118,7 +157,7 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 
 		_gwidgetRedraw((GHandle)gw);
 
-		// Do not generate an event if an empty section of the list has has been selected
+		// do not generate an event if an empty section of the list has has been selected
 		if (item_id < 0 || item_id > gcw->cnt - 1)
 			return;
 
@@ -126,6 +165,32 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 
 		#undef gcw
 		#undef li
+	}
+#endif
+
+#if GINPUT_NEED_TOGGLE
+	// a toggle-on has occurred
+	static void ToggleOn(GWidgetObject *gw, uint16_t role) {
+		#define gcw			((GListObject *)gw)
+
+		switch (role) {
+			// select up
+			case 0:
+				_selectUp(gw);
+				break;
+
+			// select down
+			case 1:
+				_selectDown(gw);
+				break;
+
+			// select enter
+			case 2:
+				_selectEnter(gw);
+				break;
+		}
+
+		#undef gcw
 	}
 #endif
 
@@ -156,11 +221,11 @@ static const gwidgetVMT listVMT = {
 	#endif
 	#if GINPUT_NEED_TOGGLE
 		{
+			2,					// three toggle roles
+			ToggleAssin,		// Assign toggles
+			ToggleGet,			// get toggles
 			0,
-			0,
-			0,
-			0,
-			0,
+			ToggleOn,			// process toggle on event
 		},
 	#endif
 	#if GINPUT_NEED_DIAL
@@ -204,6 +269,10 @@ int gwinListAddItem(GHandle gh, const char* item_name, bool_t useAlloc) {
 	newItem->flags = 0;
 	newItem->param = 0;
 	newItem->text = item_name;
+
+	// select the item if it's the first in the list
+	if (widget(gh)->cnt == 0)
+		newItem->flags |= GLIST_FLG_SELECTED;
 
 	// add the new item to the list
 	gfxQueueASyncPut(&widget(gh)->list_head, &newItem->q_item);
