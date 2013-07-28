@@ -16,6 +16,7 @@
 #if GFX_USE_OS_LINUX
 
 #include <sys/types.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <pthread.h>
 
