@@ -509,6 +509,13 @@ bool_t ginputCalibrateMouse(uint16_t instance) {
 			MouseConfig.fnsavecal(instance, (const uint8_t *)&MouseConfig.caldata, sizeof(MouseConfig.caldata));
 			MouseConfig.flags |= FLG_CAL_SAVED;
 		}
+
+		// Clear the screen using the GWIN default background color
+		#if GFX_USE_GWIN
+			gdispClear(gwinGetDefaultBgColor());
+		#else
+			gdispClear(White);
+		#endif
 	
 		return TRUE;
 	#endif
