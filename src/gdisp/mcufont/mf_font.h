@@ -1,3 +1,10 @@
+/*
+ * This file is subject to the terms of the GFX License. If a copy of
+ * the license was not distributed with this file, you can obtain one at:
+ *
+ *              http://ugfx.org/license.html
+ */
+
 /* Generic font type that supports fonts with multiple kinds of compression.
  * Provides an interface for decoding and rendering single characters.
  */

@@ -1,3 +1,10 @@
+/*
+ * This file is subject to the terms of the GFX License. If a copy of
+ * the license was not distributed with this file, you can obtain one at:
+ *
+ *              http://ugfx.org/license.html
+ */
+
 /* Word wrapping algorithm with UTF-8 support. More than just a basic greedy
  * word-wrapper: it attempts to balance consecutive lines as pairs.
  */
