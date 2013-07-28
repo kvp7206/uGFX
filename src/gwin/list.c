@@ -71,14 +71,6 @@ static void _selectDown(GWidgetObject *gw) {
 	#undef gcw
 }
 
-static void _selectEnter(GWidgetObject *gw) {
-	#define gcw			((GListObject *)gw)
-
-
-
-	#undef gcw
-}
-
 static void sendListEvent(GWidgetObject *gw, int item) {
 	GSourceListener*	psl;
 	GEvent*				pe;
@@ -183,11 +175,6 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 			case 1:
 				_selectDown(gw);
 				break;
-
-			// select enter
-			case 2:
-				_selectEnter(gw);
-				break;
 		}
 
 		#undef gcw
@@ -221,7 +208,7 @@ static const gwidgetVMT listVMT = {
 	#endif
 	#if GINPUT_NEED_TOGGLE
 		{
-			2,					// three toggle roles
+			2,					// two toggle roles
 			ToggleAssin,		// Assign toggles
 			ToggleGet,			// get toggles
 			0,

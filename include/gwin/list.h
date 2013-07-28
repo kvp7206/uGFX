@@ -65,8 +65,8 @@ extern "C" {
  * @note				The list contains no elements after creation.
  * @note				A slider supports mouse, toggle and dial input.
  * @note				When assigning a toggle, only one toggle is supported per role. If you try to assign more than
- *						one toggle to a role, it will forget the previous toggle. Three roles are supported:
- *						Role 0 = toggle for down, role 1 = toggle for up, role 2 = toggle for select.
+ *						one toggle to a role, it will forget the previous toggle. Two roles are supported:
+ *						Role 0 = toggle for down, role 1 = toggle for up 
  * @note				When assigning a dial, only one dial is supported. If you try to assign more than one dial, it
  *						will forget the previous dial. Only dial role 0 is supported.
  *
