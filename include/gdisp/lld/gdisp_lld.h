@@ -281,8 +281,8 @@ extern "C" {
 
 	/* Text Rendering Functions */
 	#if GDISP_NEED_TEXT
-	extern void gdisp_lld_draw_char(coord_t x, coord_t y, char c, font_t font, color_t color);
-	extern void gdisp_lld_fill_char(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor);
+	extern void gdisp_lld_draw_char(coord_t x, coord_t y, uint16_t c, font_t font, color_t color);
+	extern void gdisp_lld_fill_char(coord_t x, coord_t y, uint16_t c, font_t font, color_t color, color_t bgcolor);
 	#endif
 
 	/* Pixel readback */

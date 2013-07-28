@@ -55,7 +55,11 @@ typedef struct point_t {
 /**
  * @brief   Type for the text justification.
  */
-typedef enum justify {justifyLeft, justifyCenter, justifyRight} justify_t;
+typedef enum justify {
+	justifyLeft = 0,
+	justifyCenter = 1,
+	justifyRight = 2
+} justify_t;
 /**
  * @brief   Type for the font metric.
  */
@@ -63,7 +67,7 @@ typedef enum fontmetric {fontHeight, fontDescendersHeight, fontLineSpacing, font
 /**
  * @brief   The type of a font.
  */
-typedef const struct font *font_t;
+typedef const struct mf_font_s* font_t;
 /**
  * @brief   Type for the screen orientation.
  */
@@ -489,7 +493,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gdispDrawChar(coord_t x, coord_t y, char c, font_t font, color_t color);
+		void gdispDrawChar(coord_t x, coord_t y, uint16_t c, font_t font, color_t color);
 
 		/**
 		 * @brief   Draw a text character with a filled background.
@@ -502,7 +506,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gdispFillChar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor);
+		void gdispFillChar(coord_t x, coord_t y, uint16_t c, font_t font, color_t color, color_t bgcolor);
 	#endif
 	
 	/* Read a pixel Function */
@@ -762,6 +766,17 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 	void gdispCloseFont(font_t font);
 
 	/**
+	 * @brief	Make a scaled copy of an existing font.
+	 * @details	Allocates memory for new font metadata using gfxAlloc, remember to close font after use!
+	 * @return	A new font or NULL if out of memory.
+	 * 
+	 * @param[in] font	The base font to use.
+	 * @param[in] scale_x	The scale factor in horizontal direction.
+	 * @param[in] scale_y	The scale factor in vertical direction.
+	 */
+	font_t gdispScaleFont(font_t font, uint8_t scale_x, uint8_t scale_y);
+	
+	/**
 	 * @brief	Get the name of the specified font.
 	 * @returns	The name of the font.
 	 *
@@ -771,6 +786,18 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 	 */
 	const char *gdispGetFontName(font_t font);
 #endif
+
+/**
+ * @brief	Blend two colors together according to opacity/alpha.
+ * @return	The blended color.
+ * 
+ * @param[in] fg	Foreground color
+ * @param[in] bg	Background color
+ * @param[in] alpha	Opacity of the foreground color (0-255)
+ * 
+ * @api
+ */
+color_t gdispBlendColor(color_t fg, color_t bg, uint8_t alpha);
 
 /* Extra Arc Functions */
 

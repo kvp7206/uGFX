@@ -182,6 +182,36 @@
 	#endif
 /**
  * @}
+ * 
+ * @name	GDISP Text Rendering Options
+ * @{
+ */
+	/**
+	 * @brief	Enable UTF-8 support for text rendering.
+	 * @details Defaults to FALSE
+	 */
+	#ifndef GDISP_NEED_UTF8
+		#define GDISP_NEED_UTF8	FALSE
+	#endif
+	
+	/**
+	 * @brief	Enable kerning for font rendering (improves character placement).
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GDISP_NEED_TEXT_KERNING
+		#define GDISP_NEED_TEXT_KERNING	FALSE
+	#endif
+	
+	/**
+	 * @brief	Enable antialiased font support
+	 * @details	Defaults to FALSE
+	 */
+	#ifndef GDISP_NEED_ANTIALIAS
+		#define GDISP_NEED_ANTIALIAS	FALSE
+	#endif
+	
+/**
+ * @}
  *
  * @name    GDISP Multi-Threading Options
  * @{
@@ -220,21 +250,6 @@
 	 * @brief   Predefined built in fonts
 	 * @note	Turning off the ones you are not using can save program size.
 	 */
-	#ifndef GDISP_INCLUDE_FONT_SMALL
-		#define GDISP_INCLUDE_FONT_SMALL		TRUE
-	#endif
-	#ifndef GDISP_INCLUDE_FONT_LARGER
-		#define GDISP_INCLUDE_FONT_LARGER		TRUE
-	#endif
-	#ifndef GDISP_INCLUDE_FONT_UI1
-		#define GDISP_INCLUDE_FONT_UI1			TRUE
-	#endif
-	#ifndef GDISP_INCLUDE_FONT_UI2
-		#define GDISP_INCLUDE_FONT_UI2			TRUE
-	#endif
-	#ifndef GDISP_INCLUDE_FONT_LARGENUMBERS
-		#define GDISP_INCLUDE_FONT_LARGENUMBERS	TRUE
-	#endif
 
 /**
  * @}
@@ -242,16 +257,6 @@
  * @name    GDISP Optional Sizing Parameters
  * @{
  */
-	/**
-	 * @brief   The maximum height of a font.
-	 * @details	Either 16 or 32. Defaults to 16
-	 * @note	Setting this to 32 causes the font tables to take
-	 *			twice the internal program memory. Don't do it unless
-	 *			you realy must define an unscaled font larger than 16 bits high.
-	 */
-	#ifndef GDISP_MAX_FONT_HEIGHT
-		#define GDISP_MAX_FONT_HEIGHT	16
-	#endif
 /**
  * @}
  *

@@ -8,3 +8,4 @@ build
 *.lst
 *.o
 *.map
+src/gdisp/fonts/*.dat

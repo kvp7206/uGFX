@@ -46,8 +46,8 @@ void drawScreen(void) {
 	char *msg = "ChibiOS/GFX";
 	font_t		font1, font2;
 
-	font1 = gdispOpenFont("UI2 Double");
-	font2 = gdispOpenFont("LargeNumbers");
+	font1 = gdispOpenFont("DejaVuSans24");
+	font2 = gdispOpenFont("DejaVuSans12");
 
 	gdispClear(White);
 	gdispDrawString(gdispGetWidth()-gdispGetStringWidth(msg, font1)-3, 3, msg, font1, Black);
@@ -61,12 +61,12 @@ void drawScreen(void) {
 	gdispDrawBox (5 * COLOR_SIZE + 3, 3, COLOR_SIZE, COLOR_SIZE, Black);	/* White */
 
 	/* pens */	
-	gdispDrawString(OFFSET * 2, DRAW_PEN(1), "1", font2, Black);
-	gdispDrawString(OFFSET * 2, DRAW_PEN(2), "2", font2, Black);
-	gdispDrawString(OFFSET * 2, DRAW_PEN(3), "3", font2, Black);
-	gdispDrawString(OFFSET * 2, DRAW_PEN(4), "4", font2, Black);
-	gdispDrawString(OFFSET * 2, DRAW_PEN(5), "5", font2, Black);
-
+	gdispFillStringBox(OFFSET * 2, DRAW_PEN(1), PEN_SIZE, PEN_SIZE, "1", font2, White, Black, justifyCenter);
+	gdispFillStringBox(OFFSET * 2, DRAW_PEN(2), PEN_SIZE, PEN_SIZE, "2", font2, White, Black, justifyCenter);
+	gdispFillStringBox(OFFSET * 2, DRAW_PEN(3), PEN_SIZE, PEN_SIZE, "3", font2, White, Black, justifyCenter);
+	gdispFillStringBox(OFFSET * 2, DRAW_PEN(4), PEN_SIZE, PEN_SIZE, "4", font2, White, Black, justifyCenter);
+	gdispFillStringBox(OFFSET * 2, DRAW_PEN(5), PEN_SIZE, PEN_SIZE, "5", font2, White, Black, justifyCenter);
+	
 	gdispCloseFont(font1);
 	gdispCloseFont(font2);
 }

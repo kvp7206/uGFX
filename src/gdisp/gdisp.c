@@ -17,7 +17,7 @@
 #if GFX_USE_GDISP
 
 #ifdef GDISP_NEED_TEXT
-	#include "gdisp/fonts.h"
+	#include "mcufont.h"
 #endif
 
 /* Include the low level driver information */
@@ -400,13 +400,13 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 #endif
 
 #if (GDISP_NEED_TEXT && GDISP_NEED_MULTITHREAD)
-	void gdispDrawChar(coord_t x, coord_t y, char c, font_t font, color_t color) {
+	void gdispDrawChar(coord_t x, coord_t y, uint16_t c, font_t font, color_t color) {
 		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_draw_char(x, y, c, font, color);
 		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_TEXT && GDISP_NEED_ASYNC
-	void gdispDrawChar(coord_t x, coord_t y, char c, font_t font, color_t color) {
+	void gdispDrawChar(coord_t x, coord_t y, uint16_t c, font_t font, color_t color) {
 		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_DRAWCHAR);
 		p->drawchar.x = x;
 		p->drawchar.y = y;
@@ -418,13 +418,13 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 #endif
 
 #if (GDISP_NEED_TEXT && GDISP_NEED_MULTITHREAD)
-	void gdispFillChar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
+	void gdispFillChar(coord_t x, coord_t y, uint16_t c, font_t font, color_t color, color_t bgcolor) {
 		gfxMutexEnter(&gdispMutex);
 		gdisp_lld_fill_char(x, y, c, font, color, bgcolor);
 		gfxMutexExit(&gdispMutex);
 	}
 #elif GDISP_NEED_TEXT && GDISP_NEED_ASYNC
-	void gdispFillChar(coord_t x, coord_t y, char c, font_t font, color_t color, color_t bgcolor) {
+	void gdispFillChar(coord_t x, coord_t y, uint16_t c, font_t font, color_t color, color_t bgcolor) {
 		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_FILLCHAR);
 		p->fillchar.x = x;
 		p->fillchar.y = y;
@@ -619,321 +619,206 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	}
 #endif
 
-	#if GDISP_NEED_TEXT
+#if GDISP_NEED_TEXT
+	typedef struct
+	{
+		font_t font;
+		color_t color;
+	} gdispDrawString_state_t;
+
+	/* Callback to render characters. */
+	static uint8_t gdispDrawString_callback(int16_t x, int16_t y,
+											mf_char character, void *state)
+	{
+		gdispDrawString_state_t *s = state;
+		uint8_t w;
+		
+		gdispDrawChar(x, y, character, s->font, s->color);
+		w = mf_character_width(s->font, character);
+		return w;
+	}
+
 	void gdispDrawString(coord_t x, coord_t y, const char *str, font_t font, color_t color) {
 		/* No mutex required as we only call high level functions which have their own mutex */
-		coord_t		w, p;
-		char		c;
-		int			first;
+		gdispDrawString_state_t state;
 		
-		if (!str) return;
+		state.font = font;
+		state.color = color;
 		
-		first = 1;
-		p = font->charPadding * font->xscale;
-		while(*str) {
-			/* Get the next printable character */
-			c = *str++;
-			w = _getCharWidth(font, c) * font->xscale;
-			if (!w) continue;
-			
-			/* Handle inter-character padding */
-			if (p) {
-				if (!first)
-					x += p;
-				else
-					first = 0;
-			}
-			
-			/* Print the character */
-			gdispDrawChar(x, y, c, font, color);
-			x += w;
-		}
+		mf_render_aligned(font, x, y, MF_ALIGN_LEFT, str, 0,
+						  gdispDrawString_callback, &state);
 	}
 #endif
 	
 #if GDISP_NEED_TEXT
+	typedef struct
+	{
+		coord_t y0;
+		coord_t prev_x;
+		font_t font;
+		color_t color;
+		color_t bgcolor;
+		bool_t rightalign;
+	} gdispFillString_state_t;
+
+	/* Callback to render characters. */
+	static uint8_t gdispFillString_callback(int16_t x, int16_t y,
+											mf_char character, void *state)
+	{
+		gdispFillString_state_t *s = state;
+		uint8_t w;
+		int16_t right_edge;
+		w = mf_character_width(s->font, character);
+		right_edge = x + w + s->font->baseline_x;
+		
+		if (!s->rightalign)
+		{
+			if (s->prev_x < x)
+			{
+				/* Fill any space between characters */
+				gdispFillArea(s->prev_x, s->y0, x - s->prev_x, s->font->height,
+							s->bgcolor);
+			}
+			else if (s->prev_x > x)
+			{
+				/* Uh, looks like there is some kerning going on. If we would
+				* just call gdispFillChar() here, it would overwrite part of
+				* the previous character. Instead, fill background separately.
+				*/
+				gdispFillArea(s->prev_x, s->y0, right_edge - s->prev_x,
+							  s->font->height, s->bgcolor);
+				gdispDrawChar(x, y, character, s->font, s->color);
+				s->prev_x = right_edge;
+				return w;
+			}
+			
+			s->prev_x = right_edge;
+		}
+		else
+		{
+			/* When rendering right-aligned text, the characters are drawn
+			 * from right to left. */
+			if (s->prev_x > right_edge)
+			{
+				/* Fill any space between characters */
+				gdispFillArea(right_edge, s->y0, s->prev_x - right_edge,
+							  s->font->height, s->bgcolor);
+			}
+			else if (s->prev_x < right_edge)
+			{
+				gdispFillArea(x, s->y0, s->prev_x - x,
+							  s->font->height, s->bgcolor);
+				gdispDrawChar(x, y, character, s->font, s->color);
+				s->prev_x = x;
+				return w;
+			}
+			
+			s->prev_x = x;
+		}
+
+		gdispFillChar(x, y, character, s->font, s->color, s->bgcolor);
+		
+		return w;
+	}
+
 	void gdispFillString(coord_t x, coord_t y, const char *str, font_t font, color_t color, color_t bgcolor) {
 		/* No mutex required as we only call high level functions which have their own mutex */
-		coord_t		w, h, p;
-		char		c;
-		int			first;
+		gdispFillString_state_t state;
 		
-		if (!str) return;
+		state.y0 = y;
+		state.prev_x = x;
+		state.font = font;
+		state.color = color;
+		state.bgcolor = bgcolor;
+		state.rightalign = false;
 		
-		first = 1;
-		h = font->height * font->yscale;
-		p = font->charPadding * font->xscale;
-		while(*str) {
-			/* Get the next printable character */
-			c = *str++;
-			w = _getCharWidth(font, c) * font->xscale;
-			if (!w) continue;
-			
-			/* Handle inter-character padding */
-			if (p) {
-				if (!first) {
-					gdispFillArea(x, y, p, h, bgcolor);
-					x += p;
-				} else
-					first = 0;
-			}
-
-			/* Print the character */
-			gdispFillChar(x, y, c, font, color, bgcolor);
-			x += w;
-		}
+		x += font->baseline_x;
+		mf_render_aligned(font, x, y, MF_ALIGN_LEFT, str, 0,
+						  gdispFillString_callback, &state);
 	}
 #endif
 	
 #if GDISP_NEED_TEXT
 	void gdispDrawStringBox(coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, justify_t justify) {
 		/* No mutex required as we only call high level functions which have their own mutex */
-		coord_t		w, h, p, ypos, xpos;
-		char		c;
-		int			first;
-		const char *rstr;
+		gdispDrawString_state_t state;
 		
-		if (!str) str = "";
-
-		h = font->height * font->yscale;
-		p = font->charPadding * font->xscale;
-
-		/* Oops - font too large for the area */
-		if (h > cy) return;
-
-		/* See if we need to fill above the font */
-		ypos = (cy - h + 1)/2;
-		if (ypos > 0) {
-			y += ypos;
-			cy -= ypos;
-		}
+		state.font = font;
+		state.color = color;
 		
-		/* See if we need to fill below the font */
-		ypos = cy - h;
-		if (ypos > 0)
-			cy -= ypos;
-		
-		/* get the start of the printable string and the xpos */
-		switch(justify) {
-		case justifyCenter:
-			/* Get the length of the entire string */
-			w = gdispGetStringWidth(str, font);
-			if (w <= cx)
-				xpos = x + (cx - w)/2;
-			else {
-				/* Calculate how much of the string we need to get rid of */
-				ypos = (w - cx)/2;
-				xpos = 0;
-				first = 1;
-				while(*str) {
-					/* Get the next printable character */
-					c = *str++;
-					w = _getCharWidth(font, c) * font->xscale;
-					if (!w) continue;
-					
-					/* Handle inter-character padding */
-					if (p) {
-						if (!first) {
-							xpos += p;
-							if (xpos > ypos) break;
-						} else
-							first = 0;
-					}
+		/* Select the anchor position */
+		if (justify == justifyLeft)
+			x += font->baseline_x;
+		else if (justify == justifyCenter)
+			x += (cx + 1) / 2;
+		else if (justify == justifyRight)
+			x += cx;
 
-					/* Print the character */
-					xpos += w;
-					if (xpos > ypos) break;
-				}
-				xpos = ypos - xpos + x;
-			}
-			break;
-		case justifyRight:
-			/* Find the end of the string */
-			for(rstr = str; *str; str++);
-			xpos = x+cx - 2;
-			first = 1;
-			for(str--; str >= rstr; str--) {
-				/* Get the next printable character */
-				c = *str;
-				w = _getCharWidth(font, c) * font->xscale;
-				if (!w) continue;
-				
-				/* Handle inter-character padding */
-				if (p) {
-					if (!first) {
-						if (xpos - p < x) break;
-						xpos -= p;
-					} else
-						first = 0;
-				}
-
-				/* Print the character */
-				if (xpos - w < x) break;
-				xpos -= w;
-			}
-			str++;
-			break;
-		case justifyLeft:
-			/* Fall through */
-		default:
-			xpos = x+1;
-			break;
-		}
-		
-		/* Print characters until we run out of room */
-		first = 1;
-		while(*str) {
-			/* Get the next printable character */
-			c = *str++;
-			w = _getCharWidth(font, c) * font->xscale;
-			if (!w) continue;
-			
-			/* Handle inter-character padding */
-			if (p) {
-				if (!first) {
-					if (xpos + p > x+cx) break;
-					xpos += p;
-				} else
-					first = 0;
-			}
-
-			/* Print the character */
-			if (xpos + w > x+cx) break;
-			gdispDrawChar(xpos, y, c, font, color);
-			xpos += w;
-		}
+		mf_render_aligned(font, x, y, justify, str, 0,
+						  gdispDrawString_callback, &state);
 	}
 #endif
 	
 #if GDISP_NEED_TEXT
 	void gdispFillStringBox(coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, color_t bgcolor, justify_t justify) {
 		/* No mutex required as we only call high level functions which have their own mutex */
-		coord_t		w, h, p, ypos, xpos;
-		char		c;
-		int			first;
-		const char *rstr;
+		gdispFillString_state_t state;
+		int16_t min_x, max_x;
 		
-		if (!str) str = "";
-
-		h = font->height * font->yscale;
-		p = font->charPadding * font->xscale;
-
-		/* Oops - font too large for the area */
-		if (h > cy) return;
-
-		/* See if we need to fill above the font */
-		ypos = (cy - h + 1)/2;
-		if (ypos > 0) {
-			gdispFillArea(x, y, cx, ypos, bgcolor);
-			y += ypos;
-			cy -= ypos;
+		min_x = x;
+		max_x = x + cx;
+		
+		state.y0 = y + (cy - font->height + 1) / 2;
+		state.prev_x = x;
+		state.font = font;
+		state.color = color;
+		state.bgcolor = bgcolor;
+		state.rightalign = false;
+		
+		/* Fill above the text */
+		if (state.y0 > y)
+		{
+			gdispFillArea(x, y, cx, state.y0 - y, bgcolor);
 		}
 		
-		/* See if we need to fill below the font */
-		ypos = cy - h;
-		if (ypos > 0) {
-			gdispFillArea(x, y+cy-ypos, cx, ypos, bgcolor);
-			cy -= ypos;
+		/* Fill below the text */
+		if (state.y0 + font->height < y + cy)
+		{
+			gdispFillArea(x, state.y0 + font->height, cx,
+						  (y + cy) - (state.y0 + font->height), bgcolor);
 		}
 		
-		/* get the start of the printable string and the xpos */
-		switch(justify) {
-		case justifyCenter:
-			/* Get the length of the entire string */
-			w = gdispGetStringWidth(str, font);
-			if (w <= cx)
-				xpos = x + (cx - w)/2;
-			else {
-				/* Calculate how much of the string we need to get rid of */
-				ypos = (w - cx)/2;
-				xpos = 0;
-				first = 1;
-				while(*str) {
-					/* Get the next printable character */
-					c = *str++;
-					w = _getCharWidth(font, c) * font->xscale;
-					if (!w) continue;
-					
-					/* Handle inter-character padding */
-					if (p) {
-						if (!first) {
-							xpos += p;
-							if (xpos > ypos) break;
-						} else
-							first = 0;
-					}
-
-					/* Print the character */
-					xpos += w;
-					if (xpos > ypos) break;
-				}
-				xpos = ypos - xpos + x;
-			}
-			break;
-		case justifyRight:
-			/* Find the end of the string */
-			for(rstr = str; *str; str++);
-			xpos = x+cx - 2;
-			first = 1;
-			for(str--; str >= rstr; str--) {
-				/* Get the next printable character */
-				c = *str;
-				w = _getCharWidth(font, c) * font->xscale;
-				if (!w) continue;
-				
-				/* Handle inter-character padding */
-				if (p) {
-					if (!first) {
-						if (xpos - p < x) break;
-						xpos -= p;
-					} else
-						first = 0;
-				}
-
-				/* Print the character */
-				if (xpos - w < x) break;
-				xpos -= w;
-			}
-			str++;
-			break;
-		case justifyLeft:
-			/* Fall through */
-		default:
-			xpos = x+1;
-			break;
+		/* Select the anchor position */
+		if (justify == justifyLeft)
+		{
+			x += font->baseline_x;
+		}
+		else if (justify == justifyCenter)
+		{
+			x += (cx + 1) / 2;
+		}
+		else if (justify == justifyRight)
+		{
+			state.rightalign = true;
+			state.prev_x = x + cx;
+			x += cx;
 		}
 		
-		/* Fill any space to the left */
-		if (x < xpos)
-			gdispFillArea(x, y, xpos-x, cy, bgcolor);
+		/* Render */
+		mf_render_aligned(font, x, state.y0, justify, str, 0,
+						  gdispFillString_callback, &state);
 		
-		/* Print characters until we run out of room */
-		first = 1;
-		while(*str) {
-			/* Get the next printable character */
-			c = *str++;
-			w = _getCharWidth(font, c) * font->xscale;
-			if (!w) continue;
-			
-			/* Handle inter-character padding */
-			if (p) {
-				if (!first) {
-					if (xpos + p > x+cx) break;
-					gdispFillArea(xpos, y, p, cy, bgcolor);
-					xpos += p;
-				} else
-					first = 0;
-			}
-
-			/* Print the character */
-			if (xpos + w > x+cx) break;
-			gdispFillChar(xpos, y, c, font, color, bgcolor);
-			xpos += w;
+		/* Fill any space left */
+		if (!state.rightalign && state.prev_x < max_x)
+		{
+			gdispFillArea(state.prev_x, state.y0, max_x - state.prev_x,
+						  state.font->height, bgcolor);
 		}
-		
-		/* Fill any space to the right */
-		if (xpos < x+cx)
-			gdispFillArea(xpos, y, x+cx-xpos, cy, bgcolor);
+		else if (state.rightalign && state.prev_x > min_x)
+		{
+			gdispFillArea(min_x, state.y0, state.prev_x - min_x,
+						  state.font->height, bgcolor);
+		}
 	}
 #endif
 	
@@ -941,12 +826,12 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	coord_t gdispGetFontMetric(font_t font, fontmetric_t metric) {
 		/* No mutex required as we only read static data */
 		switch(metric) {
-		case fontHeight:			return font->height * font->yscale;
-		case fontDescendersHeight:	return font->descenderHeight * font->yscale;
-		case fontLineSpacing:		return font->lineSpacing * font->yscale;
-		case fontCharPadding:		return font->charPadding * font->xscale;
-		case fontMinWidth:			return font->minWidth * font->xscale;
-		case fontMaxWidth:			return font->maxWidth * font->xscale;
+		case fontHeight:			return font->height;
+		case fontDescendersHeight:	return font->height - font->baseline_y;
+		case fontLineSpacing:		return font->line_height;
+		case fontCharPadding:		return 0;
+		case fontMinWidth:			return font->min_x_advance;
+		case fontMaxWidth:			return font->max_x_advance;
 		}
 		return 0;
 	}
@@ -955,40 +840,37 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 #if GDISP_NEED_TEXT
 	coord_t gdispGetCharWidth(char c, font_t font) {
 		/* No mutex required as we only read static data */
-		return _getCharWidth(font, c) * font->xscale;
+		return mf_character_width(font, c);
 	}
 #endif
 	
 #if GDISP_NEED_TEXT
 	coord_t gdispGetStringWidth(const char* str, font_t font) {
 		/* No mutex required as we only read static data */
-		coord_t		w, p, x;
-		char		c;
-		int			first;
-		
-		first = 1;
-		x = 0;
-		p = font->charPadding * font->xscale;
-		while(*str) {
-			/* Get the next printable character */
-			c = *str++;
-			w = _getCharWidth(font, c)  * font->xscale;
-			if (!w) continue;
-			
-			/* Handle inter-character padding */
-			if (p) {
-				if (!first)
-					x += p;
-				else
-					first = 0;
-			}
-			
-			/* Add the character width */
-			x += w;
-		}
-		return x;
+		return mf_get_string_width(font, str, 0, 0);
 	}
 #endif
+
+color_t gdispBlendColor(color_t fg, color_t bg, uint8_t alpha)
+{
+	uint16_t fg_ratio = alpha + 1;
+	uint16_t bg_ratio = 256 - alpha;
+	uint16_t r, g, b;
+	
+	r = RED_OF(fg) * fg_ratio;
+	g = GREEN_OF(fg) * fg_ratio;
+	b = BLUE_OF(fg) * fg_ratio;
+	
+	r += RED_OF(bg) * bg_ratio;
+	g += GREEN_OF(bg) * bg_ratio;
+	b += BLUE_OF(bg) * bg_ratio;
+	
+	r /= 256;
+	g /= 256;
+	b /= 256;
+	
+	return RGB2COLOR(r, g, b);
+}
 
 #if (!defined(gdispPackPixels) && !defined(GDISP_PIXELFORMAT_CUSTOM))
 	void gdispPackPixels(pixel_t *buf, coord_t cx, coord_t x, coord_t y, color_t color) {

@@ -155,7 +155,7 @@ typedef union gdisp_lld_msg {
 		gfxQueueItem		qi;
 		gdisp_msgaction_t	action;			// GDISP_LLD_MSG_DRAWCHAR
 		coord_t				x, y;
-		char				c;
+		uint16_t			c;
 		font_t				font;
 		color_t				color;
 	} drawchar;
@@ -163,7 +163,7 @@ typedef union gdisp_lld_msg {
 		gfxQueueItem		qi;
 		gdisp_msgaction_t	action;			// GDISP_LLD_MSG_FILLCHAR
 		coord_t				x, y;
-		char				c;
+		uint16_t			c;
 		font_t				font;
 		color_t				color;
 		color_t				bgcolor;

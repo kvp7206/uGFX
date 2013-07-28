@@ -7,3 +7,9 @@ GFXSRC +=   $(GFXLIB)/src/gdisp/gdisp.c \
 			$(GFXLIB)/src/gdisp/image_jpg.c \
 			$(GFXLIB)/src/gdisp/image_png.c
 			
+MFDIR = $(GFXLIB)/src/gdisp/mcufont
+include $(GFXLIB)/src/gdisp/mcufont/mcufont.mk
+GFXINC += $(MFDIR)
+GFXSRC += $(MFSRC)
+
+GFXINC += $(GFXLIB)/src/gdisp/fonts
