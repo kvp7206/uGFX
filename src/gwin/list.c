@@ -79,17 +79,17 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 
 	uint16_t i, fheight;
 	const gfxQueueASyncItem* qi;
-	const GColorSet*	pcol;
 
 	fheight = gdispGetFontMetric(gwinGetDefaultFont(), fontHeight);	
 
-	gdispDrawBox(gw->g.x, gw->g.y, gw->g.width, gw->g.height, Black);
+	gdispDrawBox(gw->g.x, gw->g.y, gw->g.width, gw->g.height, gw->pstyle->enabled.edge);
 	
 	for (qi = gfxQueueASyncPeek(&gcw->list_head), i = 0; qi; qi = gfxQueueASyncNext(qi), i += fheight + 2*BORDER) {
-		if (((ListItem*)qi)->flags & GLIST_FLG_SELECTED) 
-			gdispFillStringBox(gw->g.x + BORDER, gw->g.y + BORDER + i, gw->g.width - 2*BORDER, fheight, ((ListItem*)qi)->text, gwinGetDefaultFont(), White, Black, justifyLeft);
-		else
-			gdispFillStringBox(gw->g.x + BORDER, gw->g.y + BORDER + i, gw->g.width - 2*BORDER, fheight, ((ListItem*)qi)->text, gwinGetDefaultFont(), Black, White, justifyLeft);
+		if (((ListItem*)qi)->flags & GLIST_FLG_SELECTED) {
+			gdispFillStringBox(gw->g.x + BORDER, gw->g.y + BORDER + i, gw->g.width - 2*BORDER, fheight, ((ListItem*)qi)->text, gwinGetDefaultFont(), gw->pstyle->background, gw->pstyle->enabled.text, justifyLeft);
+		} else {
+			gdispFillStringBox(gw->g.x + BORDER, gw->g.y + BORDER + i, gw->g.width - 2*BORDER, fheight, ((ListItem*)qi)->text, gwinGetDefaultFont(), gw->pstyle->enabled.text, gw->pstyle->background, justifyLeft);
+		}
 	}
 
 	#undef gcw
