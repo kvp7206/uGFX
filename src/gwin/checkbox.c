@@ -190,7 +190,7 @@ void gwinCheckboxDraw_CheckOnRight(GWidgetObject *gw, void *param) {
 	if (gw->g.flags & GCHECKBOX_FLG_CHECKED)
 		gdispFillArea(gw->g.x+ep+df, gw->g.y+df, ld-2*df, ld-2*df, pcol->fill);
 
-	gdispFillStringBox(gw->g.x, gw->g.y, ep, gw->g.height, gw->text, gw->g.font, pcol->text, gw->pstyle->background, justifyRight);
+	gdispFillStringBox(gw->g.x, gw->g.y, ep-1, gw->g.height, gw->text, gw->g.font, pcol->text, gw->pstyle->background, justifyRight);
 	#undef gcw
 }
 
