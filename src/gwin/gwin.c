@@ -396,7 +396,7 @@ void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coor
 #if GDISP_NEED_PIXELREAD
 	color_t gwinGetPixelColor(GHandle gh, coord_t x, coord_t y) {
 		if (!((gh->flags & GWIN_FLG_VISIBLE)))
-			return;
+			return defaultBgColor;
 
 		#if GDISP_NEED_CLIP
 			gdispSetClip(gh->x, gh->y, gh->width, gh->height);
