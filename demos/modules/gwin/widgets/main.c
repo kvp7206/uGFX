@@ -226,7 +226,7 @@ int main(void) {
 	gfxInit();
 
 	// Set the widget defaults
-	gwinSetDefaultFont(gdispOpenFont("UI2"));
+	gwinSetDefaultFont(gdispOpenFont("*"));
 	gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
 	gdispClear(White);
 
