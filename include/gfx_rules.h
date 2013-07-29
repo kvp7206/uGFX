@@ -139,12 +139,34 @@
 	#endif
 	#if GDISP_NEED_ASYNC && !(GFX_USE_GQUEUE && GQUEUE_NEED_GSYNC)
 		#if GFX_DISPLAY_RULE_WARNINGS
-			#warning "GDISP: GFX_USE_GQUEUE or GQUEUE_NEED_GSYNC is not TRUE. It has been turned on for you."
+			#warning "GDISP: GDISP_NEED_ASYNC requires GFX_USE_GQUEUE and GQUEUE_NEED_GSYNC. They have been turned on for you."
 		#endif
 		#undef GFX_USE_GQUEUE
 		#define	GFX_USE_GQUEUE		TRUE
 		#undef GQUEUE_NEED_GSYNC
 		#define	GQUEUE_NEED_GSYNC	TRUE
+	#endif
+	#if GDISP_NEED_ANTIALIAS && !GDISP_NEED_PIXELREAD
+		#if GDISP_HARDWARE_PIXELREAD
+			#if GFX_DISPLAY_RULE_WARNINGS
+				#warning "GDISP: GDISP_NEED_ANTIALIAS has been set but GDISP_NEED_PIXELREAD has not. It has been turned on for you."
+			#endif
+			#undef GDISP_NEED_PIXELREAD
+			#define GDISP_NEED_PIXELREAD	TRUE
+		#else
+			#if GFX_DISPLAY_RULE_WARNINGS
+				#warning "GDISP: GDISP_NEED_ANTIALIAS has been set but your hardware does not support reading back pixels. Anti-aliasing will only occur for filled characters."
+			#endif
+		#endif
+	#endif
+	#if (defined(GDISP_INCLUDE_FONT_SMALL) && GDISP_INCLUDE_FONT_SMALL) || (defined(GDISP_INCLUDE_FONT_LARGER) && GDISP_INCLUDE_FONT_LARGER) \
+			|| (defined(GDISP_INCLUDE_FONT_UI1) && GDISP_INCLUDE_FONT_UI1) || (defined(GDISP_INCLUDE_FONT_UI2) && GDISP_INCLUDE_FONT_UI2)
+		#if GFX_DISPLAY_RULE_WARNINGS
+			#warning "GDISP: An old font (Small, Larger, UI1, UI2) has been defined. A single default font of DEJAVUSANS12 has been added instead."
+			#warning "GDISP: Please see <$(GFXLIB)/include/gdisp/fonts/fonts.h> for a list of available font names."
+		#endif
+		#undef GDISP_INCLUDE_FONT_DEJAVUSANS12
+		#define GDISP_INCLUDE_FONT_DEJAVUSANS12		TRUE
 	#endif
 #endif
 

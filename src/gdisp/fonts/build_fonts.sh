@@ -71,7 +71,10 @@ for file in *.c; do
 	upper=${noext^^}
 	defname='GDISP_INCLUDE_FONT_'$upper
 	echo '#if defined('$defname') && '$defname >> fonts.h
+	echo '#define GDISP_FONT_FOUND' >> fonts.h
 	echo '#include "'$file'"' >> fonts.h
 	echo '#endif' >> fonts.h
 done
-
+echo '#ifndef GDISP_FONT_FOUND' >> fonts.h
+echo '#error "GDISP: No fonts have been included"' >> fonts.h
+echo '#endif' >> fonts.h
