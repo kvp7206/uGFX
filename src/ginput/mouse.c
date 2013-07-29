@@ -514,7 +514,7 @@ bool_t ginputCalibrateMouse(uint16_t instance) {
 		#if GFX_USE_GWIN
 			gdispClear(gwinGetDefaultBgColor());
 		#else
-			gdispClear(White);
+			gdispClear(Black);
 		#endif
 	
 		return TRUE;
