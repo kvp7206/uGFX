@@ -46,8 +46,8 @@ void drawScreen(void) {
 	char *msg = "ChibiOS/GFX";
 	font_t		font1, font2;
 
-	font1 = gdispOpenFont("DejaVuSans24");
-	font2 = gdispOpenFont("DejaVuSans12");
+	font1 = gdispOpenFont("DejaVuSans24*");
+	font2 = gdispOpenFont("DejaVuSans12*");
 
 	gdispClear(White);
 	gdispDrawString(gdispGetWidth()-gdispGetStringWidth(msg, font1)-3, 3, msg, font1, Black);

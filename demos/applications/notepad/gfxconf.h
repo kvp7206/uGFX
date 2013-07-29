@@ -31,9 +31,9 @@
 #define _GFXCONF_H
 
 /* The operating system to use - one of these must be defined */
-#define GFX_USE_OS_CHIBIOS		TRUE
-#define GFX_USE_OS_WIN32		FALSE
-#define GFX_USE_OS_POSIX		FALSE
+//#define GFX_USE_OS_CHIBIOS		TRUE
+//#define GFX_USE_OS_WIN32		FALSE
+//#define GFX_USE_OS_POSIX		FALSE
 
 /* GFX sub-systems to turn on */
 #define GFX_USE_GDISP			TRUE
@@ -57,8 +57,9 @@
 #define GDISP_NEED_MSGAPI		FALSE
 
 /* Builtin Fonts */
-#define GDISP_INCLUDE_FONT_DEJAVUSANS12		TRUE
-#define GDISP_INCLUDE_FONT_DEJAVUSANS24		TRUE
+#define GDISP_INCLUDE_FONT_DEJAVUSANS12_AA		TRUE
+#define GDISP_INCLUDE_FONT_DEJAVUSANS24_AA		TRUE
+#define GDISP_NEED_ANTIALIAS				TRUE
 
 /* Features for the GINPUT sub-system. */
 #define GINPUT_NEED_MOUSE		TRUE
