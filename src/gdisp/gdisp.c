@@ -16,10 +16,6 @@
 
 #if GFX_USE_GDISP
 
-#ifdef GDISP_NEED_TEXT
-	#include "mcufont.h"
-#endif
-
 /* Include the low level driver information */
 #include "gdisp/lld/gdisp_lld.h"
 
@@ -399,43 +395,6 @@ void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t r
 }
 #endif
 
-#if (GDISP_NEED_TEXT && GDISP_NEED_MULTITHREAD)
-	void gdispDrawChar(coord_t x, coord_t y, uint16_t c, font_t font, color_t color) {
-		gfxMutexEnter(&gdispMutex);
-		gdisp_lld_draw_char(x, y, c, font, color);
-		gfxMutexExit(&gdispMutex);
-	}
-#elif GDISP_NEED_TEXT && GDISP_NEED_ASYNC
-	void gdispDrawChar(coord_t x, coord_t y, uint16_t c, font_t font, color_t color) {
-		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_DRAWCHAR);
-		p->drawchar.x = x;
-		p->drawchar.y = y;
-		p->drawchar.c = c;
-		p->drawchar.font = font;
-		p->drawchar.color = color;
-		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
-	}
-#endif
-
-#if (GDISP_NEED_TEXT && GDISP_NEED_MULTITHREAD)
-	void gdispFillChar(coord_t x, coord_t y, uint16_t c, font_t font, color_t color, color_t bgcolor) {
-		gfxMutexEnter(&gdispMutex);
-		gdisp_lld_fill_char(x, y, c, font, color, bgcolor);
-		gfxMutexExit(&gdispMutex);
-	}
-#elif GDISP_NEED_TEXT && GDISP_NEED_ASYNC
-	void gdispFillChar(coord_t x, coord_t y, uint16_t c, font_t font, color_t color, color_t bgcolor) {
-		gdisp_lld_msg_t *p = gdispAllocMsg(GDISP_LLD_MSG_FILLCHAR);
-		p->fillchar.x = x;
-		p->fillchar.y = y;
-		p->fillchar.c = c;
-		p->fillchar.font = font;
-		p->fillchar.color = color;
-		p->fillchar.bgcolor = bgcolor;
-		gfxQueuePut(&gdispQueue, &p->qi, TIME_IMMEDIATE);
-	}
-#endif
-	
 #if (GDISP_NEED_PIXELREAD && (GDISP_NEED_MULTITHREAD || GDISP_NEED_ASYNC))
 	color_t gdispGetPixelColor(coord_t x, coord_t y) {
 		color_t		c;
@@ -620,21 +579,84 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 #endif
 
 #if GDISP_NEED_TEXT
+	#include "mcufont.h"
+
+	#if GDISP_NEED_ANTIALIAS && GDISP_NEED_PIXELREAD
+		static void text_draw_char_callback(int16_t x, int16_t y, uint8_t count, uint8_t alpha, void *state) {
+			if (alpha == 255) {
+				if (count == 1)
+					gdispDrawPixel(x, y, ((color_t *)state)[0]);
+				else
+					gdispFillArea(x, y, count, 1, ((color_t *)state)[0]);
+			} else {
+				while (count--) {
+					gdispDrawPixel(x, y, gdispBlendColor(((color_t *)state)[0], gdispGetPixelColor(x, y), alpha));
+					x++;
+				}
+			}
+		}
+	#else
+		static void text_draw_char_callback(int16_t x, int16_t y, uint8_t count, uint8_t alpha, void *state) {
+			if (alpha > 0x80) {			// A best approximation when using anti-aliased fonts but we can't actually draw them anti-aliased
+				if (count == 1)
+					gdispDrawPixel(x, y, ((color_t *)state)[0]);
+				else
+					gdispFillArea(x, y, count, 1, ((color_t *)state)[0]);
+			}
+		}
+	#endif
+
+	void gdispDrawChar(coord_t x, coord_t y, uint16_t c, font_t font, color_t color) {
+		/* No mutex required as we only call high level functions which have their own mutex */
+		mf_render_character(font, x, y, c, text_draw_char_callback, &color);
+	}
+
+	#if GDISP_NEED_ANTIALIAS
+		static void text_fill_char_callback(int16_t x, int16_t y, uint8_t count, uint8_t alpha, void *state) {
+			if (alpha == 255) {
+				if (count == 1)
+					gdispDrawPixel(x, y, ((color_t *)state)[0]);
+				else
+					gdispFillArea(x, y, count, 1, ((color_t *)state)[0]);
+			} else {
+				while (count--) {
+					gdispDrawPixel(x, y, gdispBlendColor(((color_t *)state)[0], ((color_t *)state)[1], alpha));
+					x++;
+				}
+			}
+		}
+	#else
+		#define text_fill_char_callback	text_draw_char_callback
+	#endif
+
+	void gdispFillChar(coord_t x, coord_t y, uint16_t c, font_t font, color_t color, color_t bgcolor) {
+		/* No mutex required as we only call high level functions which have their own mutex */
+		color_t		state[2];
+
+		state[0] = color;
+		state[1] = bgcolor;
+
+		gdispFillArea(x, y, mf_character_width(font, c) + font->baseline_x, font->height, bgcolor);
+		mf_render_character(font, x, y, c, text_fill_char_callback, state);
+	}
+
 	typedef struct
 	{
 		font_t font;
 		color_t color;
+		coord_t	x, y;
+		coord_t	cx, cy;
 	} gdispDrawString_state_t;
 
 	/* Callback to render characters. */
-	static uint8_t gdispDrawString_callback(int16_t x, int16_t y,
-											mf_char character, void *state)
+	static uint8_t gdispDrawString_callback(int16_t x, int16_t y, mf_char character, void *state)
 	{
 		gdispDrawString_state_t *s = state;
 		uint8_t w;
 		
-		gdispDrawChar(x, y, character, s->font, s->color);
 		w = mf_character_width(s->font, character);
+		if (x >= s->x && x+w < s->x + s->cx && y >= s->y && y+s->font->height <= s->y + s->cy)
+			mf_render_character(s->font, x, y, character, text_draw_char_callback, &s->color);
 		return w;
 	}
 
@@ -644,80 +666,31 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		
 		state.font = font;
 		state.color = color;
+		state.x = x;
+		state.y = y;
+		state.cx = GDISP.Width - x;
+		state.cy = GDISP.Height - y;
 		
-		mf_render_aligned(font, x, y, MF_ALIGN_LEFT, str, 0,
-						  gdispDrawString_callback, &state);
+		mf_render_aligned(font, x, y, MF_ALIGN_LEFT, str, 0, gdispDrawString_callback, &state);
 	}
-#endif
-	
-#if GDISP_NEED_TEXT
+
 	typedef struct
 	{
-		coord_t y0;
-		coord_t prev_x;
 		font_t font;
-		color_t color;
-		color_t bgcolor;
-		bool_t rightalign;
+		color_t color[2];
+		coord_t	x, y;
+		coord_t	cx, cy;
 	} gdispFillString_state_t;
 
 	/* Callback to render characters. */
-	static uint8_t gdispFillString_callback(int16_t x, int16_t y,
-											mf_char character, void *state)
+	static uint8_t gdispFillString_callback(int16_t x, int16_t y, mf_char character, void *state)
 	{
 		gdispFillString_state_t *s = state;
 		uint8_t w;
-		int16_t right_edge;
-		w = mf_character_width(s->font, character);
-		right_edge = x + w + s->font->baseline_x;
-		
-		if (!s->rightalign)
-		{
-			if (s->prev_x < x)
-			{
-				/* Fill any space between characters */
-				gdispFillArea(s->prev_x, s->y0, x - s->prev_x, s->font->height,
-							s->bgcolor);
-			}
-			else if (s->prev_x > x)
-			{
-				/* Uh, looks like there is some kerning going on. If we would
-				* just call gdispFillChar() here, it would overwrite part of
-				* the previous character. Instead, fill background separately.
-				*/
-				gdispFillArea(s->prev_x, s->y0, right_edge - s->prev_x,
-							  s->font->height, s->bgcolor);
-				gdispDrawChar(x, y, character, s->font, s->color);
-				s->prev_x = right_edge;
-				return w;
-			}
-			
-			s->prev_x = right_edge;
-		}
-		else
-		{
-			/* When rendering right-aligned text, the characters are drawn
-			 * from right to left. */
-			if (s->prev_x > right_edge)
-			{
-				/* Fill any space between characters */
-				gdispFillArea(right_edge, s->y0, s->prev_x - right_edge,
-							  s->font->height, s->bgcolor);
-			}
-			else if (s->prev_x < right_edge)
-			{
-				gdispFillArea(x, s->y0, s->prev_x - x,
-							  s->font->height, s->bgcolor);
-				gdispDrawChar(x, y, character, s->font, s->color);
-				s->prev_x = x;
-				return w;
-			}
-			
-			s->prev_x = x;
-		}
 
-		gdispFillChar(x, y, character, s->font, s->color, s->bgcolor);
-		
+		w = mf_character_width(s->font, character);
+		if (x >= s->x && x+w < s->x + s->cx && y >= s->y && y+s->font->height <= s->y + s->cy)
+			mf_render_character(s->font, x, y, character, text_fill_char_callback, s->color);
 		return w;
 	}
 
@@ -725,104 +698,78 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		/* No mutex required as we only call high level functions which have their own mutex */
 		gdispFillString_state_t state;
 		
-		state.y0 = y;
-		state.prev_x = x;
 		state.font = font;
-		state.color = color;
-		state.bgcolor = bgcolor;
-		state.rightalign = false;
+		state.color[0] = color;
+		state.color[1] = bgcolor;
+		state.x = x;
+		state.y = y;
+		state.cx = mf_get_string_width(font, str, 0, 0);
+		state.cy = font->height;
 		
-		x += font->baseline_x;
-		mf_render_aligned(font, x, y, MF_ALIGN_LEFT, str, 0,
-						  gdispFillString_callback, &state);
+		gdispFillArea(x, y, state.cx, state.cy, bgcolor);
+		mf_render_aligned(font, x+font->baseline_x, y, MF_ALIGN_LEFT, str, 0, gdispFillString_callback, &state);
 	}
-#endif
-	
-#if GDISP_NEED_TEXT
+
 	void gdispDrawStringBox(coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, justify_t justify) {
 		/* No mutex required as we only call high level functions which have their own mutex */
 		gdispDrawString_state_t state;
 		
 		state.font = font;
 		state.color = color;
+		state.x = x;
+		state.y = y;
+		state.cx = cx;
+		state.cy = cy;
 		
 		/* Select the anchor position */
-		if (justify == justifyLeft)
-			x += font->baseline_x;
-		else if (justify == justifyCenter)
+		switch(justify) {
+		case justifyCenter:
 			x += (cx + 1) / 2;
-		else if (justify == justifyRight)
+			break;
+		case justifyRight:
 			x += cx;
+			break;
+		default:	// justifyLeft
+			x += font->baseline_x;
+			break;
+		}
+		y += (cy+1 - font->height)/2;
 
-		mf_render_aligned(font, x, y, justify, str, 0,
-						  gdispDrawString_callback, &state);
+		mf_render_aligned(font, x, y, justify, str, 0, gdispDrawString_callback, &state);
 	}
-#endif
-	
-#if GDISP_NEED_TEXT
+
 	void gdispFillStringBox(coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, color_t bgcolor, justify_t justify) {
 		/* No mutex required as we only call high level functions which have their own mutex */
 		gdispFillString_state_t state;
-		int16_t min_x, max_x;
-		
-		min_x = x;
-		max_x = x + cx;
-		
-		state.y0 = y + (cy - font->height + 1) / 2;
-		state.prev_x = x;
+
 		state.font = font;
-		state.color = color;
-		state.bgcolor = bgcolor;
-		state.rightalign = false;
-		
-		/* Fill above the text */
-		if (state.y0 > y)
-		{
-			gdispFillArea(x, y, cx, state.y0 - y, bgcolor);
-		}
-		
-		/* Fill below the text */
-		if (state.y0 + font->height < y + cy)
-		{
-			gdispFillArea(x, state.y0 + font->height, cx,
-						  (y + cy) - (state.y0 + font->height), bgcolor);
-		}
+		state.color[0] = color;
+		state.color[1] = bgcolor;
+		state.x = x;
+		state.y = y;
+		state.cx = cx;
+		state.cy = cy;
+
+		gdispFillArea(x, y, cx, cy, bgcolor);
 		
 		/* Select the anchor position */
-		if (justify == justifyLeft)
-		{
-			x += font->baseline_x;
-		}
-		else if (justify == justifyCenter)
-		{
+		switch(justify) {
+		case justifyCenter:
 			x += (cx + 1) / 2;
-		}
-		else if (justify == justifyRight)
-		{
-			state.rightalign = true;
-			state.prev_x = x + cx;
+			break;
+		case justifyRight:
 			x += cx;
+			break;
+		default:	// justifyLeft
+			x += font->baseline_x;
+			break;
 		}
+		y += (cy+1 - font->height)/2;
 		
 		/* Render */
-		mf_render_aligned(font, x, state.y0, justify, str, 0,
-						  gdispFillString_callback, &state);
-		
-		/* Fill any space left */
-		if (!state.rightalign && state.prev_x < max_x)
-		{
-			gdispFillArea(state.prev_x, state.y0, max_x - state.prev_x,
-						  state.font->height, bgcolor);
-		}
-		else if (state.rightalign && state.prev_x > min_x)
-		{
-			gdispFillArea(min_x, state.y0, state.prev_x - min_x,
-						  state.font->height, bgcolor);
-		}
+		mf_render_aligned(font, x, y, justify, str, 0, gdispFillString_callback, &state);
 	}
-#endif
-	
-#if GDISP_NEED_TEXT
+
 	coord_t gdispGetFontMetric(font_t font, fontmetric_t metric) {
 		/* No mutex required as we only read static data */
 		switch(metric) {
@@ -835,16 +782,12 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		}
 		return 0;
 	}
-#endif
-	
-#if GDISP_NEED_TEXT
+
 	coord_t gdispGetCharWidth(char c, font_t font) {
 		/* No mutex required as we only read static data */
 		return mf_character_width(font, c);
 	}
-#endif
-	
-#if GDISP_NEED_TEXT
+
 	coord_t gdispGetStringWidth(const char* str, font_t font) {
 		/* No mutex required as we only read static data */
 		return mf_get_string_width(font, str, 0, 0);

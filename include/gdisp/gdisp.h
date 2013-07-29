@@ -37,12 +37,6 @@ typedef int16_t	coord_t;
 #if GFX_USE_GDISP || defined(__DOXYGEN__)
 
 /*===========================================================================*/
-/* Include the low level driver configuration information                    */
-/*===========================================================================*/
-
-#include "gdisp_lld_config.h"
-
-/*===========================================================================*/
 /* Type definitions                                                          */
 /*===========================================================================*/
 
@@ -480,35 +474,6 @@ extern "C" {
 		void gdispFillArc(coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color);
 	#endif
 
-	/* Basic Text Rendering Functions */
-
-	#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
-		/**
-		 * @brief   Draw a text character.
-		 *
-		 * @param[in] x,y		The position for the text
-		 * @param[in] c			The character to draw
-		 * @param[in] font		The font to use
-		 * @param[in] color		The color to use
-		 *
-		 * @api
-		 */
-		void gdispDrawChar(coord_t x, coord_t y, uint16_t c, font_t font, color_t color);
-
-		/**
-		 * @brief   Draw a text character with a filled background.
-		 *
-		 * @param[in] x,y		The position for the text
-		 * @param[in] c			The character to draw
-		 * @param[in] font		The font to use
-		 * @param[in] color		The color to use
-		 * @param[in] bgcolor	The background color to use
-		 *
-		 * @api
-		 */
-		void gdispFillChar(coord_t x, coord_t y, uint16_t c, font_t font, color_t color, color_t bgcolor);
-	#endif
-	
 	/* Read a pixel Function */
 
 	#if GDISP_NEED_PIXELREAD || defined(__DOXYGEN__)
@@ -591,8 +556,6 @@ extern "C" {
 	#define gdispFillArc(x, y, radius, sangle, eangle, color)	gdisp_lld_fill_arc(x, y, radius, sangle, eangle, color)
 	#define gdispDrawEllipse(x, y, a, b, color)					gdisp_lld_draw_ellipse(x, y, a, b, color)
 	#define gdispFillEllipse(x, y, a, b, color)					gdisp_lld_fill_ellipse(x, y, a, b, color)
-	#define gdispDrawChar(x, y, c, font, color)					gdisp_lld_draw_char(x, y, c, font, color)
-	#define gdispFillChar(x, y, c, font, color, bgcolor)		gdisp_lld_fill_char(x, y, c, font, color, bgcolor)
 	#define gdispGetPixelColor(x, y)							gdisp_lld_get_pixel_color(x, y)
 	#define gdispVerticalScroll(x, y, cx, cy, lines, bgcolor)	gdisp_lld_vertical_scroll(x, y, cx, cy, lines, bgcolor)
 	#define gdispControl(what, value)							gdisp_lld_control(what, value)
@@ -652,9 +615,34 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 	void gdispFillConvexPoly(coord_t tx, coord_t ty, const point *pntarray, unsigned cnt, color_t color);
 #endif
 
-/* Extra Text Functions */
+/* Text Functions */
 
 #if GDISP_NEED_TEXT || defined(__DOXYGEN__)
+	/**
+	 * @brief   Draw a text character.
+	 *
+	 * @param[in] x,y		The position for the text
+	 * @param[in] c			The character to draw
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color to use
+	 *
+	 * @api
+	 */
+	void gdispDrawChar(coord_t x, coord_t y, uint16_t c, font_t font, color_t color);
+
+	/**
+	 * @brief   Draw a text character with a filled background.
+	 *
+	 * @param[in] x,y		The position for the text
+	 * @param[in] c			The character to draw
+	 * @param[in] font		The font to use
+	 * @param[in] color		The color to use
+	 * @param[in] bgcolor	The background color to use
+	 *
+	 * @api
+	 */
+	void gdispFillChar(coord_t x, coord_t y, uint16_t c, font_t font, color_t color, color_t bgcolor);
+
 	/**
 	 * @brief   Draw a text string.
 	 *

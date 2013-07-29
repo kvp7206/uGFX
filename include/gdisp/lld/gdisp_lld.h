@@ -107,22 +107,6 @@
 	#endif
 
 	/**
-	 * @brief   Hardware accelerated text drawing.
-	 * @details If set to @p FALSE software emulation is used.
-	 */
-	#ifndef GDISP_HARDWARE_TEXT
-		#define GDISP_HARDWARE_TEXT				FALSE
-	#endif
-
-	/**
-	 * @brief   Hardware accelerated text drawing with a filled background.
-	 * @details If set to @p FALSE software emulation is used.
-	 */
-	#ifndef GDISP_HARDWARE_TEXTFILLS
-		#define GDISP_HARDWARE_TEXTFILLS		FALSE
-	#endif
-
-	/**
 	 * @brief   Hardware accelerated scrolling.
 	 * @details If set to @p FALSE there is no support for scrolling.
 	 */
@@ -167,26 +151,6 @@
  * @name    GDISP software algorithm choices
  * @{
  */
-	/**
-	 * @brief   For filled text drawing, use a background fill and then draw
-	 *			the text instead of using a blit or direct pixel drawing.
-	 * @details If set to @p TRUE background fill and then text draw is used.
-	 * @note    This is ignored if hardware accelerated text is supported.
-	 */
-	#ifndef GDISP_SOFTWARE_TEXTFILLDRAW
-		#define GDISP_SOFTWARE_TEXTFILLDRAW		FALSE
-	#endif
-
-	/**
-	 * @brief   For filled text drawing, when using a bitmap blit
-	 *			use a column by column buffer rather than a full character
-	 *			buffer to save memory at a small performance cost.
-	 * @details If set to @p TRUE background fill one character column at a time.
-	 * @note    This is ignored if software text using blit is not being used.
-	 */
-	#ifndef GDISP_SOFTWARE_TEXTBLITCOLUMN
-		#define GDISP_SOFTWARE_TEXTBLITCOLUMN	FALSE
-	#endif
 /** @} */
 
 /**

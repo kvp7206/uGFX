@@ -296,6 +296,10 @@
 	/* #define GDISP_USE_GPIO */
 /** @} */
 
+#if GFX_USE_GDISP
+	#include "gdisp_lld_config.h"
+#endif
+
 #endif /* _GDISP_OPTIONS_H */
 /** @} */
 

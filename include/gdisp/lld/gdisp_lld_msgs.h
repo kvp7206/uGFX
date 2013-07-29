@@ -42,10 +42,6 @@ typedef enum gdisp_msgaction {
 		GDISP_LLD_MSG_DRAWARC,
 		GDISP_LLD_MSG_FILLARC,
 	#endif
-	#if GDISP_NEED_TEXT
-		GDISP_LLD_MSG_DRAWCHAR,
-		GDISP_LLD_MSG_FILLCHAR,
-	#endif
 	#if GDISP_NEED_PIXELREAD
 		GDISP_LLD_MSG_GETPIXELCOLOR,
 	#endif
@@ -151,23 +147,6 @@ typedef union gdisp_lld_msg {
 		coord_t				startangle, endangle;
 		color_t				color;
 	} fillarc;
-	struct gdisp_lld_msg_drawchar {
-		gfxQueueItem		qi;
-		gdisp_msgaction_t	action;			// GDISP_LLD_MSG_DRAWCHAR
-		coord_t				x, y;
-		uint16_t			c;
-		font_t				font;
-		color_t				color;
-	} drawchar;
-	struct gdisp_lld_msg_fillchar {
-		gfxQueueItem		qi;
-		gdisp_msgaction_t	action;			// GDISP_LLD_MSG_FILLCHAR
-		coord_t				x, y;
-		uint16_t			c;
-		font_t				font;
-		color_t				color;
-		color_t				bgcolor;
-	} fillchar;
 	struct gdisp_lld_msg_getpixelcolor {
 		gfxQueueItem		qi;
 		gdisp_msgaction_t	action;			// GDISP_LLD_MSG_GETPIXELCOLOR
