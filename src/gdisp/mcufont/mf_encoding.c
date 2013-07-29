@@ -73,4 +73,14 @@ void mf_rewind(mf_str *str)
         (*str)--;
 }
 
+#else
+
+mf_char mf_getchar(mf_str *str) {
+	return *(*str)++;
+}
+
+void mf_rewind(mf_str *str) {
+	(*str)--;
+}
+
 #endif

@@ -12,6 +12,9 @@
 
 #include <gfx.h>
 
+/* Prevent double definitions of standard int types */
+#define MF_NO_STDINT_H
+
 /* Mapping from uGFX settings to mcufont settings */
 #if GDISP_NEED_UTF8
 #define MF_ENCODING MF_ENCODING_UTF8

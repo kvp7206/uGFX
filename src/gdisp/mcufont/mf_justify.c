@@ -82,7 +82,7 @@ static uint16_t strip_spaces(mf_str text, uint16_t count, mf_char *last_char)
     {
         i++;
         tmp = mf_getchar(&text);
-        if (tmp != ' ' && tmp != 0xA0 && tmp != '\n' &&
+        if (tmp != ' ' && tmp != (mf_char)0xA0 && tmp != '\n' &&
             tmp != '\r' && tmp != '\t')
         {
             result = i;
@@ -234,6 +234,7 @@ void mf_render_justified(const struct mf_font_s *font,
                          mf_character_callback_t callback,
                          void *state)
 {
+	(void) width;
     mf_render_aligned(font, x0, y0, MF_ALIGN_LEFT, text, count, callback, state);
 }
 

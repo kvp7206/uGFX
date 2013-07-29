@@ -50,7 +50,6 @@ static bool_t matchfont(const char *pattern, const char *name) {
 
 font_t gdispOpenFont(const char *name) {
 	const struct mf_font_list_s *fp;
-	int i;
 	
 	fp = mf_get_font_list();
 	
