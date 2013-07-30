@@ -671,6 +671,7 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 		state.cx = GDISP.Width - x;
 		state.cy = GDISP.Height - y;
 		
+		x += font->baseline_x;
 		mf_render_aligned(font, x, y, MF_ALIGN_LEFT, str, 0, gdispDrawString_callback, &state);
 	}
 
