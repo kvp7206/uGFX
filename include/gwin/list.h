@@ -70,21 +70,20 @@ extern "C" {
  * @note				A list remembers its normal drawing state. If there is a window manager then it is automatically
  *						redrawn if the window is moved or its visibility state is changed.
  * @note				The list contains no elements after creation.
- * @note				A slider supports mouse, toggle and dial input.
+ * @note				A slider supports mouse, toggle. Note: toggle only works correctly for single-select lists.
  * @note				When assigning a toggle, only one toggle is supported per role. If you try to assign more than
  *						one toggle to a role, it will forget the previous toggle. Two roles are supported:
- *						Role 0 = toggle for down, role 1 = toggle for up 
- * @note				When assigning a dial, only one dial is supported. If you try to assign more than one dial, it
- *						will forget the previous dial. Only dial role 0 is supported.
+ *						Role 0 = toggle for down, role 1 = toggle for up
  *
  * @param[in] widget	The GListObject structure to initialize. If this is NULL, the structure is dynamically allocated.
  * @param[in] pInit		The initialization parameters to use
+ * @param[in] multiselect	If TRUE the list is multi-select instead of single-select.
  *
  * @return				NULL if there is no resulting drawing area, otherwise a window handle.
  *
  * @api
  */
-GHandle gwinListCreate(GListObject *widget, GWidgetInit *pInit);
+GHandle gwinListCreate(GListObject *widget, GWidgetInit *pInit, bool_t multiselect);
 
 /**
  * @brief				Add an item to the list
@@ -156,7 +155,7 @@ uint16_t gwinListItemGetParam(GHandle gh, int item);
  *
  * @api
  */
-void ListDeleteAll(GHandle gh);
+void gwinListDeleteAll(GHandle gh);
 
 /**
  * @brief				Delete an item from the list
@@ -196,11 +195,44 @@ bool_t gwinListItemIsSelected(GHandle gh, int item);
  *
  * @param[in] gh		The widget handle (must be a list handle)
  *
- * @return				The ID of the list item
+ * @return				The ID of the selected list item for a single-select list.
+ *
+ * @note				It always returns -1 (nothing selected) for a multi-select list.
+ * 						Instead use @p gwinListItemIsSelected() to get the selection status
+ * 						for a multi-select list.
  *
  * @api
  */
 int gwinListGetSelected(GHandle gh);
+
+#if GWIN_NEED_LIST_IMAGES
+	/**
+	 * @brief				Set the image for a list item
+	 *
+	 * @param[in] gh		The widget handle (must be a list handle)
+	 * @param[in] item		The item ID
+	 * @param[in] pimg		The image to be displayed or NULL to turn off the image for this list item.
+	 *
+	 * @note				The image should be up to 4 x (the font height) and a width of (the font height).
+	 * 						The 1st (top) part of the image is displayed for a selected item.
+	 * 						The 2nd part of the image is displayed for an unselected item.
+	 * 						The 3rd part of the image is displayed for a disabled selected item.
+	 * 						The 4th part of the image is displayed for a disabled unselected item.
+	 * 						If the image is less than 4 times the font height then the image use is collapsed
+	 * 						into the available height. For example, an image that equals the font height will use
+	 * 						the same image for all four states.
+	 * @note				The image is only displayed while it is open. It is up to the application to open
+	 * 						the image.
+	 * @note				The same image can be used on more than one list item.
+	 * @note				Images are aligned with the top (not the baseline) of the list item.
+	 * @note				When any item in the list has an image attached, space is allocated to display
+	 * 						the images even if the image is closed or has been removed by calling @p gwinListItemSetImage()
+	 * 						with a NULL image or by calling @p gwinListItemDelete(). The only way to turn-off the image area
+	 * 						for this list is to call gwinListDeleteAll().
+	 *
+	 */
+	void gwinListItemSetImage(GHandle gh, int item, gdispImage *pimg);
+#endif
 
 #ifdef __cplusplus
 }

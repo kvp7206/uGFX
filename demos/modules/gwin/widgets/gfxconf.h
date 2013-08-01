@@ -80,7 +80,7 @@
 #define GWIN_NEED_RADIO			TRUE
 #define GWIN_NEED_LIST			TRUE
 #define GWIN_NEED_IMAGE_ANIMATION	TRUE
-
+#define GWIN_NEED_LIST_IMAGES		TRUE
 
 /* Features for the GINPUT sub-system. */
 #define GINPUT_NEED_MOUSE		TRUE
