@@ -75,7 +75,7 @@
 	bool_t gfxQueueASyncIsEmpty(gfxQueueASync *pqueue) {
 		return pqueue->head == NULL;
 	}
-	bool_t gfxQueueASyncIsIn(gfxQueueASync *pqueue, gfxQueueASyncItem *pitem) {
+	bool_t gfxQueueASyncIsIn(gfxQueueASync *pqueue, const gfxQueueASyncItem *pitem) {
 		gfxQueueASyncItem *pi;
 
 		gfxSystemLock();
@@ -156,7 +156,7 @@
 	bool_t gfxQueueGSyncIsEmpty(gfxQueueGSync *pqueue) {
 		return pqueue->head == NULL;
 	}
-	bool_t gfxQueueGSyncIsIn(gfxQueueGSync *pqueue, gfxQueueGSyncItem *pitem) {
+	bool_t gfxQueueGSyncIsIn(gfxQueueGSync *pqueue, const gfxQueueGSyncItem *pitem) {
 		gfxQueueGSyncItem *pi;
 
 		gfxSystemLock();
@@ -248,7 +248,7 @@
 	bool_t gfxQueueFSyncIsEmpty(gfxQueueFSync *pqueue) {
 		return pqueue->head == NULL;
 	}
-	bool_t gfxQueueFSyncIsIn(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem) {
+	bool_t gfxQueueFSyncIsIn(gfxQueueFSync *pqueue, const gfxQueueFSyncItem *pitem) {
 		gfxQueueASyncItem *pi;
 
 		gfxSystemLock();

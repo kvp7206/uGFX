@@ -206,9 +206,9 @@ bool_t gfxQueueFSyncIsEmpty(gfxQueueFSync *pqueue);
  * @api
  * @{
  */
-bool_t gfxQueueASyncIsIn(gfxQueueASync *pqueue, gfxQueueASyncItem *pitem);
-bool_t gfxQueueGSyncIsIn(gfxQueueGSync *pqueue, gfxQueueGSyncItem *pitem);
-bool_t gfxQueueFSyncIsIn(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem);
+bool_t gfxQueueASyncIsIn(gfxQueueASync *pqueue, const gfxQueueASyncItem *pitem);
+bool_t gfxQueueGSyncIsIn(gfxQueueGSync *pqueue, const gfxQueueGSyncItem *pitem);
+bool_t gfxQueueFSyncIsIn(gfxQueueFSync *pqueue, const gfxQueueFSyncItem *pitem);
 /* @} */
 
 /**
