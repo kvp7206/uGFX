@@ -27,15 +27,19 @@
 #define ARROW			10	// arrow side length
 #define TEXTGAP			1	// extra vertical padding for text
 
+// Macro's to assist in data type conversions
 #define gh2obj		((GListObject *)gh)
 #define gw2obj		((GListObject *)gw)
 #define qi2li		((ListItem *)qi)
 #define qix2li		((ListItem *)qix)
 #define ple			((GEventGWinList *)pe)
 
+// Flags for the GListObject
 #define GLIST_FLG_MULTISELECT		(GWIN_FIRST_CONTROL_FLAG << 0)
 #define GLIST_FLG_HASIMAGES			(GWIN_FIRST_CONTROL_FLAG << 1)
-#define GLIST_FLG_SELECTED			(GWIN_FIRST_CONTROL_FLAG << 2)
+
+// Flags on a ListItem.
+#define GLIST_FLG_SELECTED			0x0001
 
 typedef struct ListItem {
 	gfxQueueASyncItem	q_item;		// This must be the first member in the struct
@@ -43,7 +47,7 @@ typedef struct ListItem {
 	uint16_t			flags;
 	uint16_t			param;		// A parameter the user can specify himself
 	const char*			text;
-	#if GWIN_LIST_IMAGES
+	#if GWIN_NEED_LIST_IMAGES
 		gdispImage*		pimg;
 	#endif
 } ListItem;
@@ -77,11 +81,16 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 
 	const gfxQueueASyncItem*	qi;
 	int							i;
-	coord_t						y, iheight, iwidth;
+	coord_t						x, y, iheight, iwidth;
+	color_t						fill;
 	const GColorSet *			ps;
+	#if GWIN_NEED_LIST_IMAGES
+		coord_t					sy;
+	#endif
 
 	ps = (gw->g.flags & GWIN_FLG_ENABLED) ? &gw->pstyle->enabled : &gw->pstyle->disabled;
 	iheight = gdispGetFontMetric(gwinGetDefaultFont(), fontHeight) + TEXTGAP;
+	x = 1;
 
 	// the scroll area
 	if (gw2obj->cnt > (gw->g.height-2) / iheight) {
@@ -99,18 +108,38 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 	} else
 		iwidth = gw->g.width - 2;
 
+	#if GWIN_NEED_LIST_IMAGES
+		if ((gw->g.flags & GLIST_FLG_HASIMAGES)) {
+			x += iheight;
+			iwidth -= iheight;
+		}
+	#endif
+
 
 	// Find the top item
 	for (qi = gfxQueueASyncPeek(&gw2obj->list_head), i = 0; i < gw2obj->top && qi; qi = gfxQueueASyncNext(qi), i++);
 
 	// Draw until we run out of room or items
 	for (y=1; y+iheight < gw->g.height-1 && qi; qi = gfxQueueASyncNext(qi), y += iheight) {
-		if (qi2li->flags & GLIST_FLG_SELECTED) {
-			//gdispFillStringBox(gw->g.x+1, gw->g.y+y, iwidth, iheight, qi2li->text, gwinGetDefaultFont(), gw->pstyle->background, ps->text, justifyLeft);
-			gdispFillStringBox(gw->g.x+1, gw->g.y+y, iwidth, iheight, qi2li->text, gwinGetDefaultFont(), ps->text, ps->fill, justifyLeft);
-		} else {
-			gdispFillStringBox(gw->g.x+1, gw->g.y+y, iwidth, iheight, qi2li->text, gwinGetDefaultFont(), ps->text, gw->pstyle->background, justifyLeft);
-		}
+		fill = (qi2li->flags & GLIST_FLG_SELECTED) ? ps->fill : gw->pstyle->background;
+		#if GWIN_NEED_LIST_IMAGES
+			if ((gw->g.flags & GLIST_FLG_HASIMAGES)) {
+				// Clear the image area
+				gdispFillArea(gw->g.x+1, gw->g.y+y, x-1, iheight, fill);
+				if (qi2li->pimg && gdispImageIsOpen(qi2li->pimg)) {
+					// Calculate which image
+					sy = (qi2li->flags & GLIST_FLG_SELECTED) ? 0 : (iheight-TEXTGAP);
+					if (!(gw->g.flags & GWIN_FLG_ENABLED))
+						sy += 2*(iheight-TEXTGAP);
+					while (sy > qi2li->pimg->height)
+						sy -= iheight-TEXTGAP;
+					// Draw the image
+					gdispImageSetBgColor(qi2li->pimg, fill);
+					gdispImageDraw(qi2li->pimg, gw->g.x+1, gw->g.y+y, iheight-TEXTGAP, iheight-TEXTGAP, 0, sy);
+				}
+			}
+		#endif
+		gdispFillStringBox(gw->g.x+x, gw->g.y+y, iwidth, iheight, qi2li->text, gwinGetDefaultFont(), ps->text, fill, justifyLeft);
 	}
 
 	// Fill any remaining item space
@@ -322,6 +351,9 @@ int gwinListAddItem(GHandle gh, const char* item_name, bool_t useAlloc) {
 	newItem->flags = 0;
 	newItem->param = 0;
 	newItem->text = item_name;
+	#if GWIN_NEED_LIST_IMAGES
+		newItem->pimg = 0;
+	#endif
 
 	// select the item if it's the first in the list
 	if (gh2obj->cnt == 0 && !(gh->flags & GLIST_FLG_MULTISELECT))
@@ -428,6 +460,7 @@ void gwinListDeleteAll(GHandle gh) {
 	while((qi = gfxQueueASyncGet(&gh2obj->list_head)))
 		gfxFree(qi);
 
+	gh->flags &= ~GLIST_FLG_HASIMAGES;
 	gh2obj->cnt = 0;
 	gh2obj->top = 0;
 	_gwidgetRedraw(gh);
@@ -502,6 +535,30 @@ int gwinListItemCount(GHandle gh) {
 
 	return gh2obj->cnt;
 }
+
+#if GWIN_NEED_LIST_IMAGES
+	void gwinListItemSetImage(GHandle gh, int item, gdispImage *pimg) {
+		const gfxQueueASyncItem	*	qi;
+		int							i;
+
+		// is it a valid handle?
+		if (gh->vmt != (gwinVMT *)&listVMT)
+			return;
+
+		// watch out for an invalid item
+		if (item < 0 || item > (gh2obj->cnt) - 1)
+			return;
+
+		for(qi = gfxQueueASyncPeek(&gh2obj->list_head), i = 0; qi; qi = gfxQueueASyncNext(qi), i++) {
+			if (i == item) {
+				qi2li->pimg = pimg;
+				if (pimg)
+					gh->flags |= GLIST_FLG_HASIMAGES;
+				break;
+			}
+		}
+	}
+#endif
 
 #endif // GFX_USE_GWIN && GWIN_NEED_LIST
 /** @} */

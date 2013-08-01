@@ -30,6 +30,7 @@
 
 // include our chibios logo in a .gif format
 #include "image_chibios.h"
+#include "image_yesno.h"
 
 /**
  * This demo demonstrates many of the GWIN widgets.
@@ -76,8 +77,9 @@ static GHandle		ghCheckbox1, ghCheckbox2, ghCheckDisableAll;
 static GHandle		ghLabel1;
 static GHandle		ghRadio1, ghRadio2;
 static GHandle		ghRadioBlack, ghRadioWhite, ghRadioYellow;
-static GHandle		ghList1, ghList2;
+static GHandle		ghList1, ghList2, ghList3;
 static GHandle		ghImage1;
+static gdispImage	imgYesNo;
 
 /* Some useful macros */
 #define	ScrWidth			gdispGetWidth()
@@ -179,6 +181,13 @@ static void createWidgets(void) {
 	gwinListAddItem(ghList2, "Item 8", FALSE);	gwinListAddItem(ghList2, "Item 9", FALSE);
 	gwinListAddItem(ghList2, "Item 10", FALSE);	gwinListAddItem(ghList2, "Item 11", FALSE);
 	gwinListAddItem(ghList2, "Item 12", FALSE);	gwinListAddItem(ghList2, "Item 13", FALSE);
+	wi.g.x = 0+2*(LIST_WIDTH+1); wi.text = "L3"; ghList3 = gwinListCreate(NULL, &wi, FALSE);
+	gwinListAddItem(ghList3, "Item 0", FALSE);	gwinListAddItem(ghList3, "Item 1", FALSE);
+	gwinListAddItem(ghList3, "Item 2", FALSE);	gwinListAddItem(ghList3, "Item 3", FALSE);
+	gdispImageSetMemoryReader(&imgYesNo, image_yesno);
+	gdispImageOpen(&imgYesNo);
+	gwinListItemSetImage(ghList3, 1, &imgYesNo);
+	gwinListItemSetImage(ghList3, 3, &imgYesNo);
 
 	// Image
 	wi.g.x = ScrWidth-210; wi.g.y = TAB_HEIGHT + 10; wi.g.width = 200; wi.g.height = 200;
@@ -207,7 +216,7 @@ static void setTab(GHandle tab) {
 	gwinSetVisible(ghLabel1, FALSE);
 	gwinSetVisible(ghRadio1, FALSE);	gwinSetVisible(ghRadio2, FALSE);
 	gwinSetVisible(ghRadioWhite, FALSE);gwinSetVisible(ghRadioBlack, FALSE);gwinSetVisible(ghRadioYellow, FALSE);
-	gwinSetVisible(ghList1, FALSE);		gwinSetVisible(ghList2, FALSE);
+	gwinSetVisible(ghList1, FALSE);		gwinSetVisible(ghList2, FALSE);		gwinSetVisible(ghList3, FALSE);
 	gwinSetVisible(ghImage1, FALSE);
 
 	/* Turn on widgets depending on the tab selected */
@@ -225,7 +234,7 @@ static void setTab(GHandle tab) {
 		gwinSetVisible(ghRadio1, TRUE);		gwinSetVisible(ghRadio2, TRUE);
 		gwinSetVisible(ghRadioWhite, TRUE);	gwinSetVisible(ghRadioBlack, TRUE);	gwinSetVisible(ghRadioYellow, TRUE);
 	} else if (tab == ghTabLists) {
-		gwinSetVisible(ghList1, TRUE);		gwinSetVisible(ghList2, TRUE);
+		gwinSetVisible(ghList1, TRUE);		gwinSetVisible(ghList2, TRUE);		gwinSetVisible(ghList3, TRUE);
 	} else if (tab == ghTabImages) {
 		gwinSetVisible(ghImage1, TRUE);
 	}
@@ -242,7 +251,7 @@ static void setEnabled(bool_t ena) {
 	gwinSetEnabled(ghCheckbox1, ena);	gwinSetEnabled(ghCheckbox2, ena);	//gwinSetEnabled(ghCheckDisableAll, TRUE);
 	gwinSetEnabled(ghLabel1, ena);
 	gwinSetEnabled(ghRadio1, ena);		gwinSetEnabled(ghRadio2, ena);
-	gwinSetEnabled(ghList1, ena);		gwinSetEnabled(ghList2, ena);
+	gwinSetEnabled(ghList1, ena);		gwinSetEnabled(ghList2, ena);		gwinSetEnabled(ghList3, ena);
 	gwinSetEnabled(ghRadioWhite, ena);	gwinSetEnabled(ghRadioBlack, ena);	gwinSetEnabled(ghRadioYellow, ena);
 	gwinSetEnabled(ghImage1, ena);
 }
