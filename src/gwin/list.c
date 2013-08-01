@@ -89,7 +89,7 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 	#endif
 
 	ps = (gw->g.flags & GWIN_FLG_ENABLED) ? &gw->pstyle->enabled : &gw->pstyle->disabled;
-	iheight = gdispGetFontMetric(gwinGetDefaultFont(), fontHeight) + TEXTGAP;
+	iheight = gdispGetFontMetric(gw->g.font, fontHeight) + TEXTGAP;
 	x = 1;
 
 	// the scroll area
@@ -139,7 +139,7 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 				}
 			}
 		#endif
-		gdispFillStringBox(gw->g.x+x, gw->g.y+y, iwidth, iheight, qi2li->text, gwinGetDefaultFont(), ps->text, fill, justifyLeft);
+		gdispFillStringBox(gw->g.x+x, gw->g.y+y, iwidth, iheight, qi2li->text, gw->g.font, ps->text, fill, justifyLeft);
 	}
 
 	// Fill any remaining item space
@@ -158,7 +158,7 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 		coord_t						iheight;
 		(void)						x;
 
-		iheight = gdispGetFontMetric(gwinGetDefaultFont(), fontHeight) + TEXTGAP;
+		iheight = gdispGetFontMetric(gw->g.font, fontHeight) + TEXTGAP;
 		pgsz = (gw->g.height-2)/iheight;
 		if (pgsz < 1) pgsz = 1;
 
