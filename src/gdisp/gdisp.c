@@ -990,6 +990,27 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color) {
 	}
 #endif
 
+color_t gdispBlendColor(color_t fg, color_t bg, uint8_t alpha)
+{
+	uint16_t fg_ratio = alpha + 1;
+	uint16_t bg_ratio = 256 - alpha;
+	uint16_t r, g, b;
+
+	r = RED_OF(fg) * fg_ratio;
+	g = GREEN_OF(fg) * fg_ratio;
+	b = BLUE_OF(fg) * fg_ratio;
+
+	r += RED_OF(bg) * bg_ratio;
+	g += GREEN_OF(bg) * bg_ratio;
+	b += BLUE_OF(bg) * bg_ratio;
+
+	r /= 256;
+	g /= 256;
+	b /= 256;
+
+	return RGB2COLOR(r, g, b);
+}
+
 #if (!defined(gdispPackPixels) && !defined(GDISP_PIXELFORMAT_CUSTOM))
 	void gdispPackPixels(pixel_t *buf, coord_t cx, coord_t x, coord_t y, color_t color) {
 		/* No mutex required as we only read static data */

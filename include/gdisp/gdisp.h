@@ -800,6 +800,19 @@ void gdispDrawBox(coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
 	void gdispFillRoundedBox(coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t radius, color_t color);
 #endif
 
+
+/**
+ * @brief   Blend 2 colors according to the alpha
+ * @return	The combined color
+ *
+ * @param[in] fg		The foreground color
+ * @param[in] bg		The background color
+ * @param[in] alpha		The alpha value (0-255). 0 is all background, 255 is all foreground.
+ *
+ * @api
+ */
+color_t gdispBlendColor(color_t fg, color_t bg, uint8_t alpha);
+
 /* Support routine for packed pixel formats */
 #if !defined(gdispPackPixels) || defined(__DOXYGEN__)
 	/**
