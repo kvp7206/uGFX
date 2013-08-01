@@ -10,11 +10,11 @@ static void createWidgets(void) {
 	wi.customDraw = 0;
 	wi.customParam = 0;
 	wi.customStyle = 0;
-	wi.g.show = TRUE;
+	wi.g.show = FALSE;
 
 	// Apply the list parameters
-	wi.g.width = 300;
-	wi.g.height = 200;
+	wi.g.width = 100;
+	wi.g.height = 80;
 	wi.g.y = 10;
 	wi.g.x = 10;
 	wi.text = "List Name";
@@ -32,7 +32,7 @@ int main(void) {
 	// Set the widget defaults
 	gwinSetDefaultFont(gdispOpenFont("UI2"));
 	gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
-	gdispClear(White);
+	gdispClear(Red);
 
 	// Attach the mouse input
 	gwinAttachMouse(0);
@@ -45,13 +45,22 @@ int main(void) {
 	gwinAttachListener(&gl);
 
 	// Add some items to the list widget
-	gwinListAddItem(ghList1, "Item 0", TRUE);
-	gwinListAddItem(ghList1, "Item 1", TRUE);
-	gwinListAddItem(ghList1, "Item 2", TRUE);
-	gwinListAddItem(ghList1, "Item 3", TRUE);
-	gwinListAddItem(ghList1, "Item 4", TRUE);
+	gwinListAddItem(ghList1, "Item 0", FALSE);
+	gwinListAddItem(ghList1, "Item 1", FALSE);
+	gwinListAddItem(ghList1, "Item 2", FALSE);
+	gwinListAddItem(ghList1, "Item 3", FALSE);
+	gwinListAddItem(ghList1, "Item 4", FALSE);
+	gwinListAddItem(ghList1, "Item 5", FALSE);
+	gwinListAddItem(ghList1, "Item 6", FALSE);
+	gwinListAddItem(ghList1, "Item 7", FALSE);
+	gwinListAddItem(ghList1, "Item 8", FALSE);
+	gwinListAddItem(ghList1, "Item 9", FALSE);
+	gwinListAddItem(ghList1, "Item 10", FALSE);
+	gwinListAddItem(ghList1, "Item 11", FALSE);
+	gwinListAddItem(ghList1, "Item 12", FALSE);
+	gwinListAddItem(ghList1, "Item 13", FALSE);
 
-	gwinRedraw(ghList1);
+	gwinSetVisible(ghList1, TRUE);
 
 	while(1) {
 		// Get an Event
