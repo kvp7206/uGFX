@@ -79,12 +79,13 @@ extern "C" {
  *
  * @param[in] widget	The GListObject structure to initialize. If this is NULL, the structure is dynamically allocated.
  * @param[in] pInit		The initialization parameters to use
+ * @param[in] multiselect	If TRUE the list is multi-select instead of single-select.
  *
  * @return				NULL if there is no resulting drawing area, otherwise a window handle.
  *
  * @api
  */
-GHandle gwinListCreate(GListObject *widget, GWidgetInit *pInit);
+GHandle gwinListCreate(GListObject *widget, GWidgetInit *pInit, bool_t multiselect);
 
 /**
  * @brief				Add an item to the list

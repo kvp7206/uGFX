@@ -76,7 +76,7 @@ static GHandle		ghCheckbox1, ghCheckbox2, ghCheckDisableAll;
 static GHandle		ghLabel1;
 static GHandle		ghRadio1, ghRadio2;
 static GHandle		ghRadioBlack, ghRadioWhite, ghRadioYellow;
-static GHandle		ghList1;
+static GHandle		ghList1, ghList2;
 static GHandle		ghImage1;
 
 /* Some useful macros */
@@ -163,21 +163,22 @@ static void createWidgets(void) {
 	// Lists
 	wi.g.show = FALSE; wi.customDraw = 0;
 	wi.g.width = LIST_WIDTH; wi.g.height = LIST_HEIGHT; wi.g.y = TAB_HEIGHT+5;
-	wi.g.x = 0+0*(LIST_WIDTH+1); wi.text = "L1"; ghList1 = gwinListCreate(NULL, &wi);
-	gwinListAddItem(ghList1, "Item 0", FALSE);
-	gwinListAddItem(ghList1, "Item 1", FALSE);
-	gwinListAddItem(ghList1, "Item 2", FALSE);
-	gwinListAddItem(ghList1, "Item 3", FALSE);
-	gwinListAddItem(ghList1, "Item 4", FALSE);
-	gwinListAddItem(ghList1, "Item 5", FALSE);
-	gwinListAddItem(ghList1, "Item 6", FALSE);
-	gwinListAddItem(ghList1, "Item 7", FALSE);
-	gwinListAddItem(ghList1, "Item 8", FALSE);
-	gwinListAddItem(ghList1, "Item 9", FALSE);
-	gwinListAddItem(ghList1, "Item 10", FALSE);
-	gwinListAddItem(ghList1, "Item 11", FALSE);
-	gwinListAddItem(ghList1, "Item 12", FALSE);
-	gwinListAddItem(ghList1, "Item 13", FALSE);
+	wi.g.x = 0+0*(LIST_WIDTH+1); wi.text = "L1"; ghList1 = gwinListCreate(NULL, &wi, FALSE);
+	gwinListAddItem(ghList1, "Item 0", FALSE);	gwinListAddItem(ghList1, "Item 1", FALSE);
+	gwinListAddItem(ghList1, "Item 2", FALSE);	gwinListAddItem(ghList1, "Item 3", FALSE);
+	gwinListAddItem(ghList1, "Item 4", FALSE);	gwinListAddItem(ghList1, "Item 5", FALSE);
+	gwinListAddItem(ghList1, "Item 6", FALSE);	gwinListAddItem(ghList1, "Item 7", FALSE);
+	gwinListAddItem(ghList1, "Item 8", FALSE);	gwinListAddItem(ghList1, "Item 9", FALSE);
+	gwinListAddItem(ghList1, "Item 10", FALSE);	gwinListAddItem(ghList1, "Item 11", FALSE);
+	gwinListAddItem(ghList1, "Item 12", FALSE);	gwinListAddItem(ghList1, "Item 13", FALSE);
+	wi.g.x = 0+1*(LIST_WIDTH+1); wi.text = "L2"; ghList2 = gwinListCreate(NULL, &wi, TRUE);
+	gwinListAddItem(ghList2, "Item 0", FALSE);	gwinListAddItem(ghList2, "Item 1", FALSE);
+	gwinListAddItem(ghList2, "Item 2", FALSE);	gwinListAddItem(ghList2, "Item 3", FALSE);
+	gwinListAddItem(ghList2, "Item 4", FALSE);	gwinListAddItem(ghList2, "Item 5", FALSE);
+	gwinListAddItem(ghList2, "Item 6", FALSE);	gwinListAddItem(ghList2, "Item 7", FALSE);
+	gwinListAddItem(ghList2, "Item 8", FALSE);	gwinListAddItem(ghList2, "Item 9", FALSE);
+	gwinListAddItem(ghList2, "Item 10", FALSE);	gwinListAddItem(ghList2, "Item 11", FALSE);
+	gwinListAddItem(ghList2, "Item 12", FALSE);	gwinListAddItem(ghList2, "Item 13", FALSE);
 
 	// Image
 	wi.g.x = ScrWidth-210; wi.g.y = TAB_HEIGHT + 10; wi.g.width = 200; wi.g.height = 200;
@@ -206,7 +207,7 @@ static void setTab(GHandle tab) {
 	gwinSetVisible(ghLabel1, FALSE);
 	gwinSetVisible(ghRadio1, FALSE);	gwinSetVisible(ghRadio2, FALSE);
 	gwinSetVisible(ghRadioWhite, FALSE);gwinSetVisible(ghRadioBlack, FALSE);gwinSetVisible(ghRadioYellow, FALSE);
-	gwinSetVisible(ghList1, FALSE);
+	gwinSetVisible(ghList1, FALSE);		gwinSetVisible(ghList2, FALSE);
 	gwinSetVisible(ghImage1, FALSE);
 
 	/* Turn on widgets depending on the tab selected */
@@ -224,7 +225,7 @@ static void setTab(GHandle tab) {
 		gwinSetVisible(ghRadio1, TRUE);		gwinSetVisible(ghRadio2, TRUE);
 		gwinSetVisible(ghRadioWhite, TRUE);	gwinSetVisible(ghRadioBlack, TRUE);	gwinSetVisible(ghRadioYellow, TRUE);
 	} else if (tab == ghTabLists) {
-		gwinSetVisible(ghList1, TRUE);
+		gwinSetVisible(ghList1, TRUE);		gwinSetVisible(ghList2, TRUE);
 	} else if (tab == ghTabImages) {
 		gwinSetVisible(ghImage1, TRUE);
 	}
@@ -241,6 +242,7 @@ static void setEnabled(bool_t ena) {
 	gwinSetEnabled(ghCheckbox1, ena);	gwinSetEnabled(ghCheckbox2, ena);	//gwinSetEnabled(ghCheckDisableAll, TRUE);
 	gwinSetEnabled(ghLabel1, ena);
 	gwinSetEnabled(ghRadio1, ena);		gwinSetEnabled(ghRadio2, ena);
+	gwinSetEnabled(ghList1, ena);		gwinSetEnabled(ghList2, ena);
 	gwinSetEnabled(ghRadioWhite, ena);	gwinSetEnabled(ghRadioBlack, ena);	gwinSetEnabled(ghRadioYellow, ena);
 	gwinSetEnabled(ghImage1, ena);
 }
@@ -309,7 +311,8 @@ int main(void) {
 			break;
 
 		case GEVENT_GWIN_LIST:
-			gwinPrintf(ghConsole, "List %s Item %d\n", gwinGetText(((GEventGWinList *)pe)->list), ((GEventGWinList *)pe)->item);
+			gwinPrintf(ghConsole, "List %s Item %d %s\n", gwinGetText(((GEventGWinList *)pe)->list), ((GEventGWinList *)pe)->item,
+					gwinListItemIsSelected(((GEventGWinList *)pe)->list, ((GEventGWinList *)pe)->item) ? "Selected" : "Unselected");
 			break;
 
 		case GEVENT_GWIN_RADIO:

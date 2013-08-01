@@ -172,10 +172,17 @@ static void gwinListDefaultDraw(GWidgetObject* gw, void* param) {
 			return;
 
 		for(qi = gfxQueueASyncPeek(&gw2obj->list_head), i = 0; qi; qi = gfxQueueASyncNext(qi), i++) {
-			if (item == i)
-				qi2li->flags |= GLIST_FLG_SELECTED;
-			else
-				qi2li->flags &=~ GLIST_FLG_SELECTED;
+			if ((gw->g.flags & GLIST_FLG_MULTISELECT)) {
+				if (item == i) {
+					qi2li->flags ^= GLIST_FLG_SELECTED;
+					break;
+				}
+			} else {
+				if (item == i)
+					qi2li->flags |= GLIST_FLG_SELECTED;
+				else
+					qi2li->flags &=~ GLIST_FLG_SELECTED;
+			}
 		}
 
 		_gwidgetRedraw(&gw->g);
@@ -281,7 +288,7 @@ static const gwidgetVMT listVMT = {
 	#endif
 };
 
-GHandle gwinListCreate(GListObject* gobj, GWidgetInit* pInit) {
+GHandle gwinListCreate(GListObject* gobj, GWidgetInit* pInit, bool_t multiselect) {
 	if (!(gobj = (GListObject *)_gwidgetCreate(&gobj->w, pInit, &listVMT)))
 		return 0;
 
@@ -289,6 +296,8 @@ GHandle gwinListCreate(GListObject* gobj, GWidgetInit* pInit) {
 	gfxQueueASyncInit(&gobj->list_head);
 	gobj->cnt = 0;
 	gobj->top = 0;
+	if (multiselect)
+		gobj->w.g.flags |= GLIST_FLG_MULTISELECT;
 
 	gwinSetVisible(&gobj->w.g, pInit->g.show);
 
@@ -315,7 +324,7 @@ int gwinListAddItem(GHandle gh, const char* item_name, bool_t useAlloc) {
 	newItem->text = item_name;
 
 	// select the item if it's the first in the list
-	if (gh2obj->cnt == 0)
+	if (gh2obj->cnt == 0 && !(gh->flags & GLIST_FLG_MULTISELECT))
 		newItem->flags |= GLIST_FLG_SELECTED;
 
 	// add the new item to the list
@@ -375,6 +384,10 @@ int gwinListGetSelected(GHandle gh) {
 
 	// is it a valid handle?
 	if (gh->vmt != (gwinVMT *)&listVMT)
+		return -1;
+
+	// Multi-select always returns -1. Use gwinListItemIsSelected() instead
+	if ((gh->flags & GLIST_FLG_MULTISELECT))
 		return -1;
 
 	for(qi = gfxQueueASyncPeek(&gh2obj->list_head), i = 0; qi; qi = gfxQueueASyncNext(qi), i++) {
