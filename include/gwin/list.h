@@ -52,6 +52,7 @@ typedef struct GListObject {
 	#endif
 
 	int				cnt;		// Number of items currently in the list (quicker than counting each time)
+	int				top;		// The element at the top of the visible list area
 	gfxQueueASync	list_head;	// The list of items
 } GListObject;
 
@@ -111,7 +112,7 @@ int gwinListAddItem(GHandle gh, const char* item, bool_t useAlloc);
  *
  * @api
  */
-char* gwinListItemGetText(GHandle gh, int item);
+const char* gwinListItemGetText(GHandle gh, int item);
 
 /**
  * @brief				Get the ID of an item with a given name
