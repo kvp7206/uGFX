@@ -30,7 +30,6 @@
 #include "stdlib.h"
 #include "string.h"
 #include "gfx.h"
-#include "chprintf.h"
 
 #define SCB_DEMCR (*(volatile unsigned *)0xE000EDFC)
 #define CPU_RESET_CYCLECOUNTER do { SCB_DEMCR = SCB_DEMCR | 0x01000000; \
