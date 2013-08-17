@@ -27,4 +27,16 @@ MF_EXTERN void mf_scale_font(struct mf_scaledfont_s *newfont,
                              const struct mf_font_s *basefont,
                              uint8_t x_scale, uint8_t y_scale);
 
+#ifdef MF_SCALEDFONT_INTERNALS
+/* Internal functions, don't use these directly. */
+MF_EXTERN uint8_t mf_scaled_render_character(const struct mf_font_s *font,
+                                              int16_t x0, int16_t y0,
+                                              mf_char character,
+                                              mf_pixel_callback_t callback,
+                                              void *state);
+
+MF_EXTERN uint8_t mf_scaled_character_width(const struct mf_font_s *font,
+                                             mf_char character);
+#endif
+
 #endif

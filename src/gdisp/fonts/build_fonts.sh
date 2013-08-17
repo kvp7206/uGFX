@@ -72,9 +72,16 @@ for file in *.c; do
 	defname='GDISP_INCLUDE_FONT_'$upper
 	echo '#if defined('$defname') && '$defname >> fonts.h
 	echo '#define GDISP_FONT_FOUND' >> fonts.h
-	echo '#include "'$file'"' >> fonts.h
+	echo '#include "../src/gdisp/fonts/'$file'"' >> fonts.h
 	echo '#endif' >> fonts.h
 done
+
+echo >> fonts.h
+echo '#if defined(GDISP_INCLUDE_USER_FONTS) && GDISP_INCLUDE_USER_FONTS' >> fonts.h
+echo '#define GDISP_FONT_FOUND' >> fonts.h
+echo '#include "userfonts.h"' >> fonts.h
+echo '#endif' >> fonts.h
+echo >> fonts.h
 echo '#ifndef GDISP_FONT_FOUND' >> fonts.h
 echo '#error "GDISP: No fonts have been included"' >> fonts.h
 echo '#endif' >> fonts.h

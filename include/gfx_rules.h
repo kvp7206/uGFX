@@ -159,10 +159,9 @@
 			#endif
 		#endif
 	#endif
-	#if (defined(GDISP_INCLUDE_FONT_SMALL) && GDISP_INCLUDE_FONT_SMALL) || (defined(GDISP_INCLUDE_FONT_LARGER) && GDISP_INCLUDE_FONT_LARGER) \
-			|| (defined(GDISP_INCLUDE_FONT_UI1) && GDISP_INCLUDE_FONT_UI1) || (defined(GDISP_INCLUDE_FONT_UI2) && GDISP_INCLUDE_FONT_UI2)
+	#if (defined(GDISP_INCLUDE_FONT_SMALL) && GDISP_INCLUDE_FONT_SMALL) || (defined(GDISP_INCLUDE_FONT_LARGER) && GDISP_INCLUDE_FONT_LARGER)
 		#if GFX_DISPLAY_RULE_WARNINGS
-			#warning "GDISP: An old font (Small, Larger, UI1, UI2) has been defined. A single default font of DEJAVUSANS12 has been added instead."
+			#warning "GDISP: An old font (Small or Larger) has been defined. A single default font of DEJAVUSANS12 has been added instead."
 			#warning "GDISP: Please see <$(GFXLIB)/include/gdisp/fonts/fonts.h> for a list of available font names."
 		#endif
 		#undef GDISP_INCLUDE_FONT_DEJAVUSANS12
