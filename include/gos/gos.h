@@ -360,7 +360,7 @@
 	 *
 	 * @api
 	 */
-	semcount_t gfxSemCounter(gfxSem *pSem);
+	semcount_t gfxSemCounter(gfxSem *psem);
 
 	/**
 	 * @brief	Get the current semaphore count
@@ -371,7 +371,7 @@
 	 * @iclass
 	 * @api
 	 */
-	semcount_t gfxSemCounterI(gfxSem *pSem);
+	semcount_t gfxSemCounterI(gfxSem *psem);
 
 	/**
 	 * @brief	Start a new thread.
