@@ -51,13 +51,17 @@ static bool_t matchfont(const char *pattern, const char *name) {
 font_t gdispOpenFont(const char *name) {
 	const struct mf_font_list_s *fp;
 	
-	fp = mf_get_font_list();
 	
-	while (fp)
-	{
+	// Try the long names first
+	for(fp = mf_get_font_list(); fp; fp = fp->next) {
+		if (matchfont(name, fp->font->full_name))
+			return fp->font;
+	}
+
+	// Try the short names if no long names match
+	for(fp = mf_get_font_list(); fp; fp = fp->next) {
 		if (matchfont(name, fp->font->short_name))
 			return fp->font;
-		fp = fp->next;
 	}
 	
 	/* Return default font.. better than nothing. */
