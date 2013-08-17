@@ -40,7 +40,7 @@ int main(void) {
 	gfxInit();
 
 	/* Set some fonts */
-	font1 = gdispOpenFont("Small");
+	font1 = gdispOpenFont("UI2");
 	font2 = gdispOpenFont("UI2 Double");
 	gwinSetDefaultFont(font1);
 
