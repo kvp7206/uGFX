@@ -8,6 +8,8 @@ current release: 1.8
 FEATURE:	GWIN list boxes.
 FIX:		POSIX port removed, now dedicated OS-X and Linux ports
 FIX:		Several bugfixes
+FEATURE:	mcufont integration
+
 
 *** changes after 1.7 ***
 FEATURE:	Rename of the project from ChibiOS/GFX to uGFX
