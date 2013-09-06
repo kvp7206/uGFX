@@ -7,6 +7,8 @@
 
 #include "mf_rlefont.h"
 
+#ifndef MF_NO_COMPILE
+
 /* Number of reserved codes before the dictionary entries. */
 #define DICT_START 24
 
@@ -288,3 +290,5 @@ uint8_t mf_rlefont_character_width(const struct mf_font_s *font,
     
     return *p;
 }
+
+#endif //MF_NO_COMPILE

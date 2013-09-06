@@ -10,7 +10,15 @@
 #ifndef _MF_CONFIG_H_
 #define _MF_CONFIG_H_
 
+/*******************************************************
+ * Configuration settings related to GFX               *
+ *******************************************************/
+
 #include <gfx.h>
+
+#if !GFX_USE_GDISP || !GDISP_NEED_TEXT
+	#define MF_NO_COMPILE				// Don't compile any font code
+#endif
 
 /* Prevent double definitions of standard int types */
 #define MF_NO_STDINT_H
@@ -28,7 +36,6 @@
 /* These are not used for now */
 #define MF_USE_ADVANCED_WORDWRAP 0
 #define MF_USE_JUSTIFY 0
-
 
 /*******************************************************
  * Configuration settings related to build environment *

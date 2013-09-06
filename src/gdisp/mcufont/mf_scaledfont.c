@@ -7,6 +7,8 @@
 
 #include "mf_scaledfont.h"
 
+#ifndef MF_NO_COMPILE
+
 struct scaled_renderstate
 {
     mf_pixel_callback_t orig_callback;
@@ -88,3 +90,4 @@ void mf_scale_font(struct mf_scaledfont_s *newfont,
     newfont->y_scale = y_scale;
 }
 
+#endif //MF_NO_COMPILE

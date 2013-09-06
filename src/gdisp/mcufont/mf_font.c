@@ -6,6 +6,9 @@
  */
 
 #include "mf_font.h"
+
+#ifndef MF_NO_COMPILE
+
 #include <stdbool.h>
 
 /* This will be made into a list of included fonts using macro magic. */
@@ -81,4 +84,6 @@ const struct mf_font_list_s *mf_get_font_list()
 {
     return MF_INCLUDED_FONTS;
 }
+
+#endif //MF_NO_COMPILE
 

@@ -6,6 +6,9 @@
  */
 
 #include "mf_kerning.h"
+
+#ifndef MF_NO_COMPILE
+
 #include <stdbool.h>
 
 #if MF_USE_KERNING
@@ -123,3 +126,5 @@ int8_t mf_compute_kerning(const struct mf_font_s *font,
 }
 
 #endif
+
+#endif //MF_NO_COMPILE

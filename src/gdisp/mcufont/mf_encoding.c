@@ -7,6 +7,8 @@
 
 #include "mf_encoding.h"
 
+#ifndef MF_NO_COMPILE
+
 #if MF_ENCODING == MF_ENCODING_UTF8
 
 mf_char mf_getchar(mf_str *str)
@@ -89,3 +91,6 @@ void mf_rewind(mf_str *str)
 }
 
 #endif
+
+#endif //MF_NO_COMPILE
+

@@ -8,6 +8,8 @@
 #include "mf_justify.h"
 #include "mf_kerning.h"
 
+#ifndef MF_NO_COMPILE
+
 #if MF_USE_TABS
 /* Round the X coordinate up to the nearest tab stop. */
 static int16_t mf_round_to_tab(const struct mf_font_s *font,
@@ -337,4 +339,7 @@ void mf_render_justified(const struct mf_font_s *font,
 }
 
 #endif
+
+#endif //MF_NO_COMPILE
+
 

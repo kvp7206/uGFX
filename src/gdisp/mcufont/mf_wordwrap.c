@@ -7,6 +7,8 @@
 
 #include "mf_wordwrap.h"
 
+#ifndef MF_NO_COMPILE
+
 /* Returns true if the line can be broken at this character. */
 static bool is_wrap_space(uint16_t c)
 {
@@ -294,3 +296,5 @@ void mf_wordwrap(const struct mf_font_s *font, int16_t width,
 }
 
 #endif
+
+#endif //MF_NO_COMPILE

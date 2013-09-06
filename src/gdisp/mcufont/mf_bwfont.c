@@ -6,6 +6,9 @@
  */
 
 #include "mf_bwfont.h"
+
+#ifndef MF_NO_COMPILE
+
 #include <stdbool.h>
 
 /* Find the character range and index that contains a given glyph.. */
@@ -139,3 +142,5 @@ uint8_t mf_bwfont_character_width(const struct mf_font_s *font,
     
     return get_width(range, index);
 }
+
+#endif //MF_NO_COMPILE
