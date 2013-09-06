@@ -31,9 +31,9 @@
 #define _GFXCONF_H
 
 /* The operating system to use - one of these must be defined */
-#define GFX_USE_OS_CHIBIOS		TRUE
-#define GFX_USE_OS_WIN32		FALSE
-#define GFX_USE_OS_POSIX		FALSE
+//#define GFX_USE_OS_CHIBIOS		TRUE
+//#define GFX_USE_OS_WIN32		FALSE
+//#define GFX_USE_OS_POSIX		FALSE
 
 /* GFX sub-systems to turn on */
 #define GFX_USE_GDISP			TRUE
@@ -51,5 +51,9 @@
 #define GDISP_NEED_MULTITHREAD	FALSE
 #define GDISP_NEED_ASYNC		FALSE
 #define GDISP_NEED_MSGAPI		FALSE
+
+#define GFX_USE_GMISC			TRUE
+#define GMISC_NEED_FIXEDTRIG	TRUE
+#define GMISC_NEED_FASTTRIG		TRUE
 
 #endif /* _GFXCONF_H */

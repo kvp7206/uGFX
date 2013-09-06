@@ -40,12 +40,12 @@ int main(void) {
     height = gdispGetHeight();
 
     // Code Here
-	gdispDrawCircle(width/2, height/2, 20, Yellow);
-    gdispFillCircle (width/4, height/4, 50, Blue);
-    gdispFillEllipse (width-100, height-100, 30, 60, Red);
-    gdispDrawEllipse (width-100, height-100, 50, 20, Yellow);
-    gdispDrawArc(width-width/8, height/8, 30, 10, 70, Gray);
-    gdispFillArc(width/8, height/8, 30, 10, 70, Gray);
+	gdispFillArc(width/2, height/2, width/4, -10, -45, White);
+	gdispDrawCircle(width/2+width/8, height/2-height/8, 13, Green);
+	gdispFillCircle (width/2+width/8, height/2-height/8, 10, Red);
+	gdispDrawArc(width/2+width/8, height/2-height/8, 20, 25, 115, Gray);
+	gdispFillEllipse (width-width/6, height-height/6, width/8, height/16, Blue);
+	gdispDrawEllipse (width-width/6, height-height/6, width/16, height/8, Yellow);
 
     while(TRUE) {
     	gfxSleepMilliseconds(500);
