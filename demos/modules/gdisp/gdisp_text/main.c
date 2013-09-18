@@ -30,7 +30,7 @@
 #include "gfx.h"
 
 int main(void) {
-	coord_t		width, height;
+	coord_t		width;
 	font_t		font1, font2, font3, font4;
 	const char	*msg;
 
@@ -39,7 +39,6 @@ int main(void) {
 
     // Get the screen size
     width = gdispGetWidth();
-    height = gdispGetHeight();
 
     // Get the fonts we want to use
 	font1 = gdispOpenFont("UI2");

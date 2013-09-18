@@ -15,10 +15,10 @@
 #define _GFXCONF_H
 
 /* The operating system to use - one of these must be defined */
-#define GFX_USE_OS_CHIBIOS		FALSE
-#define GFX_USE_OS_WIN32		FALSE
-#define GFX_USE_OS_LINUX		FALSE
-#define GFX_USE_OS_OSX			FALSE
+//#define GFX_USE_OS_CHIBIOS		FALSE
+//#define GFX_USE_OS_WIN32		FALSE
+//#define GFX_USE_OS_LINUX		FALSE
+//#define GFX_USE_OS_OSX			FALSE
 
 /* GFX subsystems to turn on */
 #define GFX_USE_GDISP			TRUE
