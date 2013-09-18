@@ -25,6 +25,7 @@ static void fit_leftedge(int16_t x, int16_t y, uint8_t count, uint8_t alpha,
                          void *state)
 {
     struct kerning_state_s *s = state;
+    (void)count;
     
     if (alpha > 7)
     {
@@ -64,7 +65,7 @@ static bool do_kerning(mf_char c)
     return true;
 }
 
-static int16_t min16(int16_t a, int16_t b) { return (a < b) ? a : b; }
+//static int16_t min16(int16_t a, int16_t b) { return (a < b) ? a : b; }
 static int16_t max16(int16_t a, int16_t b) { return (a > b) ? a : b; }
 static int16_t avg16(int16_t a, int16_t b) { return (a + b) / 2; }
 
