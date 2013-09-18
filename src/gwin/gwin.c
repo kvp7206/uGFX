@@ -172,10 +172,11 @@ void gwinDestroy(GHandle gh) {
 		gh->vmt->Destroy(gh);
 
 	// Clean up the structure
-	if (gh->flags & GWIN_FLG_DYNAMIC)
+	if (gh->flags & GWIN_FLG_DYNAMIC) {
+		gh->flags = 0;							// To be sure, to be sure
 		gfxFree((void *)gh);
-
-	gh->flags = 0;							// To be sure, to be sure
+	} else
+		gh->flags = 0;							// To be sure, to be sure
 }
 
 const char *gwinGetClassName(GHandle gh) {
