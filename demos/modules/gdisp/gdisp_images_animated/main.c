@@ -38,7 +38,7 @@
 	#define USE_MEMORY_FILE		TRUE				// Non-Win32 - use the compiled in image
 #endif
 
-#define SHOW_ERROR(color)		gdispFillArea(swidth-10, 0, 10, sheight, color)
+#define SHOW_ERROR(color)		gdispFillArea(errx, erry, errcx, errcy, color)
 
 #if USE_MEMORY_FILE
 	#include "testanim.h"
@@ -57,7 +57,7 @@ static gdispImage myImage;
  * Orange	- Decoding a frame has produced an error.
  */
 int main(void) {
-	coord_t			swidth, sheight;
+	coord_t			swidth, sheight, errx, erry, errcx, errcy;
 	delaytime_t		delay;
 
 	gfxInit();		// Initialize the display
@@ -68,6 +68,12 @@ int main(void) {
 	swidth = gdispGetWidth();
 	sheight = gdispGetHeight();
 
+	// Work out our error indicator area
+	errx = swidth-10;
+	erry = 0;
+	errcx = 10;
+	errcy = sheight;
+
 	// Set up IO for our image
 #if USE_MEMORY_FILE
 	gdispImageSetMemoryReader(&myImage, testanim);
@@ -77,11 +83,16 @@ int main(void) {
 
 	if (gdispImageOpen(&myImage) == GDISP_IMAGE_ERR_OK) {
 		gdispImageSetBgColor(&myImage, MY_BG_COLOR);
+		// Adjust the error indicator area if necessary
+		if (myImage.width > errx && myImage.height < sheight) {
+			errx = 0; erry = sheight-10;
+			errcx = swidth; errcy = 10;
+		}
 		while(1) {
 			#if USE_IMAGE_CACHE
 				gdispImageCache(&myImage);
 			#endif
-			if (gdispImageDraw(&myImage, 5, 5, myImage.width, myImage.height, 0, 0) != GDISP_IMAGE_ERR_OK) {
+			if (gdispImageDraw(&myImage, 0, 0, myImage.width, myImage.height, 0, 0) != GDISP_IMAGE_ERR_OK) {
 				SHOW_ERROR(Orange);
 				break;
 			}
