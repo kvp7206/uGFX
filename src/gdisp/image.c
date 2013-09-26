@@ -16,6 +16,8 @@
 
 #if GFX_USE_GDISP && GDISP_NEED_IMAGE
 
+#include <string.h>
+
 /* The structure defining the routines for image drawing */
 typedef struct gdispImageHandlers {
 	gdispImageError	(*open)(gdispImage *img);			/* The open function */
