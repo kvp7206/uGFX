@@ -11,6 +11,7 @@ FIX:		Several bugfixes
 FEATURE:	mcufont integration
 FEATURE:	SSD1306 driver by user goeck
 FEATURE:	ST7565 driver by user sam0737
+FEATURE:	ED060SC4 driver by user jpa-
 
 
 *** changes after 1.7 ***
