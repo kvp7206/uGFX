@@ -43,7 +43,7 @@
 							 y >= COLOR_SIZE + OFFSET + 3 && y <= gdispGetHeight())
 
 void drawScreen(void) {
-	char *msg = "ChibiOS/GFX";
+	char *msg = "uGFX";
 	font_t		font1, font2;
 
 	font1 = gdispOpenFont("DejaVuSans24*");
