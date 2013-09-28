@@ -92,7 +92,7 @@ static void set_viewport(coord_t x, coord_t y, coord_t cx, coord_t cy) {
 			write_reg(0x46, (y+cy-1) & 0x01FF);
 			break;
 		case GDISP_ROTATE_270:
-			write_reg(0x44, (((x+cx-1) << 8) & 0xFF00 ) | (y & 0x00FF));
+			write_reg(0x44, (((y+cy-1) << 8) & 0xFF00 ) | (y & 0x00FF));
 			write_reg(0x45, x & 0x01FF);
 			write_reg(0x46, (x+cx-1) & 0x01FF);
 			break;
