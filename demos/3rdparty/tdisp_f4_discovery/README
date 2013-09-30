@@ -1,0 +1,33 @@
+
+Discription
+===========
+This is a demo project for testing the TDISP/HD44780
+on a STM32F4-Discovery board.
+
+The first line of the display will show: ChibiOS/GFX
+The second line wil show: TDISP/HD44780 with a custom charactor in front.
+
+If the connected display is a 4 line display:
+The third line will stay empty
+The forth line will show the cursor modes.
+
+Display type
+============
+The demo is written for a 4 lines display. If have a display with less lines, change the TDISP_COLUMNS setting
+gfxconf.h in the project directory to the count of your display.
+The software will react upon this setting.
+
+Hardware connection
+===================
+The datalines D4 to D7 of the HD44780 compatible display must be connected to the PE0 to PE3 output pins
+of the Discovery board. The RS-line of the display must be connected to PD0 of the Discovery board 
+and the CS-line of the display must be connected to PD1 of the Discovery board.
+The R/W-line of the display must be connected to ground, because reading from the display is not used.
+
+The project directory contains a custom STM32F4 Discovery board file. If you want to change the connection to
+the Discovery board, change the custom board file accordingly.
+
+Building
+========
+You have to check the provided Makefile to meet your installation of the ARM-GCC Toolchain.
+
