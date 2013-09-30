@@ -118,7 +118,7 @@
 /*===========================================================================*/
 /* Driver local variables.                                                   */
 /*===========================================================================*/
-static uint8_t FrameBuffer[GLCD_NUMBER_OF_LINES][(GLCD_PIXELS_PER_LINE/8)];
+static uint8_t FrameBuffer[GLCD_GRAPHIC_SIZE];
 static WORKING_AREA(wa_gdisp_lld_thread, GDISP_LLD_THREAD_STACK_SIZE);
 static Mutex gdisp_draw_mtx; /* Mutex declaration */
 /*===========================================================================*/
@@ -301,6 +301,8 @@ static msg_t gdisp_lld_thread(void *arg) {
 	static int i;
 	static systime_t tCycleStart;
 
+	(void)arg;
+
 	while (TRUE) {
 		/* get system time */
 		tCycleStart = chTimeNow();
@@ -321,11 +323,12 @@ static msg_t gdisp_lld_thread(void *arg) {
 		/*
 		 * release mutex
 		 */
-		chMtxUnLock();
+		chMtxUnlock();
 
 		/* wait for cyclic run through */
 		chThdSleepUntil(MS2ST(40) + tCycleStart);
 	}
+	return 0;
 }
 
 bool_t gdisp_lld_init(void) {
@@ -398,18 +401,18 @@ void gdisp_lld_draw_pixel(coord_t x, coord_t y, color_t color) {
 #if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 	if (x < GDISP.clipx0 || y < GDISP.clipy0 || x >= GDISP.clipx1 || y >= GDISP.clipy1) return;
 #endif
-	unsigned char tmp;
+	uint8_t tmp;
 	tmp = (GLCD_FONT_WIDTH - 1) - (x % GLCD_FONT_WIDTH);
 
 	chMtxLock(&gdisp_draw_mtx);
 	/* lock framebuffer access */
 	if(color){ /* reset bit */
-		FrameBuffer[(x / GLCD_FONT_WIDTH) + (GLCD_GRAPHIC_AREA * y)] &= ~(1<<tmp);
+		FrameBuffer[(x / GLCD_FONT_WIDTH) + (GLCD_GRAPHIC_AREA * y)] &= ~(uint8_t)(1<<tmp);
 	}else{ /* set bit */
-		FrameBuffer[(x / GLCD_FONT_WIDTH) + (GLCD_GRAPHIC_AREA * y)] |= (1<<tmp);
+		FrameBuffer[(x / GLCD_FONT_WIDTH) + (GLCD_GRAPHIC_AREA * y)] |= (uint8_t)(1<<tmp);
 	}
 	/* unlock framebuffer access */
-	chMtxUnLock();
+	chMtxUnlock();
 }
 
 #if GDISP_HARDWARE_CLEARS || defined(__DOXYGEN__)
@@ -422,7 +425,7 @@ void gdisp_lld_clear(color_t color) {
 		memset(FrameBuffer,0xFF,sizeof(FrameBuffer));
 	}
 	/* unlock framebuffer access */
-	chMtxUnLock();
+	chMtxUnlock();
 }
 #endif
 
