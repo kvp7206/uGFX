@@ -18,7 +18,7 @@
 
 #include "gwin/class_gwin.h"
 
-#define GWIN_CONSOLE_USE_CLEAR_LINES			TRUE
+#define GWIN_CONSOLE_USE_CLEAR_LINES			FALSE
 #define GWIN_CONSOLE_USE_FILLED_CHARS			FALSE
 
 /*

@@ -302,6 +302,7 @@ static msg_t gdisp_lld_thread(void *arg) {
 	static systime_t tCycleStart;
 
 	(void)arg;
+	chRegSetThreadName("gdisp_lld_thread");
 
 	while (TRUE) {
 		/* get system time */
@@ -326,7 +327,7 @@ static msg_t gdisp_lld_thread(void *arg) {
 		chMtxUnlock();
 
 		/* wait for cyclic run through */
-		chThdSleepUntil(MS2ST(40) + tCycleStart);
+		chThdSleepUntil(MS2ST(200) + tCycleStart);
 	}
 	return 0;
 }
