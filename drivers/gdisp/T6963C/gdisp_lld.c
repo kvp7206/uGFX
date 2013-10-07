@@ -299,14 +299,11 @@ static inline void gdisp_lld_set_cursor(uint16_t x, uint16_t y){
  */
 static msg_t gdisp_lld_thread(void *arg) {
 	static int i;
-	static systime_t tCycleStart;
 
 	(void)arg;
 	chRegSetThreadName("gdisp_lld_thread");
 
 	while (TRUE) {
-		/* get system time */
-		tCycleStart = chTimeNow();
 
 		/*
 		 * only draw buffer when not drawing
@@ -327,7 +324,7 @@ static msg_t gdisp_lld_thread(void *arg) {
 		chMtxUnlock();
 
 		/* wait for cyclic run through */
-		chThdSleepUntil(MS2ST(200) + tCycleStart);
+		chThdSleep(MS2ST(100));
 	}
 	return 0;
 }
